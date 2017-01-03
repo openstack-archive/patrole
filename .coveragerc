@@ -1,0 +1,6 @@
+[run]
+branch = True
+source = patrole
+
+[report]
+ignore_errors = True
