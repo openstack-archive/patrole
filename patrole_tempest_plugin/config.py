@@ -17,3 +17,17 @@ from oslo_config import cfg
 
 rbac_group = cfg.OptGroup(name='rbac',
                           title='RBAC testing options')
+
+RbacGroup = [
+    cfg.StrOpt('rbac_test_role',
+               default='admin',
+               help="The current RBAC role against which to run"
+                    " Patrole tests."),
+    cfg.BoolOpt('rbac_flag',
+                default=False,
+                help="Enables RBAC tests."),
+    cfg.ListOpt('rbac_roles',
+                default=['admin'],
+                help="List of RBAC roles found in the policy files "
+                     "under testing."),
+]

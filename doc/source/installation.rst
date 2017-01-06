@@ -43,6 +43,7 @@ the tempest.conf file.
 #. [rbac] section updates ::
 
        # The role that you want the RBAC tests to use for RBAC testing
+       # This needs to be edited to run the test as a different role. 
        rbac_role=_member_
        # Tell standard RBAC test cases to run other wise it they are skipped.
        rbac_flag=true
