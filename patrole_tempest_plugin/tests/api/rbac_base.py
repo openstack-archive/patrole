@@ -13,6 +13,7 @@
 
 # Maybe these should be in lib or recreated?
 from tempest.api.image import base as image_base
+from tempest.api.volume import base as vol_base
 from tempest import config
 
 CONF = config.CONF
@@ -37,3 +38,24 @@ class BaseV2ImageRbacTest(image_base.BaseV2ImageTest):
         super(BaseV2ImageRbacTest, cls).setup_clients()
         cls.auth_provider = cls.os.auth_provider
         cls.admin_client = cls.os_adm.image_client_v2
+
+
+class BaseVolumeRbacTest(vol_base.BaseVolumeTest):
+
+    credentials = ['primary', 'admin']
+
+    @classmethod
+    def skip_checks(cls):
+        super(BaseVolumeRbacTest, cls).skip_checks()
+        if not CONF.rbac.rbac_flag:
+            raise cls.skipException(
+                "%s skipped as RBAC Flag not enabled" % cls.__name__)
+        if 'admin' not in CONF.auth.tempest_roles:
+            raise cls.skipException(
+                "%s skipped because tempest roles is not admin" % cls.__name__)
+
+    @classmethod
+    def setup_clients(cls):
+        super(BaseVolumeRbacTest, cls).setup_clients()
+        cls.auth_provider = cls.os.auth_provider
+        cls.admin_client = cls.os_adm.volumes_client
