@@ -14,11 +14,11 @@
 #    under the License.
 
 import json
-import logging
 import six
 import time
 import urllib3
 
+from oslo_log import log as logging
 from tempest import config
 
 from patrole_tempest_plugin import rbac_exceptions as rbac_exc
