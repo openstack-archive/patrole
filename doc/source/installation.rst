@@ -14,6 +14,11 @@ Or, if you have virtualenvwrapper installed::
     $ mkvirtualenv patrole
     $ pip install patrole
 
+Or to install from the source::
+
+    $ navigate to patrole directory
+    $ pip install -e .
+
 Configuration Information
 #########################
 
@@ -44,6 +49,11 @@ the tempest.conf file.
 
        # The role that you want the RBAC tests to use for RBAC testing
        # This needs to be edited to run the test as a different role. 
-       rbac_role=_member_
+       rbac_test_role=_member_
+
+       # The list of roles that your system contains.
+       # This needs to be updated as new roles are added.
+       rbac_roles=admin,_member_
+
        # Tell standard RBAC test cases to run other wise it they are skipped.
        rbac_flag=true
