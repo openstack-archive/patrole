@@ -17,4 +17,16 @@ custom roles.
 Features
 --------
 
-* TODO
+Patrole offers RBAC testing for various OpenStack RBAC policies.  It includes
+a decorator that wraps around tests which verifies that when the test calls the
+corresponding api endpoint, access is only granted for correct roles.
+
+There are several possible test flows.
+
+If the rbac_test_role is allowed to access the endpoint
+ - The test passes if no 403 forbidden or RbacActionFailed exception is raised.
+
+If the rbac_test_role is not allowed to access the endpoint
+ - If the endpoint returns a 403 forbidden exception the test will pass
+ - If the endpoint returns something other than a 403 forbidden to indicate
+   that the role is not allowed, the test will raise an RbacActionFailed exception.
