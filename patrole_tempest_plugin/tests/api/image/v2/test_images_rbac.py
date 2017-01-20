@@ -22,7 +22,7 @@ from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.rbac_utils import rbac_utils
-from patrole_tempest_plugin.tests.api import rbac_base
+from patrole_tempest_plugin.tests.api.image import rbac_base
 
 CONF = config.CONF
 LOG = logging.getLogger(__name__)

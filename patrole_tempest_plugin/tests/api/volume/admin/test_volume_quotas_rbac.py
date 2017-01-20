@@ -20,7 +20,7 @@ from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.rbac_utils import rbac_utils
-from patrole_tempest_plugin.tests.api import rbac_base
+from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 QUOTA_KEYS = ['gigabytes', 'snapshots', 'volumes']
 QUOTA_USAGE_KEYS = ['reserved', 'limit', 'in_use']
