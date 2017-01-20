@@ -59,3 +59,24 @@ class BaseVolumeRbacTest(vol_base.BaseVolumeTest):
         super(BaseVolumeRbacTest, cls).setup_clients()
         cls.auth_provider = cls.os.auth_provider
         cls.admin_client = cls.os_adm.volumes_client
+
+
+class BaseVolumeAdminRbacTest(vol_base.BaseVolumeAdminTest):
+
+    credentials = ['primary', 'admin']
+
+    @classmethod
+    def skip_checks(cls):
+        super(BaseVolumeAdminRbacTest, cls).skip_checks()
+        if not CONF.rbac.rbac_flag:
+            raise cls.skipException(
+                "%s skipped as RBAC Flag not enabled" % cls.__name__)
+        if 'admin' not in CONF.auth.tempest_roles:
+            raise cls.skipException(
+                "%s skipped because tempest roles is not admin" % cls.__name__)
+
+    @classmethod
+    def setup_clients(cls):
+        super(BaseVolumeAdminRbacTest, cls).setup_clients()
+        cls.auth_provider = cls.os.auth_provider
+        cls.admin_client = cls.os_adm.volumes_client
