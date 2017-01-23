@@ -53,7 +53,7 @@ class SnapshotsActionsRbacTest(rbac_base.BaseVolumeRbacTest):
         cls.snapshot_id = cls.snapshot['id']
 
     @rbac_rule_validation.action(
-        component="Volume", service="cinder",
+        service="cinder",
         rule="volume_extension:snapshot_admin_actions:reset_status")
     @decorators.idempotent_id('ea430145-34ef-408d-b678-95d5ae5f46eb')
     def test_reset_snapshot_status(self):
@@ -64,7 +64,7 @@ class SnapshotsActionsRbacTest(rbac_base.BaseVolumeRbacTest):
             reset_snapshot_status(self.snapshot['id'], status)
 
     @rbac_rule_validation.action(
-        component="Volume", service="cinder",
+        service="cinder",
         rule="volume_extension:volume_admin_actions:force_delete")
     @decorators.idempotent_id('a8b0f7d8-4c00-4645-b8d5-33ab4eecc6cb')
     def test_snapshot_force_delete(self):

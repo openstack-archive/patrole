@@ -130,7 +130,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
         rbac_utils.switch_role(self, switchToRbacRole=False)
         super(RbacNetworksTest, self).tearDown()
 
-    @rbac_rule_validation.action(component="Network", service="neutron",
+    @rbac_rule_validation.action(service="neutron",
                                  rule="create_network")
     @decorators.idempotent_id('95b9baab-1ece-4e2b-89c8-8d671d974e54')
     def test_create_network(self):
@@ -142,7 +142,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
         rbac_utils.switch_role(self, switchToRbacRole=True)
         self._create_network()
 
-    @rbac_rule_validation.action(component="Network", service="neutron",
+    @rbac_rule_validation.action(service="neutron",
                                  rule="create_network:shared")
     @decorators.idempotent_id('ccabf2a9-28c8-44b2-80e6-ffd65d43eef2')
     def test_create_network_shared(self):
@@ -154,7 +154,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
         rbac_utils.switch_role(self, switchToRbacRole=True)
         self._create_network(shared=True)
 
-    @rbac_rule_validation.action(component="Network", service="neutron",
+    @rbac_rule_validation.action(service="neutron",
                                  rule="create_network:router:external")
     @decorators.idempotent_id('51adf2a7-739c-41e0-8857-3b4c460cbd24')
     def test_create_network_router_external(self):
@@ -166,7 +166,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
         rbac_utils.switch_role(self, switchToRbacRole=True)
         self._create_network(router_external=True)
 
-    @rbac_rule_validation.action(component="Network", service="neutron",
+    @rbac_rule_validation.action(service="neutron",
                                  rule="create_network:provider:network_type")
     @decorators.idempotent_id('3c42f7b8-b80c-44ef-8fa4-69ec4b1836bc')
     def test_create_network_provider_network_type(self):
@@ -179,7 +179,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
         self._create_network(provider_network_type='vxlan')
 
     @rbac_rule_validation.action(
-        component="Network", service="neutron",
+        service="neutron",
         rule="create_network:provider:physical_network")
     @decorators.idempotent_id('f458033b-2d52-4fd1-86db-e31e111d6fac')
     def test_create_network_provider_physical_network(self):
@@ -193,7 +193,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
                              provider_physical_network='ph-eth0')
 
     @rbac_rule_validation.action(
-        component="Network", service="neutron",
+        service="neutron",
         rule="create_network:provider:segmentation_id")
     @decorators.idempotent_id('b9decb7b-68ef-4504-b99b-41edbf7d2af5')
     def test_create_network_provider_segmentation_id(self):
@@ -206,7 +206,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
         self._create_network(provider_network_type='vxlan',
                              provider_segmentation_id=200)
 
-    @rbac_rule_validation.action(component="Network", service="neutron",
+    @rbac_rule_validation.action(service="neutron",
                                  rule="update_network")
     @decorators.idempotent_id('6485bb4e-e110-48ae-83e1-3ec8b40c3107')
     def test_update_network(self):
@@ -223,7 +223,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
         updated_network = self._update_network(admin=True)
         self.assertEqual(updated_network['admin_state_up'], True)
 
-    @rbac_rule_validation.action(component="Network", service="neutron",
+    @rbac_rule_validation.action(service="neutron",
                                  rule="update_network:shared")
     @decorators.idempotent_id('37ea3e33-47d9-49fc-9bba-1af98fbd46d6')
     def test_update_network_shared(self):
@@ -240,7 +240,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
         updated_network = self._update_network(shared_network=False)
         self.assertEqual(updated_network['shared'], False)
 
-    @rbac_rule_validation.action(component="Network", service="neutron",
+    @rbac_rule_validation.action(service="neutron",
                                  rule="update_network:router:external")
     @decorators.idempotent_id('34884c22-499b-4960-97f1-e2ed8522a9c9')
     def test_update_network_router_external(self):
@@ -257,7 +257,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
         updated_network = self._update_network(router_external=False)
         self.assertEqual(updated_network['router:external'], False)
 
-    @rbac_rule_validation.action(component="Network", service="neutron",
+    @rbac_rule_validation.action(service="neutron",
                                  rule="get_network")
     @decorators.idempotent_id('0eb62d04-338a-4ff4-a8fa-534e52110534')
     def test_show_network(self):
@@ -270,7 +270,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
         # show a network that has been created during class setup
         self.networks_client.show_network(self.admin_network['id'])
 
-    @rbac_rule_validation.action(component="Network", service="neutron",
+    @rbac_rule_validation.action(service="neutron",
                                  rule="get_network:router:external")
     @decorators.idempotent_id('529e4814-22e9-413f-af48-8fefcd637344')
     def test_show_network_router_external(self):
@@ -285,7 +285,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
         self.networks_client.show_network(self.admin_network['id'],
                                           **post_body)
 
-    @rbac_rule_validation.action(component="Network", service="neutron",
+    @rbac_rule_validation.action(service="neutron",
                                  rule="get_network:provider:network_type")
     @decorators.idempotent_id('6521dd60-0950-458b-8491-09d3c84ac0f4')
     def test_show_network_provider_network_type(self):
@@ -304,7 +304,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
         if len(showed_net) == 0:
             raise rbac_exceptions.RbacActionFailed
 
-    @rbac_rule_validation.action(component="Network", service="neutron",
+    @rbac_rule_validation.action(service="neutron",
                                  rule="get_network:provider:physical_network")
     @decorators.idempotent_id('c049f11a-240c-4a85-ad43-a4d3fd0a5e39')
     def test_show_network_provider_physical_network(self):
@@ -323,7 +323,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
         if len(showed_net) == 0:
             raise rbac_exceptions.RbacActionFailed
 
-    @rbac_rule_validation.action(component="Network", service="neutron",
+    @rbac_rule_validation.action(service="neutron",
                                  rule="get_network:provider:segmentation_id")
     @decorators.idempotent_id('38d9f085-6365-4f81-bac9-c53c294d727e')
     def test_show_network_provider_segmentation_id(self):
@@ -345,7 +345,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
         key = showed_net.get('provider:segmentation_id', "NotFound")
         self.assertIsNot(key, "NotFound")
 
-    @rbac_rule_validation.action(component="Network", service="neutron",
+    @rbac_rule_validation.action(service="neutron",
                                  rule="delete_network")
     @decorators.idempotent_id('56ca50ed-ac58-49d6-b239-ed39e7124d5c')
     def test_delete_network(self):
@@ -358,7 +358,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
         rbac_utils.switch_role(self, switchToRbacRole=True)
         self.networks_client.delete_network(network['id'])
 
-    @rbac_rule_validation.action(component="Network", service="neutron",
+    @rbac_rule_validation.action(service="neutron",
                                  rule="create_subnet")
     @decorators.idempotent_id('44f42aaf-8a9a-4678-868a-b8fe82689554')
     def test_create_subnet(self):
@@ -374,7 +374,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
         # Create a subnet
         self.create_subnet(network, enable_dhcp=False)
 
-    @rbac_rule_validation.action(component="Network", service="neutron",
+    @rbac_rule_validation.action(service="neutron",
                                  rule="get_subnet")
     @decorators.idempotent_id('eb88be84-2465-482b-a40b-5201acb41152')
     def test_show_subnet(self):
@@ -386,7 +386,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
         rbac_utils.switch_role(self, switchToRbacRole=True)
         self.subnets_client.show_subnet(self.admin_subnet['id'])
 
-    @rbac_rule_validation.action(component="Network", service="neutron",
+    @rbac_rule_validation.action(service="neutron",
                                  rule="update_subnet")
     @decorators.idempotent_id('1bfeaec5-83b9-4140-8138-93a0a9d04cee')
     def test_update_subnet(self):
@@ -399,7 +399,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
         self.subnets_client.update_subnet(self.admin_subnet['id'],
                                           name="New_subnet")
 
-    @rbac_rule_validation.action(component="Network", service="neutron",
+    @rbac_rule_validation.action(service="neutron",
                                  rule="delete_subnet")
     @decorators.idempotent_id('1ad1400f-dc84-4edb-9674-b33bbfb0d3e3')
     def test_delete_subnet(self):

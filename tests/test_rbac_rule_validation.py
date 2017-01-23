@@ -25,31 +25,42 @@ from tempest.tests import base
 class RBACRuleValidationTest(base.TestCase):
     @mock.patch('patrole_tempest_plugin.rbac_auth.RbacAuthority')
     def test_RBAC_rv_happy_path(self, mock_auth):
-        decorator = rbac_rv.action("", "", "")
+        decorator = rbac_rv.action("", "")
         mock_function = mock.Mock()
+        mock_args = mock.MagicMock(**{
+            'auth_provider.credentials.tenant_id': 'tenant_id'
+        })
         wrapper = decorator(mock_function)
-        wrapper()
+        wrapper((mock_args))
         self.assertTrue(mock_function.called)
 
     @mock.patch('patrole_tempest_plugin.rbac_auth.RbacAuthority')
     def test_RBAC_rv_forbidden(self, mock_auth):
-        decorator = rbac_rv.action("", "", "")
+        decorator = rbac_rv.action("", "")
         mock_function = mock.Mock()
         mock_function.side_effect = exceptions.Forbidden
         wrapper = decorator(mock_function)
-        self.assertRaises(exceptions.Forbidden, wrapper)
+        mock_args = mock.MagicMock(**{
+            'auth_provider.credentials.tenant_id': 'tenant_id'
+        })
+
+        self.assertRaises(exceptions.Forbidden, wrapper, mock_args)
 
     @mock.patch('patrole_tempest_plugin.rbac_auth.RbacAuthority')
     def test_RBAC_rv_rbac_action_failed(self, mock_auth):
-        decorator = rbac_rv.action("", "", "")
+        decorator = rbac_rv.action("", "")
         mock_function = mock.Mock()
         mock_function.side_effect = rbac_exceptions.RbacActionFailed
+        mock_args = mock.MagicMock(**{
+            'auth_provider.credentials.tenant_id': 'tenant_id'
+        })
+
         wrapper = decorator(mock_function)
-        self.assertRaises(exceptions.Forbidden, wrapper)
+        self.assertRaises(exceptions.Forbidden, wrapper, mock_args)
 
     @mock.patch('patrole_tempest_plugin.rbac_auth.RbacAuthority')
     def test_RBAC_rv_not_allowed(self, mock_auth):
-        decorator = rbac_rv.action("", "", "")
+        decorator = rbac_rv.action("", "")
 
         mock_function = mock.Mock()
         wrapper = decorator(mock_function)
@@ -58,25 +69,33 @@ class RBACRuleValidationTest(base.TestCase):
         mock_permission.get_permission.return_value = False
         mock_auth.return_value = mock_permission
 
-        self.assertRaises(rbac_exceptions.RbacOverPermission, wrapper)
+        mock_args = mock.MagicMock(**{
+            'auth_provider.credentials.tenant_id': 'tenant_id'
+        })
+
+        self.assertRaises(rbac_exceptions.RbacOverPermission, wrapper,
+                          mock_args)
 
     @mock.patch('patrole_tempest_plugin.rbac_auth.RbacAuthority')
     def test_RBAC_rv_forbidden_not_allowed(self, mock_auth):
-        decorator = rbac_rv.action("", "", "")
+        decorator = rbac_rv.action("", "")
 
         mock_function = mock.Mock()
         mock_function.side_effect = exceptions.Forbidden
+        mock_args = mock.MagicMock(**{
+            'auth_provider.credentials.tenant_id': 'tenant_id'
+        })
         wrapper = decorator(mock_function)
 
         mock_permission = mock.Mock()
         mock_permission.get_permission.return_value = False
         mock_auth.return_value = mock_permission
 
-        self.assertIsNone(wrapper())
+        self.assertIsNone(wrapper(mock_args))
 
     @mock.patch('patrole_tempest_plugin.rbac_auth.RbacAuthority')
     def test_RBAC_rv_rbac_action_failed_not_allowed(self, mock_auth):
-        decorator = rbac_rv.action("", "", "")
+        decorator = rbac_rv.action("", "")
 
         mock_function = mock.Mock()
         mock_function.side_effect = rbac_exceptions.RbacActionFailed
@@ -86,4 +105,8 @@ class RBACRuleValidationTest(base.TestCase):
         mock_permission.get_permission.return_value = False
         mock_auth.return_value = mock_permission
 
-        self.assertIsNone(wrapper())
+        mock_args = mock.MagicMock(**{
+            'auth_provider.credentials.tenant_id': 'tenant_id'
+        })
+
+        self.assertIsNone(wrapper(mock_args))

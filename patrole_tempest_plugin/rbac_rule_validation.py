@@ -13,7 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from oslo_log import log as logging
+import logging
+
 from tempest import config
 from tempest.lib import exceptions
 
@@ -24,10 +25,11 @@ CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
 
-def action(component, service, rule):
+def action(service, rule):
     def decorator(func):
         def wrapper(*args, **kwargs):
-            authority = rbac_auth.RbacAuthority(component, service)
+            authority = rbac_auth.RbacAuthority(
+                args[0].auth_provider.credentials.tenant_id, service)
             allowed = authority.get_permission(rule, CONF.rbac.rbac_test_role)
 
             try:

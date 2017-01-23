@@ -44,7 +44,7 @@ class VolumeQuotasAdminRbacTest(rbac_base.BaseVolumeAdminRbacTest):
         rbac_utils.switch_role(self, switchToRbacRole=False)
         super(VolumeQuotasAdminRbacTest, self).tearDown()
 
-    @rbac_rule_validation.action(component="Volume", service="cinder",
+    @rbac_rule_validation.action(service="cinder",
                                  rule="volume_extension:quotas:show")
     @decorators.idempotent_id('b3c7177e-b6b1-4d0f-810a-fc95606964dd')
     def test_list_default_quotas(self):
@@ -52,7 +52,7 @@ class VolumeQuotasAdminRbacTest(rbac_base.BaseVolumeAdminRbacTest):
         self.client.show_default_quota_set(
             self.demo_tenant_id)['quota_set']
 
-    @rbac_rule_validation.action(component="Volume", service="cinder",
+    @rbac_rule_validation.action(service="cinder",
                                  rule="volume_extension:quotas:update")
     @decorators.idempotent_id('60f8f421-1630-4953-b449-b22af32265c7')
     def test_update_all_quota_resources_for_tenant(self):
