@@ -29,7 +29,11 @@ class RbacPolicyTest(base.TestCase):
 
         current_directory = os.path.dirname(os.path.realpath(__file__))
         self.custom_policy_file = os.path.join(current_directory,
+                                               'resources',
                                                'custom_rbac_policy.json')
+        self.admin_policy_file = os.path.join(current_directory,
+                                              'resources',
+                                              'admin_rbac_policy.json')
 
     def test_custom_policy(self):
         default_roles = ['zero', 'one', 'two', 'three', 'four',
@@ -37,11 +41,8 @@ class RbacPolicyTest(base.TestCase):
         CONF.set_override('rbac_roles', default_roles, group='rbac',
                           enforce_type=True)
 
-        self.converter = rbac_role_converter.RbacPolicyConverter(
-            "custom",
-            self.custom_policy_file
-        )
-        self.roles_dict = self.converter.rules
+        converter = rbac_role_converter.RbacPolicyConverter(
+            None, "test", self.custom_policy_file)
 
         expected = {
             'policy_action_1': ['two', 'four', 'six', 'eight'],
@@ -55,13 +56,57 @@ class RbacPolicyTest(base.TestCase):
 
         fake_rule = 'fake_rule'
 
-        self.assertFalse(fake_rule in self.roles_dict.keys())
+        for role in default_roles:
+            self.assertRaises(KeyError, converter.allowed, fake_rule, role)
 
-        for rule in expected.keys():
-            self.assertTrue(rule in self.roles_dict.keys())
-            expected_roles = expected[rule]
-            unexpected_roles = set(default_roles) - set(expected[rule])
-            for role in expected_roles:
-                self.assertTrue(role in self.roles_dict[rule])
-            for role in unexpected_roles:
-                self.assertFalse(role in self.roles_dict[rule])
+        for rule, role_list in expected.items():
+            for role in role_list:
+                self.assertTrue(converter.allowed(rule, role))
+            for role in set(default_roles) - set(role_list):
+                self.assertFalse(converter.allowed(rule, role))
+
+    def test_admin_policy_file_with_admin_role(self):
+        default_roles = ['admin', 'Member']
+        CONF.set_override('rbac_roles', default_roles, group='rbac',
+                          enforce_type=True)
+
+        converter = rbac_role_converter.RbacPolicyConverter(
+            None, "test", self.admin_policy_file)
+
+        role = 'admin'
+        allowed_rules = [
+            'admin_rule'
+        ]
+        disallowed_rules = [
+            'is_admin_rule', 'alt_admin_rule', 'non_admin_rule']
+
+        for rule in allowed_rules:
+            allowed = converter.allowed(rule, role)
+            self.assertTrue(allowed)
+
+        for rule in disallowed_rules:
+            allowed = converter.allowed(rule, role)
+            self.assertFalse(allowed)
+
+    def test_admin_policy_file_with_member_role(self):
+        default_roles = ['admin', 'Member']
+        CONF.set_override('rbac_roles', default_roles, group='rbac',
+                          enforce_type=True)
+
+        converter = rbac_role_converter.RbacPolicyConverter(
+            None, "test", self.admin_policy_file)
+
+        role = 'Member'
+        allowed_rules = [
+            'non_admin_rule'
+        ]
+        disallowed_rules = [
+            'admin_rule', 'is_admin_rule', 'alt_admin_rule']
+
+        for rule in allowed_rules:
+            allowed = converter.allowed(rule, role)
+            self.assertTrue(allowed)
+
+        for rule in disallowed_rules:
+            allowed = converter.allowed(rule, role)
+            self.assertFalse(allowed)

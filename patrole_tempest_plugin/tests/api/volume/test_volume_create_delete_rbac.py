@@ -41,7 +41,7 @@ class CreateDeleteVolumeRbacTest(rbac_base.BaseVolumeRbacTest):
         volume = self.create_volume()
         return volume
 
-    @rbac_rule_validation.action(component="Volume", service="cinder",
+    @rbac_rule_validation.action(service="cinder",
                                  rule="volume:create")
     @decorators.idempotent_id('426b08ef-6394-4d06-9128-965d5a6c38ef')
     def test_create_volume(self):
@@ -49,7 +49,7 @@ class CreateDeleteVolumeRbacTest(rbac_base.BaseVolumeRbacTest):
         # Create a volume
         self._create_volume()
 
-    @rbac_rule_validation.action(component="Volume", service="cinder",
+    @rbac_rule_validation.action(service="cinder",
                                  rule="volume:delete")
     @decorators.idempotent_id('6de9f9c2-509f-4558-867b-af21c7163be4')
     def test_delete_volume(self):

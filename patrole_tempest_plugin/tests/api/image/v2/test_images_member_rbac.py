@@ -52,7 +52,7 @@ class ImagesMemberRbacTest(base.BaseV2ImageRbacTest):
         rbac_utils.switch_role(self, switchToRbacRole=False)
         super(ImagesMemberRbacTest, self).setUp()
 
-    @rbac_rule_validation.action(component="Image", service="glance",
+    @rbac_rule_validation.action(service="glance",
                                  rule="add_member")
     @decorators.idempotent_id('b1b85ace-6484-11e6-881e-080027d0d606')
     def test_add_image_member(self):
@@ -67,7 +67,7 @@ class ImagesMemberRbacTest(base.BaseV2ImageRbacTest):
         self.image_member_client.create_image_member(image_id,
                                                      member=self.alt_tenant_id)
 
-    @rbac_rule_validation.action(component="Image", service="glance",
+    @rbac_rule_validation.action(service="glance",
                                  rule="delete_member")
     @decorators.idempotent_id('ba075234-6484-11e6-881e-080027d0d606')
     def test_delete_image_member(self):
@@ -84,7 +84,7 @@ class ImagesMemberRbacTest(base.BaseV2ImageRbacTest):
         self.image_member_client.delete_image_member(image_id,
                                                      self.alt_tenant_id)
 
-    @rbac_rule_validation.action(component="Image", service="glance",
+    @rbac_rule_validation.action(service="glance",
                                  rule="get_member")
     @decorators.idempotent_id('c01fd308-6484-11e6-881e-080027d0d606')
     def test_show_image_member(self):
@@ -112,7 +112,7 @@ class ImagesMemberRbacTest(base.BaseV2ImageRbacTest):
                      "image members")
             raise rbac_exceptions.RbacActionFailed(e)
 
-    @rbac_rule_validation.action(component="Image", service="glance",
+    @rbac_rule_validation.action(service="glance",
                                  rule="modify_member")
     @decorators.idempotent_id('ca448bb2-6484-11e6-881e-080027d0d606')
     def test_update_image_member(self):
@@ -131,7 +131,7 @@ class ImagesMemberRbacTest(base.BaseV2ImageRbacTest):
             image_id, self.image_client.tenant_id,
             status='accepted')
 
-    @rbac_rule_validation.action(component="Image", service="glance",
+    @rbac_rule_validation.action(service="glance",
                                  rule="get_members")
     @decorators.idempotent_id('d0a2dc20-6484-11e6-881e-080027d0d606')
     def test_list_image_members(self):

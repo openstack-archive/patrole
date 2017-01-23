@@ -14,7 +14,6 @@
 #    under the License.
 
 from oslo_log import log as logging
-from tempest.lib import exceptions
 
 from patrole_tempest_plugin import rbac_role_converter
 
@@ -22,22 +21,21 @@ LOG = logging.getLogger(__name__)
 
 
 class RbacAuthority(object):
-    def __init__(self, component=None, service=None):
-        self.converter = rbac_role_converter.RbacPolicyConverter(service)
-        self.roles_dict = self.converter.rules
+    def __init__(self, tenant_id, service=None):
+        self.converter = rbac_role_converter.RbacPolicyConverter(tenant_id,
+                                                                 service)
 
-    def get_permission(self, api, role):
-        if self.roles_dict is None:
-            raise exceptions.InvalidConfiguration("Roles dictionary is empty!")
+    def get_permission(self, rule_name, role):
         try:
-            _api = self.roles_dict[api]
-            if role in _api:
-                LOG.debug("[API]: %s, [Role]: %s is allowed!", api, role)
-                return True
+            is_allowed = self.converter.allowed(rule_name, role)
+            if is_allowed:
+                LOG.debug("[API]: %s, [Role]: %s is allowed!", rule_name, role)
             else:
-                LOG.debug("[API]: %s, [Role]: %s  is NOT allowed!", api, role)
-                return False
+                LOG.debug("[API]: %s, [Role]: %s is NOT allowed!",
+                          rule_name, role)
+            return is_allowed
         except KeyError:
-            raise KeyError("'%s' API is not defined in the policy.json"
-                           % api)
+            LOG.debug("[API]: %s, [Role]: %s is NOT allowed!",
+                      rule_name, role)
+            return False
         return False

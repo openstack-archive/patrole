@@ -38,7 +38,7 @@ class VolumesRbacTest(rbac_base.BaseVolumeRbacTest):
         super(VolumesRbacTest, self).tearDown()
 
     @rbac_rule_validation.action(
-        component="Volume", service="cinder",
+        service="cinder",
         rule="volume_extension:volume_admin_actions:reset_status")
     @decorators.idempotent_id('4b3dad7d-0e73-4839-8781-796dd3d7af1d')
     def test_volume_reset_status(self):
@@ -49,7 +49,7 @@ class VolumesRbacTest(rbac_base.BaseVolumeRbacTest):
         self.client.reset_volume_status(volume['id'], status='availble')
 
     @rbac_rule_validation.action(
-        component="Volume", service="cinder",
+        service="cinder",
         rule="volume_extension:volume_admin_actions:force_delete")
     @decorators.idempotent_id('a312a937-6abf-4b91-a950-747086cbce48')
     def test_volume_force_delete_when_volume_is_error(self):

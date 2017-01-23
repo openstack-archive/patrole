@@ -39,7 +39,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         rbac_utils.switch_role(self, switchToRbacRole=False)
         super(BasicOperationsImagesRbacTest, self).tearDown()
 
-    @rbac_rule_validation.action(component="Image", service="glance",
+    @rbac_rule_validation.action(service="glance",
                                  rule="add_image")
     @decorators.idempotent_id('0f148510-63bf-11e6-b348-080027d0d606')
     def test_create_image(self):
@@ -57,7 +57,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
                           visibility='private',
                           ramdisk_id=uuid)
 
-    @rbac_rule_validation.action(component="Image", service="glance",
+    @rbac_rule_validation.action(service="glance",
                                  rule="upload_image")
     @decorators.idempotent_id('fdc0c7e2-ad58-4c5a-ba9d-1f6046a5b656')
     def test_upload_image(self):
@@ -79,7 +79,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         image_file = moves.cStringIO(data_utils.random_bytes())
         self.client.store_image_file(body['id'], image_file)
 
-    @rbac_rule_validation.action(component="Image", service="glance",
+    @rbac_rule_validation.action(service="glance",
                                  rule="delete_image")
     @decorators.idempotent_id('3b5c341e-645b-11e6-ac4f-080027d0d606')
     def test_delete_image(self):
@@ -99,7 +99,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         self.client.delete_image(image_id)
         self.client.wait_for_resource_deletion(image_id)
 
-    @rbac_rule_validation.action(component="Image", service="glance",
+    @rbac_rule_validation.action(service="glance",
                                  rule="get_image")
     @decorators.idempotent_id('3085c7c6-645b-11e6-ac4f-080027d0d606')
     def test_show_image(self):
@@ -119,7 +119,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.show_image(image_id)
 
-    @rbac_rule_validation.action(component="Image", service="glance",
+    @rbac_rule_validation.action(service="glance",
                                  rule="get_images")
     @decorators.idempotent_id('bf1a4e94-645b-11e6-ac4f-080027d0d606')
     def test_list_images(self):
@@ -133,7 +133,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.list_images()
 
-    @rbac_rule_validation.action(component="Image", service="glance",
+    @rbac_rule_validation.action(service="glance",
                                  rule="modify_image")
     @decorators.idempotent_id('32ecf48c-645e-11e6-ac4f-080027d0d606')
     def test_update_image(self):
@@ -159,7 +159,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         body = self.client.update_image(image_id, [
             dict(replace='/name', value=new_image_name)])
 
-    @rbac_rule_validation.action(component="Image", service="glance",
+    @rbac_rule_validation.action(service="glance",
                                  rule="publicize_image")
     @decorators.idempotent_id('0ea4809c-6461-11e6-ac4f-080027d0d606')
     def test_publicize_image(self):
@@ -175,7 +175,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
                           disk_format='raw',
                           visibility='public')
 
-    @rbac_rule_validation.action(component="Image", service="glance",
+    @rbac_rule_validation.action(service="glance",
                                  rule="deactivate")
     @decorators.idempotent_id('b488458c-65df-11e6-9947-080027824017')
     def test_deactivate_image(self):
@@ -199,7 +199,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.deactivate_image(image_id)
 
-    @rbac_rule_validation.action(component="Image", service="glance",
+    @rbac_rule_validation.action(service="glance",
                                  rule="reactivate")
     @decorators.idempotent_id('d3fa28b8-65df-11e6-9947-080027824017')
     def test_reactivate_image(self):
