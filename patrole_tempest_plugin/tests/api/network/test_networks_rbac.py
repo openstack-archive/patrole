@@ -48,7 +48,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
         cls.networks.append(cls.admin_network)
 
         # Create a subnet by admin user
-        cls.cidr = netaddr.IPNetwork(CONF.network.tenant_network_cidr)
+        cls.cidr = netaddr.IPNetwork(CONF.network.project_network_cidr)
 
         cls.admin_subnet = cls.create_subnet(cls.admin_network,
                                              cidr=cls.cidr,
@@ -115,6 +115,8 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
             post_body['shared'] = shared_network
         elif router_external is not None:
             post_body['router:external'] = router_external
+        elif router_private is not None:
+            post_body['router:private'] = router_private
         elif segments is not None:
             post_body['segments'] = segments
         else:
