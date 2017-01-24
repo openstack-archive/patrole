@@ -28,8 +28,14 @@ LOG = logging.getLogger(__name__)
 def action(service, rule):
     def decorator(func):
         def wrapper(*args, **kwargs):
-            authority = rbac_auth.RbacAuthority(
-                args[0].auth_provider.credentials.tenant_id, service)
+            try:
+                tenant_id = args[0].auth_provider.credentials.tenant_id
+            except (IndexError, AttributeError) as e:
+                msg = ("{0}: tenant_id not found in "
+                       "cls.auth_provider.credentials".format(e))
+                LOG.error(msg)
+                raise rbac_exceptions.RbacResourceSetupFailed(msg)
+            authority = rbac_auth.RbacAuthority(tenant_id, service)
             allowed = authority.get_permission(rule, CONF.rbac.rbac_test_role)
 
             try:
