@@ -25,7 +25,7 @@ Configuration Information
 tempest.conf
 ++++++++++++
 
-To run the RBAC tempest api test you have to make the following changes to
+To run the RBAC tempest api test, you have to make the following changes to
 the tempest.conf file.
 
 #. [auth] section updates ::
@@ -49,11 +49,8 @@ the tempest.conf file.
 
        # The role that you want the RBAC tests to use for RBAC testing
        # This needs to be edited to run the test as a different role. 
-       rbac_test_role=_member_
+       rbac_test_role = _member_
 
-       # The list of roles that your system contains.
-       # This needs to be updated as new roles are added.
-       rbac_roles=admin,_member_
-
-       # Tell standard RBAC test cases to run other wise it they are skipped.
-       rbac_flag=true
+       # Enables RBAC Tempest tests if set to True. Otherwise, they are
+       # skipped.
+       rbac_flag = True
