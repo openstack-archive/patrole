@@ -26,8 +26,4 @@ RbacGroup = [
     cfg.BoolOpt('rbac_flag',
                 default=False,
                 help="Enables RBAC tests."),
-    cfg.ListOpt('rbac_roles',
-                default=['admin'],
-                help="List of RBAC roles found in the policy files "
-                     "under testing."),
 ]

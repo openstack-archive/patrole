@@ -38,8 +38,6 @@ class RbacPolicyTest(base.TestCase):
     def test_custom_policy(self):
         default_roles = ['zero', 'one', 'two', 'three', 'four',
                          'five', 'six', 'seven', 'eight', 'nine']
-        CONF.set_override('rbac_roles', default_roles, group='rbac',
-                          enforce_type=True)
 
         converter = rbac_role_converter.RbacPolicyConverter(
             None, "test", self.custom_policy_file)
@@ -66,10 +64,6 @@ class RbacPolicyTest(base.TestCase):
                 self.assertFalse(converter.allowed(rule, role))
 
     def test_admin_policy_file_with_admin_role(self):
-        default_roles = ['admin', 'Member']
-        CONF.set_override('rbac_roles', default_roles, group='rbac',
-                          enforce_type=True)
-
         converter = rbac_role_converter.RbacPolicyConverter(
             None, "test", self.admin_policy_file)
 
@@ -89,10 +83,6 @@ class RbacPolicyTest(base.TestCase):
             self.assertFalse(allowed)
 
     def test_admin_policy_file_with_member_role(self):
-        default_roles = ['admin', 'Member']
-        CONF.set_override('rbac_roles', default_roles, group='rbac',
-                          enforce_type=True)
-
         converter = rbac_role_converter.RbacPolicyConverter(
             None, "test", self.admin_policy_file)
 
