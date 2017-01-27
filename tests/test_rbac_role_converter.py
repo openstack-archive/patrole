@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import mock
 import os
 
 from tempest import config
@@ -35,8 +36,12 @@ class RbacPolicyTest(base.TestCase):
         self.admin_policy_file = os.path.join(current_directory,
                                               'resources',
                                               'admin_rbac_policy.json')
+        self.alt_admin_policy_file = os.path.join(current_directory,
+                                                  'resources',
+                                                  'alt_admin_rbac_policy.json')
 
-    def test_custom_policy(self):
+    @mock.patch.object(rbac_role_converter, 'LOG', autospec=True)
+    def test_custom_policy(self, m_log):
         default_roles = ['zero', 'one', 'two', 'three', 'four',
                          'five', 'six', 'seven', 'eight', 'nine']
 
@@ -56,7 +61,10 @@ class RbacPolicyTest(base.TestCase):
         fake_rule = 'fake_rule'
 
         for role in default_roles:
-            self.assertRaises(KeyError, converter.allowed, fake_rule, role)
+            self.assertFalse(converter.allowed(fake_rule, role))
+            m_log.debug.assert_called_once_with(
+                "{0} not found in policy file.".format('fake_rule'))
+            m_log.debug.reset_mock()
 
         for rule, role_list in expected.items():
             for role in role_list:
@@ -70,10 +78,9 @@ class RbacPolicyTest(base.TestCase):
 
         role = 'admin'
         allowed_rules = [
-            'admin_rule'
+            'admin_rule', 'is_admin_rule', 'alt_admin_rule'
         ]
-        disallowed_rules = [
-            'is_admin_rule', 'alt_admin_rule', 'non_admin_rule']
+        disallowed_rules = ['non_admin_rule']
 
         for rule in allowed_rules:
             allowed = converter.allowed(rule, role)
@@ -93,6 +100,34 @@ class RbacPolicyTest(base.TestCase):
         ]
         disallowed_rules = [
             'admin_rule', 'is_admin_rule', 'alt_admin_rule']
+
+        for rule in allowed_rules:
+            allowed = converter.allowed(rule, role)
+            self.assertTrue(allowed)
+
+        for rule in disallowed_rules:
+            allowed = converter.allowed(rule, role)
+            self.assertFalse(allowed)
+
+    def test_admin_policy_file_with_context_is_admin(self):
+        converter = rbac_role_converter.RbacPolicyConverter(
+            None, "test", self.alt_admin_policy_file)
+
+        role = 'fake_admin'
+        allowed_rules = ['non_admin_rule']
+        disallowed_rules = ['admin_rule']
+
+        for rule in allowed_rules:
+            allowed = converter.allowed(rule, role)
+            self.assertTrue(allowed)
+
+        for rule in disallowed_rules:
+            allowed = converter.allowed(rule, role)
+            self.assertFalse(allowed)
+
+        role = 'super_admin'
+        allowed_rules = ['admin_rule']
+        disallowed_rules = ['non_admin_rule']
 
         for rule in allowed_rules:
             allowed = converter.allowed(rule, role)
