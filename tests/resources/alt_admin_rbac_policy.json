@@ -1,0 +1,5 @@
+{
+	"context_is_admin": "role:super_admin",
+	"admin_rule": "role:super_admin",
+	"non_admin_rule": "role:fake_admin"
+}
