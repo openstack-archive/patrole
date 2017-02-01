@@ -39,6 +39,9 @@ class RbacPolicyTest(base.TestCase):
         self.alt_admin_policy_file = os.path.join(current_directory,
                                                   'resources',
                                                   'alt_admin_rbac_policy.json')
+        self.tenant_policy_file = os.path.join(current_directory,
+                                               'resources',
+                                               'tenant_rbac_policy.json')
 
     @mock.patch.object(rbac_role_converter, 'LOG', autospec=True)
     def test_custom_policy(self, m_log):
@@ -136,3 +139,44 @@ class RbacPolicyTest(base.TestCase):
         for rule in disallowed_rules:
             allowed = converter.allowed(rule, role)
             self.assertFalse(allowed)
+
+    def test_tenant_policy(self):
+        """Test whether rules with format tenant_id:%(tenant_id)s work.
+
+        Test whether Neutron rules that contain project_id, tenant_id, and
+        network:tenant_id pass.
+        """
+        test_tenant_id = mock.sentinel.tenant_id
+        converter = rbac_role_converter.RbacPolicyConverter(
+            test_tenant_id, "test", self.tenant_policy_file)
+
+        # Check whether Member role can perform expected actions.
+        allowed_rules = ['rule1', 'rule2', 'rule3']
+        for rule in allowed_rules:
+            allowed = converter.allowed(rule, 'Member')
+            self.assertTrue(allowed)
+        self.assertFalse(converter.allowed('admin_rule', 'Member'))
+
+        # Check whether admin role can perform expected actions.
+        allowed_rules.append('admin_rule')
+        for rule in allowed_rules:
+            allowed = converter.allowed(rule, 'admin')
+            self.assertTrue(allowed)
+
+        # Check whether _try_rule is called with the correct target dictionary.
+        with mock.patch.object(converter, '_try_rule', autospec=True) \
+            as mock_try_rule:
+            mock_try_rule.return_value = True
+
+            expected_target = {
+                "project_id": test_tenant_id,
+                "tenant_id": test_tenant_id,
+                "network:tenant_id": test_tenant_id
+            }
+
+            for rule in allowed_rules:
+                allowed = converter.allowed(rule, 'Member')
+                self.assertTrue(allowed)
+                mock_try_rule.assert_called_once_with(
+                    rule, expected_target, mock.ANY, mock.ANY)
+                mock_try_rule.reset_mock()

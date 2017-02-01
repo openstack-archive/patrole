@@ -1,0 +1,6 @@
+{
+	"rule1": "tenant_id:%(network:tenant_id)s",
+	"rule2": "tenant_id:%(tenant_id)s",
+	"rule3": "project_id:%(project_id)s",
+	"admin_rule": "role:admin and tenant_id:%(tenant_id)s"
+}

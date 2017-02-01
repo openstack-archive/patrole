@@ -116,9 +116,8 @@ class RbacPolicyConverter(object):
                         "name": role
                     }
                 ],
-                "project": {
-                    "id": self.tenant_id
-                }
+                "project_id": self.tenant_id,
+                "tenant_id": self.tenant_id
             }
         }
         return access_token
@@ -134,7 +133,6 @@ class RbacPolicyConverter(object):
         """
         access_data = copy.copy(access['token'])
         access_data['roles'] = [role['name'] for role in access_data['roles']]
-        access_data['project_id'] = access_data['project']['id']
         access_data['is_admin'] = is_admin
         # TODO(felipemonteiro): Dynamically calculate is_admin_project rather
         # than hard-coding it to True. is_admin_project cannot be determined
@@ -148,7 +146,9 @@ class RbacPolicyConverter(object):
         o = Object()
         o.rules = self.rules
 
-        target = {"project_id": access_data['project_id']}
+        target = {"project_id": access_data['project_id'],
+                  "tenant_id": access_data['project_id'],
+                  "network:tenant_id": access_data['project_id']}
 
         result = self._try_rule(apply_rule, target, access_data, o)
         return result
