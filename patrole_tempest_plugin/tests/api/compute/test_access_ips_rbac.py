@@ -1,4 +1,6 @@
-# Copyright 2017 AT&T Corporation
+# Copyright 2017 AT&T Corporation.
+# All Rights Reserved.
+#
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
 #    a copy of the License at
@@ -21,28 +23,23 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 CONF = config.CONF
 
 
-class AbsoluteLimitsRbacTest(rbac_base.BaseV2ComputeRbacTest):
+class AccessIpsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(AbsoluteLimitsRbacTest, self).tearDown()
-
-    @classmethod
-    def setup_clients(cls):
-        super(AbsoluteLimitsRbacTest, cls).setup_clients()
-        cls.identity_client = cls.os_adm.identity_client
-        cls.tenants_client = cls.os_adm.tenants_client
+        rbac_utils.switch_role(self, switchToRbacRole=True)
+        super(AccessIpsRbacTest, self).tearDown()
 
     @classmethod
     def skip_checks(cls):
-        super(AbsoluteLimitsRbacTest, cls).skip_checks()
+        super(AccessIpsRbacTest, cls).skip_checks()
         if not CONF.compute_feature_enabled.api_extensions:
             raise cls.skipException(
                 '%s skipped as no compute extensions enabled' % cls.__name__)
 
     @rbac_rule_validation.action(service="nova",
-                                 rule="os_compute_api:os-used-limits")
-    @decorators.idempotent_id('3fb60f83-9a5f-4fdd-89d9-26c3710844a1')
-    def test_used_limits_for_admin_rbac(self):
+                                 rule="os_compute_api:os-access-ips")
+    @decorators.idempotent_id('f5811ed1-95d4-4085-a69e-87e6bd958738')
+    def test_access_ip(self):
         rbac_utils.switch_role(self, switchToRbacRole=True)
-        self.limits_client.show_limits()
+        ipv4 = '127.0.0.1'
+        self.create_test_server(accessIPv4=ipv4)

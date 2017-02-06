@@ -18,7 +18,6 @@ CONF = config.CONF
 
 
 class BaseV2ComputeRbacTest(compute_base.BaseV2ComputeTest):
-
     credentials = ['primary', 'admin']
 
     @classmethod
