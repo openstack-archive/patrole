@@ -54,22 +54,24 @@ class VolumesTransfersRbacTest(rbac_base.BaseVolumeRbacTest):
         waiters.wait_for_volume_status(self.client, self.volume['id'],
                                        'available')
 
+    def _create_transfer(self):
+        transfer = self.client.create_volume_transfer(
+            volume_id=self.volume['id'])['transfer']
+        self.addCleanup(self._delete_transfer, transfer)
+        return transfer
+
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:create_transfer")
     @decorators.idempotent_id('25413af4-468d-48ff-94ca-4436f8526b3e')
     def test_create_volume_transfer(self):
         rbac_utils.switch_role(self, switchToRbacRole=True)
-        transfer = self.client.create_volume_transfer(
-            volume_id=self.volume['id'])['transfer']
-        self.addCleanup(self._delete_transfer, transfer)
+        self._create_transfer()
 
     @rbac_rule_validation.action(service="cinder",
-                                 rule="volume:get_all_transfers")
+                                 rule="volume:get_transfer")
     @decorators.idempotent_id('7a0925d3-ed97-4c25-8299-e5cdabe2eb55')
     def test_get_volume_transfer(self):
-        transfer = self.client.create_volume_transfer(
-            volume_id=self.volume['id'])['transfer']
-        self.addCleanup(self._delete_transfer, transfer)
+        transfer = self._create_transfer()
         rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.show_volume_transfer(transfer['id'])
 
@@ -84,12 +86,18 @@ class VolumesTransfersRbacTest(rbac_base.BaseVolumeRbacTest):
                                  rule="volume:accept_transfer")
     @decorators.idempotent_id('987f2a11-d657-4984-a6c9-28f06c1cd014')
     def test_accept_volume_transfer(self):
-        transfer = self.client.create_volume_transfer(
-            volume_id=self.volume['id'])['transfer']
-        self.addCleanup(self._delete_transfer, transfer)
+        transfer = self._create_transfer()
         rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.accept_volume_transfer(transfer['id'],
                                            auth_key=transfer['auth_key'])
+
+    @rbac_rule_validation.action(service="cinder",
+                                 rule="volume:delete_transfer")
+    @decorators.idempotent_id('4672187e-7fff-454b-832a-5c8865dda868')
+    def test_delete_volume_transfer(self):
+        transfer = self._create_transfer()
+        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.client.delete_volume_transfer(transfer['id'])
 
 
 class VolumesTransfersV3RbacTest(VolumesTransfersRbacTest):
