@@ -38,3 +38,4 @@ class BaseIdentityV3RbacAdminTest(base.BaseIdentityV3AdminTest):
         super(BaseIdentityV3RbacAdminTest, cls).resource_setup()
         cls.auth_provider = cls.os.auth_provider
         cls.admin_client = cls.os_adm.identity_v3_client
+        cls.creds_client = cls.os.credentials_client
