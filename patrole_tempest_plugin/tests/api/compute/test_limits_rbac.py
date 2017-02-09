@@ -21,28 +21,27 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 CONF = config.CONF
 
 
-class AbsoluteLimitsRbacTest(rbac_base.BaseV2ComputeRbacTest):
+class LimitsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     def tearDown(self):
         rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(AbsoluteLimitsRbacTest, self).tearDown()
+        super(LimitsRbacTest, self).tearDown()
 
     @classmethod
     def setup_clients(cls):
-        super(AbsoluteLimitsRbacTest, cls).setup_clients()
-        cls.identity_client = cls.os_adm.identity_client
-        cls.tenants_client = cls.os_adm.tenants_client
+        super(LimitsRbacTest, cls).setup_clients()
+        cls.client = cls.limits_client
 
     @classmethod
     def skip_checks(cls):
-        super(AbsoluteLimitsRbacTest, cls).skip_checks()
+        super(LimitsRbacTest, cls).skip_checks()
         if not CONF.compute_feature_enabled.api_extensions:
             raise cls.skipException(
                 '%s skipped as no compute extensions enabled' % cls.__name__)
 
     @rbac_rule_validation.action(service="nova",
-                                 rule="os_compute_api:os-used-limits")
+                                 rule="os_compute_api:limits")
     @decorators.idempotent_id('3fb60f83-9a5f-4fdd-89d9-26c3710844a1')
-    def test_used_limits_for_admin_rbac(self):
+    def test_show_limits(self):
         rbac_utils.switch_role(self, switchToRbacRole=True)
-        self.limits_client.show_limits()
+        self.client.show_limits()
