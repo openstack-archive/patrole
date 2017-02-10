@@ -11,6 +11,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from tempest.lib.common.utils import data_utils
+from tempest.lib.common.utils import test_utils
+
 from tempest.api.compute import base as compute_base
 from tempest import config
 
@@ -56,3 +59,34 @@ class BaseV2ComputeAdminRbacTest(compute_base.BaseV2ComputeAdminTest):
         super(BaseV2ComputeAdminRbacTest, cls).setup_clients()
         cls.admin_client = cls.os_admin.agents_client
         cls.auth_provider = cls.os.auth_provider
+
+    @classmethod
+    def resource_setup(cls):
+        super(BaseV2ComputeAdminRbacTest, cls).resource_setup()
+        cls.flavors = []
+
+    @classmethod
+    def resource_cleanup(cls):
+        cls.clear_flavors()
+        super(BaseV2ComputeAdminRbacTest, cls).resource_cleanup()
+
+    @classmethod
+    def clear_flavors(cls):
+        for flavor in cls.flavors:
+            test_utils.call_and_ignore_notfound_exc(
+                cls.flavors_client.delete_flavor, flavor['id'])
+
+    @classmethod
+    def _create_flavor(cls, **kwargs):
+        flavor_kwargs = {
+            "name": data_utils.rand_name('flavor'),
+            "ram": data_utils.rand_int_id(1, 10),
+            "vcpus": data_utils.rand_int_id(1, 10),
+            "disk": data_utils.rand_int_id(1, 10),
+            "id": data_utils.rand_uuid(),
+        }
+        if kwargs:
+            flavor_kwargs.update(kwargs)
+        flavor = cls.flavors_client.create_flavor(**flavor_kwargs)['flavor']
+        cls.flavors.append(flavor)
+        return flavor
