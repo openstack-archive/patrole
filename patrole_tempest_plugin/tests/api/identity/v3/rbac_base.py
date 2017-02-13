@@ -42,6 +42,7 @@ class BaseIdentityV3RbacAdminTest(base.BaseIdentityV3AdminTest):
         cls.admin_client = cls.os_adm.identity_v3_client
         cls.creds_client = cls.os.credentials_client
         cls.services_client = cls.os.identity_services_v3_client
+        cls.endpoints_client = cls.os.endpoints_v3_client
 
     def _create_service(self):
         """Creates a service for test."""
