@@ -53,7 +53,7 @@ class IdentityServicesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         RBAC test for Identity Admin 2.0 delete_service
         """
-        service_id = self._create_service()
+        service_id = self._create_service()['OS-KSADM:service']['id']
 
         rbac_utils.switch_role(self, switchToRbacRole=True)
         self.services_client.delete_service(service_id)
@@ -66,7 +66,7 @@ class IdentityServicesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         RBAC test for Identity Admin 2.0 show_service
         """
-        service_id = self._create_service()
+        service_id = self._create_service()['OS-KSADM:service']['id']
 
         rbac_utils.switch_role(self, switchToRbacRole=True)
         self.services_client.show_service(service_id)
