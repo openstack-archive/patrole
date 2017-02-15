@@ -23,33 +23,6 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 CONF = config.CONF
 
 
-class HypervisorRbacTest(rbac_base.BaseV2ComputeRbacTest):
-
-    @classmethod
-    def setup_clients(cls):
-        super(HypervisorRbacTest, cls).setup_clients()
-        cls.client = cls.hypervisor_client
-
-    @classmethod
-    def skip_checks(cls):
-        super(HypervisorRbacTest, cls).skip_checks()
-        if not CONF.compute_feature_enabled.api_extensions:
-            raise cls.skipException(
-                '%s skipped as no compute extensions enabled' % cls.__name__)
-
-    def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(HypervisorRbacTest, self).tearDown()
-
-    @decorators.idempotent_id('afe5d5ed-c9b9-4e9b-bdc6-20ef9fe86ad8')
-    @rbac_rule_validation.action(
-        service="nova",
-        rule="os_compute_api:limits:discoverable")
-    def test_hypervisor_discoverable(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
-        self.extensions_client.list_extensions()
-
-
 class HypervisorAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
 
     @classmethod
