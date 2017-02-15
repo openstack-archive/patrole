@@ -14,6 +14,7 @@
 #    under the License.
 
 from tempest.common.utils import data_utils
+from tempest.lib.common.utils import test_utils
 from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
@@ -44,7 +45,9 @@ class IdentityCredentialsV3AdminRbacTest(
                                             blob=blob,
                                             type='ec2')['credential']
 
-        self.addCleanup(self.creds_client.delete_credential, credential['id'])
+        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
+                        self.creds_client.delete_credential, credential['id'])
+
         return (project_id, credential)
 
     @rbac_rule_validation.action(service="keystone",

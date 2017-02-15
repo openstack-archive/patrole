@@ -57,3 +57,23 @@ class BaseIdentityV3RbacAdminTest(base.BaseIdentityV3AdminTest):
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self.services_client.delete_service, service['id'])
         return service
+
+    def _setup_test_project(self):
+        """Set up a test project."""
+        project = self.projects_client.create_project(
+            name=data_utils.rand_name('test_project'),
+            description=data_utils.rand_name('desc'))['project']
+        # Delete the project at the end of the test
+        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
+                        self.projects_client.delete_project, project['id'])
+        return project
+
+    def _create_test_user(self, **kwargs):
+        if kwargs['password'] is None:
+            user_password = data_utils.rand_password()
+            kwargs['password'] = user_password
+        user = self.users_client.create_user(**kwargs)['user']
+        # Delete the user at the end of the test
+        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
+                        self.users_client.delete_user, user['id'])
+        return user

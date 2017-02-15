@@ -54,7 +54,7 @@ class IdentityProjectV3AdminRbacTest(
 
         RBAC test for Keystone: identity:update_project
         """
-        project = self.setup_test_project()
+        project = self._setup_test_project()
 
         rbac_utils.switch_role(self, switchToRbacRole=True)
         self.non_admin_projects_client \
@@ -69,7 +69,7 @@ class IdentityProjectV3AdminRbacTest(
 
         RBAC test for Keystone: identity:delete_project
         """
-        project = self.setup_test_project()
+        project = self._setup_test_project()
 
         rbac_utils.switch_role(self, switchToRbacRole=True)
         self.non_admin_projects_client.delete_project(project['id'])
@@ -82,7 +82,7 @@ class IdentityProjectV3AdminRbacTest(
 
         RBAC test for Keystone: identity:get_project
         """
-        project = self.setup_test_project()
+        project = self._setup_test_project()
 
         rbac_utils.switch_role(self, switchToRbacRole=True)
         self.non_admin_projects_client.show_project(project['id'])
