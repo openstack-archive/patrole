@@ -97,6 +97,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
         return network
 
     def _update_network(self,
+                        net_id=None,
                         admin=None,
                         shared_network=None,
                         router_external=None,
@@ -104,7 +105,8 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
                         segments=None):
 
         # update a network that has been created during class setup
-        net_id = self.admin_network['id']
+        if not net_id:
+            net_id = self.admin_network['id']
 
         post_body = {}
         updated_network = None
@@ -180,20 +182,6 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
 
     @rbac_rule_validation.action(
         service="neutron",
-        rule="create_network:provider:physical_network")
-    @decorators.idempotent_id('f458033b-2d52-4fd1-86db-e31e111d6fac')
-    def test_create_network_provider_physical_network(self):
-
-        """Create Provider Physical Network Test
-
-        RBAC test for the neutron create_network:provider:physical_network
-        """
-        rbac_utils.switch_role(self, switchToRbacRole=True)
-        self._create_network(provider_network_type='flat',
-                             provider_physical_network='ph-eth0')
-
-    @rbac_rule_validation.action(
-        service="neutron",
         rule="create_network:provider:segmentation_id")
     @decorators.idempotent_id('b9decb7b-68ef-4504-b99b-41edbf7d2af5')
     def test_create_network_provider_segmentation_id(self):
@@ -249,13 +237,9 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron update_network:router:external policy
         """
+        network = self._create_network()
         rbac_utils.switch_role(self, switchToRbacRole=True)
-        updated_network = self._update_network(router_external=True)
-        self.assertEqual(updated_network['router:external'], True)
-
-        # Revert back to False
-        updated_network = self._update_network(router_external=False)
-        self.assertEqual(updated_network['router:external'], False)
+        self._update_network(net_id=network['id'], router_external=True)
 
     @rbac_rule_validation.action(service="neutron",
                                  rule="get_network")

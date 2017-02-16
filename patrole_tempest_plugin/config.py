@@ -25,5 +25,5 @@ RbacGroup = [
                     " Patrole tests."),
     cfg.BoolOpt('rbac_flag',
                 default=False,
-                help="Enables RBAC tests."),
+                help="Enables RBAC tests.")
 ]
