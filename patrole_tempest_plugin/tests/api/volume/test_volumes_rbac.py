@@ -46,7 +46,7 @@ class VolumesRbacTest(rbac_base.BaseVolumeRbacTest):
         # Test volume reset status : available->error->available
         rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.reset_volume_status(volume['id'], status='error')
-        self.client.reset_volume_status(volume['id'], status='availble')
+        self.client.reset_volume_status(volume['id'], status='available')
 
     @rbac_rule_validation.action(
         service="cinder",
