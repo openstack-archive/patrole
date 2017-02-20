@@ -30,11 +30,11 @@ CONF = config.CONF
 LOG = log.getLogger(__name__)
 
 
-class RbacFloatingIpsTest(base.BaseNetworkRbacTest):
+class FloatingIpsRbacTest(base.BaseNetworkRbacTest):
 
     @classmethod
     def resource_setup(cls):
-        super(RbacFloatingIpsTest, cls).resource_setup()
+        super(FloatingIpsRbacTest, cls).resource_setup()
 
         # Create an external network for floating ip creation
         cls.fip_extnet = cls.create_network(**{'router:external': True})
@@ -52,7 +52,7 @@ class RbacFloatingIpsTest(base.BaseNetworkRbacTest):
         # cleanup by base class
         cls.networks_client.update_network(cls.fip_extnet_id,
                                            **{'router:external': False})
-        super(RbacFloatingIpsTest, cls).resource_cleanup()
+        super(FloatingIpsRbacTest, cls).resource_cleanup()
 
     def _create_floatingip(self, floating_ip_address=None):
         if floating_ip_address is not None:
@@ -72,7 +72,7 @@ class RbacFloatingIpsTest(base.BaseNetworkRbacTest):
 
     def tearDown(self):
         rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(RbacFloatingIpsTest, self).tearDown()
+        super(FloatingIpsRbacTest, self).tearDown()
 
     @rbac_rule_validation.action(service="neutron",
                                  rule="create_floatingip")
