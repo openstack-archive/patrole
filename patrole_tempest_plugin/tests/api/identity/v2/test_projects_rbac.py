@@ -14,8 +14,6 @@
 #    under the License.
 
 from tempest import config
-from tempest.lib.common.utils import data_utils
-from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
@@ -31,18 +29,6 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         rbac_utils.switch_role(self, switchToRbacRole=False)
         super(IdentityProjectV2AdminRbacTest, self).tearDown()
 
-    @classmethod
-    def setup_clients(cls):
-        super(IdentityProjectV2AdminRbacTest, cls).setup_clients()
-        cls.tenants_client = cls.os.tenants_client
-
-    def _create_tenant(self, name):
-        self.tenant = self.tenants_client.create_tenant(name=name)
-        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.tenants_client.delete_tenant,
-                        self.tenant['tenant']['id'])
-        return self.tenant
-
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:create_project")
     @decorators.idempotent_id('0f148510-63bf-11e6-b348-080044d0d904')
@@ -53,9 +39,8 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         RBAC test for Identity 2.0 create_tenant
         """
 
-        tenant_name = data_utils.rand_name('test_create_project')
         rbac_utils.switch_role(self, switchToRbacRole=True)
-        self._create_tenant(tenant_name)
+        self._create_tenant()
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:update_project")
@@ -66,12 +51,10 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         RBAC test for Identity 2.0 update_tenant
         """
-
-        tenant_name = data_utils.rand_name('test_update_project')
-        tenant = self._create_tenant(tenant_name)
+        tenant = self._create_tenant()
 
         rbac_utils.switch_role(self, switchToRbacRole=True)
-        self.tenants_client.update_tenant(tenant['tenant']['id'],
+        self.tenants_client.update_tenant(tenant['id'],
                                           description="Changed description")
 
     @rbac_rule_validation.action(service="keystone",
@@ -83,12 +66,10 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         RBAC test for Identity 2.0 delete_tenant
         """
-
-        tenant_name = data_utils.rand_name('test_delete_project')
-        tenant = self._create_tenant(tenant_name)
+        tenant = self._create_tenant()
 
         rbac_utils.switch_role(self, switchToRbacRole=True)
-        self.tenants_client.delete_tenant(tenant['tenant']['id'])
+        self.tenants_client.delete_tenant(tenant['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:get_project")
@@ -100,11 +81,10 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         RBAC test for Identity 2.0 show_tenant
         """
 
-        tenant_name = data_utils.rand_name('test_get_project')
-        tenant = self._create_tenant(tenant_name)
+        tenant = self._create_tenant()
 
         rbac_utils.switch_role(self, switchToRbacRole=True)
-        self.tenants_client.show_tenant(tenant['tenant']['id'])
+        self.tenants_client.show_tenant(tenant['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:list_projects")
@@ -115,7 +95,6 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         RBAC test for Identity 2.0 list_tenants
         """
-
         rbac_utils.switch_role(self, switchToRbacRole=True)
         self.tenants_client.list_tenants()
 
@@ -128,9 +107,7 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         RBAC test for Identity 2.0 list_tenant_users
         """
-
-        tenant_name = data_utils.rand_name('test_list_users_for_tenant')
-        tenant = self._create_tenant(tenant_name)
+        tenant = self._create_tenant()
 
         rbac_utils.switch_role(self, switchToRbacRole=True)
-        self.tenants_client.list_tenant_users(tenant['tenant']['id'])
+        self.tenants_client.list_tenant_users(tenant['id'])
