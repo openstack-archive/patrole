@@ -13,14 +13,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from tempest import config
 from tempest.lib import decorators
+from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.compute import rbac_base
-
-CONF = config.CONF
 
 
 class HypervisorAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
@@ -33,9 +31,10 @@ class HypervisorAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
     @classmethod
     def skip_checks(cls):
         super(HypervisorAdminRbacTest, cls).skip_checks()
-        if not CONF.compute_feature_enabled.api_extensions:
-            raise cls.skipException(
-                '%s skipped as no compute extensions enabled' % cls.__name__)
+        if not test.is_extension_enabled('os-hypervisors', 'compute'):
+            msg = "%s skipped as os-hypervisors extension not enabled." \
+                  % cls.__name__
+            raise cls.skipException(msg)
 
     def tearDown(self):
         rbac_utils.switch_role(self, switchToRbacRole=False)
@@ -46,4 +45,5 @@ class HypervisorAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
         service="nova",
         rule="os_compute_api:os-hypervisors")
     def test_list_hypervisors(self):
+        rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.list_hypervisors()['hypervisors']
