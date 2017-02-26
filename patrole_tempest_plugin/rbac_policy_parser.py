@@ -19,15 +19,13 @@ import os
 from oslo_log import log as logging
 from oslo_policy import generator
 from oslo_policy import policy
-from tempest import config
 
 from patrole_tempest_plugin import rbac_exceptions
 
-CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
 
-class RbacPolicyConverter(object):
+class RbacPolicyParser(object):
     """A class for parsing policy rules into lists of allowed roles.
 
     RBAC testing requires that each rule in a policy file be broken up into
@@ -38,7 +36,7 @@ class RbacPolicyConverter(object):
     """
 
     def __init__(self, tenant_id, service, path=None):
-        """Initialization of Policy Converter.
+        """Initialization of Rbac Policy Parser.
 
         Parses a policy file to create a dictionary, mapping policy actions to
         roles. If a policy file does not exist, checks whether the policy file
@@ -161,5 +159,5 @@ class RbacPolicyConverter(object):
             LOG.debug("{0} not found in policy file.".format(apply_rule))
             return False
         except Exception as e:
-            LOG.debug("Exception: {0} for rule: {1}.".format(e, rule))
+            LOG.debug("Exception: {0} for rule: {1}.".format(e, apply_rule))
             return False

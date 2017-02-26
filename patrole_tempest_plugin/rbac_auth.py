@@ -15,15 +15,15 @@
 
 from oslo_log import log as logging
 
-from patrole_tempest_plugin import rbac_role_converter
+from patrole_tempest_plugin import rbac_policy_parser
 
 LOG = logging.getLogger(__name__)
 
 
 class RbacAuthority(object):
     def __init__(self, tenant_id, service=None):
-        self.converter = rbac_role_converter.RbacPolicyConverter(tenant_id,
-                                                                 service)
+        self.converter = rbac_policy_parser.RbacPolicyParser(tenant_id,
+                                                             service)
 
     def get_permission(self, rule_name, role):
         try:

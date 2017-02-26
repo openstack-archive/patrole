@@ -19,7 +19,7 @@ import os
 from tempest import config
 from tempest.tests import base
 
-from patrole_tempest_plugin import rbac_role_converter
+from patrole_tempest_plugin import rbac_policy_parser
 
 CONF = config.CONF
 
@@ -43,12 +43,12 @@ class RbacPolicyTest(base.TestCase):
                                                'resources',
                                                'tenant_rbac_policy.json')
 
-    @mock.patch.object(rbac_role_converter, 'LOG', autospec=True)
+    @mock.patch.object(rbac_policy_parser, 'LOG', autospec=True)
     def test_custom_policy(self, m_log):
         default_roles = ['zero', 'one', 'two', 'three', 'four',
                          'five', 'six', 'seven', 'eight', 'nine']
 
-        converter = rbac_role_converter.RbacPolicyConverter(
+        converter = rbac_policy_parser.RbacPolicyParser(
             None, "test", self.custom_policy_file)
 
         expected = {
@@ -76,7 +76,7 @@ class RbacPolicyTest(base.TestCase):
                 self.assertFalse(converter.allowed(rule, role))
 
     def test_admin_policy_file_with_admin_role(self):
-        converter = rbac_role_converter.RbacPolicyConverter(
+        converter = rbac_policy_parser.RbacPolicyParser(
             None, "test", self.admin_policy_file)
 
         role = 'admin'
@@ -94,7 +94,7 @@ class RbacPolicyTest(base.TestCase):
             self.assertFalse(allowed)
 
     def test_admin_policy_file_with_member_role(self):
-        converter = rbac_role_converter.RbacPolicyConverter(
+        converter = rbac_policy_parser.RbacPolicyParser(
             None, "test", self.admin_policy_file)
 
         role = 'Member'
@@ -113,7 +113,7 @@ class RbacPolicyTest(base.TestCase):
             self.assertFalse(allowed)
 
     def test_admin_policy_file_with_context_is_admin(self):
-        converter = rbac_role_converter.RbacPolicyConverter(
+        converter = rbac_policy_parser.RbacPolicyParser(
             None, "test", self.alt_admin_policy_file)
 
         role = 'fake_admin'
@@ -147,7 +147,7 @@ class RbacPolicyTest(base.TestCase):
         network:tenant_id pass.
         """
         test_tenant_id = mock.sentinel.tenant_id
-        converter = rbac_role_converter.RbacPolicyConverter(
+        converter = rbac_policy_parser.RbacPolicyParser(
             test_tenant_id, "test", self.tenant_policy_file)
 
         # Check whether Member role can perform expected actions.
