@@ -1,0 +1,1 @@
+patrole_tempest_plugin.tests.unit.test*
