@@ -15,7 +15,7 @@
 
 from tempest.common.utils import data_utils
 from tempest import config
-from tempest import test
+from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.rbac_utils import rbac_utils
@@ -33,7 +33,7 @@ class IdentitySericesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:create_service")
-    @test.idempotent_id('9a4bb317-f0bb-4005-8df0-4b672885b7c8')
+    @decorators.idempotent_id('9a4bb317-f0bb-4005-8df0-4b672885b7c8')
     def test_create_service(self):
         """Create a service.
 
@@ -44,7 +44,7 @@ class IdentitySericesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:update_service")
-    @test.idempotent_id('b39447d1-2cf6-40e5-a899-46f287f2ecf0')
+    @decorators.idempotent_id('b39447d1-2cf6-40e5-a899-46f287f2ecf0')
     def test_update_service(self):
         """Update a service.
 
@@ -61,7 +61,7 @@ class IdentitySericesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:delete_service")
-    @test.idempotent_id('177b991a-438d-4bef-8e9f-9c6cc5a1c9e8')
+    @decorators.idempotent_id('177b991a-438d-4bef-8e9f-9c6cc5a1c9e8')
     def test_delete_service(self):
         """Delete a service.
 
@@ -74,7 +74,7 @@ class IdentitySericesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:get_service")
-    @test.idempotent_id('d89a9ac6-cd53-428d-84c0-5bc71f4a432d')
+    @decorators.idempotent_id('d89a9ac6-cd53-428d-84c0-5bc71f4a432d')
     def test_show_service(self):
         """Show/Get a service.
 
@@ -87,7 +87,7 @@ class IdentitySericesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:list_services")
-    @test.idempotent_id('706e6bea-3385-4718-919c-0b5121395806')
+    @decorators.idempotent_id('706e6bea-3385-4718-919c-0b5121395806')
     def test_list_services(self):
         """list all services.
 

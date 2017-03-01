@@ -20,7 +20,7 @@ test_patrole
 Tests for `patrole` module.
 """
 
-from tests import base
+from patrole_tempest_plugin.tests.unit import base
 
 
 class TestPatrole(base.TestCase):
