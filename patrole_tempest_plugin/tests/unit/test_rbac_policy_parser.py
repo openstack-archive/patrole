@@ -48,8 +48,10 @@ class RbacPolicyTest(base.TestCase):
         default_roles = ['zero', 'one', 'two', 'three', 'four',
                          'five', 'six', 'seven', 'eight', 'nine']
 
+        test_tenant_id = mock.sentinel.tenant_id
+        test_user_id = mock.sentinel.user_id
         converter = rbac_policy_parser.RbacPolicyParser(
-            None, "test", self.custom_policy_file)
+            test_tenant_id, test_user_id, "test", self.custom_policy_file)
 
         expected = {
             'policy_action_1': ['two', 'four', 'six', 'eight'],
@@ -76,8 +78,10 @@ class RbacPolicyTest(base.TestCase):
                 self.assertFalse(converter.allowed(rule, role))
 
     def test_admin_policy_file_with_admin_role(self):
+        test_tenant_id = mock.sentinel.tenant_id
+        test_user_id = mock.sentinel.user_id
         converter = rbac_policy_parser.RbacPolicyParser(
-            None, "test", self.admin_policy_file)
+            test_tenant_id, test_user_id, "test", self.admin_policy_file)
 
         role = 'admin'
         allowed_rules = [
@@ -94,8 +98,10 @@ class RbacPolicyTest(base.TestCase):
             self.assertFalse(allowed)
 
     def test_admin_policy_file_with_member_role(self):
+        test_tenant_id = mock.sentinel.tenant_id
+        test_user_id = mock.sentinel.user_id
         converter = rbac_policy_parser.RbacPolicyParser(
-            None, "test", self.admin_policy_file)
+            test_tenant_id, test_user_id, "test", self.admin_policy_file)
 
         role = 'Member'
         allowed_rules = [
@@ -113,8 +119,10 @@ class RbacPolicyTest(base.TestCase):
             self.assertFalse(allowed)
 
     def test_admin_policy_file_with_context_is_admin(self):
+        test_tenant_id = mock.sentinel.tenant_id
+        test_user_id = mock.sentinel.user_id
         converter = rbac_policy_parser.RbacPolicyParser(
-            None, "test", self.alt_admin_policy_file)
+            test_tenant_id, test_user_id, "test", self.alt_admin_policy_file)
 
         role = 'fake_admin'
         allowed_rules = ['non_admin_rule']
@@ -140,43 +148,58 @@ class RbacPolicyTest(base.TestCase):
             allowed = converter.allowed(rule, role)
             self.assertFalse(allowed)
 
-    def test_tenant_policy(self):
-        """Test whether rules with format tenant_id:%(tenant_id)s work.
+    def test_tenant_user_policy(self):
+        """Test whether rules with format tenant_id/user_id formatting work.
 
         Test whether Neutron rules that contain project_id, tenant_id, and
-        network:tenant_id pass.
+        network:tenant_id pass. And test whether Nova rules that contain
+        user_id pass.
         """
         test_tenant_id = mock.sentinel.tenant_id
+        test_user_id = mock.sentinel.user_id
         converter = rbac_policy_parser.RbacPolicyParser(
-            test_tenant_id, "test", self.tenant_policy_file)
+            test_tenant_id, test_user_id, "test", self.tenant_policy_file)
 
         # Check whether Member role can perform expected actions.
-        allowed_rules = ['rule1', 'rule2', 'rule3']
+        allowed_rules = ['rule1', 'rule2', 'rule3', 'rule4']
         for rule in allowed_rules:
             allowed = converter.allowed(rule, 'Member')
             self.assertTrue(allowed)
-        self.assertFalse(converter.allowed('admin_rule', 'Member'))
+
+        disallowed_rules = ['admin_tenant_rule', 'admin_user_rule']
+        for disallowed_rule in disallowed_rules:
+            self.assertFalse(converter.allowed(disallowed_rule, 'Member'))
 
         # Check whether admin role can perform expected actions.
-        allowed_rules.append('admin_rule')
+        allowed_rules.extend(disallowed_rules)
         for rule in allowed_rules:
             allowed = converter.allowed(rule, 'admin')
             self.assertTrue(allowed)
 
         # Check whether _try_rule is called with the correct target dictionary.
-        with mock.patch.object(converter, '_try_rule', autospec=True) \
+        with mock.patch.object(
+            converter, '_try_rule', return_value=True, autospec=True) \
             as mock_try_rule:
-            mock_try_rule.return_value = True
 
             expected_target = {
-                "project_id": test_tenant_id,
-                "tenant_id": test_tenant_id,
-                "network:tenant_id": test_tenant_id
+                "project_id": mock.sentinel.tenant_id,
+                "tenant_id": mock.sentinel.tenant_id,
+                "network:tenant_id": mock.sentinel.tenant_id,
+                "user_id": mock.sentinel.user_id
+            }
+
+            expected_access_data = {
+                "roles": ['Member'],
+                "is_admin": False,
+                "is_admin_project": True,
+                "user_id": mock.sentinel.user_id,
+                "tenant_id": mock.sentinel.tenant_id,
+                "project_id": mock.sentinel.tenant_id
             }
 
             for rule in allowed_rules:
                 allowed = converter.allowed(rule, 'Member')
                 self.assertTrue(allowed)
                 mock_try_rule.assert_called_once_with(
-                    rule, expected_target, mock.ANY, mock.ANY)
+                    rule, expected_target, expected_access_data, mock.ANY)
                 mock_try_rule.reset_mock()
