@@ -22,7 +22,6 @@ from tempest.lib import exceptions
 
 from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 CONF = config.CONF
@@ -50,7 +49,7 @@ class FlavorAccessAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
         cls.tenant_id = cls.auth_provider.credentials.tenant_id
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(FlavorAccessAdminRbacTest, self).tearDown()
 
     @decorators.idempotent_id('a2bd3740-765d-4c95-ac98-9e027378c75e')
@@ -58,7 +57,7 @@ class FlavorAccessAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
         service="nova",
         rule="os_compute_api:os-flavor-access")
     def test_list_flavor_access(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         try:
             self.client.list_flavor_access(self.flavor_id)
         except exceptions.NotFound as e:
@@ -72,7 +71,7 @@ class FlavorAccessAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
         service="nova",
         rule="os_compute_api:os-flavor-access:add_tenant_access")
     def test_add_flavor_access(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.add_flavor_access(
             flavor_id=self.flavor_id, tenant_id=self.tenant_id)
         self.addCleanup(self.client.remove_flavor_access,
@@ -88,6 +87,6 @@ class FlavorAccessAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self.client.remove_flavor_access,
                         flavor_id=self.flavor_id, tenant_id=self.tenant_id)
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.remove_flavor_access(
             flavor_id=self.flavor_id, tenant_id=self.tenant_id)

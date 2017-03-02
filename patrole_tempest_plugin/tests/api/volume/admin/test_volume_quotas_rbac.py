@@ -19,7 +19,6 @@ from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 QUOTA_KEYS = ['gigabytes', 'snapshots', 'volumes']
@@ -41,14 +40,14 @@ class VolumeQuotasAdminRbacTest(rbac_base.BaseVolumeAdminRbacTest):
         cls.client = cls.os.volume_quotas_client
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(VolumeQuotasAdminRbacTest, self).tearDown()
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume_extension:quotas:show")
     @decorators.idempotent_id('b3c7177e-b6b1-4d0f-810a-fc95606964dd')
     def test_list_default_quotas(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.show_default_quota_set(
             self.demo_tenant_id)['quota_set']
 
@@ -60,7 +59,7 @@ class VolumeQuotasAdminRbacTest(rbac_base.BaseVolumeAdminRbacTest):
                          'volumes': 11,
                          'snapshots': 11}
         # Update limits for all quota resources
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.update_quota_set(
             self.demo_tenant_id,
             **new_quota_set)['quota_set']

@@ -17,7 +17,6 @@ from tempest.lib import decorators
 from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 
@@ -42,7 +41,7 @@ class ServerPasswordRbacTest(rbac_base.BaseV2ComputeRbacTest):
         cls.server = cls.create_test_server()
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(ServerPasswordRbacTest, self).tearDown()
 
     @decorators.idempotent_id('43ad7995-2f12-41cd-8ef1-bae9ffc36818')
@@ -50,5 +49,5 @@ class ServerPasswordRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-server-password")
     def test_delete_password(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.delete_password(self.server['id'])

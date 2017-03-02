@@ -17,7 +17,6 @@ from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.image import rbac_base as base
 
 CONF = config.CONF
@@ -39,7 +38,7 @@ class ImagesMemberRbacTest(base.BaseV1ImageRbacTest):
         cls.alt_tenant_id = cls.alt_image_member_client.tenant_id
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(ImagesMemberRbacTest, self).tearDown()
 
     @rbac_rule_validation.action(service="glance", rule="add_member")
@@ -51,7 +50,7 @@ class ImagesMemberRbacTest(base.BaseV1ImageRbacTest):
         """
         image = self.create_image()
         # Toggle role and add image member
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.image_member_client.create_image_member(image['id'],
                                                      self.alt_tenant_id)
 
@@ -66,7 +65,7 @@ class ImagesMemberRbacTest(base.BaseV1ImageRbacTest):
         self.image_member_client.create_image_member(image['id'],
                                                      self.alt_tenant_id)
         # Toggle role and delete image member
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.image_member_client.delete_image_member(image['id'],
                                                      self.alt_tenant_id)
 
@@ -81,5 +80,5 @@ class ImagesMemberRbacTest(base.BaseV1ImageRbacTest):
         self.image_member_client.create_image_member(image['id'],
                                                      self.alt_tenant_id)
         # Toggle role and delete image member
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.image_member_client.list_image_members(image['id'])

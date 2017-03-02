@@ -20,7 +20,6 @@ from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 
@@ -30,7 +29,7 @@ CONF = config.CONF
 class PasswordAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(PasswordAdminRbacTest, self).tearDown()
 
     @classmethod
@@ -56,7 +55,7 @@ class PasswordAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
         service="nova", rule="os_compute_api:os-admin-password")
     @decorators.idempotent_id('908a7d59-3a66-441c-94cf-38e57ed14956')
     def test_change_server_password(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.change_password(
             self.server_id,
             adminPass=data_utils.rand_password())
@@ -65,5 +64,5 @@ class PasswordAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
         service="nova", rule="os_compute_api:os-admin-password:discoverable")
     @decorators.idempotent_id('379fce8a-f1ff-11e6-bc64-92361f002671')
     def test_admin_password_discoverable(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.extensions_client.show_extension('os-admin-password')

@@ -19,7 +19,6 @@ from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 CONF = config.CONF
@@ -40,7 +39,7 @@ class SnapshotsActionsRbacTest(rbac_base.BaseVolumeRbacTest):
         cls.client = cls.os.snapshots_client
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(SnapshotsActionsRbacTest, self).tearDown()
 
     @classmethod
@@ -59,7 +58,7 @@ class SnapshotsActionsRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_reset_snapshot_status(self):
         # Reset snapshot status to error
         status = 'error'
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.\
             reset_snapshot_status(self.snapshot['id'], status)
 
@@ -73,7 +72,7 @@ class SnapshotsActionsRbacTest(rbac_base.BaseVolumeRbacTest):
         # and force delete temp snapshot
         temp_snapshot = self.create_snapshot(self.volume['id'])
         # Force delete the snapshot
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.force_delete_snapshot(temp_snapshot['id'])
         self.client.wait_for_resource_deletion(temp_snapshot['id'])
 

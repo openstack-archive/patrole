@@ -19,7 +19,6 @@ from tempest.lib import decorators
 from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 CONF = cfg.CONF
@@ -53,7 +52,7 @@ class TenantNetworksRbacTest(rbac_base.BaseV2ComputeRbacTest):
         super(TenantNetworksRbacTest, cls).setup_credentials()
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(TenantNetworksRbacTest, self).tearDown()
 
     @decorators.idempotent_id('42b39ba1-14aa-4799-9518-34367d0da67a')
@@ -61,5 +60,5 @@ class TenantNetworksRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-tenant-networks")
     def test_list_show_tenant_networks(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.list_tenant_networks()['networks']

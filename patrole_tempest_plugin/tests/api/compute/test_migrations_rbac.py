@@ -17,7 +17,6 @@ from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 CONF = config.CONF
@@ -38,7 +37,7 @@ class MigrationsAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
                 '%s skipped as no compute extensions enabled' % cls.__name__)
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(MigrationsAdminRbacTest, self).tearDown()
 
     @decorators.idempotent_id('5795231c-3729-448c-a072-9a225db1a328')
@@ -46,5 +45,5 @@ class MigrationsAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
         service="nova",
         rule="os_compute_api:os-migrations:index")
     def test_list_services(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.list_migrations()['migrations']

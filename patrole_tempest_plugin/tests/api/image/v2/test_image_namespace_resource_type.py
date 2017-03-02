@@ -19,7 +19,6 @@ from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.image import rbac_base
 
 CONF = config.CONF
@@ -28,7 +27,7 @@ CONF = config.CONF
 class ImageNamespacesResourceTypeRbacTest(rbac_base.BaseV2ImageRbacTest):
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(ImageNamespacesResourceTypeRbacTest, self).tearDown()
 
     @rbac_rule_validation.action(service="glance",
@@ -39,7 +38,7 @@ class ImageNamespacesResourceTypeRbacTest(rbac_base.BaseV2ImageRbacTest):
 
         RBAC test for the glance list_metadef_resource_type policy.
         """
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.resource_types_client.list_resource_types()
 
     @rbac_rule_validation.action(service="glance",
@@ -59,6 +58,6 @@ class ImageNamespacesResourceTypeRbacTest(rbac_base.BaseV2ImageRbacTest):
             self.namespaces_client.delete_namespace,
             namespace_name)
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.resource_types_client.list_resource_type_association(
             namespace_name)

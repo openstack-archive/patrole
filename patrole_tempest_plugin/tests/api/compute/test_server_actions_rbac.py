@@ -18,7 +18,6 @@ from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 CONF = config.CONF
@@ -27,7 +26,7 @@ CONF = config.CONF
 class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(ServerActionsRbacTest, self).tearDown()
 
     @classmethod
@@ -68,7 +67,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:servers:stop")
     @decorators.idempotent_id('ab4a17d2-166f-4a6d-9944-f17baa576cf2')
     def test_stop_server(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self._test_stop_server()
 
     @rbac_rule_validation.action(
@@ -77,5 +76,5 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('8876bfa9-4d10-406e-a335-a57e451abb12')
     def test_start_server(self):
         self._test_stop_server()
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self._test_start_server()

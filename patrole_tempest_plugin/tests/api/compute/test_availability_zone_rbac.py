@@ -15,7 +15,6 @@ from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 CONF = config.CONF
@@ -24,7 +23,7 @@ CONF = config.CONF
 class NovaAvailabilityZoneRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(NovaAvailabilityZoneRbacTest, self).tearDown()
 
     @classmethod
@@ -38,12 +37,12 @@ class NovaAvailabilityZoneRbacTest(rbac_base.BaseV2ComputeRbacTest):
                                  "os-availability-zone:list")
     @decorators.idempotent_id('cd34e7ea-d26e-4fa3-a8d0-f8883726ce3d')
     def test_get_availability_zone_list_rbac(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.os.availability_zone_client.list_availability_zones()
 
     @rbac_rule_validation.action(service="nova", rule="os_compute_api:"
                                  "os-availability-zone:detail")
     @decorators.idempotent_id('2f61c191-6ece-4f21-b487-39d749e3d38e')
     def test_get_availability_zone_list_detail_rbac(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.os.availability_zone_client.list_availability_zones(detail=True)

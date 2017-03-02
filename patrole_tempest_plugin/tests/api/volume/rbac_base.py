@@ -14,12 +14,14 @@
 from tempest.api.volume import base as vol_base
 from tempest import config
 
+from patrole_tempest_plugin.rbac_utils import rbac_utils
+
 CONF = config.CONF
 
 
 class BaseVolumeRbacTest(vol_base.BaseVolumeTest):
 
-    credentials = ['primary', 'admin']
+    credentials = ['admin']
 
     @classmethod
     def skip_checks(cls):
@@ -27,20 +29,23 @@ class BaseVolumeRbacTest(vol_base.BaseVolumeTest):
         if not CONF.rbac.rbac_flag:
             raise cls.skipException(
                 "%s skipped as RBAC Flag not enabled" % cls.__name__)
-        if 'admin' not in CONF.auth.tempest_roles:
-            raise cls.skipException(
-                "%s skipped because tempest roles is not admin" % cls.__name__)
+
+    @classmethod
+    def setup_credentials(cls):
+        super(BaseVolumeRbacTest, cls).setup_credentials()
+        cls.os = cls.os_adm
 
     @classmethod
     def setup_clients(cls):
         super(BaseVolumeRbacTest, cls).setup_clients()
         cls.auth_provider = cls.os.auth_provider
         cls.admin_client = cls.os_adm.volumes_client
+        cls.rbac_utils = rbac_utils()
 
 
 class BaseVolumeAdminRbacTest(vol_base.BaseVolumeAdminTest):
 
-    credentials = ['primary', 'admin']
+    credentials = ['admin']
 
     @classmethod
     def skip_checks(cls):
@@ -48,12 +53,15 @@ class BaseVolumeAdminRbacTest(vol_base.BaseVolumeAdminTest):
         if not CONF.rbac.rbac_flag:
             raise cls.skipException(
                 "%s skipped as RBAC Flag not enabled" % cls.__name__)
-        if 'admin' not in CONF.auth.tempest_roles:
-            raise cls.skipException(
-                "%s skipped because tempest roles is not admin" % cls.__name__)
+
+    @classmethod
+    def setup_credentials(cls):
+        super(BaseVolumeAdminRbacTest, cls).setup_credentials()
+        cls.os = cls.os_adm
 
     @classmethod
     def setup_clients(cls):
         super(BaseVolumeAdminRbacTest, cls).setup_clients()
         cls.auth_provider = cls.os.auth_provider
         cls.admin_client = cls.os_adm.volumes_client
+        cls.rbac_utils = rbac_utils()

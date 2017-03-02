@@ -19,7 +19,6 @@ from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 CONF = config.CONF
@@ -34,7 +33,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
             raise cls.skipException("Cinder backup feature disabled")
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(VolumesBackupsRbacTest, self).tearDown()
 
     def create_backup(self, volume_id):
@@ -56,7 +55,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
                                  rule="backup:create")
     @decorators.idempotent_id('6887ec94-0bcf-4ab7-b30f-3808a4b5a2a5')
     def test_volume_backup_create(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.create_backup(volume_id=self.volume['id'])
 
     @rbac_rule_validation.action(service="cinder",
@@ -66,14 +65,14 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
         # Create a temp backup
         backup = self.create_backup(volume_id=self.volume['id'])
         # Get a given backup
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.backups_client.show_backup(backup['id'])
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="backup:get_all")
     @decorators.idempotent_id('4d18f0f0-7e01-4007-b622-dedc859b22f6')
     def test_volume_backup_list(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.backups_client.list_backups()
 
     @rbac_rule_validation.action(service="cinder",
@@ -83,7 +82,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
         # Create a temp backup
         backup = self.create_backup(volume_id=self.volume['id'])
         # Restore backup
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.backups_client.restore_backup(backup['id'])['restore']
 
     @rbac_rule_validation.action(service="cinder",
@@ -92,7 +91,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_volume_backup_delete(self):
         # Create a temp backup
         backup = self.create_backup(volume_id=self.volume['id'])
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         # Delete backup
         self.backups_client.delete_backup(backup['id'])
 

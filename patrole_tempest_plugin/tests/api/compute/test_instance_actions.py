@@ -17,7 +17,6 @@ from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 CONF = config.CONF
@@ -44,7 +43,7 @@ class InstanceActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         cls.request_id = cls.server.response['x-compute-request-id']
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(InstanceActionsRbacTest, self).tearDown()
 
     @decorators.idempotent_id('9d1b131d-407e-4fa3-8eef-eb2c4526f1da')

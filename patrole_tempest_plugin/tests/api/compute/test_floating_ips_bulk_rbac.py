@@ -18,7 +18,6 @@ from tempest.lib import decorators
 from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 CONF = config.CONF
@@ -45,7 +44,7 @@ class FloatingIpsBulkRbacTest(rbac_base.BaseV2ComputeRbacTest):
             raise cls.skipException(msg)
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(FloatingIpsBulkRbacTest, self).tearDown()
 
     @decorators.idempotent_id('3b5c8a02-005d-4256-8a95-6fa2f389c6cf')
@@ -53,5 +52,5 @@ class FloatingIpsBulkRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-floating-ips-bulk")
     def test_list_floating_ips_bulk(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.list_floating_ips_bulk()['floating_ip_info']

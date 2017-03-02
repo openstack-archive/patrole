@@ -17,7 +17,6 @@ from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 CONF = config.CONF
@@ -31,7 +30,7 @@ class VolumesSnapshotRbacTest(rbac_base.BaseVolumeRbacTest):
         cls.client = cls.snapshots_client
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(VolumesSnapshotRbacTest, self).tearDown()
 
     @classmethod
@@ -66,7 +65,7 @@ class VolumesSnapshotRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('ac7b2ee5-fbc0-4360-afc2-de8fa4881ede')
     def test_snapshot_create(self):
         # Create a temp snapshot
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.create_snapshot(self.volume['id'])
 
     @rbac_rule_validation.action(service="cinder",
@@ -74,7 +73,7 @@ class VolumesSnapshotRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('93a11b40-1ba8-44d6-a196-f8d97220f796')
     def test_snapshot_get(self):
         # Get the snapshot
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.show_snapshot(self.snapshot
                                   ['id'])['snapshot']
 
@@ -85,7 +84,7 @@ class VolumesSnapshotRbacTest(rbac_base.BaseVolumeRbacTest):
         new_desc = 'This is the new description of snapshot.'
         params = {self.descrip_field: new_desc}
         # Updates snapshot with new values
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.update_snapshot(
             self.snapshot['id'], **params)['snapshot']
 
@@ -96,7 +95,7 @@ class VolumesSnapshotRbacTest(rbac_base.BaseVolumeRbacTest):
         """list snapshots with params."""
         # Verify list snapshots by display_name filter
         params = {self.name_field: self.snapshot[self.name_field]}
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self._list_by_param_values(params)
 
     @rbac_rule_validation.action(service="cinder",
@@ -105,7 +104,7 @@ class VolumesSnapshotRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_snapshot_delete(self):
         # Create a temp snapshot
         temp_snapshot = self.create_snapshot(self.volume['id'])
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         # Delete the snapshot
         self.client.delete_snapshot(temp_snapshot['id'])
 

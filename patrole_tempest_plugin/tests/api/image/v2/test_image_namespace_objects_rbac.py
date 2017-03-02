@@ -19,7 +19,6 @@ from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.image import rbac_base
 
 CONF = config.CONF
@@ -28,7 +27,7 @@ CONF = config.CONF
 class ImageNamespacesObjectsRbacTest(rbac_base.BaseV2ImageRbacTest):
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(ImageNamespacesObjectsRbacTest, self).tearDown()
 
     @rbac_rule_validation.action(service="glance",
@@ -40,7 +39,7 @@ class ImageNamespacesObjectsRbacTest(rbac_base.BaseV2ImageRbacTest):
         RBAC test for the glance add_metadef_object policy
         """
         namespace = self.create_namespace()
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         # create a md object, it will be cleaned automatically after
         # cleanup of namespace
         object_name = data_utils.rand_name('test-object')
@@ -60,7 +59,7 @@ class ImageNamespacesObjectsRbacTest(rbac_base.BaseV2ImageRbacTest):
         RBAC test for the glance get_metadef_objects policy
         """
         namespace = self.create_namespace()
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         # list md objects
         self.namespace_objects_client.list_namespace_objects(
             namespace['namespace'])
@@ -83,7 +82,7 @@ class ImageNamespacesObjectsRbacTest(rbac_base.BaseV2ImageRbacTest):
                         namespace['namespace'], object_name)
 
         # Toggle role and modify object
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         new_name = "Object New Name"
         self.namespace_objects_client.update_namespace_object(
             namespace['namespace'], object_name, name=new_name)
@@ -105,7 +104,7 @@ class ImageNamespacesObjectsRbacTest(rbac_base.BaseV2ImageRbacTest):
                         self.namespace_objects_client.delete_namespace_object,
                         namespace['namespace'], object_name)
         # Toggle role and get object
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.namespace_objects_client.show_namespace_object(
             namespace['namespace'],
             object_name)

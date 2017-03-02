@@ -20,7 +20,6 @@ from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 CONF = config.CONF
@@ -47,7 +46,7 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
         cls.image_client = cls.os.image_client
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(VolumesActionsRbacTest, self).tearDown()
 
     @classmethod
@@ -72,7 +71,7 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
     @rbac_rule_validation.action(service="cinder", rule="volume:attach")
     @decorators.idempotent_id('f97b10e4-2eed-4f8b-8632-71c02cb9fe42')
     def test_attach_volume_to_instance(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         # Attach the volume
         self._attach_volume()
 
@@ -81,14 +80,14 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_detach_volume_to_instance(self):
         # Attach the volume
         self._attach_volume()
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         # Detach the volume
         self._detach_volume()
 
     @rbac_rule_validation.action(service="cinder", rule="volume:get")
     @decorators.idempotent_id('c4c3fdd5-b1b1-49c3-b977-a9f40ee9257a')
     def test_get_volume_attachment(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         # Get attachment
         self.client.show_volume(self.volume['id'])
 
@@ -97,7 +96,7 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('b0d0da46-903c-4445-893e-20e680d68b50')
     def test_volume_upload(self):
         image_name = data_utils.rand_name('image')
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         body = self.client.upload_volume(
             self.volume['id'], image_name=image_name,
             disk_format=CONF.volume.disk_format)['os-volume_upload_image']
@@ -112,7 +111,7 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('2750717a-f250-4e41-9e09-02624aad6ff8')
     def test_volume_readonly_update(self):
         volume = self.create_volume()
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         # Update volume readonly
         self.client.update_volume_readonly(volume['id'], readonly=True)
 

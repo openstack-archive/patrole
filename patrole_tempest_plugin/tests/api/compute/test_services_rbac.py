@@ -17,7 +17,6 @@ from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 CONF = config.CONF
@@ -38,7 +37,7 @@ class ServicesAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
                 '%s skipped as no compute extensions enabled' % cls.__name__)
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(ServicesAdminRbacTest, self).tearDown()
 
     @rbac_rule_validation.action(
@@ -46,5 +45,5 @@ class ServicesAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
         rule="os_compute_api:os-services")
     @decorators.idempotent_id('7472261b-9c6d-453a-bcb3-aecaa29ad281')
     def test_list_services(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.list_services()['services']

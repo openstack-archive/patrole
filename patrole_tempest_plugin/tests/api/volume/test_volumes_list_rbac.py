@@ -17,7 +17,6 @@ from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 CONF = config.CONF
@@ -31,7 +30,7 @@ class VolumesListRbacTest(rbac_base.BaseVolumeRbacTest):
         cls.client = cls.os.volumes_client
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(VolumesListRbacTest, self).tearDown()
 
     @rbac_rule_validation.action(service="cinder",
@@ -39,7 +38,7 @@ class VolumesListRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('e3ab7906-b04b-4c45-aa11-1104d302f940')
     def test_volume_list(self):
         # Get a list of Volumes
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.list_volumes()
 
     @rbac_rule_validation.action(
@@ -48,7 +47,7 @@ class VolumesListRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('3d48ca91-f02b-4616-a69d-4a8b296c8529')
     def test_volume_list_image_metadata(self):
         # Get a list of Volumes
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.list_volumes(detail=True)
 
 

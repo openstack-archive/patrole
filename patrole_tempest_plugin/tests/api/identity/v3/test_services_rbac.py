@@ -18,7 +18,6 @@ from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.identity.v3 import rbac_base
 
 CONF = config.CONF
@@ -28,7 +27,7 @@ class IdentitySericesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
 
     def tearDown(self):
         """Reverts user back to admin for cleanup."""
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(IdentitySericesV3AdminRbacTest, self).tearDown()
 
     @rbac_rule_validation.action(service="keystone",
@@ -39,7 +38,7 @@ class IdentitySericesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
 
         RBAC test for Keystone: identity:create_service
         """
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self._create_service()
 
     @rbac_rule_validation.action(service="keystone",
@@ -53,7 +52,7 @@ class IdentitySericesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
         service = self._create_service()
         new_name = data_utils.rand_name('new_test_name')
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.services_client.update_service(service['id'],
                                             service=service,
                                             name=new_name,
@@ -69,7 +68,7 @@ class IdentitySericesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
         """
         service = self._create_service()
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.services_client.delete_service(service['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -82,7 +81,7 @@ class IdentitySericesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
         """
         service = self._create_service()
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.services_client.show_service(service['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -93,5 +92,5 @@ class IdentitySericesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
 
         RBAC test for Keystone: identity:list_services
         """
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.services_client.list_services()

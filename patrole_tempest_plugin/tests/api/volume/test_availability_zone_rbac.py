@@ -17,7 +17,6 @@ from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 CONF = config.CONF
@@ -31,12 +30,12 @@ class AvailabilityZoneRbacTest(rbac_base.BaseVolumeRbacTest):
         cls.client = cls.availability_zone_client
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(AvailabilityZoneRbacTest, self).tearDown()
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:availability_zone_list")
     @decorators.idempotent_id('8cfd920c-4b6c-402d-b6e2-ede86bedc702')
     def test_get_availability_zone_list(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.list_availability_zones()

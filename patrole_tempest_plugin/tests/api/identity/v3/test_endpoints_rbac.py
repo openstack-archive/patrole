@@ -19,7 +19,6 @@ from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.identity.v3 import rbac_base
 
 CONF = config.CONF
@@ -43,7 +42,7 @@ class IdentityEndpointsV3AdminRbacTest(
 
     def tearDown(self):
         """Reverts user back to admin for cleanup."""
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(IdentityEndpointsV3AdminRbacTest, self).tearDown()
 
     @rbac_rule_validation.action(service="keystone",
@@ -54,7 +53,7 @@ class IdentityEndpointsV3AdminRbacTest(
 
         RBAC test for Keystone: identity:create_endpoint
         """
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self._create_endpoint()
 
     @rbac_rule_validation.action(service="keystone",
@@ -68,7 +67,7 @@ class IdentityEndpointsV3AdminRbacTest(
         service, endpoint = self._create_endpoint()
         new_url = data_utils.rand_url()
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.endpoints_client.update_endpoint(endpoint["id"],
                                               service_id=service['id'],
                                               url=new_url)
@@ -83,7 +82,7 @@ class IdentityEndpointsV3AdminRbacTest(
         """
         _, endpoint = self._create_endpoint()
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.endpoints_client.delete_endpoint(endpoint['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -96,7 +95,7 @@ class IdentityEndpointsV3AdminRbacTest(
         """
         _, endpoint = self._create_endpoint()
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.endpoints_client.show_endpoint(endpoint['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -107,5 +106,5 @@ class IdentityEndpointsV3AdminRbacTest(
 
         RBAC test for Keystone: identity:create_domain
         """
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.endpoints_client.list_endpoints()

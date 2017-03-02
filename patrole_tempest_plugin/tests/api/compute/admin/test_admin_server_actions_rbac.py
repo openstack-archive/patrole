@@ -17,7 +17,6 @@ from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 
@@ -27,7 +26,7 @@ CONF = config.CONF
 class ServersAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(ServersAdminRbacTest, self).tearDown()
 
     @classmethod
@@ -52,7 +51,7 @@ class ServersAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
         rule="os_compute_api:os-admin-actions:reset_state")
     @decorators.idempotent_id('ae84dd0b-f364-462e-b565-3457f9c019ef')
     def test_reset_server_state(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.reset_state(self.server_id, state='error')
         self.addCleanup(self.client.reset_state,
                         self.server_id,
@@ -63,7 +62,7 @@ class ServersAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
         rule="os_compute_api:os-admin-actions:inject_network_info")
     @decorators.idempotent_id('ce48c340-51c1-4cff-9b6e-0cc5ef008630')
     def test_inject_network_info(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.inject_network_info(self.server_id)
 
     @rbac_rule_validation.action(
@@ -71,7 +70,7 @@ class ServersAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
         rule="os_compute_api:os-admin-actions:reset_network")
     @decorators.idempotent_id('2911a242-15c4-4fcb-80d5-80a8930661b0')
     def test_reset_network(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.reset_network(self.server_id)
 
     @rbac_rule_validation.action(
@@ -79,5 +78,5 @@ class ServersAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
         rule="os_compute_api:os-admin-actions:discoverable")
     @decorators.idempotent_id('e9d2991f-a05e-4116-881b-e2a82bb173cf')
     def test_admin_actions_discoverable(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.extensions_client.show_extension('os-admin-actions')

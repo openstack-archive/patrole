@@ -17,7 +17,6 @@ from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.identity.v2 import rbac_base
 
 CONF = config.CONF
@@ -26,7 +25,7 @@ CONF = config.CONF
 class IdentityServicesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(IdentityServicesV2AdminRbacTest, self).tearDown()
 
     @classmethod
@@ -42,7 +41,7 @@ class IdentityServicesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         RBAC test for Identity Admin 2.0 create_service
         """
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self._create_service()
 
     @rbac_rule_validation.action(service="keystone",
@@ -55,7 +54,7 @@ class IdentityServicesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         """
         service_id = self._create_service()['OS-KSADM:service']['id']
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.services_client.delete_service(service_id)
 
     @rbac_rule_validation.action(service="keystone",
@@ -68,7 +67,7 @@ class IdentityServicesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         """
         service_id = self._create_service()['OS-KSADM:service']['id']
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.services_client.show_service(service_id)
 
     @rbac_rule_validation.action(service="keystone",
@@ -79,5 +78,5 @@ class IdentityServicesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         RBAC test for Identity Admin 2.0 list_service
         """
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.services_client.list_services()

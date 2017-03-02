@@ -14,7 +14,6 @@
 #    under the License.
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 from tempest.lib.common.utils import data_utils
@@ -35,7 +34,7 @@ class AssistedVolumeSnapshotRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     def tearDown(self):
         """Cleanup and reset RBAC role."""
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(AssistedVolumeSnapshotRbacTest, self).tearDown()
 
     def _create_and_attach(self):
@@ -55,7 +54,7 @@ class AssistedVolumeSnapshotRbacTest(rbac_base.BaseV2ComputeRbacTest):
         RBAC test for assisted volume snapshot role-create
         """
         self._create_and_attach()
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.assisted_volume_snapshot_client.\
             create_volume_attachments(self.volume['id'],
                                       data_utils.rand_uuid())
@@ -74,6 +73,6 @@ class AssistedVolumeSnapshotRbacTest(rbac_base.BaseV2ComputeRbacTest):
         snapshot_id = data_utils.rand_uuid()
         self.assisted_volume_snapshot_client.\
             create_volume_attachments(self.volume['id'], snapshot_id)
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.assisted_volume_snapshot_client.\
             delete_volume_attachments(snapshot_id, self.volume['id'])

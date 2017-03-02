@@ -19,7 +19,6 @@ from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 CONF = config.CONF
@@ -34,7 +33,7 @@ class VolumesRbacTest(rbac_base.BaseVolumeRbacTest):
         cls.client = cls.volumes_client
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(VolumesRbacTest, self).tearDown()
 
     @rbac_rule_validation.action(
@@ -44,7 +43,7 @@ class VolumesRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_volume_reset_status(self):
         volume = self.create_volume()
         # Test volume reset status : available->error->available
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.reset_volume_status(volume['id'], status='error')
         self.client.reset_volume_status(volume['id'], status='available')
 
@@ -56,7 +55,7 @@ class VolumesRbacTest(rbac_base.BaseVolumeRbacTest):
         volume = self.create_volume()
         self.client.reset_volume_status(volume['id'], status='error')
         # Test force delete when status of volume is error
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.force_delete_volume(volume['id'])
         self.client.wait_for_resource_deletion(volume['id'])
 

@@ -19,7 +19,6 @@ from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.image import rbac_base
 
 CONF = config.CONF
@@ -28,7 +27,7 @@ CONF = config.CONF
 class ImageNamespacesRbacTest(rbac_base.BaseV2ImageRbacTest):
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(ImageNamespacesRbacTest, self).tearDown()
 
     @rbac_rule_validation.action(service="glance",
@@ -40,7 +39,7 @@ class ImageNamespacesRbacTest(rbac_base.BaseV2ImageRbacTest):
         RBAC test for the glance add_metadef_namespace policy
         """
         namespace_name = data_utils.rand_name('test-ns')
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.namespaces_client.create_namespace(
             namespace=namespace_name,
             protected=False)
@@ -57,7 +56,7 @@ class ImageNamespacesRbacTest(rbac_base.BaseV2ImageRbacTest):
 
         RBAC test for the glance get_metadef_namespaces policy
         """
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.namespaces_client.list_namespaces()
 
     @rbac_rule_validation.action(service="glance",
@@ -72,7 +71,7 @@ class ImageNamespacesRbacTest(rbac_base.BaseV2ImageRbacTest):
         body = self.namespaces_client.create_namespace(
             namespace=namespace_name,
             protected=False)
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.namespaces_client.update_namespace(body['namespace'],
                                                 description="My new "
                                                             "description")

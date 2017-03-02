@@ -19,7 +19,6 @@ from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.identity.v2 import rbac_base
 
 CONF = config.CONF
@@ -41,7 +40,7 @@ class IdentityEndpointsV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         cls.internal_url = data_utils.rand_url()
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(IdentityEndpointsV2AdminRbacTest, self).tearDown()
 
     def _create_endpoint(self):
@@ -68,7 +67,7 @@ class IdentityEndpointsV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         RBAC test for Identity Admin 2.0 create_endpoint
         """
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self._create_endpoint()
 
     @rbac_rule_validation.action(service="keystone",
@@ -82,7 +81,7 @@ class IdentityEndpointsV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         """
 
         endpoint = self._create_endpoint()
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.endpoints_client.delete_endpoint(endpoint['endpoint']['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -95,5 +94,5 @@ class IdentityEndpointsV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         RBAC test for Identity Admin 2.0 list_endpoint
         """
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.endpoints_client.list_endpoints()

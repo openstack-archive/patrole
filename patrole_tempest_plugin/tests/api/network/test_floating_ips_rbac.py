@@ -23,7 +23,6 @@ from tempest.lib import exceptions
 
 from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.network import rbac_base as base
 
 CONF = config.CONF
@@ -71,7 +70,7 @@ class FloatingIpsRbacTest(base.BaseNetworkRbacTest):
         return floating_ip
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(FloatingIpsRbacTest, self).tearDown()
 
     @rbac_rule_validation.action(service="neutron",
@@ -82,7 +81,7 @@ class FloatingIpsRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron create_floatingip policy
         """
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self._create_floatingip()
 
     @rbac_rule_validation.action(service="neutron",
@@ -95,7 +94,7 @@ class FloatingIpsRbacTest(base.BaseNetworkRbacTest):
         """
         fip = str(netaddr.IPAddress(self.cidr) + 10)
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self._create_floatingip(floating_ip_address=fip)
 
     @rbac_rule_validation.action(service="neutron",
@@ -107,7 +106,7 @@ class FloatingIpsRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron update_floatingip policy
         """
         floating_ip = self._create_floatingip()
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
 
         # Associate floating IP to the other port
         self.floating_ips_client.update_floatingip(
@@ -121,7 +120,7 @@ class FloatingIpsRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron get_floatingip policy
         """
         floating_ip = self._create_floatingip()
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
 
         try:
             # Show floating IP
@@ -141,7 +140,7 @@ class FloatingIpsRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron delete_floatingip policy
         """
         floating_ip = self._create_floatingip()
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
 
         try:
             # Delete the floating IP

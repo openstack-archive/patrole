@@ -18,12 +18,14 @@ from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 
+from patrole_tempest_plugin.rbac_utils import rbac_utils
+
 CONF = config.CONF
 
 
 class BaseIdentityV3RbacAdminTest(base.BaseIdentityV3AdminTest):
 
-    credentials = ['primary', 'admin']
+    credentials = ['admin']
 
     @classmethod
     def skip_checks(cls):
@@ -31,9 +33,11 @@ class BaseIdentityV3RbacAdminTest(base.BaseIdentityV3AdminTest):
         if not CONF.rbac.rbac_flag:
             raise cls.skipException(
                 "%s skipped as RBAC Flag not enabled" % cls.__name__)
-        if CONF.auth.tempest_roles != ['admin']:
-            raise cls.skipException(
-                "%s skipped because tempest roles is not admin" % cls.__name__)
+
+    @classmethod
+    def setup_credentials(cls):
+        super(BaseIdentityV3RbacAdminTest, cls).setup_credentials()
+        cls.os = cls.os_adm
 
     @classmethod
     def setup_clients(cls):
@@ -45,6 +49,7 @@ class BaseIdentityV3RbacAdminTest(base.BaseIdentityV3AdminTest):
         cls.endpoints_client = cls.os.endpoints_v3_client
         cls.groups_client = cls.os.groups_client
         cls.policies_client = cls.os.policies_client
+        cls.rbac_utils = rbac_utils()
 
     def _create_service(self):
         """Creates a service for test."""

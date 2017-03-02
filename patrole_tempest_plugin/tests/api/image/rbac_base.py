@@ -11,16 +11,17 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-# Maybe these should be in lib or recreated?
 from tempest.api.image import base as image_base
 from tempest import config
+
+from patrole_tempest_plugin.rbac_utils import rbac_utils
 
 CONF = config.CONF
 
 
 class BaseV1ImageRbacTest(image_base.BaseV1ImageTest):
 
-    credentials = ['primary', 'admin']
+    credentials = ['admin']
 
     @classmethod
     def skip_checks(cls):
@@ -28,20 +29,23 @@ class BaseV1ImageRbacTest(image_base.BaseV1ImageTest):
         if not CONF.rbac.rbac_flag:
             raise cls.skipException(
                 "%s skipped as RBAC Flag not enabled" % cls.__name__)
-        if 'admin' not in CONF.auth.tempest_roles:
-            raise cls.skipException(
-                "%s skipped because tempest roles is not admin" % cls.__name__)
+
+    @classmethod
+    def setup_credentials(cls):
+        super(BaseV1ImageRbacTest, cls).setup_credentials()
+        cls.os = cls.os_adm
 
     @classmethod
     def setup_clients(cls):
         super(BaseV1ImageRbacTest, cls).setup_clients()
         cls.auth_provider = cls.os.auth_provider
         cls.admin_client = cls.os_adm.image_client
+        cls.rbac_utils = rbac_utils()
 
 
 class BaseV2ImageRbacTest(image_base.BaseV2ImageTest):
 
-    credentials = ['primary', 'admin']
+    credentials = ['admin']
 
     @classmethod
     def skip_checks(cls):
@@ -49,12 +53,15 @@ class BaseV2ImageRbacTest(image_base.BaseV2ImageTest):
         if not CONF.rbac.rbac_flag:
             raise cls.skipException(
                 "%s skipped as RBAC Flag not enabled" % cls.__name__)
-        if 'admin' not in CONF.auth.tempest_roles:
-            raise cls.skipException(
-                "%s skipped because tempest roles is not admin" % cls.__name__)
+
+    @classmethod
+    def setup_credentials(cls):
+        super(BaseV2ImageRbacTest, cls).setup_credentials()
+        cls.os = cls.os_adm
 
     @classmethod
     def setup_clients(cls):
         super(BaseV2ImageRbacTest, cls).setup_clients()
         cls.auth_provider = cls.os.auth_provider
         cls.admin_client = cls.os_adm.image_client_v2
+        cls.rbac_utils = rbac_utils()

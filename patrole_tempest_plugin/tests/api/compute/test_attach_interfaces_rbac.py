@@ -19,7 +19,6 @@ from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 CONF = config.CONF
@@ -57,7 +56,7 @@ class AttachInterfacesRbacTest(rbac_base.BaseV2ComputeRbacTest):
         cls.server = cls.create_test_server(wait_until='ACTIVE')
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(AttachInterfacesRbacTest, self).tearDown()
 
     def _attach_interface_to_server(self):
@@ -77,7 +76,7 @@ class AttachInterfacesRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-attach-interfaces")
     def test_list_interfaces(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.list_interfaces(self.server['id'])['interfaceAttachments']
 
     @decorators.idempotent_id('d2d3a24d-4738-4bce-a287-36d664746cde')
@@ -85,7 +84,7 @@ class AttachInterfacesRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-attach-interfaces:create")
     def test_create_interface(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self._attach_interface_to_server()
 
     @decorators.idempotent_id('55b05692-ed44-4608-a84c-cd4219c82799')
@@ -94,5 +93,5 @@ class AttachInterfacesRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-attach-interfaces:delete")
     def test_delete_interface(self):
         interface = self._attach_interface_to_server()
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.delete_interface(self.server['id'], interface['port_id'])

@@ -17,7 +17,6 @@ from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 CONF = config.CONF
@@ -51,7 +50,7 @@ class IpsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         cls.server = cls.create_test_server(wait_until='ACTIVE')
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(IpsRbacTest, self).tearDown()
 
     @decorators.idempotent_id('6886d360-0d86-4760-b1a3-882d81fbebcc')
@@ -59,7 +58,7 @@ class IpsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:ips:index")
     def test_list_addresses(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.list_addresses(self.server['id'])['addresses']
 
     @decorators.idempotent_id('fa43e7e5-0db9-48eb-9c6b-c11eb766b8e4')
@@ -69,6 +68,6 @@ class IpsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_list_addresses_by_network(self):
         addresses = self.client.list_addresses(self.server['id'])['addresses']
         address = next(iter(addresses))
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.list_addresses_by_network(
             self.server['id'], address)[address]

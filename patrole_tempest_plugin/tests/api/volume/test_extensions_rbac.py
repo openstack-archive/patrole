@@ -17,7 +17,6 @@ from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 CONF = config.CONF
@@ -26,14 +25,14 @@ CONF = config.CONF
 class ExtensionsRbacTest(rbac_base.BaseVolumeRbacTest):
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(ExtensionsRbacTest, self).tearDown()
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:list_extensions")
     @decorators.idempotent_id('7f2dcc41-e850-493f-a400-82db4e2b50c0')
     def test_list_extensions(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.volumes_extension_client.list_extensions()
 
 

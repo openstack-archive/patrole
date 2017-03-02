@@ -18,7 +18,6 @@ from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.identity.v3 import rbac_base
 
 CONF = config.CONF
@@ -29,7 +28,7 @@ class IdentityProjectV3AdminRbacTest(
 
     def tearDown(self):
         """Reverts user back to admin for cleanup."""
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(IdentityProjectV3AdminRbacTest, self).tearDown()
 
     @rbac_rule_validation.action(service="keystone",
@@ -41,7 +40,7 @@ class IdentityProjectV3AdminRbacTest(
         RBAC test for Keystone: identity:create_project
         """
         name = data_utils.rand_name('project')
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         project = self.non_admin_projects_client \
                       .create_project(name)['project']
         self.addCleanup(self.projects_client.delete_project, project['id'])
@@ -56,7 +55,7 @@ class IdentityProjectV3AdminRbacTest(
         """
         project = self._setup_test_project()
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.non_admin_projects_client \
             .update_project(project['id'],
                             description="Changed description")
@@ -71,7 +70,7 @@ class IdentityProjectV3AdminRbacTest(
         """
         project = self._setup_test_project()
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.non_admin_projects_client.delete_project(project['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -84,7 +83,7 @@ class IdentityProjectV3AdminRbacTest(
         """
         project = self._setup_test_project()
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.non_admin_projects_client.show_project(project['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -95,5 +94,5 @@ class IdentityProjectV3AdminRbacTest(
 
         RBAC test for Keystone: identity:list_projects
         """
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.non_admin_projects_client.list_projects()

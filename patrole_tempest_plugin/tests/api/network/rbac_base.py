@@ -16,12 +16,14 @@
 from tempest.api.network import base as network_base
 from tempest import config
 
+from patrole_tempest_plugin.rbac_utils import rbac_utils
+
 CONF = config.CONF
 
 
 class BaseNetworkRbacTest(network_base.BaseNetworkTest):
 
-    credentials = ['primary', 'admin']
+    credentials = ['admin']
 
     @classmethod
     def skip_checks(cls):
@@ -29,12 +31,15 @@ class BaseNetworkRbacTest(network_base.BaseNetworkTest):
         if not CONF.rbac.rbac_flag:
             raise cls.skipException(
                 "%s skipped as RBAC Flag not enabled" % cls.__name__)
-        if 'admin' not in CONF.auth.tempest_roles:
-            raise cls.skipException(
-                "%s skipped because tempest roles is not admin" % cls.__name__)
+
+    @classmethod
+    def setup_credentials(cls):
+        super(BaseNetworkRbacTest, cls).setup_credentials()
+        cls.os = cls.os_adm
 
     @classmethod
     def setup_clients(cls):
         super(BaseNetworkRbacTest, cls).setup_clients()
         cls.auth_provider = cls.os.auth_provider
         cls.admin_client = cls.os_adm.agents_client
+        cls.rbac_utils = rbac_utils()

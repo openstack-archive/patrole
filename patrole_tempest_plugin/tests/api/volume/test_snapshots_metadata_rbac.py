@@ -17,7 +17,6 @@ from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 CONF = config.CONF
@@ -32,7 +31,7 @@ class SnapshotMetadataRbacTest(rbac_base.BaseVolumeRbacTest):
             raise cls.skipException("Cinder snapshot feature disabled")
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(SnapshotMetadataRbacTest, self).tearDown()
 
     @classmethod
@@ -58,7 +57,7 @@ class SnapshotMetadataRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('c9cbec1c-edfe-46b8-825b-7b6ac0a58c25')
     def test_create_snapshot_metadata(self):
         # Create metadata for the snapshot
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self._create_test_snapshot_metadata()
 
     @rbac_rule_validation.action(service="cinder",
@@ -68,7 +67,7 @@ class SnapshotMetadataRbacTest(rbac_base.BaseVolumeRbacTest):
         # Create volume and snapshot metadata
         self._create_test_snapshot_metadata()
         # Get metadata for the snapshot
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.snapshots_client.show_snapshot_metadata(
             self.snapshot_id)
 
@@ -80,7 +79,7 @@ class SnapshotMetadataRbacTest(rbac_base.BaseVolumeRbacTest):
         # Create volume and snapshot metadata
         self._create_test_snapshot_metadata()
         # Get metadata for the snapshot
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         # Get the metadata of the snapshot
         self.snapshots_client.show_snapshot_metadata(
             self.snapshot_id)['metadata']

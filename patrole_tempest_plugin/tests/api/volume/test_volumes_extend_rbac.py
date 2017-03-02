@@ -18,7 +18,6 @@ from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 CONF = config.CONF
@@ -27,7 +26,7 @@ CONF = config.CONF
 class VolumesExtendRbacTest(rbac_base.BaseVolumeRbacTest):
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(VolumesExtendRbacTest, self).tearDown()
 
     @classmethod
@@ -41,7 +40,7 @@ class VolumesExtendRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_volume_extend(self):
         # Extend volume test
         extend_size = int(self.volume['size']) + 1
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.volumes_client.extend_volume(self.volume['id'],
                                           new_size=extend_size)
         waiters.wait_for_volume_status(self.volumes_client, self.volume['id'],

@@ -16,14 +16,13 @@
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 
 class SecurityGroupsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(SecurityGroupsRbacTest, self).tearDown()
 
     @rbac_rule_validation.action(
@@ -31,5 +30,5 @@ class SecurityGroupsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-security-groups")
     @decorators.idempotent_id('4ac58e49-48c1-4fca-a6c3-3f95fb99eb77')
     def test_server_security_groups(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.security_groups_client.list_security_groups()

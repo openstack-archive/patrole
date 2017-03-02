@@ -17,7 +17,6 @@ from tempest.lib import decorators
 from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 
@@ -37,7 +36,7 @@ class HypervisorAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
             raise cls.skipException(msg)
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(HypervisorAdminRbacTest, self).tearDown()
 
     @decorators.idempotent_id('17bbeb9a-e73e-445f-a771-c794448ef562')
@@ -45,5 +44,5 @@ class HypervisorAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
         service="nova",
         rule="os_compute_api:os-hypervisors")
     def test_list_hypervisors(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.list_hypervisors()['hypervisors']

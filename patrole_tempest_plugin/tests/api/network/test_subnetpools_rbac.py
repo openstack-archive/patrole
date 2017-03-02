@@ -23,7 +23,6 @@ from tempest import test
 
 from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.network import rbac_base as base
 
 CONF = config.CONF
@@ -40,7 +39,7 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
             raise cls.skipException(msg)
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(SubnetPoolsRbacTest, self).tearDown()
 
     def _create_subnetpool(self, shared=None):
@@ -69,7 +68,7 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron create_subnetpool policy
         """
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self._create_subnetpool()
 
     @rbac_rule_validation.action(service="neutron",
@@ -80,7 +79,7 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron create_subnetpool:shared policy
         """
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self._create_subnetpool(shared=True)
 
     @rbac_rule_validation.action(service="neutron",
@@ -92,7 +91,7 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron get_subnetpool policy
         """
         subnetpool = self._create_subnetpool()
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         try:
             self.subnetpools_client.show_subnetpool(subnetpool['id'])
         except exceptions.NotFound as e:
@@ -110,7 +109,7 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron update_subnetpool policy
         """
         subnetpool = self._create_subnetpool()
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.subnetpools_client.update_subnetpool(subnetpool['id'],
                                                   min_prefixlen=24)
 
@@ -123,7 +122,7 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron delete_subnetpool policy
         """
         subnetpool = self._create_subnetpool()
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         try:
             self.subnetpools_client.delete_subnetpool(subnetpool['id'])
         except exceptions.NotFound as e:

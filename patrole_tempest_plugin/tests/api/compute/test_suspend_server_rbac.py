@@ -18,7 +18,6 @@ from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 CONF = config.CONF
@@ -45,7 +44,7 @@ class SuspendServerRbacTest(rbac_base.BaseV2ComputeRbacTest):
         cls.server = cls.create_test_server(wait_until='ACTIVE')
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
 
         # Guarantee that the server is active during each test run.
         vm_state = self.client.show_server(self.server['id'])['server'][
@@ -62,7 +61,7 @@ class SuspendServerRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-suspend-server:suspend")
     def test_suspend_server(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.suspend_server(self.server['id'])
         waiters.wait_for_server_status(self.client, self.server['id'],
                                        'SUSPENDED')
@@ -75,7 +74,8 @@ class SuspendServerRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.client.suspend_server(self.server['id'])
         waiters.wait_for_server_status(self.client, self.server['id'],
                                        'SUSPENDED')
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.resume_server(self.server['id'])
-        waiters.wait_for_server_status(self.client, self.server['id'],
+        waiters.wait_for_server_status(self.client,
+                                       self.server['id'],
                                        'ACTIVE')

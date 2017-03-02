@@ -16,7 +16,6 @@
 from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 
@@ -41,14 +40,14 @@ class DeferredDeleteRbacTest(rbac_base.BaseV2ComputeRbacTest):
         cls.server = cls.create_test_server(wait_until='ACTIVE')
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(DeferredDeleteRbacTest, self).tearDown()
 
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-deferred-delete")
     def test_force_delete_server(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         # Force-deleting a server enforces os-deferred-delete according to the
         # following API: https://github.com/openstack/nova/blob/master/nova/api
         # /openstack/compute/deferred_delete.py

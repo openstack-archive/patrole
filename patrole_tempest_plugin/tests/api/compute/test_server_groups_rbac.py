@@ -17,7 +17,6 @@ from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 CONF = config.CONF
@@ -43,7 +42,7 @@ class ServerGroupsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         cls.server = cls.create_test_server(wait_until='ACTIVE')
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(ServerGroupsRbacTest, self).tearDown()
 
     @rbac_rule_validation.action(
@@ -51,7 +50,7 @@ class ServerGroupsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-server-groups:create")
     @decorators.idempotent_id('7f3eae94-6130-47e9-81ac-34009f55be2f')
     def test_create_server_group(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.create_test_server_group()
 
     @rbac_rule_validation.action(
@@ -60,7 +59,7 @@ class ServerGroupsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('832d9be3-632e-47b2-93d2-5897db43e3e2')
     def test_delete_server_group(self):
         server_group = self.create_test_server_group()
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.delete_server_group(server_group['id'])
 
     @rbac_rule_validation.action(
@@ -68,7 +67,7 @@ class ServerGroupsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-server-groups:index")
     @decorators.idempotent_id('5eccd67f-5945-483b-b1c8-de851ebfc1c1')
     def test_list_server_groups(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.list_server_groups()
 
     @rbac_rule_validation.action(
@@ -77,5 +76,5 @@ class ServerGroupsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('62534e3f-7e99-4a3d-a08e-33e056460cf2')
     def test_show_server_group(self):
         server_group = self.create_test_server_group()
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.show_server_group(server_group['id'])

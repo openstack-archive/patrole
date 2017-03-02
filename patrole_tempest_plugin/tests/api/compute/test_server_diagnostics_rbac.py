@@ -17,7 +17,6 @@ from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 CONF = config.CONF
@@ -43,7 +42,7 @@ class ServerDiagnosticsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         cls.server = cls.create_test_server(wait_until='ACTIVE')
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(ServerDiagnosticsRbacTest, self).tearDown()
 
     @rbac_rule_validation.action(
@@ -51,5 +50,5 @@ class ServerDiagnosticsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-server-diagnostics")
     @decorators.idempotent_id('5dabfcc4-bedb-417b-8247-b3ee7c5c0f3e')
     def test_show_server_diagnostics(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.show_server_diagnostics(self.server['id'])

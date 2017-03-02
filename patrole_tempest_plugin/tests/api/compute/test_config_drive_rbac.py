@@ -17,7 +17,6 @@ from tempest.lib import decorators
 from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 
@@ -37,7 +36,7 @@ class ConfigDriveRbacTest(rbac_base.BaseV2ComputeRbacTest):
             raise cls.skipException(msg)
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(ConfigDriveRbacTest, self).tearDown()
 
     @decorators.idempotent_id('55c62ef7-b72b-4970-acc6-05b0a4316e5d')
@@ -45,7 +44,7 @@ class ConfigDriveRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-config-drive")
     def test_create_test_server_with_config_drive(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         # NOTE(felipemonteiro): This policy action is always enforced,
         # regardless whether the config_drive flag is set to true or false.
         # However, it has been explicitly set to true below, in case that this

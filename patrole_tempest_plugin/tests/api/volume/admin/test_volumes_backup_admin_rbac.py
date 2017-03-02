@@ -17,7 +17,6 @@ from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 CONF = config.CONF
@@ -32,7 +31,7 @@ class VolumesBackupsAdminRbacTest(rbac_base.BaseVolumeAdminRbacTest):
             raise cls.skipException("Cinder backup feature disabled")
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(VolumesBackupsAdminRbacTest, self).tearDown()
 
     @classmethod
@@ -47,7 +46,7 @@ class VolumesBackupsAdminRbacTest(rbac_base.BaseVolumeAdminRbacTest):
         # Create a temp backup
         backup = self.create_backup(volume_id=self.volume['id'])
         # Export Backup
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.backups_client.export_backup(
             backup['id'])['backup-record']
 
@@ -61,7 +60,7 @@ class VolumesBackupsAdminRbacTest(rbac_base.BaseVolumeAdminRbacTest):
         export_backup = self.backups_client.export_backup(
             backup['id'])['backup-record']
         # Import the temp backup
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         import_backup = self.backups_client.import_backup(
             backup_service=export_backup['backup_service'],
             backup_url=export_backup['backup_url'])['backup']

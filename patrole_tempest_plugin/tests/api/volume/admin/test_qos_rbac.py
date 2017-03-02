@@ -19,7 +19,6 @@ from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 CONF = config.CONF
@@ -34,14 +33,14 @@ class VolumeQOSRbacTest(rbac_base.BaseVolumeAdminRbacTest):
         cls.client = cls.admin_volume_qos_client
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(VolumeQOSRbacTest, self).tearDown()
 
     @rbac_rule_validation.action(
         service="cinder", rule="volume_extension:qos_specs_manage:create")
     @decorators.idempotent_id('4f9f45f0-b379-4577-a279-cec3e917cbec')
     def test_create_qos_with_consumer(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         # Create a qos
         self.create_test_qos_specs()
 
@@ -51,7 +50,7 @@ class VolumeQOSRbacTest(rbac_base.BaseVolumeAdminRbacTest):
     def test_delete_qos_with_consumer(self):
         # Create a qos
         qos = self.create_test_qos_specs()
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         # Delete a qos
         self.client.delete_qos(qos['id'])
 
@@ -61,7 +60,7 @@ class VolumeQOSRbacTest(rbac_base.BaseVolumeAdminRbacTest):
     def test_get_qos(self):
         # Create a qos
         qos = self.create_test_qos_specs()
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         # Get a qos
         self.client.show_qos(qos['id'])['qos_specs']
 
@@ -69,7 +68,7 @@ class VolumeQOSRbacTest(rbac_base.BaseVolumeAdminRbacTest):
                                  rule="volume_extension:qos_specs_manage:read")
     @decorators.idempotent_id('546b8bb1-04a4-4387-9506-a538a7f3cd6a')
     def test_list_qos(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         # list all qos
         self.client.list_qos()['qos_specs']
 
@@ -79,7 +78,7 @@ class VolumeQOSRbacTest(rbac_base.BaseVolumeAdminRbacTest):
     def test_set_qos_key(self):
         # Create a qos
         qos = self.create_test_qos_specs()
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         # set key
         self.client.set_qos_key(qos['id'], iops_bytes='500')['qos_specs']
 
@@ -91,7 +90,7 @@ class VolumeQOSRbacTest(rbac_base.BaseVolumeAdminRbacTest):
         qos = self.create_test_qos_specs()
         # Set key
         self.client.set_qos_key(qos['id'], iops_bytes='500')['qos_specs']
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         # Unset key
         keys = ['iops_bytes']
         self.client.unset_qos_key(qos['id'], keys)
@@ -107,7 +106,7 @@ class VolumeQOSRbacTest(rbac_base.BaseVolumeAdminRbacTest):
         qos = self.create_test_qos_specs()
         # create a test volume-type
         vol_type = self.create_volume_type()['id']
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         # associate the qos-specs with volume-types
         self.client.associate_qos(qos['id'], vol_type)
         self.addCleanup(self.client.disassociate_qos, qos['id'], vol_type)
@@ -122,7 +121,7 @@ class VolumeQOSRbacTest(rbac_base.BaseVolumeAdminRbacTest):
         # associate the qos-specs with volume-types
         self.client.associate_qos(qos['id'], vol_type)
         self.addCleanup(self.client.disassociate_qos, qos['id'], vol_type)
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         # get the association of the qos-specs
         self.client.show_association_qos(qos['id'])
 
@@ -137,7 +136,7 @@ class VolumeQOSRbacTest(rbac_base.BaseVolumeAdminRbacTest):
         self.client.associate_qos(qos['id'], vol_type)
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self.client.disassociate_qos, qos['id'], vol_type)
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         # disassociate a volume-type with qos-specs
         self.client.disassociate_qos(qos['id'], vol_type)
         operation = 'disassociate'
@@ -155,7 +154,7 @@ class VolumeQOSRbacTest(rbac_base.BaseVolumeAdminRbacTest):
         self.client.associate_qos(qos['id'], vol_type)
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self.client.disassociate_qos, qos['id'], vol_type)
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         # disassociate all volume-types from qos-specs
         self.client.disassociate_all_qos(qos['id'])
         operation = 'disassociate-all'

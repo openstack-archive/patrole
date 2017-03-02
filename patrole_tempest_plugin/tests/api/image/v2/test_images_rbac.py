@@ -21,7 +21,6 @@ from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.image import rbac_base
 
 CONF = config.CONF
@@ -36,7 +35,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         cls.client = cls.os.image_client_v2
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(BasicOperationsImagesRbacTest, self).tearDown()
 
     @rbac_rule_validation.action(service="glance",
@@ -50,7 +49,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         """
         uuid = '00000000-1111-2222-3333-444455556666'
         image_name = data_utils.rand_name('image')
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.create_image(name=image_name,
                           container_format='bare',
                           disk_format='raw',
@@ -74,7 +73,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
                                  visibility='private',
                                  ramdisk_id=uuid)
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         # Try uploading an image file
         image_file = moves.cStringIO(data_utils.random_bytes())
         self.client.store_image_file(body['id'], image_file)
@@ -95,7 +94,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
                                  visibility='public')
         image_id = body.get('id')
         # Toggle role and delete created image
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.delete_image(image_id)
         self.client.wait_for_resource_deletion(image_id)
 
@@ -116,7 +115,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
                                  visibility='private')
         image_id = body.get('id')
         # Toggle role and get created image
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.show_image(image_id)
 
     @rbac_rule_validation.action(service="glance",
@@ -130,7 +129,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         """
 
         # Toggle role and get created image
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.list_images()
 
     @rbac_rule_validation.action(service="glance",
@@ -154,7 +153,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         self.client.store_image_file(image_id, image_file)
 
         # Toggle role and update created image
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         new_image_name = data_utils.rand_name('new-image')
         body = self.client.update_image(image_id, [
             dict(replace='/name', value=new_image_name)])
@@ -169,7 +168,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         RBAC test for the glance publicize_image endpoint
         """
         image_name = data_utils.rand_name('image')
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.create_image(name=image_name,
                           container_format='bare',
                           disk_format='raw',
@@ -196,7 +195,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         image_file = moves.cStringIO(data_utils.random_bytes())
         self.client.store_image_file(image_id=image_id, data=image_file)
         # Toggling role and deacivate image
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.deactivate_image(image_id)
 
     @rbac_rule_validation.action(service="glance",
@@ -221,5 +220,5 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         image_file = moves.cStringIO(data_utils.random_bytes())
         self.client.store_image_file(image_id=image_id, data=image_file)
         # Toggling role and reactivate image
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.reactivate_image(image_id)

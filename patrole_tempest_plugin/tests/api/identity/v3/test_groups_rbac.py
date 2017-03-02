@@ -19,7 +19,6 @@ from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.identity.v3 import rbac_base
 
 CONF = config.CONF
@@ -29,7 +28,7 @@ class IdentityGroupsV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
 
     def tearDown(self):
         """Reverts user back to admin for cleanup."""
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(IdentityGroupsV3AdminRbacTest, self).tearDown()
 
     def _create_group(self):
@@ -55,7 +54,7 @@ class IdentityGroupsV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
                                  rule="identity:create_group")
     @decorators.idempotent_id('88377f51-9074-4d64-a22f-f8931d048c9a')
     def test_create_group(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self._create_group()
 
     @rbac_rule_validation.action(service="keystone",
@@ -66,7 +65,7 @@ class IdentityGroupsV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
         # Update Group
         new_name = data_utils.rand_name('UpdateGroup')
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.groups_client.update_group(group['id'],
                                         name=new_name)
 
@@ -76,7 +75,7 @@ class IdentityGroupsV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
     def test_delete_group(self):
         group = self._create_group()
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.groups_client.delete_group(group['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -85,14 +84,14 @@ class IdentityGroupsV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
     def test_show_group(self):
         group = self._create_group()
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.groups_client.show_group(group['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:list_groups")
     @decorators.idempotent_id('c4d0f76b-735f-4fd0-868b-0006bc420ff4')
     def test_list_groups(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.groups_client.list_groups()
 
     @rbac_rule_validation.action(service="keystone",
@@ -101,7 +100,7 @@ class IdentityGroupsV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
     def test_add_user_group(self):
         group = self._create_group()
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self._add_user_to_group(group['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -111,7 +110,7 @@ class IdentityGroupsV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
         group = self._create_group()
         user_id = self._add_user_to_group(group['id'])
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.groups_client.delete_group_user(group['id'], user_id)
 
     @rbac_rule_validation.action(service="keystone",
@@ -120,7 +119,7 @@ class IdentityGroupsV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
     def test_list_user_group(self):
         group = self._create_group()
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.groups_client.list_group_users(group['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -130,5 +129,5 @@ class IdentityGroupsV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
         group = self._create_group()
         user_id = self._add_user_to_group(group['id'])
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.groups_client.check_group_user_existence(group['id'], user_id)

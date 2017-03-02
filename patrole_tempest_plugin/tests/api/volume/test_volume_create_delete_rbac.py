@@ -21,7 +21,6 @@ from tempest.lib import exceptions
 
 from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 CONF = config.CONF
@@ -31,7 +30,7 @@ LOG = logging.getLogger(__name__)
 class CreateDeleteVolumeRbacTest(rbac_base.BaseVolumeRbacTest):
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(CreateDeleteVolumeRbacTest, self).tearDown()
 
     def _create_volume(self):
@@ -45,7 +44,7 @@ class CreateDeleteVolumeRbacTest(rbac_base.BaseVolumeRbacTest):
                                  rule="volume:create")
     @decorators.idempotent_id('426b08ef-6394-4d06-9128-965d5a6c38ef')
     def test_create_volume(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         # Create a volume
         self._create_volume()
 
@@ -56,7 +55,7 @@ class CreateDeleteVolumeRbacTest(rbac_base.BaseVolumeRbacTest):
         try:
             # Create a volume
             volume = self._create_volume()
-            rbac_utils.switch_role(self, switchToRbacRole=True)
+            self.rbac_utils.switch_role(self, switchToRbacRole=True)
             # Delete a volume
             self.volumes_client.delete_volume(volume['id'])
         except exceptions.NotFound as e:

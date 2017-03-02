@@ -18,7 +18,6 @@ from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.image import rbac_base
 
 CONF = config.CONF
@@ -33,7 +32,7 @@ class NamespacesPropertyRbacTest(rbac_base.BaseV2ImageRbacTest):
         cls.resource_name = body['resource_types'][0]['name']
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(NamespacesPropertyRbacTest, self).tearDown()
 
     @rbac_rule_validation.action(service="glance",
@@ -45,7 +44,7 @@ class NamespacesPropertyRbacTest(rbac_base.BaseV2ImageRbacTest):
         RBAC test for the glance add_metadef_property policy
         """
         namespace = self.create_namespace()
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         property_name = data_utils.rand_name('test-ns-property')
         self.namespace_properties_client.create_namespace_property(
             namespace=namespace['namespace'], type="string",
@@ -60,7 +59,7 @@ class NamespacesPropertyRbacTest(rbac_base.BaseV2ImageRbacTest):
         RBAC test for the glance get_metadef_properties policy
         """
         namespace = self.create_namespace()
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.namespace_properties_client.list_namespace_properties(
             namespace=namespace['namespace'])
 
@@ -78,7 +77,7 @@ class NamespacesPropertyRbacTest(rbac_base.BaseV2ImageRbacTest):
             namespace=namespace['namespace'], type="string",
             title=property_name, name=self.resource_name)
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.namespace_properties_client.show_namespace_properties(
             namespace['namespace'], self.resource_name)
 
@@ -96,7 +95,7 @@ class NamespacesPropertyRbacTest(rbac_base.BaseV2ImageRbacTest):
             namespace=namespace['namespace'], type="string",
             title=property_name, name=self.resource_name)
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.namespace_properties_client.update_namespace_properties(
             namespace['namespace'], self.resource_name, type="string",
             title=property_name, name=self.resource_name)

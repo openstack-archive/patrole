@@ -18,7 +18,6 @@ from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.identity.v3 import rbac_base
 
 
@@ -27,7 +26,7 @@ class IdentityCredentialsV3AdminRbacTest(
 
     def tearDown(self):
         """Reverts user back to admin for cleanup."""
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(IdentityCredentialsV3AdminRbacTest, self).tearDown()
 
     def _create_credential(self):
@@ -58,7 +57,7 @@ class IdentityCredentialsV3AdminRbacTest(
 
         RBAC test for Keystone: identity:create_credential
         """
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self._create_credential()
 
     @rbac_rule_validation.action(service="keystone",
@@ -74,7 +73,7 @@ class IdentityCredentialsV3AdminRbacTest(
         new_keys = [data_utils.rand_name('NewAccess'),
                     data_utils.rand_name('NewSecret')]
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.creds_client \
             .update_credential(credential['id'],
                                credential=credential,
@@ -92,7 +91,7 @@ class IdentityCredentialsV3AdminRbacTest(
         """
         _, credential = self._create_credential()
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.creds_client.delete_credential(credential['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -105,7 +104,7 @@ class IdentityCredentialsV3AdminRbacTest(
         """
         _, credential = self._create_credential()
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.creds_client.show_credential(credential['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -116,5 +115,5 @@ class IdentityCredentialsV3AdminRbacTest(
 
         RBAC test for Keystone: identity:list_credentials
         """
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.creds_client.list_credentials()

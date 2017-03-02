@@ -17,11 +17,13 @@ from tempest.lib.common.utils import test_utils
 from tempest.api.compute import base as compute_base
 from tempest import config
 
+from patrole_tempest_plugin.rbac_utils import rbac_utils
+
 CONF = config.CONF
 
 
 class BaseV2ComputeRbacTest(compute_base.BaseV2ComputeTest):
-    credentials = ['primary', 'admin']
+    credentials = ['admin']
 
     @classmethod
     def skip_checks(cls):
@@ -29,20 +31,23 @@ class BaseV2ComputeRbacTest(compute_base.BaseV2ComputeTest):
         if not CONF.rbac.rbac_flag:
             raise cls.skipException(
                 '%s skipped as RBAC flag not enabled' % cls.__name__)
-        if 'admin' not in CONF.auth.tempest_roles:
-            raise cls.skipException(
-                "%s skipped because tempest roles is not admin" % cls.__name__)
+
+    @classmethod
+    def setup_credentials(cls):
+        super(BaseV2ComputeRbacTest, cls).setup_credentials()
+        cls.os = cls.os_adm
 
     @classmethod
     def setup_clients(cls):
         super(BaseV2ComputeRbacTest, cls).setup_clients()
         cls.admin_client = cls.os_admin.agents_client
         cls.auth_provider = cls.os.auth_provider
+        cls.rbac_utils = rbac_utils()
 
 
 class BaseV2ComputeAdminRbacTest(compute_base.BaseV2ComputeAdminTest):
 
-    credentials = ['primary', 'admin']
+    credentials = ['admin']
 
     @classmethod
     def skip_checks(cls):
@@ -50,15 +55,18 @@ class BaseV2ComputeAdminRbacTest(compute_base.BaseV2ComputeAdminTest):
         if not CONF.rbac.rbac_flag:
             raise cls.skipException(
                 '%s skipped as RBAC flag not enabled' % cls.__name__)
-        if 'admin' not in CONF.auth.tempest_roles:
-            raise cls.skipException(
-                "%s skipped because tempest roles is not admin" % cls.__name__)
+
+    @classmethod
+    def setup_credentials(cls):
+        super(BaseV2ComputeAdminRbacTest, cls).setup_credentials()
+        cls.os = cls.os_adm
 
     @classmethod
     def setup_clients(cls):
         super(BaseV2ComputeAdminRbacTest, cls).setup_clients()
         cls.admin_client = cls.os_admin.agents_client
         cls.auth_provider = cls.os.auth_provider
+        cls.rbac_utils = rbac_utils()
 
     @classmethod
     def resource_setup(cls):

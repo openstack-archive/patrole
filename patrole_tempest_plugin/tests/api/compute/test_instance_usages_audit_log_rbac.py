@@ -17,7 +17,6 @@ from tempest.lib import decorators
 from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 
@@ -38,13 +37,13 @@ class InstanceUsagesAuditLogAdminRbacTest(
         cls.client = cls.instance_usages_audit_log_client
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(InstanceUsagesAuditLogAdminRbacTest, self).tearDown()
 
     @decorators.idempotent_id('c80246c0-5c13-4ab0-97ba-91551cd53dc1')
     @rbac_rule_validation.action(
         service="nova", rule="os_compute_api:os-instance-usage-audit-log")
     def test_list_instance_usage_audit_logs(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.list_instance_usage_audit_logs()
         ["instance_usage_audit_logs"]

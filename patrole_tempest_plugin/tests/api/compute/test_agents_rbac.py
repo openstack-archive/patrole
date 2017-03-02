@@ -17,7 +17,6 @@ from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 CONF = config.CONF
@@ -26,7 +25,7 @@ CONF = config.CONF
 class AgentsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(AgentsRbacTest, self).tearDown()
 
     @classmethod
@@ -40,5 +39,5 @@ class AgentsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova", rule="os_compute_api:os-agents")
     @decorators.idempotent_id('d1bc6d97-07f5-4f45-ac29-1c619a6a7e27')
     def test_list_agents_rbac(self):
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.agents_client.list_agents()

@@ -18,7 +18,6 @@ from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.identity.v3 import rbac_base
 
 CONF = config.CONF
@@ -29,7 +28,7 @@ class IdentityUserV3AdminRbacTest(
 
     def tearDown(self):
         """Reverts user back to admin for cleanup."""
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(IdentityUserV3AdminRbacTest, self).tearDown()
 
     @rbac_rule_validation.action(service="keystone",
@@ -41,7 +40,7 @@ class IdentityUserV3AdminRbacTest(
         RBAC test for Keystone: identity:create_user
         """
         user_name = data_utils.rand_name('test_create_user')
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.non_admin_users_client.create_user(name=user_name)
 
     @rbac_rule_validation.action(service="keystone",
@@ -55,7 +54,7 @@ class IdentityUserV3AdminRbacTest(
         user_name = data_utils.rand_name('test_update_user')
         user = self._create_test_user(name=user_name, password=None)
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.non_admin_users_client.update_user(user['id'],
                                                 name=user_name,
                                                 email="changedUser@xyz.com")
@@ -71,7 +70,7 @@ class IdentityUserV3AdminRbacTest(
         user_name = data_utils.rand_name('test_delete_user')
         user = self._create_test_user(name=user_name, password=None)
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.non_admin_users_client.delete_user(user['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -82,7 +81,7 @@ class IdentityUserV3AdminRbacTest(
 
         RBAC test for Keystone: identity:list_users
         """
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.non_admin_users_client.list_users()
 
     @rbac_rule_validation.action(service="keystone",
@@ -96,7 +95,7 @@ class IdentityUserV3AdminRbacTest(
         user_name = data_utils.rand_name('test_get_user')
         user = self._create_test_user(name=user_name, password=None)
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.non_admin_users_client.show_user(user['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -110,7 +109,7 @@ class IdentityUserV3AdminRbacTest(
         user_name = data_utils.rand_name('test_change_password')
         user = self._create_test_user(name=user_name, password='nova')
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.non_admin_users_client \
             .update_user_password(user['id'],
                                   original_password='nova',
@@ -127,7 +126,7 @@ class IdentityUserV3AdminRbacTest(
         user_name = data_utils.rand_name('User')
         user = self._create_test_user(name=user_name, password=None)
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.non_admin_users_client.list_user_groups(user['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -140,5 +139,5 @@ class IdentityUserV3AdminRbacTest(
         """
         user = self.setup_test_user()
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.non_admin_users_client.list_user_projects(user['id'])
