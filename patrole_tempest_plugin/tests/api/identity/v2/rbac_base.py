@@ -40,6 +40,8 @@ class BaseIdentityV2AdminRbacTest(base.BaseIdentityV2AdminTest):
         super(BaseIdentityV2AdminRbacTest, cls).setup_clients()
         cls.auth_provider = cls.os.auth_provider
         cls.admin_client = cls.os_adm.identity_client
+        cls.tenants_client = cls.os.tenants_client
+        cls.users_client = cls.os.users_client
 
     def _create_service(self):
         name = data_utils.rand_name('service')
@@ -52,3 +54,30 @@ class BaseIdentityV2AdminRbacTest(base.BaseIdentityV2AdminTest):
                         self.services_client.delete_service,
                         self.service['OS-KSADM:service']['id'])
         return self.service
+
+    def _create_user(self, name=None, email=None, password=None, **kwargs):
+        """Set up a test user."""
+        if name is None:
+            name = data_utils.rand_name('test_user')
+        if email is None:
+            email = name + '@testmail.tm'
+        if password is None:
+            password = data_utils.rand_password()
+        user = self.users_client.create_user(
+            name=name, email=email, password=password, **kwargs)['user']
+        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
+                        self.users_client.delete_user,
+                        user['id'])
+        return user
+
+    def _create_tenant(self):
+        """Set up a test tenant."""
+        name = data_utils.rand_name('test_tenant')
+        tenant = self.projects_client.create_tenant(
+            name=name,
+            description=data_utils.rand_name('desc'))['tenant']
+        # Delete the tenant at the end of the test
+        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
+                        self.tenants_client.delete_tenant,
+                        tenant['id'])
+        return tenant
