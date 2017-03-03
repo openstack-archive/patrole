@@ -35,7 +35,7 @@ class RbacPolicyParser(object):
     each role, whether a given rule is allowed using oslo policy.
     """
 
-    def __init__(self, tenant_id, service, path=None):
+    def __init__(self, tenant_id, user_id, service=None, path=None):
         """Initialization of Rbac Policy Parser.
 
         Parses a policy file to create a dictionary, mapping policy actions to
@@ -53,12 +53,13 @@ class RbacPolicyParser(object):
         prioritized.
 
         :param tenant_id: type uuid
+        :param user_id: type uuid
         :param service: type string
         :param path: type string
         """
         service = service.lower().strip()
         if path is None:
-            self.path = '/etc/{0}/policy.json'.format(service)
+            self.path = os.path.join('/etc', service, 'policy.json')
         else:
             self.path = path
 
@@ -83,6 +84,7 @@ class RbacPolicyParser(object):
 
         self.rules = policy.Rules.load(policy_data, "default")
         self.tenant_id = tenant_id
+        self.user_id = user_id
 
     def allowed(self, rule_name, role):
         is_admin_context = self._is_admin_context(role)
@@ -115,7 +117,8 @@ class RbacPolicyParser(object):
                     }
                 ],
                 "project_id": self.tenant_id,
-                "tenant_id": self.tenant_id
+                "tenant_id": self.tenant_id,
+                "user_id": self.user_id
             }
         }
         return access_token
@@ -146,7 +149,8 @@ class RbacPolicyParser(object):
 
         target = {"project_id": access_data['project_id'],
                   "tenant_id": access_data['project_id'],
-                  "network:tenant_id": access_data['project_id']}
+                  "network:tenant_id": access_data['project_id'],
+                  "user_id": access_data['user_id']}
 
         result = self._try_rule(apply_rule, target, access_data, o)
         return result
