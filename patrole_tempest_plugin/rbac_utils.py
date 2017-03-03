@@ -55,32 +55,25 @@ class RbacUtils(object):
                 cls.rbac_role_id = item['id']
             if item['name'] == 'admin':
                 cls.admin_role_id = item['id']
-        # Check if admin and rbac role exits
-        if not cls.admin_role_id or not cls.rbac_role_id:
-            msg = ("defined 'rbac_role' or 'admin' role does not exist"
-                   " in the system.")
-            raise rbac_exceptions.RbacResourceSetupFailed(msg)
-
-    def clear_user_roles(cls, user_id, tenant_id):
-        roles = cls.creds_client.roles_client.list_user_roles_on_project(
-            tenant_id, user_id)['roles']
-
-        for role in roles:
-            cls.creds_client.roles_client.delete_role_from_user_on_project(
-                tenant_id, user_id, role['id'])
 
     def switch_role(cls, test_obj, switchToRbacRole=None):
         LOG.debug('Switching role to: %s', switchToRbacRole)
+        # Check if admin and rbac roles exist.
+        if not cls.admin_role_id or not cls.rbac_role_id:
+            msg = ("Defined 'rbac_role' or 'admin' role does not exist"
+                   " in the system.")
+            raise rbac_exceptions.RbacResourceSetupFailed(msg)
+
         if not isinstance(switchToRbacRole, bool):
             msg = ("Wrong value for parameter 'switchToRbacRole' is passed."
                    " It should be either 'True' or 'False'.")
-            raise rbac_exceptions.RbacActionFailed(msg)
+            raise rbac_exceptions.RbacResourceSetupFailed(msg)
 
         try:
             user_id = test_obj.auth_provider.credentials.user_id
             project_id = test_obj.auth_provider.credentials.tenant_id
 
-            cls.clear_user_roles(user_id, project_id)
+            cls._clear_user_roles(user_id, project_id)
 
             if switchToRbacRole:
                 cls.creds_client.roles_client.create_user_role_on_project(
@@ -99,5 +92,13 @@ class RbacUtils(object):
             # In timing of fernet token creation
             time.sleep(1)
             test_obj.auth_provider.set_auth()
+
+    def _clear_user_roles(cls, user_id, tenant_id):
+        roles = cls.creds_client.roles_client.list_user_roles_on_project(
+            tenant_id, user_id)['roles']
+
+        for role in roles:
+            cls.creds_client.roles_client.delete_role_from_user_on_project(
+                tenant_id, user_id, role['id'])
 
 rbac_utils = RbacUtils
