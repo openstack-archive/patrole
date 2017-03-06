@@ -24,6 +24,6 @@ RbacGroup = [
                help="The current RBAC role against which to run"
                     " Patrole tests."),
     cfg.BoolOpt('rbac_flag',
-                default=False,
+                default=True,
                 help="Enables RBAC tests.")
 ]
