@@ -57,7 +57,8 @@ class BaseVolumeAdminRbacTest(vol_base.BaseVolumeAdminTest):
         cls.rbac_utils.switch_role(cls, switchToRbacRole=False)
         version_checker = {
             1: [cls.os.volume_hosts_client, cls.os.volume_types_client],
-            2: [cls.os.volume_hosts_v2_client, cls.os.volume_types_v2_client]
+            2: [cls.os.volume_hosts_v2_client, cls.os.volume_types_v2_client],
+            3: [cls.os.volume_hosts_v2_client, cls.os.volume_types_v2_client]
         }
         cls.volume_hosts_client, cls.volume_types_client = \
             version_checker[cls._api_version]

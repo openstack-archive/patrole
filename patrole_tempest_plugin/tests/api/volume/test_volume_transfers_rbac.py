@@ -26,7 +26,7 @@ CONF = config.CONF
 
 class VolumesTransfersRbacTest(rbac_base.BaseVolumeRbacTest):
 
-    credentials = ['alt', 'admin']
+    credentials = ['primary', 'admin', 'alt']
 
     @classmethod
     def setup_clients(cls):
@@ -46,8 +46,8 @@ class VolumesTransfersRbacTest(rbac_base.BaseVolumeRbacTest):
         # the test to fail
         test_utils.call_and_ignore_notfound_exc(
             self.client.delete_volume_transfer, transfer['id'])
-        waiters.wait_for_volume_status(self.client, self.volume['id'],
-                                       'available')
+        waiters.wait_for_volume_resource_status(
+            self.client, self.volume['id'], 'available')
 
     def _create_transfer(self):
         transfer = self.client.create_volume_transfer(

@@ -16,6 +16,7 @@
 from tempest.common import waiters
 from tempest import config
 from tempest.lib.common.utils import data_utils
+from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
@@ -34,7 +35,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
 
     def create_backup(self, volume_id):
         backup_name = data_utils.rand_name(
-            self.__class__.__name__ + '-Backup')
+            self.__class__.__name__ + '-backup')
         backup = self.backups_client.create_backup(
             volume_id=volume_id, name=backup_name)['backup']
         self.addCleanup(self.backups_client.delete_backup, backup['id'])
@@ -47,19 +48,30 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
         super(VolumesBackupsRbacTest, cls).resource_setup()
         cls.volume = cls.create_volume()
 
+    def _create_backup(self, volume_id):
+        backup_name = data_utils.rand_name('backup')
+        backup = self.backups_client.create_backup(
+            volume_id=volume_id, name=backup_name)['backup']
+        self.addCleanup(
+            test_utils.call_and_ignore_notfound_exc,
+            self.backups_client.delete_backup, backup['id'])
+        waiters.wait_for_volume_resource_status(
+            self.backups_client, backup['id'], 'available')
+        return backup
+
     @rbac_rule_validation.action(service="cinder",
                                  rule="backup:create")
     @decorators.idempotent_id('6887ec94-0bcf-4ab7-b30f-3808a4b5a2a5')
     def test_volume_backup_create(self):
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
-        self.create_backup(volume_id=self.volume['id'])
+        self._create_backup(volume_id=self.volume['id'])
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="backup:get")
     @decorators.idempotent_id('abd92bdd-b0fb-4dc4-9cfc-de9e968f8c8a')
     def test_volume_backup_get(self):
         # Create a temp backup
-        backup = self.create_backup(volume_id=self.volume['id'])
+        backup = self._create_backup(volume_id=self.volume['id'])
         # Get a given backup
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.backups_client.show_backup(backup['id'])
@@ -76,17 +88,19 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('9c794bf9-2446-4f41-8fe0-80b71e757f9d')
     def test_volume_backup_restore(self):
         # Create a temp backup
-        backup = self.create_backup(volume_id=self.volume['id'])
+        backup = self._create_backup(volume_id=self.volume['id'])
         # Restore backup
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
-        self.backups_client.restore_backup(backup['id'])['restore']
+        restore = self.backups_client.restore_backup(backup['id'])['restore']
+        waiters.wait_for_volume_resource_status(
+            self.backups_client, restore['backup_id'], 'available')
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="backup:delete")
     @decorators.idempotent_id('d5d0c6a2-413d-437e-a73f-4bf2b41a20ed')
     def test_volume_backup_delete(self):
         # Create a temp backup
-        backup = self.create_backup(volume_id=self.volume['id'])
+        backup = self._create_backup(volume_id=self.volume['id'])
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         # Delete backup
         self.backups_client.delete_backup(backup['id'])
