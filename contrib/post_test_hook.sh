@@ -26,7 +26,11 @@ sudo chown -R jenkins:stack $BASE/data/tempest
 
 TEMPEST_CONFIG=$BASE/new/tempest/etc/tempest.conf
 TEMPEST_COMMAND="sudo -H -u tempest tox"
-DEVSTACK_GATE_TEMPEST_REGEX="(^patrole_tempest_plugin\.tests\.api)"
+# TODO(felipemonteiro): This regex does a negative lookahead to exclude slow
+# tests that contain the @test.attr(type='slow') decorator above them. Slower
+# tests will execute those tests in a separate gate, which will require
+# future modification of this script.
+DEVSTACK_GATE_TEMPEST_REGEX="(?!.*\[.*\bslow\b.*\])(^patrole_tempest_plugin\.tests\.api)"
 
 # Import devstack function 'iniset'.
 source $BASE/new/devstack/functions
