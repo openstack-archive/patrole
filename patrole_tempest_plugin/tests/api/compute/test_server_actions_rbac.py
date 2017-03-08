@@ -19,6 +19,7 @@ from tempest.common import waiters
 from tempest import config
 from tempest.lib import decorators
 from tempest.lib import exceptions as lib_exc
+from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
@@ -101,6 +102,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self._test_stop_server()
 
+    @test.attr(type='slow')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:servers:start")
@@ -110,6 +112,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self._test_start_server()
 
+    @test.attr(type='slow')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:servers:resize")
@@ -120,6 +123,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self._test_resize_server(self.flavor_ref_alt)
 
+    @test.attr(type='slow')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:servers:revert_resize")
@@ -131,6 +135,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self._test_revert_resize_server()
 
+    @test.attr(type='slow')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:servers:confirm_resize")

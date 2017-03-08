@@ -15,6 +15,7 @@
 
 from tempest import config
 from tempest.lib import decorators
+from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
@@ -39,6 +40,7 @@ class VolumesBackupsAdminRbacTest(rbac_base.BaseVolumeAdminRbacTest):
         super(VolumesBackupsAdminRbacTest, cls).resource_setup()
         cls.volume = cls.create_volume()
 
+    @test.attr(type='slow')
     @rbac_rule_validation.action(service="cinder",
                                  rule="backup:backup-export")
     @decorators.idempotent_id('e984ec8d-e8eb-485c-98bc-f1856020303c')
@@ -50,6 +52,7 @@ class VolumesBackupsAdminRbacTest(rbac_base.BaseVolumeAdminRbacTest):
         self.backups_client.export_backup(
             backup['id'])['backup-record']
 
+    @test.attr(type='slow')
     @rbac_rule_validation.action(service="cinder",
                                  rule="backup:backup-import")
     @decorators.idempotent_id('1e70f039-4556-44cc-9cc1-edf2b7ed648b')
