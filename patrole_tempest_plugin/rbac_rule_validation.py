@@ -41,6 +41,12 @@ def action(service, rule):
 
             try:
                 func(*args)
+            except rbac_exceptions.RbacInvalidService as e:
+                    msg = ("%s is not a valid service." % service)
+                    LOG.error(msg)
+                    raise exceptions.NotFound(
+                        "%s RbacInvalidService was: %s" %
+                        (msg, e))
             except exceptions.Forbidden as e:
                 if allowed:
                     msg = ("Role %s was not allowed to perform %s." %

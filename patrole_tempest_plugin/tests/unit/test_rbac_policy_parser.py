@@ -19,6 +19,7 @@ import os
 from tempest import config
 from tempest.tests import base
 
+from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_policy_parser
 
 CONF = config.CONF
@@ -28,6 +29,8 @@ class RbacPolicyTest(base.TestCase):
 
     def setUp(self):
         super(RbacPolicyTest, self).setUp()
+        self.mock_admin_mgr = mock.patch.object(
+            rbac_policy_parser, 'credentials').start()
 
         current_directory = os.path.dirname(os.path.realpath(__file__))
         self.custom_policy_file = os.path.join(current_directory,
@@ -42,6 +45,35 @@ class RbacPolicyTest(base.TestCase):
         self.tenant_policy_file = os.path.join(current_directory,
                                                'resources',
                                                'tenant_rbac_policy.json')
+        services = {
+            'services': [
+                {'name': 'cinder', 'links': 'link', 'enabled': True,
+                 'type': 'volume', 'id': 'id',
+                 'description': 'description'},
+                {'name': 'glance', 'links': 'link', 'enabled': True,
+                 'type': 'image', 'id': 'id',
+                 'description': 'description'},
+                {'name': 'nova', 'links': 'link', 'enabled': True,
+                 'type': 'compute', 'id': 'id',
+                 'description': 'description'},
+                {'name': 'keystone', 'links': 'link', 'enabled': True,
+                 'type': 'identity', 'id': 'id',
+                 'description': 'description'},
+                {'name': 'heat', 'links': 'link', 'enabled': True,
+                 'type': 'orchestration', 'id': 'id',
+                 'description': 'description'},
+                {'name': 'neutron', 'links': 'link', 'enabled': True,
+                 'type': 'networking', 'id': 'id',
+                 'description': 'description'},
+                {'name': 'test', 'links': 'link', 'enabled': True,
+                 'type': 'unit_test', 'id': 'id',
+                 'description': 'description'}
+            ]
+        }
+
+        self.mock_admin_mgr.AdminManager.return_value.\
+            identity_services_v3_client.list_services.return_value = \
+            services
 
     @mock.patch.object(rbac_policy_parser, 'LOG', autospec=True)
     def test_custom_policy(self, m_log):
@@ -203,3 +235,33 @@ class RbacPolicyTest(base.TestCase):
                 mock_try_rule.assert_called_once_with(
                     rule, expected_target, expected_access_data, mock.ANY)
                 mock_try_rule.reset_mock()
+
+    @mock.patch.object(rbac_policy_parser, 'LOG', autospec=True)
+    def test_invalid_service_raises_exception(self, m_log):
+        test_tenant_id = mock.sentinel.tenant_id
+        test_user_id = mock.sentinel.user_id
+        service = 'invalid_service'
+
+        self.assertRaises(rbac_exceptions.RbacInvalidService,
+                          rbac_policy_parser.RbacPolicyParser,
+                          test_tenant_id,
+                          test_user_id,
+                          service)
+
+        m_log.debug.assert_called_once_with(
+            "{0} is NOT a valid service.".format(str(service)))
+
+    @mock.patch.object(rbac_policy_parser, 'LOG', autospec=True)
+    def test_service_is_none_raises_exception(self, m_log):
+        test_tenant_id = mock.sentinel.tenant_id
+        test_user_id = mock.sentinel.user_id
+        service = None
+
+        self.assertRaises(rbac_exceptions.RbacInvalidService,
+                          rbac_policy_parser.RbacPolicyParser,
+                          test_tenant_id,
+                          test_user_id,
+                          service)
+
+        m_log.debug.assert_called_once_with(
+            "{0} is NOT a valid service.".format(str(service)))

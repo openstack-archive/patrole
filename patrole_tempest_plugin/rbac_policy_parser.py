@@ -20,6 +20,8 @@ from oslo_log import log as logging
 from oslo_policy import generator
 from oslo_policy import policy
 
+from tempest.common import credentials_factory as credentials
+
 from patrole_tempest_plugin import rbac_exceptions
 
 LOG = logging.getLogger(__name__)
@@ -57,7 +59,17 @@ class RbacPolicyParser(object):
         :param service: type string
         :param path: type string
         """
-        service = service.lower().strip()
+        # First check if the service is valid
+        service = service.lower().strip() if service else None
+        self.admin_mgr = credentials.AdminManager()
+        services = self.admin_mgr.identity_services_v3_client.\
+            list_services()['services']
+        service_names = [s['name'] for s in services]
+        if not service or not any(service in name for name in service_names):
+            LOG.debug(str(service) + " is NOT a valid service.")
+            raise rbac_exceptions.RbacInvalidService
+
+        # Use default path if no path provided
         if path is None:
             self.path = os.path.join('/etc', service, 'policy.json')
         else:
@@ -65,7 +77,7 @@ class RbacPolicyParser(object):
 
         policy_data = "{}"
 
-        # First check whether policy file exists.
+        # Check whether policy file exists.
         if os.path.isfile(self.path):
             policy_data = open(self.path, 'r').read()
         # Otherwise use oslo_policy to fetch the rules for provided service.

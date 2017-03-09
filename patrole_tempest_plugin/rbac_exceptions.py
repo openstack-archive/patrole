@@ -26,3 +26,7 @@ class RbacResourceSetupFailed (exceptions.TempestException):
 
 class RbacOverPermission (exceptions.TempestException):
     message = "Action performed that should not be permitted"
+
+
+class RbacInvalidService (exceptions.TempestException):
+    message = "Attempted to test an invalid service"
