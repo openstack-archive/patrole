@@ -72,11 +72,3 @@ class ServersAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
     def test_reset_network(self):
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.reset_network(self.server_id)
-
-    @rbac_rule_validation.action(
-        service="nova",
-        rule="os_compute_api:os-admin-actions:discoverable")
-    @decorators.idempotent_id('e9d2991f-a05e-4116-881b-e2a82bb173cf')
-    def test_admin_actions_discoverable(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
-        self.extensions_client.show_extension('os-admin-actions')

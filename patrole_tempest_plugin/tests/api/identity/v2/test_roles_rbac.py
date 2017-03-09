@@ -19,7 +19,6 @@ from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.rbac_utils import rbac_utils
 from patrole_tempest_plugin.tests.api.identity.v2 import rbac_base
 
 CONF = config.CONF
@@ -28,7 +27,7 @@ CONF = config.CONF
 class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
     def tearDown(self):
-        rbac_utils.switch_role(self, switchToRbacRole=False)
+        self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(IdentityRoleV2AdminRbacTest, self).tearDown()
 
     @classmethod
@@ -43,10 +42,10 @@ class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
                         self.roles_client.delete_role, role['id'])
         return role
 
-    def _create_tenant_user_role(self):
-        role = self._create_role()
+    def _create_tenant_user_and_role(self):
         tenant = self._create_tenant()
         user = self._create_user(tenantid=tenant['id'])
+        role = self._create_role()
         return tenant, user, role
 
     def _create_role_on_project(self, tenant, user, role):
@@ -67,7 +66,7 @@ class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         RBAC test for Identity Admin 2.0 role-create
         """
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self._create_role()
 
     @rbac_rule_validation.action(service="keystone",
@@ -81,7 +80,7 @@ class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         """
         role = self._create_role()
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.roles_client.delete_role(role['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -95,7 +94,7 @@ class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         """
         role = self._create_role()
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.roles_client.show_role(role['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -107,7 +106,7 @@ class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         RBAC test for Identity Admin 2.0 role-list
         """
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.roles_client.list_roles()
 
     @rbac_rule_validation.action(service="keystone",
@@ -119,8 +118,8 @@ class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         RBAC test for Identity Admin 2.0 create_user_role_on_project
         """
-        tenant, user, role = self._create_tenant_user_role()
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        tenant, user, role = self._create_tenant_user_and_role()
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self._create_role_on_project(tenant, user, role)
 
     @rbac_rule_validation.action(service="keystone",
@@ -132,10 +131,10 @@ class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         RBAC test for Identity Admin 2.0 delete_role_from_user_on_project
         """
-        tenant, user, role = self._create_tenant_user_role()
+        tenant, user, role = self._create_tenant_user_and_role()
         self._create_role_on_project(tenant, user, role)
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.roles_client.delete_role_from_user_on_project(
             tenant['id'], user['id'], role['id'])
 
@@ -151,6 +150,6 @@ class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         tenant = self._create_tenant()
         user = self._create_user(tenantid=tenant['id'])
 
-        rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.roles_client.list_user_roles_on_project(
             tenant['id'], user['id'])

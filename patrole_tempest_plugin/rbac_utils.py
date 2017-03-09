@@ -88,8 +88,8 @@ class RbacUtils(object):
 
         finally:
             test_obj.auth_provider.clear_auth()
-            # Sleep to avoid 401 errors caused by rounding
-            # In timing of fernet token creation
+            # Sleep to avoid 401 errors caused by rounding in timing of fernet
+            # token creation.
             time.sleep(1)
             test_obj.auth_provider.set_auth()
 

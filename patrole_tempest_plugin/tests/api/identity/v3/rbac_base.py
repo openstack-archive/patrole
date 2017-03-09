@@ -25,7 +25,7 @@ CONF = config.CONF
 
 class BaseIdentityV3RbacAdminTest(base.BaseIdentityV3AdminTest):
 
-    credentials = ['admin']
+    credentials = ['admin', 'primary']
 
     @classmethod
     def skip_checks(cls):
@@ -33,11 +33,6 @@ class BaseIdentityV3RbacAdminTest(base.BaseIdentityV3AdminTest):
         if not CONF.rbac.rbac_flag:
             raise cls.skipException(
                 "%s skipped as RBAC Flag not enabled" % cls.__name__)
-
-    @classmethod
-    def setup_credentials(cls):
-        super(BaseIdentityV3RbacAdminTest, cls).setup_credentials()
-        cls.os = cls.os_adm
 
     @classmethod
     def setup_clients(cls):

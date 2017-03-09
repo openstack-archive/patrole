@@ -21,7 +21,7 @@ CONF = config.CONF
 
 class BaseVolumeRbacTest(vol_base.BaseVolumeTest):
 
-    credentials = ['admin']
+    credentials = ['admin', 'primary']
 
     @classmethod
     def skip_checks(cls):
@@ -29,11 +29,6 @@ class BaseVolumeRbacTest(vol_base.BaseVolumeTest):
         if not CONF.rbac.rbac_flag:
             raise cls.skipException(
                 "%s skipped as RBAC Flag not enabled" % cls.__name__)
-
-    @classmethod
-    def setup_credentials(cls):
-        super(BaseVolumeRbacTest, cls).setup_credentials()
-        cls.os = cls.os_adm
 
     @classmethod
     def setup_clients(cls):
@@ -45,7 +40,7 @@ class BaseVolumeRbacTest(vol_base.BaseVolumeTest):
 
 class BaseVolumeAdminRbacTest(vol_base.BaseVolumeAdminTest):
 
-    credentials = ['admin']
+    credentials = ['admin', 'primary']
 
     @classmethod
     def skip_checks(cls):
@@ -53,11 +48,6 @@ class BaseVolumeAdminRbacTest(vol_base.BaseVolumeAdminTest):
         if not CONF.rbac.rbac_flag:
             raise cls.skipException(
                 "%s skipped as RBAC Flag not enabled" % cls.__name__)
-
-    @classmethod
-    def setup_credentials(cls):
-        super(BaseVolumeAdminRbacTest, cls).setup_credentials()
-        cls.os = cls.os_adm
 
     @classmethod
     def setup_clients(cls):

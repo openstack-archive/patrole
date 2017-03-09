@@ -23,7 +23,7 @@ CONF = config.CONF
 
 class BaseNetworkRbacTest(network_base.BaseNetworkTest):
 
-    credentials = ['admin']
+    credentials = ['admin', 'primary']
 
     @classmethod
     def skip_checks(cls):
@@ -31,11 +31,6 @@ class BaseNetworkRbacTest(network_base.BaseNetworkTest):
         if not CONF.rbac.rbac_flag:
             raise cls.skipException(
                 "%s skipped as RBAC Flag not enabled" % cls.__name__)
-
-    @classmethod
-    def setup_credentials(cls):
-        super(BaseNetworkRbacTest, cls).setup_credentials()
-        cls.os = cls.os_adm
 
     @classmethod
     def setup_clients(cls):

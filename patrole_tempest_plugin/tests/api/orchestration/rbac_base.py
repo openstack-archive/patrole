@@ -21,7 +21,7 @@ CONF = config.CONF
 
 class BaseOrchestrationRbacTest(heat_base.BaseOrchestrationTest):
 
-    credentials = ['admin']
+    credentials = ['admin', 'primary']
 
     @classmethod
     def skip_checks(cls):
@@ -29,11 +29,6 @@ class BaseOrchestrationRbacTest(heat_base.BaseOrchestrationTest):
         if not CONF.rbac.rbac_flag:
             raise cls.skipException(
                 "%s skipped as RBAC Flag not enabled" % cls.__name__)
-
-    @classmethod
-    def setup_credentials(cls):
-        super(BaseOrchestrationRbacTest, cls).setup_credentials()
-        cls.os = cls.os_adm
 
     @classmethod
     def setup_clients(cls):

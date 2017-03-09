@@ -33,9 +33,8 @@ class IdentityGroupsV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
 
     def _create_group(self):
         """Creates a group for test."""
-        name = data_utils.rand_name('Group')
-        group = self.groups_client \
-                    .create_group(name=name)['group']
+        name = data_utils.rand_name('group')
+        group = self.groups_client.create_group(name=name)['group']
 
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self.groups_client.delete_group, group['id'])

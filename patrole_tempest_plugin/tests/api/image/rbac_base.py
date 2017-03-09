@@ -21,7 +21,7 @@ CONF = config.CONF
 
 class BaseV1ImageRbacTest(image_base.BaseV1ImageTest):
 
-    credentials = ['admin']
+    credentials = ['admin', 'primary']
 
     @classmethod
     def skip_checks(cls):
@@ -29,11 +29,6 @@ class BaseV1ImageRbacTest(image_base.BaseV1ImageTest):
         if not CONF.rbac.rbac_flag:
             raise cls.skipException(
                 "%s skipped as RBAC Flag not enabled" % cls.__name__)
-
-    @classmethod
-    def setup_credentials(cls):
-        super(BaseV1ImageRbacTest, cls).setup_credentials()
-        cls.os = cls.os_adm
 
     @classmethod
     def setup_clients(cls):
@@ -45,7 +40,7 @@ class BaseV1ImageRbacTest(image_base.BaseV1ImageTest):
 
 class BaseV2ImageRbacTest(image_base.BaseV2ImageTest):
 
-    credentials = ['admin']
+    credentials = ['admin', 'primary']
 
     @classmethod
     def skip_checks(cls):
@@ -53,11 +48,6 @@ class BaseV2ImageRbacTest(image_base.BaseV2ImageTest):
         if not CONF.rbac.rbac_flag:
             raise cls.skipException(
                 "%s skipped as RBAC Flag not enabled" % cls.__name__)
-
-    @classmethod
-    def setup_credentials(cls):
-        super(BaseV2ImageRbacTest, cls).setup_credentials()
-        cls.os = cls.os_adm
 
     @classmethod
     def setup_clients(cls):

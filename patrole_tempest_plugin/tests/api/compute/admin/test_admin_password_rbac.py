@@ -59,10 +59,3 @@ class PasswordAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
         self.client.change_password(
             self.server_id,
             adminPass=data_utils.rand_password())
-
-    @rbac_rule_validation.action(
-        service="nova", rule="os_compute_api:os-admin-password:discoverable")
-    @decorators.idempotent_id('379fce8a-f1ff-11e6-bc64-92361f002671')
-    def test_admin_password_discoverable(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
-        self.extensions_client.show_extension('os-admin-password')

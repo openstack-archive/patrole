@@ -23,7 +23,8 @@ CONF = config.CONF
 
 
 class BaseV2ComputeRbacTest(compute_base.BaseV2ComputeTest):
-    credentials = ['admin']
+
+    credentials = ['admin', 'primary']
 
     @classmethod
     def skip_checks(cls):
@@ -31,11 +32,6 @@ class BaseV2ComputeRbacTest(compute_base.BaseV2ComputeTest):
         if not CONF.rbac.rbac_flag:
             raise cls.skipException(
                 '%s skipped as RBAC flag not enabled' % cls.__name__)
-
-    @classmethod
-    def setup_credentials(cls):
-        super(BaseV2ComputeRbacTest, cls).setup_credentials()
-        cls.os = cls.os_adm
 
     @classmethod
     def setup_clients(cls):
@@ -47,7 +43,7 @@ class BaseV2ComputeRbacTest(compute_base.BaseV2ComputeTest):
 
 class BaseV2ComputeAdminRbacTest(compute_base.BaseV2ComputeAdminTest):
 
-    credentials = ['admin']
+    credentials = ['admin', 'primary']
 
     @classmethod
     def skip_checks(cls):
@@ -55,11 +51,6 @@ class BaseV2ComputeAdminRbacTest(compute_base.BaseV2ComputeAdminTest):
         if not CONF.rbac.rbac_flag:
             raise cls.skipException(
                 '%s skipped as RBAC flag not enabled' % cls.__name__)
-
-    @classmethod
-    def setup_credentials(cls):
-        super(BaseV2ComputeAdminRbacTest, cls).setup_credentials()
-        cls.os = cls.os_adm
 
     @classmethod
     def setup_clients(cls):
