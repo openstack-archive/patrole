@@ -28,7 +28,6 @@ class VolumeQOSRbacTest(rbac_base.BaseVolumeAdminRbacTest):
     @classmethod
     def setup_clients(cls):
         super(VolumeQOSRbacTest, cls).setup_clients()
-        cls.admin_client = cls.os_adm.volume_qos_client
         cls.auth_provider = cls.os.auth_provider
         cls.client = cls.admin_volume_qos_client
 

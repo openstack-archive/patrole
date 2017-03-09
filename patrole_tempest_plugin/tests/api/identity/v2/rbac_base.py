@@ -43,7 +43,6 @@ class BaseIdentityV2AdminRbacTest(base.BaseIdentityV2AdminTest):
     def setup_clients(cls):
         super(BaseIdentityV2AdminRbacTest, cls).setup_clients()
         cls.auth_provider = cls.os.auth_provider
-        cls.admin_client = cls.os_adm.identity_client
         cls.tenants_client = cls.os.tenants_client
         cls.users_client = cls.os.users_client
         cls.rbac_utils = rbac_utils()

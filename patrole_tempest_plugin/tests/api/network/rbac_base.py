@@ -41,5 +41,4 @@ class BaseNetworkRbacTest(network_base.BaseNetworkTest):
     def setup_clients(cls):
         super(BaseNetworkRbacTest, cls).setup_clients()
         cls.auth_provider = cls.os.auth_provider
-        cls.admin_client = cls.os_adm.agents_client
         cls.rbac_utils = rbac_utils()
