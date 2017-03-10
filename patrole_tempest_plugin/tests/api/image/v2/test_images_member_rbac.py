@@ -33,6 +33,7 @@ class ImagesMemberRbacTest(base.BaseV2ImageRbacTest):
     @classmethod
     def resource_setup(cls):
         super(ImagesMemberRbacTest, cls).resource_setup()
+        cls.tenant_id = cls.image_member_client.tenant_id
         cls.alt_tenant_id = cls.alt_image_member_client.tenant_id
 
     @classmethod
@@ -120,15 +121,18 @@ class ImagesMemberRbacTest(base.BaseV2ImageRbacTest):
 
         RBAC test for the glance modify_member policy
         """
-        image_id = self.create_image()['id']
-        self.alt_image_member_client.create_image_member(
+        image_id = self.create_image(visibility='shared')['id']
+        self.image_member_client.create_image_member(
             image_id,
-            member=self.image_client.tenant_id)
+            member=self.tenant_id)
+        self.image_member_client.update_image_member(
+            image_id, self.tenant_id,
+            status='accepted')
         # Toggle role and update member
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.image_member_client.update_image_member(
-            image_id, self.image_client.tenant_id,
-            status='accepted')
+            image_id, self.tenant_id,
+            status='pending')
 
     @rbac_rule_validation.action(service="glance",
                                  rule="get_members")
