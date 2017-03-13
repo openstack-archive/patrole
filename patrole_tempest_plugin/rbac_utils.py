@@ -87,11 +87,12 @@ class RbacUtils(object):
             raise
 
         finally:
-            test_obj.auth_provider.clear_auth()
-            # Sleep to avoid 401 errors caused by rounding in timing of fernet
-            # token creation.
-            time.sleep(1)
-            test_obj.auth_provider.set_auth()
+            if BaseTestCase.get_identity_version() != 'v3':
+                test_obj.auth_provider.clear_auth()
+                # Sleep to avoid 401 errors caused by rounding in timing of
+                # fernet token creation.
+                time.sleep(1)
+                test_obj.auth_provider.set_auth()
 
     def _clear_user_roles(cls, user_id, tenant_id):
         roles = cls.creds_client.roles_client.list_user_roles_on_project(
