@@ -36,7 +36,6 @@ class BaseV2ComputeRbacTest(compute_base.BaseV2ComputeTest):
     @classmethod
     def setup_clients(cls):
         super(BaseV2ComputeRbacTest, cls).setup_clients()
-        cls.admin_client = cls.os_admin.agents_client
         cls.auth_provider = cls.os.auth_provider
         cls.rbac_utils = rbac_utils()
 
@@ -55,7 +54,6 @@ class BaseV2ComputeAdminRbacTest(compute_base.BaseV2ComputeAdminTest):
     @classmethod
     def setup_clients(cls):
         super(BaseV2ComputeAdminRbacTest, cls).setup_clients()
-        cls.admin_client = cls.os_admin.agents_client
         cls.auth_provider = cls.os.auth_provider
         cls.rbac_utils = rbac_utils()
 

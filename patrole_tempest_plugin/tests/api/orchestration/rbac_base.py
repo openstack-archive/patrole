@@ -34,7 +34,6 @@ class BaseOrchestrationRbacTest(heat_base.BaseOrchestrationTest):
     def setup_clients(cls):
         super(BaseOrchestrationRbacTest, cls).setup_clients()
         cls.auth_provider = cls.os.auth_provider
-        cls.admin_client = cls.os_adm.orchestration_client
         cls.rbac_utils = rbac_utils()
 
     def tearDown(self):

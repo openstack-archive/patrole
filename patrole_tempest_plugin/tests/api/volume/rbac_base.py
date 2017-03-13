@@ -34,7 +34,6 @@ class BaseVolumeRbacTest(vol_base.BaseVolumeTest):
     def setup_clients(cls):
         super(BaseVolumeRbacTest, cls).setup_clients()
         cls.auth_provider = cls.os.auth_provider
-        cls.admin_client = cls.os_adm.volumes_client
         cls.rbac_utils = rbac_utils()
 
 
@@ -53,7 +52,6 @@ class BaseVolumeAdminRbacTest(vol_base.BaseVolumeAdminTest):
     def setup_clients(cls):
         super(BaseVolumeAdminRbacTest, cls).setup_clients()
         cls.auth_provider = cls.os.auth_provider
-        cls.admin_client = cls.os_adm.volumes_client
         cls.rbac_utils = rbac_utils()
         version_checker = {
             1: [cls.os.volume_hosts_client, cls.os.volume_types_client],
