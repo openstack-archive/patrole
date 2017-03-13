@@ -13,13 +13,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from tempest import config
 from tempest.lib import decorators
+from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
-
-CONF = config.CONF
 
 
 class InstanceActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
@@ -32,9 +30,9 @@ class InstanceActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @classmethod
     def skip_checks(cls):
         super(InstanceActionsRbacTest, cls).skip_checks()
-        if not CONF.compute_feature_enabled.api_extensions:
+        if not test.is_extension_enabled('os-instance-actions', 'compute'):
             raise cls.skipException(
-                '%s skipped as no compute extensions enabled' % cls.__name__)
+                '%s skipped as os-instance-actions not enabled' % cls.__name__)
 
     @classmethod
     def resource_setup(cls):
@@ -51,6 +49,7 @@ class InstanceActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-instance-actions")
     def test_list_instance_actions(self):
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.list_instance_actions(self.server['id'])
 
     @decorators.idempotent_id('eb04c439-4215-4029-9ccb-5b3c041bfc25')
@@ -58,5 +57,6 @@ class InstanceActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-instance-actions:events")
     def test_get_instance_action(self):
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.show_instance_action(
             self.server['id'], self.request_id)['instanceAction']
