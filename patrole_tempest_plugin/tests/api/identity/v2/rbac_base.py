@@ -41,6 +41,7 @@ class BaseIdentityV2AdminRbacTest(base.BaseIdentityV2AdminTest):
         cls.tenants_client = cls.os.tenants_client
         cls.users_client = cls.os.users_client
         cls.rbac_utils = rbac_utils()
+        cls.rbac_utils.switch_role(cls, switchToRbacRole=False)
 
     def _create_service(self):
         name = data_utils.rand_name('service')
