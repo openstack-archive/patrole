@@ -30,12 +30,11 @@ class ImagesMemberRbacTest(base.BaseV1ImageRbacTest):
     def setup_clients(cls):
         super(ImagesMemberRbacTest, cls).setup_clients()
         cls.image_member_client = cls.os.image_member_client
-        cls.alt_image_member_client = cls.os_alt.image_member_client
 
     @classmethod
     def resource_setup(cls):
         super(ImagesMemberRbacTest, cls).resource_setup()
-        cls.alt_tenant_id = cls.alt_image_member_client.tenant_id
+        cls.alt_tenant_id = cls.os_alt.image_member_client.tenant_id
 
     def tearDown(self):
         self.rbac_utils.switch_role(self, switchToRbacRole=False)
