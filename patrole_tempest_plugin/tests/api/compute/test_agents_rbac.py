@@ -14,6 +14,8 @@
 #    under the License.
 
 from tempest import config
+from tempest import test
+
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
@@ -27,7 +29,7 @@ class AgentsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @classmethod
     def skip_checks(cls):
         super(AgentsRbacTest, cls).skip_checks()
-        if not CONF.compute_feature_enabled.api_extensions:
+        if not test.is_extension_enabled('os-agents', 'compute'):
             raise cls.skipException(
                 '%s skipped as no compute extensions enabled' % cls.__name__)
 
@@ -37,3 +39,16 @@ class AgentsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_list_agents_rbac(self):
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.agents_client.list_agents()
+
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-agents")
+    @decorators.idempotent_id('77d6cae4-1ced-47f7-af2e-3d6a45958fd6')
+    def test_create_agent(self):
+        params = {'hypervisor': 'kvm', 'os': 'win', 'architecture': 'x86',
+                  'version': '7.0', 'url': 'xxx://xxxx/xxx/xxx',
+                  'md5hash': 'add6bb58e139be103324d04d82d8f545'}
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        body = self.agents_client.create_agent(**params)['agent']
+        self.addCleanup(self.agents_client.delete_agent,
+                        body['agent_id'])
