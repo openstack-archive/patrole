@@ -69,10 +69,6 @@ class FloatingIpsRbacTest(base.BaseNetworkRbacTest):
 
         return floating_ip
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(FloatingIpsRbacTest, self).tearDown()
-
     @rbac_rule_validation.action(service="neutron",
                                  rule="create_floatingip")
     @decorators.idempotent_id('f8f7474c-b8a5-4174-af84-73097d6ced38')

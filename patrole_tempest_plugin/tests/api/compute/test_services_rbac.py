@@ -36,10 +36,6 @@ class ServicesAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
             raise cls.skipException(
                 '%s skipped as no compute extensions enabled' % cls.__name__)
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(ServicesAdminRbacTest, self).tearDown()
-
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-services")

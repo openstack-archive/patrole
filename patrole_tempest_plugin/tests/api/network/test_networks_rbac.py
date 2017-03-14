@@ -127,10 +127,6 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
         updated_network = body['network']
         return updated_network
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(RbacNetworksTest, self).tearDown()
-
     @rbac_rule_validation.action(service="neutron",
                                  rule="create_network")
     @decorators.idempotent_id('95b9baab-1ece-4e2b-89c8-8d671d974e54')

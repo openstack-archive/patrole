@@ -31,10 +31,6 @@ class VolumeQOSRbacTest(rbac_base.BaseVolumeAdminRbacTest):
         cls.auth_provider = cls.os.auth_provider
         cls.client = cls.admin_volume_qos_client
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(VolumeQOSRbacTest, self).tearDown()
-
     @rbac_rule_validation.action(
         service="cinder", rule="volume_extension:qos_specs_manage:create")
     @decorators.idempotent_id('4f9f45f0-b379-4577-a279-cec3e917cbec')

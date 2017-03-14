@@ -24,11 +24,6 @@ from patrole_tempest_plugin.tests.api.identity.v3 import rbac_base
 class IdentityCredentialsV3AdminRbacTest(
         rbac_base.BaseIdentityV3RbacAdminTest):
 
-    def tearDown(self):
-        """Reverts user back to admin for cleanup."""
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(IdentityCredentialsV3AdminRbacTest, self).tearDown()
-
     def _create_credential(self):
         """Creates a user, project, and credential for test."""
         user = self.setup_test_user()

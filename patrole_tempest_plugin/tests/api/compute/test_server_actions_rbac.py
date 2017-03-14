@@ -65,10 +65,6 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             self.__class__.server_id = self.rebuild_server(
                 self.server_id, validatable=True)
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(ServerActionsRbacTest, self).tearDown()
-
     def _test_start_server(self):
         self.client.start_server(self.server_id)
         waiters.wait_for_server_status(self.client, self.server_id,

@@ -28,10 +28,6 @@ class KeypairsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         super(KeypairsRbacTest, cls).setup_clients()
         cls.client = cls.keypairs_client
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(KeypairsRbacTest, self).tearDown()
-
     def _create_keypair(self):
         key_name = data_utils.rand_name('key')
         keypair = self.client.create_keypair(name=key_name)

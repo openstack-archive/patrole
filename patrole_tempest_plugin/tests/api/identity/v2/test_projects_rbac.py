@@ -24,10 +24,6 @@ CONF = config.CONF
 
 class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(IdentityProjectV2AdminRbacTest, self).tearDown()
-
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:create_project")
     @decorators.idempotent_id('0f148510-63bf-11e6-b348-080044d0d904')

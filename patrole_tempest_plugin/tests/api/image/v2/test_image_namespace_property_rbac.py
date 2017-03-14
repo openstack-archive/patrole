@@ -31,10 +31,6 @@ class NamespacesPropertyRbacTest(rbac_base.BaseV2ImageRbacTest):
         body = cls.resource_types_client.list_resource_types()
         cls.resource_name = body['resource_types'][0]['name']
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(NamespacesPropertyRbacTest, self).tearDown()
-
     @rbac_rule_validation.action(service="glance",
                                  rule="add_metadef_property")
     @decorators.idempotent_id('383555ca-677b-43e9-b809-acc2b5a0176c')

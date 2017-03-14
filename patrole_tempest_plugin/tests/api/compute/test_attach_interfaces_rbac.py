@@ -55,10 +55,6 @@ class AttachInterfacesRbacTest(rbac_base.BaseV2ComputeRbacTest):
         super(AttachInterfacesRbacTest, cls).resource_setup()
         cls.server = cls.create_test_server(wait_until='ACTIVE')
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(AttachInterfacesRbacTest, self).tearDown()
-
     def _attach_interface_to_server(self):
         interface = self.client.create_interface(
             self.server['id'])['interfaceAttachment']

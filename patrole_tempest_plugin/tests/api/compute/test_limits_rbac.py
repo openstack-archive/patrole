@@ -22,10 +22,6 @@ CONF = config.CONF
 
 class LimitsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(LimitsRbacTest, self).tearDown()
-
     @classmethod
     def setup_clients(cls):
         super(LimitsRbacTest, cls).setup_clients()

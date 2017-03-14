@@ -52,10 +52,6 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
             cls.admin_subnet['allocation_pools'][0]['end'])
         cls.admin_router = cls.create_router()
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(RouterRbacTest, self).tearDown()
-
     @rbac_rule_validation.action(service="neutron",
                                  rule="create_router")
     @decorators.idempotent_id('acc5005c-bdb6-4192-bc9f-ece9035bb488')

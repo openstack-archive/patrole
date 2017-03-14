@@ -44,8 +44,6 @@ class SuspendServerRbacTest(rbac_base.BaseV2ComputeRbacTest):
         cls.server = cls.create_test_server(wait_until='ACTIVE')
 
     def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-
         # Guarantee that the server is active during each test run.
         vm_state = self.client.show_server(self.server['id'])['server'][
             'OS-EXT-STS:vm_state'].upper()

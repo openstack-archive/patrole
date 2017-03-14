@@ -48,10 +48,6 @@ class FlavorAccessAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
         cls.flavor_id = cls._create_flavor(is_public=False)['id']
         cls.tenant_id = cls.auth_provider.credentials.tenant_id
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(FlavorAccessAdminRbacTest, self).tearDown()
-
     @decorators.idempotent_id('a2bd3740-765d-4c95-ac98-9e027378c75e')
     @rbac_rule_validation.action(
         service="nova",

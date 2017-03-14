@@ -25,10 +25,6 @@ CONF = config.CONF
 
 class VolumesExtendRbacTest(rbac_base.BaseVolumeRbacTest):
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(VolumesExtendRbacTest, self).tearDown()
-
     @classmethod
     def resource_setup(cls):
         super(VolumesExtendRbacTest, cls).resource_setup()

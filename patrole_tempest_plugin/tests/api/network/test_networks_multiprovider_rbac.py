@@ -35,10 +35,6 @@ class NetworksMultiProviderRbacTest(base.BaseNetworkRbacTest):
             msg = "multi-provider extension not enabled."
             raise cls.skipException(msg)
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(NetworksMultiProviderRbacTest, self).tearDown()
-
     def _create_network_segments(self):
         segments = [{"provider:network_type": "gre"},
                     {"provider:network_type": "gre"}]

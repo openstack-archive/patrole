@@ -22,10 +22,6 @@ from patrole_tempest_plugin.tests.api.identity.v2 import rbac_base
 
 class IdentityUserV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(IdentityUserV2AdminRbacTest, self).tearDown()
-
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:create_user")
     @decorators.idempotent_id('0f148510-63bf-11e6-1342-080044d0d904')

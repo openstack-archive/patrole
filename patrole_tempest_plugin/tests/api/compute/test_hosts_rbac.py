@@ -36,10 +36,6 @@ class HostsAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
             raise cls.skipException(
                 '%s skipped as no compute extensions enabled' % cls.__name__)
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(HostsAdminRbacTest, self).tearDown()
-
     @decorators.idempotent_id('035b7935-2fae-4218-8d37-27fa83097494')
     @rbac_rule_validation.action(
         service="nova",

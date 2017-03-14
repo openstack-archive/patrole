@@ -36,10 +36,6 @@ class InstanceUsagesAuditLogAdminRbacTest(
         super(InstanceUsagesAuditLogAdminRbacTest, cls).setup_clients()
         cls.client = cls.instance_usages_audit_log_client
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(InstanceUsagesAuditLogAdminRbacTest, self).tearDown()
-
     @decorators.idempotent_id('c80246c0-5c13-4ab0-97ba-91551cd53dc1')
     @rbac_rule_validation.action(
         service="nova", rule="os_compute_api:os-instance-usage-audit-log")

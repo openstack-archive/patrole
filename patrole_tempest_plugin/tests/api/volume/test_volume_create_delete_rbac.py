@@ -29,10 +29,6 @@ LOG = logging.getLogger(__name__)
 
 class CreateDeleteVolumeRbacTest(rbac_base.BaseVolumeRbacTest):
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(CreateDeleteVolumeRbacTest, self).tearDown()
-
     def _create_volume(self):
         # create_volume waits for volume status to be
         # "available" before returning and automatically

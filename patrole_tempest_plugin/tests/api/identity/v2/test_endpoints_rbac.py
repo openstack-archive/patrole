@@ -39,10 +39,6 @@ class IdentityEndpointsV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         cls.admin_url = data_utils.rand_url()
         cls.internal_url = data_utils.rand_url()
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(IdentityEndpointsV2AdminRbacTest, self).tearDown()
-
     def _create_endpoint(self):
         self._create_service()
         endpoint = self.endpoints_client.create_endpoint(

@@ -41,10 +41,6 @@ class ServerDiagnosticsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         super(ServerDiagnosticsRbacTest, cls).resource_setup()
         cls.server = cls.create_test_server(wait_until='ACTIVE')
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(ServerDiagnosticsRbacTest, self).tearDown()
-
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-server-diagnostics")

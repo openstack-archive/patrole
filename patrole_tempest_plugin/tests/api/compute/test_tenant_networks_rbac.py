@@ -51,10 +51,6 @@ class TenantNetworksRbacTest(rbac_base.BaseV2ComputeRbacTest):
         cls.set_network_resources(network=True)
         super(TenantNetworksRbacTest, cls).setup_credentials()
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(TenantNetworksRbacTest, self).tearDown()
-
     @decorators.idempotent_id('42b39ba1-14aa-4799-9518-34367d0da67a')
     @rbac_rule_validation.action(
         service="nova",

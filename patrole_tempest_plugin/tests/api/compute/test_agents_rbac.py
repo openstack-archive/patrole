@@ -24,10 +24,6 @@ CONF = config.CONF
 
 class AgentsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(AgentsRbacTest, self).tearDown()
-
     @classmethod
     def skip_checks(cls):
         super(AgentsRbacTest, cls).skip_checks()

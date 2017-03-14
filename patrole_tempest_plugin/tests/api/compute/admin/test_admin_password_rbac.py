@@ -28,10 +28,6 @@ CONF = config.CONF
 
 class PasswordAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(PasswordAdminRbacTest, self).tearDown()
-
     @classmethod
     def setup_clients(cls):
         super(PasswordAdminRbacTest, cls).setup_clients()

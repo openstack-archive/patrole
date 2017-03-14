@@ -26,10 +26,6 @@ CONF = config.CONF
 
 class ImageNamespacesObjectsRbacTest(rbac_base.BaseV2ImageRbacTest):
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(ImageNamespacesObjectsRbacTest, self).tearDown()
-
     @rbac_rule_validation.action(service="glance",
                                  rule="add_metadef_object")
     @decorators.idempotent_id("772156f2-e33d-432e-8521-12385746c2f0")

@@ -29,10 +29,6 @@ class VolumesSnapshotRbacTest(rbac_base.BaseVolumeRbacTest):
         super(VolumesSnapshotRbacTest, cls).setup_clients()
         cls.client = cls.snapshots_client
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(VolumesSnapshotRbacTest, self).tearDown()
-
     @classmethod
     def skip_checks(cls):
         super(VolumesSnapshotRbacTest, cls).skip_checks()

@@ -37,10 +37,6 @@ class ImagesMemberRbacTest(base.BaseV1ImageRbacTest):
         super(ImagesMemberRbacTest, cls).resource_setup()
         cls.alt_tenant_id = cls.alt_image_member_client.tenant_id
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(ImagesMemberRbacTest, self).tearDown()
-
     @rbac_rule_validation.action(service="glance", rule="add_member")
     @decorators.idempotent_id('bda2bb78-e6ec-4b87-ba6d-1eaf1b28fa8b')
     def test_add_image_member(self):

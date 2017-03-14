@@ -31,10 +31,6 @@ class VolumesBackupsAdminRbacTest(rbac_base.BaseVolumeAdminRbacTest):
         if not CONF.volume_feature_enabled.backup:
             raise cls.skipException("Cinder backup feature disabled")
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(VolumesBackupsAdminRbacTest, self).tearDown()
-
     @classmethod
     def resource_setup(cls):
         super(VolumesBackupsAdminRbacTest, cls).resource_setup()

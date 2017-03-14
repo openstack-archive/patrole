@@ -41,10 +41,6 @@ class ServerGroupsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         super(ServerGroupsRbacTest, cls).resource_setup()
         cls.server = cls.create_test_server(wait_until='ACTIVE')
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(ServerGroupsRbacTest, self).tearDown()
-
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-server-groups:create")

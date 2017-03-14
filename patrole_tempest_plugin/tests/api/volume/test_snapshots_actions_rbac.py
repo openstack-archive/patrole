@@ -38,10 +38,6 @@ class SnapshotsActionsRbacTest(rbac_base.BaseVolumeRbacTest):
         super(SnapshotsActionsRbacTest, cls).setup_clients()
         cls.client = cls.os.snapshots_client
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(SnapshotsActionsRbacTest, self).tearDown()
-
     @classmethod
     def resource_setup(cls):
         super(SnapshotsActionsRbacTest, cls).resource_setup()

@@ -29,10 +29,6 @@ LOG = log.getLogger(__name__)
 
 class SecGroupRbacTest(base.BaseNetworkRbacTest):
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(SecGroupRbacTest, self).tearDown()
-
     @classmethod
     def resource_setup(cls):
         super(SecGroupRbacTest, cls).resource_setup()

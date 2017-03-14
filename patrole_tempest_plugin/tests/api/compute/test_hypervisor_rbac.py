@@ -35,10 +35,6 @@ class HypervisorAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
                   % cls.__name__
             raise cls.skipException(msg)
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(HypervisorAdminRbacTest, self).tearDown()
-
     @decorators.idempotent_id('17bbeb9a-e73e-445f-a771-c794448ef562')
     @rbac_rule_validation.action(
         service="nova",

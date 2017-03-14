@@ -44,10 +44,6 @@ class MeteringLabelRulesRbacTest(base.BaseNetworkRbacTest):
         cls.metering_labels_client = cls.os.metering_labels_client
         cls.metering_label_rules_client = cls.os.metering_label_rules_client
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(MeteringLabelRulesRbacTest, self).tearDown()
-
     @classmethod
     def resource_setup(cls):
         super(MeteringLabelRulesRbacTest, cls).resource_setup()

@@ -40,10 +40,6 @@ class InstanceActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         cls.server = cls.create_test_server(wait_until='ACTIVE')
         cls.request_id = cls.server.response['x-compute-request-id']
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(InstanceActionsRbacTest, self).tearDown()
-
     @decorators.idempotent_id('9d1b131d-407e-4fa3-8eef-eb2c4526f1da')
     @rbac_rule_validation.action(
         service="nova",

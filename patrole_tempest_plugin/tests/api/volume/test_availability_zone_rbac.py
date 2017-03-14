@@ -29,10 +29,6 @@ class AvailabilityZoneRbacTest(rbac_base.BaseVolumeRbacTest):
         super(AvailabilityZoneRbacTest, cls).setup_clients()
         cls.client = cls.availability_zone_client
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(AvailabilityZoneRbacTest, self).tearDown()
-
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:availability_zone_list")
     @decorators.idempotent_id('8cfd920c-4b6c-402d-b6e2-ede86bedc702')

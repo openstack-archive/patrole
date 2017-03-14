@@ -34,10 +34,6 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         super(BasicOperationsImagesRbacTest, cls).setup_clients()
         cls.client = cls.os.image_client_v2
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(BasicOperationsImagesRbacTest, self).tearDown()
-
     @rbac_rule_validation.action(service="glance",
                                  rule="add_image")
     @decorators.idempotent_id('0f148510-63bf-11e6-b348-080027d0d606')

@@ -26,11 +26,6 @@ CONF = config.CONF
 
 class IdentityGroupsV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
 
-    def tearDown(self):
-        """Reverts user back to admin for cleanup."""
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(IdentityGroupsV3AdminRbacTest, self).tearDown()
-
     def _create_group(self):
         """Creates a group for test."""
         name = data_utils.rand_name('group')

@@ -30,10 +30,6 @@ class SnapshotMetadataRbacTest(rbac_base.BaseVolumeRbacTest):
         if not CONF.volume_feature_enabled.snapshot:
             raise cls.skipException("Cinder snapshot feature disabled")
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(SnapshotMetadataRbacTest, self).tearDown()
-
     @classmethod
     def resource_setup(cls):
         super(SnapshotMetadataRbacTest, cls).resource_setup()

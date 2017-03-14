@@ -21,10 +21,6 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 class SecurityGroupsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(SecurityGroupsRbacTest, self).tearDown()
-
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-security-groups")

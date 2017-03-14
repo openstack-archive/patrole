@@ -36,10 +36,6 @@ class MigrationsAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
             raise cls.skipException(
                 '%s skipped as no compute extensions enabled' % cls.__name__)
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(MigrationsAdminRbacTest, self).tearDown()
-
     @decorators.idempotent_id('5795231c-3729-448c-a072-9a225db1a328')
     @rbac_rule_validation.action(
         service="nova",

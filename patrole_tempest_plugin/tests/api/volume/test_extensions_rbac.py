@@ -24,10 +24,6 @@ CONF = config.CONF
 
 class ExtensionsRbacTest(rbac_base.BaseVolumeRbacTest):
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(ExtensionsRbacTest, self).tearDown()
-
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:list_extensions")
     @decorators.idempotent_id('7f2dcc41-e850-493f-a400-82db4e2b50c0')
