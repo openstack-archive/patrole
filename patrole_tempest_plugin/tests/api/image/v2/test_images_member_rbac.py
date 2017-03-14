@@ -28,21 +28,19 @@ LOG = logging.getLogger(__name__)
 
 class ImagesMemberRbacTest(base.BaseV2ImageRbacTest):
 
-    credentials = ['admin', 'alt']
+    credentials = ['admin', 'primary', 'alt']
 
     @classmethod
     def resource_setup(cls):
         super(ImagesMemberRbacTest, cls).resource_setup()
         cls.tenant_id = cls.image_member_client.tenant_id
-        cls.alt_tenant_id = cls.alt_image_member_client.tenant_id
+        cls.alt_tenant_id = cls.os_alt.image_member_client_v2.tenant_id
 
     @classmethod
     def setup_clients(cls):
         super(ImagesMemberRbacTest, cls).setup_clients()
         cls.image_client = cls.os.image_client_v2
-        cls.alt_image_client = cls.os_alt.image_client_v2
         cls.image_member_client = cls.os.image_member_client_v2
-        cls.alt_image_member_client = cls.os_alt.image_member_client_v2
 
     def tearDown(self):
         self.rbac_utils.switch_role(self, switchToRbacRole=False)
