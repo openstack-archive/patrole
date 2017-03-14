@@ -44,6 +44,7 @@ class BaseIdentityV3RbacAdminTest(base.BaseIdentityV3AdminTest):
         cls.groups_client = cls.os.groups_client
         cls.policies_client = cls.os.policies_client
         cls.rbac_utils = rbac_utils()
+        cls.rbac_utils.switch_role(cls, switchToRbacRole=False)
 
     def _create_service(self):
         """Creates a service for test."""
