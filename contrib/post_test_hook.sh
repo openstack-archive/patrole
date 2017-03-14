@@ -50,6 +50,7 @@ iniset $TEMPEST_CONFIG rbac rbac_test_role $RBAC_ROLE
 # Set additional, necessary CONF values
 iniset $TEMPEST_CONFIG auth use_dynamic_credentials True
 iniset $TEMPEST_CONFIG auth tempest_roles Member
+iniset $TEMPEST_CONFIG identity auth_version v3
 
 # Give permissions back to Tempest.
 sudo chown -R tempest:stack $BASE/new/tempest
