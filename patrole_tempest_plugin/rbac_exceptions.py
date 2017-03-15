@@ -30,3 +30,7 @@ class RbacOverPermission (exceptions.TempestException):
 
 class RbacInvalidService (exceptions.TempestException):
     message = "Attempted to test an invalid service"
+
+
+class RbacParsingException (exceptions.TempestException):
+    message = "Attempted to test an invalid policy file or action"

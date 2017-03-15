@@ -90,7 +90,7 @@ class RbacPolicyParser(object):
                 policy_data = policy_data[:-2] + "\n}"
             # Otherwise raise an exception.
             else:
-                raise rbac_exceptions.RbacResourceSetupFailed(
+                raise rbac_exceptions.RbacParsingException(
                     'Policy file for service: {0}, {1} not found.'
                     .format(service, self.path))
 
@@ -172,8 +172,12 @@ class RbacPolicyParser(object):
             rule = self.rules[apply_rule]
             return rule(target, access_data, o)
         except KeyError as e:
-            LOG.debug("{0} not found in policy file.".format(apply_rule))
-            return False
+            message = "Policy action: {0} not found in policy file: {1}."\
+                      .format(apply_rule, self.path)
+            LOG.debug(message)
+            raise rbac_exceptions.RbacParsingException(message)
         except Exception as e:
-            LOG.debug("Exception: {0} for rule: {1}.".format(e, apply_rule))
-            return False
+            message = "Unknown exception: {0} for policy action: {1} in "\
+                      "policy file: {2}.".format(e, apply_rule, self.path)
+            LOG.debug(message)
+            raise rbac_exceptions.RbacParsingException(message)

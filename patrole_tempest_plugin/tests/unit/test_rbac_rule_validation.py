@@ -13,7 +13,9 @@
 #    under the License.
 
 import mock
+import testtools
 
+from patrole_tempest_plugin import rbac_auth
 from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation as rbac_rv
 
@@ -29,7 +31,10 @@ class RBACRuleValidationTest(base.TestCase):
         self.mock_args = mock.Mock(spec=test.BaseTestCase)
         self.mock_args.auth_provider = mock.Mock()
         self.mock_args.rbac_utils = mock.Mock()
-        self.mock_args.auth_provider.credentials.tenant_id = 'tenant_id'
+        self.mock_args.auth_provider.credentials.tenant_id = \
+            mock.sentinel.tenant_id
+        self.mock_args.auth_provider.credentials.user_id = \
+            mock.sentinel.user_id
 
     @mock.patch('patrole_tempest_plugin.rbac_auth.RbacAuthority')
     def test_RBAC_rv_happy_path(self, mock_auth):
@@ -98,3 +103,22 @@ class RBACRuleValidationTest(base.TestCase):
         mock_auth.return_value = mock_permission
 
         self.assertIsNone(wrapper(self.mock_args))
+
+    @mock.patch.object(rbac_auth, 'rbac_policy_parser', autospec=True)
+    def test_invalid_policy_rule_throws_skip_exception(
+            self, mock_rbac_policy_parser):
+        mock_rbac_policy_parser.RbacPolicyParser.return_value.allowed.\
+            side_effect = rbac_exceptions.RbacParsingException
+
+        decorator = rbac_rv.action(mock.sentinel.service,
+                                   mock.sentinel.policy_rule)
+        wrapper = decorator(mock.Mock())
+
+        e = self.assertRaises(testtools.TestCase.skipException, wrapper,
+                              self.mock_args)
+        self.assertEqual('Attempted to test an invalid policy file or action',
+                         str(e))
+
+        mock_rbac_policy_parser.RbacPolicyParser.assert_called_once_with(
+            mock.sentinel.tenant_id, mock.sentinel.user_id,
+            mock.sentinel.service)
