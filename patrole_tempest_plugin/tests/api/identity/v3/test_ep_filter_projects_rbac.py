@@ -20,28 +20,27 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.identity import rbac_base
 
 
-class IdentityEndpointsFilterV3RbacTest(
-        rbac_base.BaseIdentityV3RbacTest):
-
-    @classmethod
-    def setup_clients(cls):
-        super(IdentityEndpointsFilterV3RbacTest, cls).setup_clients()
-        cls.ep_api_client = cls.os_primary.endpoint_filter_client
+class EndpointFilterProjectsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     @classmethod
     def resource_setup(cls):
-        super(IdentityEndpointsFilterV3RbacTest, cls).resource_setup()
+        super(EndpointFilterProjectsV3RbacTest, cls).resource_setup()
         cls.project = cls.setup_test_project()
-        cls.service = cls.setup_test_service()
-        cls.endpoint = cls.setup_test_endpoint(service=cls.service)
+        cls.endpoint = cls.setup_test_endpoint()
 
-    def _add_endpoint_to_project(self):
-        # Adding and cleaning up endpoints to projects
-        self.ep_api_client.add_endpoint_to_project(
+    def _add_endpoint_to_project(self, ignore_not_found=False):
+        self.endpoint_filter_client.add_endpoint_to_project(
             self.project['id'], self.endpoint['id'])
-        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.ep_api_client.delete_endpoint_from_project,
-                        self.project['id'], self.endpoint['id'])
+
+        if ignore_not_found:
+            self.addCleanup(
+                test_utils.call_and_ignore_notfound_exc,
+                self.endpoint_filter_client.delete_endpoint_from_project,
+                self.project['id'], self.endpoint['id'])
+        else:
+            self.addCleanup(
+                self.endpoint_filter_client.delete_endpoint_from_project,
+                self.project['id'], self.endpoint['id'])
 
     @rbac_rule_validation.action(
         service="keystone",
@@ -50,7 +49,7 @@ class IdentityEndpointsFilterV3RbacTest(
     def test_add_endpoint_to_project(self):
         # Adding endpoints to projects
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self._add_endpoint_to_project()
+        self._add_endpoint_to_project(ignore_not_found=True)
 
     @rbac_rule_validation.action(
         service="keystone",
@@ -58,7 +57,7 @@ class IdentityEndpointsFilterV3RbacTest(
     @decorators.idempotent_id('f53dca42-ec8a-48e9-924b-0bbe6c99727f')
     def test_list_projects_for_endpoint(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.ep_api_client.list_projects_for_endpoint(
+        self.endpoint_filter_client.list_projects_for_endpoint(
             self.endpoint['id'])
 
     @rbac_rule_validation.action(
@@ -68,7 +67,7 @@ class IdentityEndpointsFilterV3RbacTest(
     def test_check_endpoint_in_project(self):
         self._add_endpoint_to_project()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.ep_api_client.check_endpoint_in_project(
+        self.endpoint_filter_client.check_endpoint_in_project(
             self.project['id'], self.endpoint['id'])
 
     @rbac_rule_validation.action(
@@ -77,7 +76,7 @@ class IdentityEndpointsFilterV3RbacTest(
     @decorators.idempotent_id('5d86c659-c6ad-41e0-854e-3823e95c7cc2')
     def test_list_endpoints_in_project(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.ep_api_client.list_endpoints_in_project(
+        self.endpoint_filter_client.list_endpoints_in_project(
             self.project['id'])
 
     @rbac_rule_validation.action(
@@ -85,7 +84,7 @@ class IdentityEndpointsFilterV3RbacTest(
         rule="identity:remove_endpoint_from_project")
     @decorators.idempotent_id('b4e21c10-4f47-427b-9b8a-f5b5601adfda')
     def test_remove_endpoint_from_project(self):
-        self._add_endpoint_to_project()
+        self._add_endpoint_to_project(ignore_not_found=True)
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.ep_api_client.delete_endpoint_from_project(
+        self.endpoint_filter_client.delete_endpoint_from_project(
             self.project['id'], self.endpoint['id'])

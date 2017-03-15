@@ -1,0 +1,13 @@
+---
+features:
+  - |
+    Add group-specific RBAC tests for the identity v3 extension API,
+    OS-EP-FILTER, providing coverage for the following policy actions:
+
+      * identity:create_endpoint_group
+      * identity:list_endpoint_groups
+      * identity:show_endpoint_group (get endpoint group)
+      * identity:check_endpoint_group
+      * identity:list_endpoint_group (get endpoint groups)
+      * identity:update_endpoint_group
+      * identity:delete_endpoint_group
