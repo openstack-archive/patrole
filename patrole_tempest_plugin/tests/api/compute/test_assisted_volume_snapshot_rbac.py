@@ -32,11 +32,6 @@ class AssistedVolumeSnapshotRbacTest(rbac_base.BaseV2ComputeRbacTest):
         super(AssistedVolumeSnapshotRbacTest, cls).setup_clients()
         cls.client = cls.servers_client
 
-    def tearDown(self):
-        """Cleanup and reset RBAC role."""
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(AssistedVolumeSnapshotRbacTest, self).tearDown()
-
     def _create_and_attach(self):
         self.server = self.create_test_server(wait_until='ACTIVE')
         self.volume = self.create_volume()

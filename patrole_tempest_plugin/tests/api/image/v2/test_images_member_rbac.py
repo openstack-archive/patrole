@@ -42,10 +42,6 @@ class ImagesMemberRbacTest(base.BaseV2ImageRbacTest):
         cls.image_client = cls.os.image_client_v2
         cls.image_member_client = cls.os.image_member_client_v2
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(ImagesMemberRbacTest, self).tearDown()
-
     def setUp(self):
         self.rbac_utils.switch_role(self, switchToRbacRole=False)
         super(ImagesMemberRbacTest, self).setUp()

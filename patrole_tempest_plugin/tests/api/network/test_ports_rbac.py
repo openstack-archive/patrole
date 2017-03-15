@@ -68,10 +68,6 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
 
         return port
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(PortsRbacTest, self).tearDown()
-
     @rbac_rule_validation.action(service="neutron",
                                  rule="create_port")
     @decorators.idempotent_id('0ec8c551-625c-4864-8a52-85baa7c40f22')

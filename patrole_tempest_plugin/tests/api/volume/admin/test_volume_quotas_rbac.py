@@ -39,10 +39,6 @@ class VolumeQuotasAdminRbacTest(rbac_base.BaseVolumeAdminRbacTest):
         super(VolumeQuotasAdminRbacTest, cls).setup_clients()
         cls.client = cls.os.volume_quotas_client
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(VolumeQuotasAdminRbacTest, self).tearDown()
-
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume_extension:quotas:show")
     @decorators.idempotent_id('b3c7177e-b6b1-4d0f-810a-fc95606964dd')

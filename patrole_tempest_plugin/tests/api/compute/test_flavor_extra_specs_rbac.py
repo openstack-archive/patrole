@@ -47,10 +47,6 @@ class FlavorExtraSpecsAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
         cls.client.wait_for_resource_deletion(cls.flavor['id'])
         super(FlavorExtraSpecsAdminRbacTest, cls).resource_cleanup()
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(FlavorExtraSpecsAdminRbacTest, self).tearDown()
-
     def _set_flavor_extra_spec(self):
         rand_key = data_utils.rand_name('key')
         rand_val = data_utils.rand_name('val')

@@ -35,10 +35,6 @@ class ConfigDriveRbacTest(rbac_base.BaseV2ComputeRbacTest):
                   % cls.__name__
             raise cls.skipException(msg)
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(ConfigDriveRbacTest, self).tearDown()
-
     @decorators.idempotent_id('55c62ef7-b72b-4970-acc6-05b0a4316e5d')
     @rbac_rule_validation.action(
         service="nova",

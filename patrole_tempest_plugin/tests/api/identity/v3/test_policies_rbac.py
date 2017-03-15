@@ -26,11 +26,6 @@ CONF = config.CONF
 
 class IdentityPoliciesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
 
-    def tearDown(self):
-        """Reverts user back to admin for cleanup."""
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(IdentityPoliciesV3AdminRbacTest, self).tearDown()
-
     def _create_policy(self):
         """Creates a policy for test."""
         blob = data_utils.rand_name('BlobName')

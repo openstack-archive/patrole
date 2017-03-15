@@ -49,10 +49,6 @@ class IpsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         super(IpsRbacTest, cls).resource_setup()
         cls.server = cls.create_test_server(wait_until='ACTIVE')
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(IpsRbacTest, self).tearDown()
-
     @decorators.idempotent_id('6886d360-0d86-4760-b1a3-882d81fbebcc')
     @rbac_rule_validation.action(
         service="nova",

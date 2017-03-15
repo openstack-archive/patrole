@@ -40,10 +40,6 @@ class ServerPasswordRbacTest(rbac_base.BaseV2ComputeRbacTest):
         super(ServerPasswordRbacTest, cls).resource_setup()
         cls.server = cls.create_test_server()
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(ServerPasswordRbacTest, self).tearDown()
-
     @decorators.idempotent_id('43ad7995-2f12-41cd-8ef1-bae9ffc36818')
     @rbac_rule_validation.action(
         service="nova",

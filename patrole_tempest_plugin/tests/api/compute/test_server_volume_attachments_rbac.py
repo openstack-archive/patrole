@@ -46,10 +46,6 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
         cls.server = cls.create_test_server(wait_until='ACTIVE')
         cls.volume = cls.create_volume()
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(ServerVolumeAttachmentRbacTest, self).tearDown()
-
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-volumes-attachments:index")

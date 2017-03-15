@@ -17,6 +17,7 @@ import logging
 
 from tempest import config
 from tempest.lib import exceptions
+from tempest import test
 
 from patrole_tempest_plugin import rbac_auth
 from patrole_tempest_plugin import rbac_exceptions
@@ -29,13 +30,17 @@ def action(service, rule):
     def decorator(func):
         def wrapper(*args, **kwargs):
             try:
-                tenant_id = args[0].auth_provider.credentials.tenant_id
-                user_id = args[0].auth_provider.credentials.user_id
-            except (IndexError, AttributeError) as e:
+                caller_ref = None
+                if args and isinstance(args[0], test.BaseTestCase):
+                    caller_ref = args[0]
+                tenant_id = caller_ref.auth_provider.credentials.tenant_id
+                user_id = caller_ref.auth_provider.credentials.user_id
+            except AttributeError as e:
                 msg = ("{0}: tenant_id/user_id not found in "
                        "cls.auth_provider.credentials".format(e))
                 LOG.error(msg)
                 raise rbac_exceptions.RbacResourceSetupFailed(msg)
+
             authority = rbac_auth.RbacAuthority(tenant_id, user_id, service)
             allowed = authority.get_permission(rule, CONF.rbac.rbac_test_role)
 
@@ -70,5 +75,8 @@ def action(service, rule):
                     raise rbac_exceptions.RbacOverPermission(
                         "OverPermission: Role %s was allowed to perform %s" %
                         (CONF.rbac.rbac_test_role, rule))
+            finally:
+                caller_ref.rbac_utils.switch_role(caller_ref,
+                                                  switchToRbacRole=False)
         return wrapper
     return decorator

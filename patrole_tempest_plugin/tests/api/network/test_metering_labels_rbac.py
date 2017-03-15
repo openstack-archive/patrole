@@ -41,10 +41,6 @@ class MeteringLabelsRbacTest(base.BaseNetworkRbacTest):
         super(MeteringLabelsRbacTest, cls).setup_clients()
         cls.metering_labels_client = cls.os.metering_labels_client
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(MeteringLabelsRbacTest, self).tearDown()
-
     def _create_metering_label(self):
         body = self.metering_labels_client.create_metering_label(
             name=data_utils.rand_name(self.__class__.__name__))

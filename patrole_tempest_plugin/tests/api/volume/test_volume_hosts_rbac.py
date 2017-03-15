@@ -21,10 +21,6 @@ from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 class VolumeHostsAdminRbacTest(rbac_base.BaseVolumeAdminRbacTest):
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(VolumeHostsAdminRbacTest, self).tearDown()
-
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume_extension:hosts")
     @decorators.idempotent_id('64e837f5-5452-4e26-b934-c721ea7a8644')

@@ -31,10 +31,6 @@ class VolumeMetadataRbacTest(rbac_base.BaseVolumeRbacTest):
         super(VolumeMetadataRbacTest, cls).setup_clients()
         cls.client = cls.os.volumes_client
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(VolumeMetadataRbacTest, self).tearDown()
-
     def _add_metadata(self, volume):
         # Create metadata for the volume
         metadata = {"key1": "value1",

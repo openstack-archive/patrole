@@ -26,11 +26,6 @@ CONF = config.CONF
 class IdentityProjectV3AdminRbacTest(
         rbac_base.BaseIdentityV3RbacAdminTest):
 
-    def tearDown(self):
-        """Reverts user back to admin for cleanup."""
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(IdentityProjectV3AdminRbacTest, self).tearDown()
-
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:create_project")
     @decorators.idempotent_id('0f148510-63bf-11e6-1564-080044d0d904')

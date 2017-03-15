@@ -35,10 +35,6 @@ class VolumesTransfersRbacTest(rbac_base.BaseVolumeRbacTest):
         cls.alt_client = cls.os_alt.volumes_client
         cls.alt_tenant_id = cls.alt_client.tenant_id
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(VolumesTransfersRbacTest, self).tearDown()
-
     @classmethod
     def resource_setup(cls):
         super(VolumesTransfersRbacTest, cls).resource_setup()

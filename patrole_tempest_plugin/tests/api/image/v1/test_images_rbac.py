@@ -27,10 +27,6 @@ CONF = config.CONF
 
 class BasicOperationsImagesRbacTest(rbac_base.BaseV1ImageRbacTest):
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(BasicOperationsImagesRbacTest, self).tearDown()
-
     @rbac_rule_validation.action(service="glance", rule="add_image")
     @decorators.idempotent_id('33248a04-6527-11e6-be0f-080027d0d606')
     def test_create_image(self):

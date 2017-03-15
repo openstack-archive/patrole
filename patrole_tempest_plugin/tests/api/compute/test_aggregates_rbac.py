@@ -26,10 +26,6 @@ CONF = config.CONF
 
 class AggregatesRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(AggregatesRbacTest, self).tearDown()
-
     @classmethod
     def skip_checks(cls):
         super(AggregatesRbacTest, cls).skip_checks()

@@ -24,10 +24,6 @@ CONF = config.CONF
 
 class IdentityServicesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(IdentityServicesV2AdminRbacTest, self).tearDown()
-
     @classmethod
     def setup_clients(cls):
         super(IdentityServicesV2AdminRbacTest, cls).setup_clients()

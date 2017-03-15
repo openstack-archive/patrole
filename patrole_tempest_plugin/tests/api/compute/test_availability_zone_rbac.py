@@ -22,10 +22,6 @@ CONF = config.CONF
 
 class NovaAvailabilityZoneRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(NovaAvailabilityZoneRbacTest, self).tearDown()
-
     @classmethod
     def skip_checks(cls):
         super(NovaAvailabilityZoneRbacTest, cls).skip_checks()

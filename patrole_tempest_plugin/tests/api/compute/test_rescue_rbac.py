@@ -41,10 +41,6 @@ class RescueRbacTest(rbac_base.BaseV2ComputeRbacTest):
         super(RescueRbacTest, cls).resource_setup()
         cls.server = cls.create_test_server(wait_until='ACTIVE')
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(RescueRbacTest, self).tearDown()
-
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-rescue")

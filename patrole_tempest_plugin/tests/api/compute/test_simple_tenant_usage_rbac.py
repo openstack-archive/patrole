@@ -24,10 +24,6 @@ CONF = config.CONF
 
 class SimpleTenantUsageRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(SimpleTenantUsageRbacTest, self).tearDown()
-
     @classmethod
     def setup_clients(cls):
         super(SimpleTenantUsageRbacTest, cls).setup_clients()

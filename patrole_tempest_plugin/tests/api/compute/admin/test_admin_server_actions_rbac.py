@@ -25,10 +25,6 @@ CONF = config.CONF
 
 class ServersAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(ServersAdminRbacTest, self).tearDown()
-
     @classmethod
     def setup_clients(cls):
         super(ServersAdminRbacTest, cls).setup_clients()

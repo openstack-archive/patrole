@@ -43,10 +43,6 @@ class ServerTagsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         super(ServerTagsRbacTest, cls).resource_setup()
         cls.server = cls.create_test_server(wait_until='ACTIVE')
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(ServerTagsRbacTest, self).tearDown()
-
     def _add_tag_to_server(self):
         tag_name = data_utils.rand_name('tag')
         self.client.update_tag(self.server['id'], tag_name)

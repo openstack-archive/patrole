@@ -45,10 +45,6 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
         cls.client = cls.os.volumes_client
         cls.image_client = cls.os.image_client
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(VolumesActionsRbacTest, self).tearDown()
-
     @classmethod
     def resource_setup(cls):
         super(VolumesActionsRbacTest, cls).resource_setup()

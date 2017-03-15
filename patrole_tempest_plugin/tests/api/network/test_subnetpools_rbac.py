@@ -38,10 +38,6 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
             msg = "subnet_allocation extension not enabled."
             raise cls.skipException(msg)
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(SubnetPoolsRbacTest, self).tearDown()
-
     def _create_subnetpool(self, shared=None):
         post_body = {'name': data_utils.rand_name(self.__class__.__name__),
                      'min_prefixlen': 24,

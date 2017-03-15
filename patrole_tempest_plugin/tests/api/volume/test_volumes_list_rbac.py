@@ -29,10 +29,6 @@ class VolumesListRbacTest(rbac_base.BaseVolumeRbacTest):
         super(VolumesListRbacTest, cls).setup_clients()
         cls.client = cls.os.volumes_client
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(VolumesListRbacTest, self).tearDown()
-
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:get_all")
     @decorators.idempotent_id('e3ab7906-b04b-4c45-aa11-1104d302f940')

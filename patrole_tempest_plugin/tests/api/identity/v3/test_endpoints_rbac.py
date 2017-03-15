@@ -40,11 +40,6 @@ class IdentityEndpointsV3AdminRbacTest(
                         self.endpoints_client.delete_endpoint, endpoint['id'])
         return (service, endpoint)
 
-    def tearDown(self):
-        """Reverts user back to admin for cleanup."""
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(IdentityEndpointsV3AdminRbacTest, self).tearDown()
-
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:create_endpoint")
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd127')

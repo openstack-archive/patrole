@@ -24,10 +24,6 @@ CONF = config.CONF
 
 class VolumeTypesExtraSpecsAdminRbacTest(rbac_base.BaseVolumeAdminRbacTest):
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(VolumeTypesExtraSpecsAdminRbacTest, self).tearDown()
-
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume_extension:types_extra_specs")
     @decorators.idempotent_id('eea40251-990b-49b0-99ae-10e4585b479b')

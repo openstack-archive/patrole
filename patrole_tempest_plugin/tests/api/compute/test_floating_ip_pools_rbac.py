@@ -43,10 +43,6 @@ class FloatingIpPoolsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                   % cls.__name__
             raise cls.skipException(msg)
 
-    def tearDown(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(FloatingIpPoolsRbacTest, self).tearDown()
-
     @decorators.idempotent_id('c1a17153-b25d-4444-a721-5897d7737482')
     @rbac_rule_validation.action(
         service="nova",
