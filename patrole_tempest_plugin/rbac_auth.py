@@ -13,8 +13,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import testtools
+
 from oslo_log import log as logging
 
+from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_policy_parser
 
 LOG = logging.getLogger(__name__)
@@ -22,20 +25,19 @@ LOG = logging.getLogger(__name__)
 
 class RbacAuthority(object):
     def __init__(self, tenant_id, user_id, service=None):
-        self.converter = rbac_policy_parser.RbacPolicyParser(
+        self.policy_parser = rbac_policy_parser.RbacPolicyParser(
             tenant_id, user_id, service)
 
     def get_permission(self, rule_name, role):
         try:
-            is_allowed = self.converter.allowed(rule_name, role)
+            is_allowed = self.policy_parser.allowed(rule_name, role)
             if is_allowed:
-                LOG.debug("[API]: %s, [Role]: %s is allowed!", rule_name, role)
+                LOG.debug("[Action]: %s, [Role]: %s is allowed!", rule_name,
+                          role)
             else:
-                LOG.debug("[API]: %s, [Role]: %s is NOT allowed!",
+                LOG.debug("[Action]: %s, [Role]: %s is NOT allowed!",
                           rule_name, role)
             return is_allowed
-        except KeyError:
-            LOG.debug("[API]: %s, [Role]: %s is NOT allowed!",
-                      rule_name, role)
-            return False
+        except rbac_exceptions.RbacParsingException as e:
+            raise testtools.TestCase.skipException(str(e))
         return False

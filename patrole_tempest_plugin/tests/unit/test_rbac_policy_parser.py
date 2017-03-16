@@ -82,7 +82,7 @@ class RbacPolicyTest(base.TestCase):
 
         test_tenant_id = mock.sentinel.tenant_id
         test_user_id = mock.sentinel.user_id
-        converter = rbac_policy_parser.RbacPolicyParser(
+        parser = rbac_policy_parser.RbacPolicyParser(
             test_tenant_id, test_user_id, "test", self.custom_policy_file)
 
         expected = {
@@ -95,24 +95,16 @@ class RbacPolicyTest(base.TestCase):
             'policy_action_6': ['eight'],
         }
 
-        fake_rule = 'fake_rule'
-
-        for role in default_roles:
-            self.assertFalse(converter.allowed(fake_rule, role))
-            m_log.debug.assert_called_once_with(
-                "{0} not found in policy file.".format('fake_rule'))
-            m_log.debug.reset_mock()
-
         for rule, role_list in expected.items():
             for role in role_list:
-                self.assertTrue(converter.allowed(rule, role))
+                self.assertTrue(parser.allowed(rule, role))
             for role in set(default_roles) - set(role_list):
-                self.assertFalse(converter.allowed(rule, role))
+                self.assertFalse(parser.allowed(rule, role))
 
     def test_admin_policy_file_with_admin_role(self):
         test_tenant_id = mock.sentinel.tenant_id
         test_user_id = mock.sentinel.user_id
-        converter = rbac_policy_parser.RbacPolicyParser(
+        parser = rbac_policy_parser.RbacPolicyParser(
             test_tenant_id, test_user_id, "test", self.admin_policy_file)
 
         role = 'admin'
@@ -122,17 +114,17 @@ class RbacPolicyTest(base.TestCase):
         disallowed_rules = ['non_admin_rule']
 
         for rule in allowed_rules:
-            allowed = converter.allowed(rule, role)
+            allowed = parser.allowed(rule, role)
             self.assertTrue(allowed)
 
         for rule in disallowed_rules:
-            allowed = converter.allowed(rule, role)
+            allowed = parser.allowed(rule, role)
             self.assertFalse(allowed)
 
     def test_admin_policy_file_with_member_role(self):
         test_tenant_id = mock.sentinel.tenant_id
         test_user_id = mock.sentinel.user_id
-        converter = rbac_policy_parser.RbacPolicyParser(
+        parser = rbac_policy_parser.RbacPolicyParser(
             test_tenant_id, test_user_id, "test", self.admin_policy_file)
 
         role = 'Member'
@@ -143,17 +135,17 @@ class RbacPolicyTest(base.TestCase):
             'admin_rule', 'is_admin_rule', 'alt_admin_rule']
 
         for rule in allowed_rules:
-            allowed = converter.allowed(rule, role)
+            allowed = parser.allowed(rule, role)
             self.assertTrue(allowed)
 
         for rule in disallowed_rules:
-            allowed = converter.allowed(rule, role)
+            allowed = parser.allowed(rule, role)
             self.assertFalse(allowed)
 
     def test_admin_policy_file_with_context_is_admin(self):
         test_tenant_id = mock.sentinel.tenant_id
         test_user_id = mock.sentinel.user_id
-        converter = rbac_policy_parser.RbacPolicyParser(
+        parser = rbac_policy_parser.RbacPolicyParser(
             test_tenant_id, test_user_id, "test", self.alt_admin_policy_file)
 
         role = 'fake_admin'
@@ -161,11 +153,11 @@ class RbacPolicyTest(base.TestCase):
         disallowed_rules = ['admin_rule']
 
         for rule in allowed_rules:
-            allowed = converter.allowed(rule, role)
+            allowed = parser.allowed(rule, role)
             self.assertTrue(allowed)
 
         for rule in disallowed_rules:
-            allowed = converter.allowed(rule, role)
+            allowed = parser.allowed(rule, role)
             self.assertFalse(allowed)
 
         role = 'super_admin'
@@ -173,11 +165,11 @@ class RbacPolicyTest(base.TestCase):
         disallowed_rules = ['non_admin_rule']
 
         for rule in allowed_rules:
-            allowed = converter.allowed(rule, role)
+            allowed = parser.allowed(rule, role)
             self.assertTrue(allowed)
 
         for rule in disallowed_rules:
-            allowed = converter.allowed(rule, role)
+            allowed = parser.allowed(rule, role)
             self.assertFalse(allowed)
 
     def test_tenant_user_policy(self):
@@ -189,28 +181,28 @@ class RbacPolicyTest(base.TestCase):
         """
         test_tenant_id = mock.sentinel.tenant_id
         test_user_id = mock.sentinel.user_id
-        converter = rbac_policy_parser.RbacPolicyParser(
+        parser = rbac_policy_parser.RbacPolicyParser(
             test_tenant_id, test_user_id, "test", self.tenant_policy_file)
 
         # Check whether Member role can perform expected actions.
         allowed_rules = ['rule1', 'rule2', 'rule3', 'rule4']
         for rule in allowed_rules:
-            allowed = converter.allowed(rule, 'Member')
+            allowed = parser.allowed(rule, 'Member')
             self.assertTrue(allowed)
 
         disallowed_rules = ['admin_tenant_rule', 'admin_user_rule']
         for disallowed_rule in disallowed_rules:
-            self.assertFalse(converter.allowed(disallowed_rule, 'Member'))
+            self.assertFalse(parser.allowed(disallowed_rule, 'Member'))
 
         # Check whether admin role can perform expected actions.
         allowed_rules.extend(disallowed_rules)
         for rule in allowed_rules:
-            allowed = converter.allowed(rule, 'admin')
+            allowed = parser.allowed(rule, 'admin')
             self.assertTrue(allowed)
 
         # Check whether _try_rule is called with the correct target dictionary.
         with mock.patch.object(
-            converter, '_try_rule', return_value=True, autospec=True) \
+            parser, '_try_rule', return_value=True, autospec=True) \
             as mock_try_rule:
 
             expected_target = {
@@ -230,7 +222,7 @@ class RbacPolicyTest(base.TestCase):
             }
 
             for rule in allowed_rules:
-                allowed = converter.allowed(rule, 'Member')
+                allowed = parser.allowed(rule, 'Member')
                 self.assertTrue(allowed)
                 mock_try_rule.assert_called_once_with(
                     rule, expected_target, expected_access_data, mock.ANY)
@@ -265,3 +257,41 @@ class RbacPolicyTest(base.TestCase):
 
         m_log.debug.assert_called_once_with(
             "{0} is NOT a valid service.".format(str(service)))
+
+    @mock.patch.object(rbac_policy_parser, 'LOG', autospec=True)
+    def test_invalid_policy_rule_throws_rbac_parsing_exception(self, m_log):
+        test_tenant_id = mock.sentinel.tenant_id
+        test_user_id = mock.sentinel.user_id
+
+        parser = rbac_policy_parser.RbacPolicyParser(
+            test_tenant_id, test_user_id, "test", self.custom_policy_file)
+
+        fake_rule = 'fake_rule'
+        expected_message = "Policy action: {0} not found in policy file: {1}."\
+                           .format(fake_rule, self.custom_policy_file)
+
+        e = self.assertRaises(rbac_exceptions.RbacParsingException,
+                              parser.allowed, fake_rule, None)
+        self.assertIn(expected_message, str(e))
+        m_log.debug.assert_called_once_with(expected_message)
+
+    @mock.patch.object(rbac_policy_parser, 'LOG', autospec=True)
+    def test_unknown_exception_throws_rbac_parsing_exception(self, m_log):
+        test_tenant_id = mock.sentinel.tenant_id
+        test_user_id = mock.sentinel.user_id
+
+        parser = rbac_policy_parser.RbacPolicyParser(
+            test_tenant_id, test_user_id, "test", self.custom_policy_file)
+        parser.rules = mock.MagicMock(
+            **{'__getitem__.return_value.side_effect': Exception(
+               mock.sentinel.error)})
+
+        expected_message = "Unknown exception: {0} for policy action: {1} in "\
+                           "policy file: {2}.".format(mock.sentinel.error,
+                                                      mock.sentinel.rule,
+                                                      self.custom_policy_file)
+
+        e = self.assertRaises(rbac_exceptions.RbacParsingException,
+                              parser.allowed, mock.sentinel.rule, None)
+        self.assertIn(expected_message, str(e))
+        m_log.debug.assert_called_once_with(expected_message)
