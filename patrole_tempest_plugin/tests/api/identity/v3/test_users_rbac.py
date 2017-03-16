@@ -26,6 +26,10 @@ CONF = config.CONF
 class IdentityUserV3AdminRbacTest(
         rbac_base.BaseIdentityV3RbacAdminTest):
 
+    def setUp(self):
+        super(IdentityUserV3AdminRbacTest, self).setUp()
+        self.default_user_id = self.auth_provider.credentials.user_id
+
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:create_user")
     @decorators.idempotent_id('0f148510-63bf-11e6-4522-080044d0d904')
@@ -82,16 +86,13 @@ class IdentityUserV3AdminRbacTest(
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:get_user")
     @decorators.idempotent_id('0f148510-63bf-11e6-4522-080044d0d908')
-    def test_show_user(self):
+    def test_show_own_user(self):
         """Get one user.
 
         RBAC test for Keystone: identity:get_user
         """
-        user_name = data_utils.rand_name('test_get_user')
-        user = self._create_test_user(name=user_name, password=None)
-
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
-        self.non_admin_users_client.show_user(user['id'])
+        self.non_admin_users_client.show_user(self.default_user_id)
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:change_password")
@@ -102,37 +103,33 @@ class IdentityUserV3AdminRbacTest(
         RBAC test for Keystone: identity:change_password
         """
         user_name = data_utils.rand_name('test_change_password')
-        user = self._create_test_user(name=user_name, password='nova')
+        original_password = data_utils.rand_password()
+        user = self._create_test_user(name=user_name,
+                                      password=original_password)
 
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
-        self.non_admin_users_client \
-            .update_user_password(user['id'],
-                                  original_password='nova',
-                                  password='neutron')
+        self.non_admin_users_client.update_user_password(
+            user['id'], original_password=original_password,
+            password=data_utils.rand_password())
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:list_groups_for_user")
     @decorators.idempotent_id('bd5946d4-46d2-423d-a800-a3e7aabc18b3')
-    def test_list_group_user(self):
+    def test_list_own_user_group(self):
         """Lists groups which a user belongs to.
 
         RBAC test for Keystone: identity:list_groups_for_user
         """
-        user_name = data_utils.rand_name('User')
-        user = self._create_test_user(name=user_name, password=None)
-
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
-        self.non_admin_users_client.list_user_groups(user['id'])
+        self.non_admin_users_client.list_user_groups(self.default_user_id)
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:list_user_projects")
     @decorators.idempotent_id('0f148510-63bf-11e6-1564-080044d0d909')
-    def test_list_user_projects(self):
+    def test_list_own_user_projects(self):
         """List User's Projects.
 
         RBAC test for Keystone: identity:list_user_projects
         """
-        user = self.setup_test_user()
-
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
-        self.non_admin_users_client.list_user_projects(user['id'])
+        self.non_admin_users_client.list_user_projects(self.default_user_id)
