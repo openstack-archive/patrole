@@ -79,15 +79,6 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
         # Detach the volume
         self._detach_volume()
 
-    @testtools.skipUnless(CONF.service_available.nova,
-                          "Nova is needed to create a server")
-    @rbac_rule_validation.action(service="cinder", rule="volume:get")
-    @decorators.idempotent_id('c4c3fdd5-b1b1-49c3-b977-a9f40ee9257a')
-    def test_get_volume_attachment(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
-        # Get attachment
-        self.client.show_volume(self.volume['id'])
-
     @testtools.skipIf(True, "Patrole bug #1672799")
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:copy_volume_to_image")
