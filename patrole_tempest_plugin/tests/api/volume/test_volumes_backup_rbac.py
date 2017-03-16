@@ -33,16 +33,6 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
         if not CONF.volume_feature_enabled.backup:
             raise cls.skipException("Cinder backup feature disabled")
 
-    def create_backup(self, volume_id):
-        backup_name = data_utils.rand_name(
-            self.__class__.__name__ + '-backup')
-        backup = self.backups_client.create_backup(
-            volume_id=volume_id, name=backup_name)['backup']
-        self.addCleanup(self.backups_client.delete_backup, backup['id'])
-        waiters.wait_for_backup_status(self.backups_client, backup['id'],
-                                       'available')
-        return backup
-
     @classmethod
     def resource_setup(cls):
         super(VolumesBackupsRbacTest, cls).resource_setup()
@@ -104,6 +94,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         # Delete backup
         self.backups_client.delete_backup(backup['id'])
+        self.backups_client.wait_for_resource_deletion(backup['id'])
 
 
 class VolumesBackupsV3RbacTest(VolumesBackupsRbacTest):
