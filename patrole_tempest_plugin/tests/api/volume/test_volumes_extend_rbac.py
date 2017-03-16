@@ -39,8 +39,8 @@ class VolumesExtendRbacTest(rbac_base.BaseVolumeRbacTest):
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.volumes_client.extend_volume(self.volume['id'],
                                           new_size=extend_size)
-        waiters.wait_for_volume_status(self.volumes_client, self.volume['id'],
-                                       'available')
+        waiters.wait_for_volume_resource_status(
+            self.volumes_client, self.volume['id'], 'available')
 
 
 class VolumesExtendV3RbacTest(VolumesExtendRbacTest):
