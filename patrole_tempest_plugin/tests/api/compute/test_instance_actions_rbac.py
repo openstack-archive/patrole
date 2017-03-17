@@ -16,6 +16,7 @@
 from tempest.lib import decorators
 from tempest import test
 
+from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
@@ -54,5 +55,7 @@ class InstanceActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-instance-actions:events")
     def test_get_instance_action(self):
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
-        self.client.show_instance_action(
+        instance_action = self.client.show_instance_action(
             self.server['id'], self.request_id)['instanceAction']
+        if 'events' not in instance_action:
+            raise rbac_exceptions.RbacActionFailed
