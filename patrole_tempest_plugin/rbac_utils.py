@@ -87,12 +87,18 @@ class RbacUtils(object):
             raise
 
         finally:
-            if BaseTestCase.get_identity_version() != 'v3':
-                test_obj.auth_provider.clear_auth()
-                # Sleep to avoid 401 errors caused by rounding in timing of
-                # fernet token creation.
-                time.sleep(1)
-                test_obj.auth_provider.set_auth()
+            # NOTE(felipemonteiro): These two comments below are copied from
+            # tempest.api.identity.v2/v3.test_users.
+            #
+            # Reset auth again to verify the password restore does work.
+            # Clear auth restores the original credentials and deletes
+            # cached auth data.
+            test_obj.auth_provider.clear_auth()
+            # Fernet tokens are not subsecond aware and Keystone should only be
+            # precise to the second. Sleep to ensure we are passing the second
+            # boundary before attempting to authenticate.
+            time.sleep(1)
+            test_obj.auth_provider.set_auth()
 
     def _clear_user_roles(cls, user_id, tenant_id):
         roles = cls.creds_client.roles_client.list_user_roles_on_project(
