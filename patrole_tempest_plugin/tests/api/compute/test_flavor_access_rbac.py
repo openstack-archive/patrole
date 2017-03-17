@@ -13,18 +13,17 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from oslo_config import cfg
 from oslo_log import log
 
-from tempest import config
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
-from tempest.lib import exceptions
+from tempest import test
 
-from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
-CONF = config.CONF
+CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 
 
@@ -38,29 +37,27 @@ class FlavorAccessAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
     @classmethod
     def skip_checks(cls):
         super(FlavorAccessAdminRbacTest, cls).skip_checks()
-        if not CONF.compute_feature_enabled.api_extensions:
-            raise cls.skipException(
-                '%s skipped as no compute extensions enabled' % cls.__name__)
+        if not test.is_extension_enabled('OS-FLV-EXT-DATA', 'compute'):
+            msg = "%s skipped as OS-FLV-EXT-DATA extension not enabled."\
+                  % cls.__name__
+            raise cls.skipException(msg)
 
     @classmethod
     def resource_setup(cls):
         super(FlavorAccessAdminRbacTest, cls).resource_setup()
         cls.flavor_id = cls._create_flavor(is_public=False)['id']
+        cls.public_flavor_id = CONF.compute.flavor_ref
         cls.tenant_id = cls.auth_provider.credentials.tenant_id
 
     @decorators.idempotent_id('a2bd3740-765d-4c95-ac98-9e027378c75e')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-flavor-access")
-    def test_list_flavor_access(self):
+    def test_show_flavor(self):
+        # NOTE(felipemonteiro): show_flavor enforces the specified policy
+        # action, but only works if a public flavor is passed.
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
-        try:
-            self.client.list_flavor_access(self.flavor_id)
-        except exceptions.NotFound as e:
-            LOG.info("NotFound exception caught. Exception is thrown when "
-                     "role doesn't have access to the endpoint."
-                     "This is irregular and should be fixed.")
-            raise rbac_exceptions.RbacActionFailed(e)
+        self.client.show_flavor(self.public_flavor_id)['flavor']
 
     @decorators.idempotent_id('39cb5c8f-9990-436f-9282-fc76a41d9bac')
     @rbac_rule_validation.action(
@@ -69,7 +66,8 @@ class FlavorAccessAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
     def test_add_flavor_access(self):
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.add_flavor_access(
-            flavor_id=self.flavor_id, tenant_id=self.tenant_id)
+            flavor_id=self.flavor_id, tenant_id=self.tenant_id)[
+            'flavor_access']
         self.addCleanup(self.client.remove_flavor_access,
                         flavor_id=self.flavor_id, tenant_id=self.tenant_id)
 
