@@ -19,9 +19,12 @@ from patrole_tempest_plugin import rbac_auth
 from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation as rbac_rv
 
+from tempest import config
 from tempest.lib import exceptions
 from tempest import test
 from tempest.tests import base
+
+CONF = config.CONF
 
 
 class RBACRuleValidationTest(base.TestCase):
@@ -36,6 +39,10 @@ class RBACRuleValidationTest(base.TestCase):
         self.mock_args.auth_provider.credentials.user_id = \
             mock.sentinel.user_id
 
+        CONF.set_override('rbac_test_role', 'Member', group='rbac',
+                          enforce_type=True)
+        self.addCleanup(CONF.clear_override, 'rbac_test_role', group='rbac')
+
     @mock.patch('patrole_tempest_plugin.rbac_auth.RbacAuthority')
     def test_RBAC_rv_happy_path(self, mock_auth):
         decorator = rbac_rv.action("", "")
@@ -44,27 +51,58 @@ class RBACRuleValidationTest(base.TestCase):
         wrapper((self.mock_args))
         self.assertTrue(mock_function.called)
 
+    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
     @mock.patch('patrole_tempest_plugin.rbac_auth.RbacAuthority')
-    def test_RBAC_rv_forbidden(self, mock_auth):
-        decorator = rbac_rv.action("", "")
+    def test_RBAC_rv_forbidden(self, mock_auth, mock_log):
+        decorator = rbac_rv.action(mock.sentinel.service, mock.sentinel.action)
         mock_function = mock.Mock()
         mock_function.side_effect = exceptions.Forbidden
         wrapper = decorator(mock_function)
 
-        self.assertRaises(exceptions.Forbidden, wrapper, self.mock_args)
+        e = self.assertRaises(exceptions.Forbidden, wrapper, self.mock_args)
+        self.assertIn(
+            "Role Member was not allowed to perform sentinel.action.",
+            e.__str__())
+        mock_log.error.assert_called_once_with("Role Member was not allowed to"
+                                               " perform sentinel.action.")
 
+    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
     @mock.patch('patrole_tempest_plugin.rbac_auth.RbacAuthority')
-    def test_RBAC_rv_rbac_action_failed(self, mock_auth):
-        decorator = rbac_rv.action("", "")
+    def test_expect_not_found_but_raises_forbidden(self, mock_auth, mock_log):
+        decorator = rbac_rv.action(mock.sentinel.service,
+                                   mock.sentinel.action,
+                                   404)
+        mock_function = mock.Mock()
+        mock_function.side_effect = exceptions.NotFound
+        wrapper = decorator(mock_function)
+
+        e = self.assertRaises(exceptions.Forbidden, wrapper, self.mock_args)
+        self.assertIn(
+            "Role Member was not allowed to perform sentinel.action.",
+            e.__str__())
+        mock_log.error.assert_called_once_with("Role Member was not allowed to"
+                                               " perform sentinel.action.")
+
+    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
+    @mock.patch('patrole_tempest_plugin.rbac_auth.RbacAuthority')
+    def test_RBAC_rv_rbac_action_failed(self, mock_auth, mock_log):
+        decorator = rbac_rv.action(mock.sentinel.service, mock.sentinel.action)
         mock_function = mock.Mock()
         mock_function.side_effect = rbac_exceptions.RbacActionFailed
-
         wrapper = decorator(mock_function)
-        self.assertRaises(exceptions.Forbidden, wrapper, self.mock_args)
 
+        e = self.assertRaises(exceptions.Forbidden, wrapper, self.mock_args)
+        self.assertIn(
+            "Role Member was not allowed to perform sentinel.action.",
+            e.__str__())
+
+        mock_log.error.assert_called_once_with("Role Member was not allowed to"
+                                               " perform sentinel.action.")
+
+    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
     @mock.patch('patrole_tempest_plugin.rbac_auth.RbacAuthority')
-    def test_RBAC_rv_not_allowed(self, mock_auth):
-        decorator = rbac_rv.action("", "")
+    def test_RBAC_rv_not_allowed(self, mock_auth, mock_log):
+        decorator = rbac_rv.action(mock.sentinel.service, mock.sentinel.action)
 
         mock_function = mock.Mock()
         wrapper = decorator(mock_function)
@@ -73,8 +111,13 @@ class RBACRuleValidationTest(base.TestCase):
         mock_permission.get_permission.return_value = False
         mock_auth.return_value = mock_permission
 
-        self.assertRaises(rbac_exceptions.RbacOverPermission, wrapper,
-                          self.mock_args)
+        e = self.assertRaises(rbac_exceptions.RbacOverPermission, wrapper,
+                              self.mock_args)
+        self.assertIn(("OverPermission: Role Member was allowed to perform "
+                      "sentinel.action"), e.__str__())
+
+        mock_log.error.assert_called_once_with(
+            "Role Member was allowed to perform sentinel.action")
 
     @mock.patch('patrole_tempest_plugin.rbac_auth.RbacAuthority')
     def test_RBAC_rv_forbidden_not_allowed(self, mock_auth):
@@ -89,6 +132,29 @@ class RBACRuleValidationTest(base.TestCase):
         mock_auth.return_value = mock_permission
 
         self.assertIsNone(wrapper(self.mock_args))
+
+    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
+    @mock.patch('patrole_tempest_plugin.rbac_auth.RbacAuthority')
+    def test_expect_not_found_and_not_allowed(self, mock_auth, mock_log):
+        decorator = rbac_rv.action(mock.sentinel.service,
+                                   mock.sentinel.action,
+                                   404)
+
+        mock_function = mock.Mock()
+        mock_function.side_effect = exceptions.NotFound
+        wrapper = decorator(mock_function)
+
+        mock_permission = mock.Mock()
+        mock_permission.get_permission.return_value = False
+        mock_auth.return_value = mock_permission
+
+        self.assertIsNone(wrapper(self.mock_args))
+
+        mock_log.warning.assert_called_once_with(
+            'NotFound exception was caught for policy action sentinel.action. '
+            'The service sentinel.service throws a 404 instead of a 403, '
+            'which is irregular.')
+        mock_log.error.assert_not_called()
 
     @mock.patch('patrole_tempest_plugin.rbac_auth.RbacAuthority')
     def test_RBAC_rv_rbac_action_failed_not_allowed(self, mock_auth):
@@ -122,3 +188,37 @@ class RBACRuleValidationTest(base.TestCase):
         mock_rbac_policy_parser.RbacPolicyParser.assert_called_once_with(
             mock.sentinel.tenant_id, mock.sentinel.user_id,
             mock.sentinel.service)
+
+    @mock.patch('patrole_tempest_plugin.rbac_auth.RbacAuthority')
+    def test_get_exception_type_404(self, mock_auth):
+        expected_exception = exceptions.NotFound
+        expected_irregular_msg = ("NotFound exception was caught for policy "
+                                  "action {0}. The service {1} throws a 404 "
+                                  "instead of a 403, which is irregular.")
+
+        actual_exception, actual_irregular_msg = \
+            rbac_rv._get_exception_type(404)
+
+        self.assertEqual(expected_exception, actual_exception)
+        self.assertEqual(expected_irregular_msg, actual_irregular_msg)
+
+    @mock.patch('patrole_tempest_plugin.rbac_auth.RbacAuthority')
+    def test_get_exception_type_403(self, mock_auth):
+        expected_exception = exceptions.Forbidden
+        expected_irregular_msg = None
+
+        actual_exception, actual_irregular_msg = \
+            rbac_rv._get_exception_type(403)
+
+        self.assertEqual(expected_exception, actual_exception)
+        self.assertEqual(expected_irregular_msg, actual_irregular_msg)
+
+    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
+    @mock.patch('patrole_tempest_plugin.rbac_auth.RbacAuthority')
+    def test_exception_thrown_when_type_is_not_int(self, mock_auth, mock_log):
+        self.assertRaises(rbac_exceptions.RbacInvalidErrorCode,
+                          rbac_rv._get_exception_type, "403")
+
+        mock_log.error.assert_called_once_with("Please pass an expected error "
+                                               "code. Currently supported "
+                                               "codes: [403, 404]")

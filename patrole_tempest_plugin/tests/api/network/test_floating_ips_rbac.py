@@ -19,9 +19,7 @@ from oslo_log import log
 from tempest import config
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
-from tempest.lib import exceptions
 
-from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.network import rbac_base as base
 
@@ -108,7 +106,9 @@ class FloatingIpsRbacTest(base.BaseNetworkRbacTest):
         self.floating_ips_client.update_floatingip(
             floating_ip['id'], port_id=None)
 
-    @rbac_rule_validation.action(service="neutron", rule="get_floatingip")
+    @rbac_rule_validation.action(service="neutron",
+                                 rule="get_floatingip",
+                                 expected_error_code=404)
     @decorators.idempotent_id('f8846fd0-c976-48fe-a148-105303931b32')
     def test_show_floating_ip(self):
         """Show floating IP.
@@ -117,18 +117,12 @@ class FloatingIpsRbacTest(base.BaseNetworkRbacTest):
         """
         floating_ip = self._create_floatingip()
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
-
-        try:
-            # Show floating IP
-            self.floating_ips_client.show_floatingip(floating_ip['id'])
-        except exceptions.NotFound as e:
-            LOG.info("NotFound exception caught. Exception is thrown when "
-                     "role doesn't have access to the endpoint."
-                     "This is irregular and should be fixed.")
-            raise rbac_exceptions.RbacActionFailed(e)
+        # Show floating IP
+        self.floating_ips_client.show_floatingip(floating_ip['id'])
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="delete_floatingip")
+                                 rule="delete_floatingip",
+                                 expected_error_code=404)
     @decorators.idempotent_id('2611b068-30d4-4241-a78f-1b801a14db7e')
     def test_delete_floating_ip(self):
         """Delete floating IP.
@@ -137,13 +131,5 @@ class FloatingIpsRbacTest(base.BaseNetworkRbacTest):
         """
         floating_ip = self._create_floatingip()
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
-
-        try:
-            # Delete the floating IP
-            self.floating_ips_client.delete_floatingip(floating_ip['id'])
-
-        except exceptions.NotFound as e:
-            LOG.info("NotFound exception caught. Exception is thrown when "
-                     "role doesn't have access to the endpoint."
-                     "This is irregular and should be fixed.")
-            raise rbac_exceptions.RbacActionFailed(e)
+        # Delete the floating IP
+        self.floating_ips_client.delete_floatingip(floating_ip['id'])

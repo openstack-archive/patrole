@@ -21,10 +21,8 @@ from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
-from tempest.lib import exceptions
 from tempest import test
 
-from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.network import rbac_base as base
 
@@ -111,7 +109,9 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
         self.addCleanup(self.routers_client.delete_router,
                         router['router']['id'])
 
-    @rbac_rule_validation.action(service="neutron", rule="get_router")
+    @rbac_rule_validation.action(service="neutron",
+                                 rule="get_router",
+                                 expected_error_code=404)
     @decorators.idempotent_id('bfbdbcff-f115-4d3e-8cd5-6ada33fd0e21')
     def test_show_router(self):
         """Get Router
@@ -119,13 +119,7 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron get_router policy
         """
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
-        try:
-            self.routers_client.show_router(self.admin_router['id'])
-        except exceptions.NotFound as e:
-            LOG.info("NotFound exception caught. Exception is thrown when "
-                     "role doesn't have access to the endpoint."
-                     "This is irregular and should be fixed.")
-            raise rbac_exceptions.RbacActionFailed(e)
+        self.routers_client.show_router(self.admin_router['id'])
 
     @rbac_rule_validation.action(
         service="neutron", rule="update_router")
@@ -211,7 +205,8 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
             external_gateway_info=None)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="delete_router")
+                                 rule="delete_router",
+                                 expected_error_code=404)
     @decorators.idempotent_id('c0634dd5-0467-48f7-a4ae-1014d8edb2a7')
     def test_delete_router(self):
         """Delete Router
@@ -220,16 +215,11 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
         """
         router = self.create_router()
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
-        try:
-            self.routers_client.delete_router(router['id'])
-        except exceptions.NotFound as e:
-            LOG.info("NotFound exception caught. Exception is thrown when "
-                     "role doesn't have access to the endpoint."
-                     "This is irregular and should be fixed.")
-            raise rbac_exceptions.RbacActionFailed(e)
+        self.routers_client.delete_router(router['id'])
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="add_router_interface")
+                                 rule="add_router_interface",
+                                 expected_error_code=404)
     @decorators.idempotent_id('a0627778-d68d-4913-881b-e345360cca19')
     def test_add_router_interfaces(self):
         """Add Router Interface
@@ -241,22 +231,17 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
         router = self.create_router()
 
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
-        try:
-            self.routers_client.add_router_interface(
-                router['id'], subnet_id=subnet['id'])
-            self.addCleanup(
-                test_utils.call_and_ignore_notfound_exc,
-                self.routers_client.remove_router_interface,
-                router['id'],
-                subnet_id=subnet['id'])
-        except exceptions.NotFound as e:
-            LOG.info("NotFound exception caught. Exception is thrown when "
-                     "role doesn't have access to the endpoint."
-                     "This is irregular and should be fixed.")
-            raise rbac_exceptions.RbacActionFailed(e)
+        self.routers_client.add_router_interface(
+            router['id'], subnet_id=subnet['id'])
+        self.addCleanup(
+            test_utils.call_and_ignore_notfound_exc,
+            self.routers_client.remove_router_interface,
+            router['id'],
+            subnet_id=subnet['id'])
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="remove_router_interface")
+                                 rule="remove_router_interface",
+                                 expected_error_code=404)
     @decorators.idempotent_id('ff2593a4-2bff-4c27-97d3-dd3702b27dfb')
     def test_remove_router_interfaces(self):
         """Remove Router Interface
@@ -276,12 +261,6 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
                         subnet_id=subnet['id'])
 
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
-        try:
-            self.routers_client.remove_router_interface(
-                router['id'],
-                subnet_id=subnet['id'])
-        except exceptions.NotFound as e:
-            LOG.info("NotFound exception caught. Exception is thrown when "
-                     "role doesn't have access to the endpoint."
-                     "This is irregular and should be fixed.")
-            raise rbac_exceptions.RbacActionFailed(e)
+        self.routers_client.remove_router_interface(
+            router['id'],
+            subnet_id=subnet['id'])

@@ -18,10 +18,8 @@ from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
-from tempest.lib import exceptions
 from tempest import test
 
-from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.network import rbac_base as base
 
@@ -81,7 +79,8 @@ class MeteringLabelRulesRbacTest(base.BaseNetworkRbacTest):
         self._create_metering_label_rule(self.label)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_metering_label_rule")
+                                 rule="get_metering_label_rule",
+                                 expected_error_code=404)
     @decorators.idempotent_id('e21b40c3-d44d-412f-84ea-836ca8603bcb')
     def test_show_metering_label_rule(self):
         """Show metering label rule.
@@ -90,17 +89,12 @@ class MeteringLabelRulesRbacTest(base.BaseNetworkRbacTest):
         """
         label_rule = self._create_metering_label_rule(self.label)
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
-        try:
-            self.metering_label_rules_client.show_metering_label_rule(
-                label_rule['id'])
-        except exceptions.NotFound as e:
-            LOG.info("NotFound exception caught. Exception is thrown when "
-                     "role doesn't have access to the endpoint."
-                     "This is irregular and should be fixed.")
-            raise rbac_exceptions.RbacActionFailed(e)
+        self.metering_label_rules_client.show_metering_label_rule(
+            label_rule['id'])
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="delete_metering_label_rule")
+                                 rule="delete_metering_label_rule",
+                                 expected_error_code=404)
     @decorators.idempotent_id('e3adc88c-05c0-43a7-8e32-63947ae4890e')
     def test_delete_metering_label_rule(self):
         """Delete metering label rule.
@@ -109,11 +103,5 @@ class MeteringLabelRulesRbacTest(base.BaseNetworkRbacTest):
         """
         label_rule = self._create_metering_label_rule(self.label)
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
-        try:
-            self.metering_label_rules_client.delete_metering_label_rule(
-                label_rule['id'])
-        except exceptions.NotFound as e:
-            LOG.info("NotFound exception caught. Exception is thrown when "
-                     "role doesn't have access to the endpoint."
-                     "This is irregular and should be fixed.")
-            raise rbac_exceptions.RbacActionFailed(e)
+        self.metering_label_rules_client.delete_metering_label_rule(
+            label_rule['id'])

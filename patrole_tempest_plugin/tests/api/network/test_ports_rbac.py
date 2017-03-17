@@ -21,9 +21,7 @@ from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
-from tempest.lib import exceptions
 
-from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.network import rbac_base as base
 
@@ -143,61 +141,43 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self._create_port(**post_body)
 
-    @rbac_rule_validation.action(service="neutron", rule="get_port")
+    @rbac_rule_validation.action(service="neutron",
+                                 rule="get_port",
+                                 expected_error_code=404)
     @decorators.idempotent_id('a9d41cb8-78a2-4b97-985c-44e4064416f4')
     def test_show_port(self):
-
-        try:
-            self.rbac_utils.switch_role(self, switchToRbacRole=True)
-
-            self.ports_client.show_port(self.admin_port['id'])
-
-        except exceptions.NotFound as e:
-            LOG.info("NotFound exception caught. Exception is thrown when "
-                     "role doesn't have access to the endpoint."
-                     "This is irregular and should be fixed.")
-            raise rbac_exceptions.RbacActionFailed(e)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.ports_client.show_port(self.admin_port['id'])
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_port:binding:vif_type")
+                                 rule="get_port:binding:vif_type",
+                                 expected_error_code=404)
     @decorators.idempotent_id('125aff0b-8fed-4f8e-8410-338616594b06')
     def test_show_port_binding_vif_type(self):
 
         # Verify specific fields of a port
         fields = ['binding:vif_type']
 
-        try:
-            self.rbac_utils.switch_role(self, switchToRbacRole=True)
-            self.ports_client.show_port(self.admin_port['id'],
-                                        fields=fields)
-
-        except exceptions.NotFound as e:
-            LOG.info("NotFound exception caught. Exception is thrown when "
-                     "role doesn't have access to the endpoint."
-                     "This is irregular and should be fixed.")
-            raise rbac_exceptions.RbacActionFailed(e)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.ports_client.show_port(self.admin_port['id'],
+                                    fields=fields)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_port:binding:vif_details")
+                                 rule="get_port:binding:vif_details",
+                                 expected_error_code=404)
     @decorators.idempotent_id('e42bfd77-fcce-45ee-9728-3424300f0d6f')
     def test_show_port_binding_vif_details(self):
 
         # Verify specific fields of a port
         fields = ['binding:vif_details']
 
-        try:
-            self.rbac_utils.switch_role(self, switchToRbacRole=True)
-            self.ports_client.show_port(self.admin_port['id'],
-                                        fields=fields)
-
-        except exceptions.NotFound as e:
-            LOG.info("NotFound exception caught. Exception is thrown when "
-                     "role doesn't have access to the endpoint."
-                     "This is irregular and should be fixed.")
-            raise rbac_exceptions.RbacActionFailed(e)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.ports_client.show_port(self.admin_port['id'],
+                                    fields=fields)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_port:binding:host_id")
+                                 rule="get_port:binding:host_id",
+                                 expected_error_code=404)
     @decorators.idempotent_id('8e61bcdc-6f81-443c-833e-44410266551e')
     def test_show_port_binding_host_id(self):
 
@@ -207,19 +187,13 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
                      'binding:host_id': data_utils.rand_name('host-id')}
         port = self._create_port(**post_body)
 
-        try:
-            self.rbac_utils.switch_role(self, switchToRbacRole=True)
-            self.ports_client.show_port(port['id'],
-                                        fields=fields)
-
-        except exceptions.NotFound as e:
-            LOG.info("NotFound exception caught. Exception is thrown when "
-                     "role doesn't have access to the endpoint."
-                     "This is irregular and should be fixed.")
-            raise rbac_exceptions.RbacActionFailed(e)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.ports_client.show_port(port['id'],
+                                    fields=fields)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_port:binding:profile")
+                                 rule="get_port:binding:profile",
+                                 expected_error_code=404)
     @decorators.idempotent_id('d497cea9-c4ad-42e0-acc9-8d257d6b01fc')
     def test_show_port_binding_profile(self):
 
@@ -230,16 +204,9 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
                      'binding:profile': binding_profile}
         port = self._create_port(**post_body)
 
-        try:
-            self.rbac_utils.switch_role(self, switchToRbacRole=True)
-            self.ports_client.show_port(port['id'],
-                                        fields=fields)
-
-        except exceptions.NotFound as e:
-            LOG.info("NotFound exception caught. Exception is thrown when "
-                     "role doesn't have access to the endpoint."
-                     "This is irregular and should be fixed.")
-            raise rbac_exceptions.RbacActionFailed(e)
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.ports_client.show_port(port['id'],
+                                    fields=fields)
 
     @rbac_rule_validation.action(service="neutron",
                                  rule="update_port")
@@ -337,17 +304,11 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
                                       allowed_address_pairs=address_pairs)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="delete_port")
+                                 rule="delete_port",
+                                 expected_error_code=404)
     @decorators.idempotent_id('1cf8e582-bc09-46cb-b32a-82bf991ad56f')
     def test_delete_port(self):
 
-        try:
-            port = self._create_port(network_id=self.admin_network['id'])
-            self.rbac_utils.switch_role(self, switchToRbacRole=True)
-            self.ports_client.delete_port(port['id'])
-
-        except exceptions.NotFound as e:
-            LOG.info("NotFound exception caught. Exception is thrown when "
-                     "role doesn't have access to the endpoint."
-                     "This is irregular and should be fixed.")
-            raise rbac_exceptions.RbacActionFailed(e)
+        port = self._create_port(network_id=self.admin_network['id'])
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.ports_client.delete_port(port['id'])

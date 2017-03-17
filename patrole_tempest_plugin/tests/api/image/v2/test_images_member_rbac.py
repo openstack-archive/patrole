@@ -16,9 +16,7 @@
 from oslo_log import log as logging
 from tempest import config
 from tempest.lib import decorators
-from tempest.lib import exceptions
 
-from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.image import rbac_base as base
 
@@ -79,7 +77,8 @@ class ImagesMemberRbacTest(base.BaseV2ImageRbacTest):
                                                      self.alt_tenant_id)
 
     @rbac_rule_validation.action(service="glance",
-                                 rule="get_member")
+                                 rule="get_member",
+                                 expected_error_code=404)
     @decorators.idempotent_id('c01fd308-6484-11e6-881e-080027d0d606')
     def test_show_image_member(self):
 
@@ -87,24 +86,16 @@ class ImagesMemberRbacTest(base.BaseV2ImageRbacTest):
 
         RBAC test for the glance get_member policy
         """
-        try:
-            image_id = self.create_image()['id']
-            self.image_member_client.create_image_member(
-                image_id,
-                member=self.alt_tenant_id)
+        image_id = self.create_image()['id']
+        self.image_member_client.create_image_member(
+            image_id,
+            member=self.alt_tenant_id)
 
-            # Toggle role and get image member
-            self.rbac_utils.switch_role(self, switchToRbacRole=True)
-            self.image_member_client.show_image_member(
-                image_id,
-                self.alt_tenant_id)
-        except exceptions.NotFound as e:
-            '''If the role doesn't have access to an image, a 404 exception is
-            thrown when the roles tries to show an image member'''
-            LOG.info("NotFound exception caught. Exception is thrown when "
-                     "role doesn't have access to the image and tries to show "
-                     "image members")
-            raise rbac_exceptions.RbacActionFailed(e)
+        # Toggle role and get image member
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.image_member_client.show_image_member(
+            image_id,
+            self.alt_tenant_id)
 
     @rbac_rule_validation.action(service="glance",
                                  rule="modify_member")
