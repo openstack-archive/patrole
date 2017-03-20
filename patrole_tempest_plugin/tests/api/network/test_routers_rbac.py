@@ -96,6 +96,7 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
         create_router:external_gateway_info:external_fixed_ips policy
         """
         name = data_utils.rand_name('snat-router')
+
         # Pick an ip address within the allocation_pools range
         ip_address = random.choice(list(self.admin_ip_range))
         external_fixed_ips = {'subnet_id': self.admin_subnet['id'],
@@ -167,6 +168,10 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
         self.routers_client.update_router(
             self.admin_router['id'],
             external_gateway_info={'network_id': self.admin_network['id']})
+        self.addCleanup(
+            self.routers_client.update_router,
+            self.admin_router['id'],
+            external_gateway_info=None)
 
     @rbac_rule_validation.action(
         service="neutron",
@@ -183,6 +188,10 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
             self.admin_router['id'],
             external_gateway_info={'network_id': self.admin_network['id'],
                                    'enable_snat': True})
+        self.addCleanup(
+            self.routers_client.update_router,
+            self.admin_router['id'],
+            external_gateway_info=None)
 
     @rbac_rule_validation.action(
         service="neutron",
