@@ -30,7 +30,8 @@ class IdentityServicesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         cls.services_client = cls.os.identity_services_client
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:create_service")
+                                 rule="identity:create_service",
+                                 admin_only=True)
     @decorators.idempotent_id('370050f6-d271-4fb4-abc5-4de1d6dfbad2')
     def test_create_service(self):
         """Create Service Test
@@ -41,7 +42,8 @@ class IdentityServicesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         self._create_service()
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:delete_service")
+                                 rule="identity:delete_service",
+                                 admin_only=True)
     @decorators.idempotent_id('f6c64fc3-6a1f-423e-af91-e411add3a384')
     def test_delete_service(self):
         """Delete Service Test
@@ -54,7 +56,8 @@ class IdentityServicesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         self.services_client.delete_service(service_id)
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:get_service")
+                                 rule="identity:get_service",
+                                 admin_only=True)
     @decorators.idempotent_id('504d62bb-97d7-445e-9d6d-b1945a7c9e08')
     def test_show_service(self):
         """Show Service Test
@@ -67,7 +70,8 @@ class IdentityServicesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         self.services_client.show_service(service_id)
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:list_services")
+                                 rule="identity:list_services",
+                                 admin_only=True)
     @decorators.idempotent_id('d7dc461d-51ad-48e0-9cd2-33add1b88de9')
     def test_list_services(self):
         """List all the services

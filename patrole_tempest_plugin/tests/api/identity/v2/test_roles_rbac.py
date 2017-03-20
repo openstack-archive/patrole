@@ -53,7 +53,8 @@ class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
             tenant['id'], user['id'], role['id'])
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:create_role")
+                                 rule="identity:create_role",
+                                 admin_only=True)
     @decorators.idempotent_id('0f148510-63bf-11e6-8674-080044d0d904')
     def test_create_role(self):
 
@@ -66,7 +67,8 @@ class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         self._create_role()
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:delete_role")
+                                 rule="identity:delete_role",
+                                 admin_only=True)
     @decorators.idempotent_id('0f148510-63bf-11e6-8674-080044d0d905')
     def test_delete_role(self):
 
@@ -80,7 +82,8 @@ class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         self.roles_client.delete_role(role['id'])
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:get_role")
+                                 rule="identity:get_role",
+                                 admin_only=True)
     @decorators.idempotent_id('0f148510-63bf-11e6-8674-080044d0d906')
     def test_show_role(self):
 
@@ -94,7 +97,8 @@ class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         self.roles_client.show_role(role['id'])
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:list_roles")
+                                 rule="identity:list_roles",
+                                 admin_only=True)
     @decorators.idempotent_id('0f148510-63bf-11e6-8674-080044d0d907')
     def test_list_roles(self):
 
@@ -106,7 +110,8 @@ class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         self.roles_client.list_roles()
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:add_role_to_user")
+                                 rule="identity:add_role_to_user",
+                                 admin_only=True)
     @decorators.idempotent_id('0f148510-63bf-11e6-8674-080044d0d908')
     def test_create_role_on_project(self):
 
@@ -119,7 +124,8 @@ class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         self._create_role_on_project(tenant, user, role)
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:remove_role_from_user")
+                                 rule="identity:remove_role_from_user",
+                                 admin_only=True)
     @decorators.idempotent_id('0f148510-63bf-11e6-8674-080044d0d909')
     def test_delete_role_from_user_on_project(self):
 
@@ -135,7 +141,8 @@ class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
             tenant['id'], user['id'], role['id'])
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:get_user_roles")
+                                 rule="identity:get_user_roles",
+                                 admin_only=True)
     @decorators.idempotent_id('0f148510-63bf-11e6-8674-080044d0d90a')
     def test_list_user_roles_on_project(self):
 

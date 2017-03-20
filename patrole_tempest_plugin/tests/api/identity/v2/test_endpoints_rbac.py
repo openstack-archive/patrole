@@ -54,7 +54,8 @@ class IdentityEndpointsV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         return endpoint
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:create_endpoint")
+                                 rule="identity:create_endpoint",
+                                 admin_only=True)
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd124')
     def test_create_endpoint(self):
 
@@ -67,7 +68,8 @@ class IdentityEndpointsV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         self._create_endpoint()
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:delete_endpoint")
+                                 rule="identity:delete_endpoint",
+                                 admin_only=True)
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd125')
     def test_delete_endpoint(self):
 
@@ -81,7 +83,8 @@ class IdentityEndpointsV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         self.endpoints_client.delete_endpoint(endpoint['endpoint']['id'])
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:list_endpoints")
+                                 rule="identity:list_endpoints",
+                                 admin_only=True)
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd126')
     def test_list_endpoints(self):
 

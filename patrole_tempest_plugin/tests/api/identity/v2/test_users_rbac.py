@@ -23,14 +23,16 @@ from patrole_tempest_plugin.tests.api.identity.v2 import rbac_base
 class IdentityUserV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:create_user")
+                                 rule="identity:create_user",
+                                 admin_only=True)
     @decorators.idempotent_id('0f148510-63bf-11e6-1342-080044d0d904')
     def test_create_user(self):
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self._create_user()
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:update_user")
+                                 rule="identity:update_user",
+                                 admin_only=True)
     @decorators.idempotent_id('0f148510-63bf-11e6-1342-080044d0d905')
     def test_update_user(self):
         user = self._create_user()
@@ -39,7 +41,8 @@ class IdentityUserV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         self.users_client.update_user(user['id'], email="changedUser@xyz.com")
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:set_user_enabled")
+                                 rule="identity:set_user_enabled",
+                                 admin_only=True)
     @decorators.idempotent_id('0f148510-63bf-11e6-1342-080044d0d9a1')
     def test_update_user_enabled(self):
         user = self._create_user()
@@ -48,7 +51,8 @@ class IdentityUserV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         self.users_client.update_user_enabled(user['id'], enabled=True)
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:delete_user")
+                                 rule="identity:delete_user",
+                                 admin_only=True)
     @decorators.idempotent_id('0f148510-63bf-11e6-1342-080044d0d906')
     def test_delete_user(self):
         user = self._create_user()
@@ -57,14 +61,16 @@ class IdentityUserV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         self.users_client.delete_user(user['id'])
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:get_users")
+                                 rule="identity:get_users",
+                                 admin_only=True)
     @decorators.idempotent_id('0f148510-63bf-11e6-1342-080044d0d907')
     def test_list_users(self):
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.users_client.list_users()
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:get_user")
+                                 rule="identity:get_user",
+                                 admin_only=True)
     @decorators.idempotent_id('0f148510-63bf-11e6-1342-080044d0d908')
     def test_show_user(self):
         user = self._create_user()
@@ -73,7 +79,8 @@ class IdentityUserV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         self.users_client.show_user(user['id'])
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:change_password")
+                                 rule="identity:change_password",
+                                 admin_only=True)
     @decorators.idempotent_id('0f148510-63bf-11e6-1342-080044d0d909')
     def test_update_user_password(self):
         user = self._create_user()
