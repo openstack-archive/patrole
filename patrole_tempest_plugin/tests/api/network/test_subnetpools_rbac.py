@@ -18,10 +18,8 @@ from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
-from tempest.lib import exceptions
 from tempest import test
 
-from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.network import rbac_base as base
 
@@ -79,7 +77,8 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
         self._create_subnetpool(shared=True)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_subnetpool")
+                                 rule="get_subnetpool",
+                                 expected_error_code=404)
     @decorators.idempotent_id('4f5aee26-0507-4b6d-b44c-3128a25094d2')
     def test_show_subnetpool(self):
         """Show subnetpool.
@@ -88,13 +87,7 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
         """
         subnetpool = self._create_subnetpool()
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
-        try:
-            self.subnetpools_client.show_subnetpool(subnetpool['id'])
-        except exceptions.NotFound as e:
-            LOG.info("NotFound exception caught. Exception is thrown when "
-                     "role doesn't have access to the endpoint."
-                     "This is irregular and should be fixed.")
-            raise rbac_exceptions.RbacActionFailed(e)
+        self.subnetpools_client.show_subnetpool(subnetpool['id'])
 
     @rbac_rule_validation.action(service="neutron",
                                  rule="update_subnetpool")
@@ -110,7 +103,8 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
                                                   min_prefixlen=24)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="delete_subnetpool")
+                                 rule="delete_subnetpool",
+                                 expected_error_code=404)
     @decorators.idempotent_id('50f5944e-43e5-457b-ab50-fb48a73f0d3e')
     def test_delete_subnetpool(self):
         """Delete subnetpool.
@@ -119,10 +113,4 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
         """
         subnetpool = self._create_subnetpool()
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
-        try:
-            self.subnetpools_client.delete_subnetpool(subnetpool['id'])
-        except exceptions.NotFound as e:
-            LOG.info("NotFound exception caught. Exception is thrown when "
-                     "role doesn't have access to the endpoint."
-                     "This is irregular and should be fixed.")
-            raise rbac_exceptions.RbacActionFailed(e)
+        self.subnetpools_client.delete_subnetpool(subnetpool['id'])

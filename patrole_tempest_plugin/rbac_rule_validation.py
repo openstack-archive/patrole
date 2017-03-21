@@ -26,7 +26,7 @@ CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
 
-def action(service, rule):
+def action(service, rule, expected_error_code=403):
     def decorator(func):
         def wrapper(*args, **kwargs):
             try:
@@ -43,6 +43,8 @@ def action(service, rule):
 
             authority = rbac_auth.RbacAuthority(tenant_id, user_id, service)
             allowed = authority.get_permission(rule, CONF.rbac.rbac_test_role)
+            expected_exception, irregular_msg = _get_exception_type(
+                expected_error_code)
 
             try:
                 func(*args)
@@ -52,7 +54,7 @@ def action(service, rule):
                 raise exceptions.NotFound(
                     "%s RbacInvalidService was: %s" %
                     (msg, e))
-            except exceptions.Forbidden as e:
+            except expected_exception as e:
                 if allowed:
                     msg = ("Role %s was not allowed to perform %s." %
                            (CONF.rbac.rbac_test_role, rule))
@@ -60,6 +62,8 @@ def action(service, rule):
                     raise exceptions.Forbidden(
                         "%s exception was: %s" %
                         (msg, e))
+                if irregular_msg:
+                    LOG.warning(irregular_msg.format(rule, service))
             except rbac_exceptions.RbacActionFailed as e:
                 if allowed:
                     msg = ("Role %s was not allowed to perform %s." %
@@ -80,3 +84,23 @@ def action(service, rule):
                                                   switchToRbacRole=False)
         return wrapper
     return decorator
+
+
+def _get_exception_type(expected_error_code):
+    expected_exception = None
+    irregular_msg = None
+    supported_error_codes = [403, 404]
+    if expected_error_code == 403:
+        expected_exception = exceptions.Forbidden
+    elif expected_error_code == 404:
+        expected_exception = exceptions.NotFound
+        irregular_msg = ("NotFound exception was caught for policy action "
+                         "{0}. The service {1} throws a 404 instead of a 403, "
+                         "which is irregular.")
+    else:
+        msg = ("Please pass an expected error code. Currently "
+               "supported codes: {0}".format(str(supported_error_codes)))
+        LOG.error(msg)
+        raise rbac_exceptions.RbacInvalidErrorCode()
+
+    return expected_exception, irregular_msg

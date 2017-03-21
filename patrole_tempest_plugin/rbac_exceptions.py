@@ -34,3 +34,7 @@ class RbacInvalidService (exceptions.TempestException):
 
 class RbacParsingException (exceptions.TempestException):
     message = "Attempted to test an invalid policy file or action"
+
+
+class RbacInvalidErrorCode (exceptions.TempestException):
+    message = "Unsupported error code passed in test"
