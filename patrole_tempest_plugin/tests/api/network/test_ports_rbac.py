@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 #
+
 import netaddr
 import random
 
@@ -90,8 +91,13 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
                                  rule="create_port:fixed_ips")
     @decorators.idempotent_id('2551e10d-006a-413c-925a-8c6f834c09ac')
     def test_create_port_fixed_ips(self):
-        # Pick an ip address within the allocation_pools range
-        ip_address = random.choice(list(self.ip_range))
+
+        # Pick an unused ip address to avoid IpAddressAlreadyAllocated
+        # exception.
+        current_ports = self.ports_client.list_ports()['ports']
+        in_use_ips = [p['fixed_ips'][0]['ip_address'] for p in current_ports]
+        unused_ip_range = list(set(self.ip_range) - set(in_use_ips))
+        ip_address = random.choice(unused_ip_range)
 
         fixed_ips = [{'ip_address': ip_address},
                      {'subnet_id': self.subnet['id']}]
@@ -249,15 +255,20 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
     @decorators.idempotent_id('c091c825-532b-4c6f-a14f-affd3259c1c3')
     def test_update_port_fixed_ips(self):
 
-        # Pick an ip address within the allocation_pools range
-        ip_address = random.choice(list(self.ip_range))
-        fixed_ips = [{'ip_address': ip_address}]
+        # Pick an ip address within the allocation_pools range.
         post_body = {'network_id': self.network['id']}
         port = self._create_port(**post_body)
 
+        # Pick an unused ip address to avoid IpAddressAlreadyAllocated
+        # exception.
+        current_ports = self.ports_client.list_ports()['ports']
+        in_use_ips = [p['fixed_ips'][0]['ip_address'] for p in current_ports]
+        unused_ip_range = list(set(self.ip_range) - set(in_use_ips))
+        ip_address = random.choice(unused_ip_range)
+
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.ports_client.update_port(port['id'],
-                                      fixed_ips=fixed_ips)
+                                      fixed_ips=[{'ip_address': ip_address}])
 
     @rbac_rule_validation.action(service="neutron",
                                  rule="update_port:port_security_enabled")
