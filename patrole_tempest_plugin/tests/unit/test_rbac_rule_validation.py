@@ -71,7 +71,7 @@ class RBACRuleValidationTest(base.TestCase):
     def test_expect_not_found_but_raises_forbidden(self, mock_auth, mock_log):
         decorator = rbac_rv.action(mock.sentinel.service,
                                    mock.sentinel.action,
-                                   404)
+                                   expected_error_code=404)
         mock_function = mock.Mock()
         mock_function.side_effect = exceptions.NotFound
         wrapper = decorator(mock_function)
@@ -138,7 +138,7 @@ class RBACRuleValidationTest(base.TestCase):
     def test_expect_not_found_and_not_allowed(self, mock_auth, mock_log):
         decorator = rbac_rv.action(mock.sentinel.service,
                                    mock.sentinel.action,
-                                   404)
+                                   expected_error_code=404)
 
         mock_function = mock.Mock()
         mock_function.side_effect = exceptions.NotFound
@@ -222,3 +222,39 @@ class RBACRuleValidationTest(base.TestCase):
         mock_log.error.assert_called_once_with("Please pass an expected error "
                                                "code. Currently supported "
                                                "codes: [403, 404]")
+
+    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
+    def test_rbac_decorator_with_admin_only_and_have_permission(self,
+                                                                mock_log):
+        CONF.set_override('rbac_test_role', 'admin', group='rbac',
+                          enforce_type=True)
+        self.addCleanup(CONF.clear_override, 'rbac_test_role', group='rbac')
+
+        decorator = rbac_rv.action(mock.sentinel.service,
+                                   mock.sentinel.policy_rule,
+                                   admin_only=True)
+        wrapper = decorator(mock.Mock(side_effect=None))
+        wrapper(self.mock_args)
+
+        mock_log.info.assert_called_once_with(
+            "As admin_only is True, only admin role should be allowed to "
+            "perform the API. Skipping oslo.policy check for policy action "
+            "{0}.".format(mock.sentinel.policy_rule))
+
+    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
+    def test_rbac_decorator_with_admin_only_and_lack_permission(self,
+                                                                mock_log):
+        CONF.set_override('rbac_test_role', 'Member', group='rbac',
+                          enforce_type=True)
+        self.addCleanup(CONF.clear_override, 'rbac_test_role', group='rbac')
+
+        decorator = rbac_rv.action(mock.sentinel.service,
+                                   mock.sentinel.policy_rule,
+                                   admin_only=True)
+        wrapper = decorator(mock.Mock(side_effect=exceptions.Forbidden))
+        wrapper(self.mock_args)
+
+        mock_log.info.assert_called_once_with(
+            "As admin_only is True, only admin role should be allowed to "
+            "perform the API. Skipping oslo.policy check for policy action "
+            "{0}.".format(mock.sentinel.policy_rule))

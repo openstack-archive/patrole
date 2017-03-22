@@ -25,7 +25,8 @@ CONF = config.CONF
 class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:create_project")
+                                 rule="identity:create_project",
+                                 admin_only=True)
     @decorators.idempotent_id('0f148510-63bf-11e6-b348-080044d0d904')
     def test_create_project(self):
 
@@ -38,7 +39,8 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         self._create_tenant()
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:update_project")
+                                 rule="identity:update_project",
+                                 admin_only=True)
     @decorators.idempotent_id('0f148510-63bf-11e6-b348-080044d0d905')
     def test_update_project(self):
 
@@ -53,7 +55,8 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
                                           description="Changed description")
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:delete_project")
+                                 rule="identity:delete_project",
+                                 admin_only=True)
     @decorators.idempotent_id('0f148510-63bf-11e6-b348-080044d0d906')
     def test_delete_project(self):
 
@@ -67,7 +70,8 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         self.tenants_client.delete_tenant(tenant['id'])
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:get_project")
+                                 rule="identity:get_project",
+                                 admin_only=True)
     @decorators.idempotent_id('0f148510-63bf-11e6-b348-080044d0d907')
     def test_get_project(self):
 
@@ -82,7 +86,8 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         self.tenants_client.show_tenant(tenant['id'])
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:list_projects")
+                                 rule="identity:list_projects",
+                                 admin_only=True)
     @decorators.idempotent_id('0f148510-63bf-11e6-b348-080044d0d908')
     def test_get_all_projects(self):
 
@@ -94,9 +99,10 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         self.tenants_client.list_tenants()
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:list_user_projects")
+                                 rule="identity:list_user_projects",
+                                 admin_only=True)
     @decorators.idempotent_id('0f148510-63bf-11e6-b348-080044d0d909')
-    def test_list_users_for_tenant(self):
+    def test_list_project_users(self):
 
         """Get Users of a Project Test
 

@@ -26,7 +26,37 @@ CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
 
-def action(service, rule, expected_error_code=403):
+def action(service, rule, admin_only=False, expected_error_code=403):
+    """A decorator which does a policy check and matches it against test run.
+
+    A decorator which allows for positive and negative RBAC testing. Given
+    an OpenStack service and a policy action enforced by that service, an
+    oslo.policy lookup is performed by calling `authority.get_permission`.
+    The following cases are possible:
+
+    * If `allowed` is True and the test passes, this is a success.
+    * If `allowed` is True and the test fails, this is a failure.
+    * If `allowed` is False and the test passes, this is a failure.
+    * If `allowed` is False and the test fails, this is a success.
+
+    :param service: A OpenStack service: for example, "nova" or "neutron".
+    :param rule: A policy action defined in a policy.json file (or in code).
+    :param admin_only: Skips over oslo.policy check because the policy action
+                       defined by `rule` is not enforced by the service's
+                       policy enforcement logic. For example, Keystone v2
+                       performs an admin check for most of its endpoints. If
+                       True, `rule` is effectively ignored.
+    :param expected_error_code: Overrides default value of 403 (Forbidden)
+                                with endpoint-specific error code. Currently
+                                only supports 403 and 404. Support for 404
+                                is needed because some services, like Neutron,
+                                intentionally throw a 404 for security reasons.
+
+    :raises NotFound: if `service` is invalid or
+                      if Tempest credentials cannot be found.
+    :raises Forbidden: for bullet (2) above.
+    :raises RbacOverPermission: for bullet (3) above.
+    """
     def decorator(func):
         def wrapper(*args, **kwargs):
             try:
@@ -41,8 +71,17 @@ def action(service, rule, expected_error_code=403):
                 LOG.error(msg)
                 raise rbac_exceptions.RbacResourceSetupFailed(msg)
 
-            authority = rbac_auth.RbacAuthority(tenant_id, user_id, service)
-            allowed = authority.get_permission(rule, CONF.rbac.rbac_test_role)
+            if admin_only:
+                LOG.info("As admin_only is True, only admin role should be "
+                         "allowed to perform the API. Skipping oslo.policy "
+                         "check for policy action {0}.".format(rule))
+                allowed = CONF.rbac.rbac_test_role == 'admin'
+            else:
+                authority = rbac_auth.RbacAuthority(tenant_id, user_id,
+                                                    service)
+                allowed = authority.get_permission(rule,
+                                                   CONF.rbac.rbac_test_role)
+
             expected_exception, irregular_msg = _get_exception_type(
                 expected_error_code)
 
