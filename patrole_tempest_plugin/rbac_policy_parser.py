@@ -14,16 +14,19 @@
 #    under the License.
 
 import copy
+import json
 import os
 
+from oslo_config import cfg
 from oslo_log import log as logging
-from oslo_policy import generator
 from oslo_policy import policy
+import stevedore
 
 from tempest.common import credentials_factory as credentials
 
 from patrole_tempest_plugin import rbac_exceptions
 
+CONF = cfg.CONF
 LOG = logging.getLogger(__name__)
 
 
@@ -59,6 +62,7 @@ class RbacPolicyParser(object):
         :param service: type string
         :param path: type string
         """
+
         # First check if the service is valid
         service = service.lower().strip() if service else None
         self.admin_mgr = credentials.AdminManager()
@@ -69,32 +73,11 @@ class RbacPolicyParser(object):
             LOG.debug(str(service) + " is NOT a valid service.")
             raise rbac_exceptions.RbacInvalidService
 
-        # Use default path if no path provided
-        if path is None:
-            self.path = os.path.join('/etc', service, 'policy.json')
-        else:
-            self.path = path
-
-        policy_data = "{}"
-
-        # Check whether policy file exists.
-        if os.path.isfile(self.path):
-            policy_data = open(self.path, 'r').read()
-        # Otherwise use oslo_policy to fetch the rules for provided service.
-        else:
-            policy_generator = generator._get_policies_dict([service])
-            if policy_generator and service in policy_generator:
-                policy_data = "{\n"
-                for r in policy_generator[service]:
-                    policy_data = policy_data + r.__str__() + ",\n"
-                policy_data = policy_data[:-2] + "\n}"
-            # Otherwise raise an exception.
-            else:
-                raise rbac_exceptions.RbacParsingException(
-                    'Policy file for service: {0}, {1} not found.'
-                    .format(service, self.path))
-
-        self.rules = policy.Rules.load(policy_data, "default")
+        # Use default path in /etc/<service_name/policy.json if no path
+        # is provided.
+        self.path = path or os.path.join('/etc', service, 'policy.json')
+        self.rules = policy.Rules.load(self._get_policy_data(service),
+                                       'default')
         self.tenant_id = tenant_id
         self.user_id = user_id
 
@@ -105,6 +88,61 @@ class RbacPolicyParser(object):
             apply_rule=rule_name,
             is_admin=is_admin_context)
         return is_allowed
+
+    def _get_policy_data(self, service):
+        file_policy_data = {}
+        mgr_policy_data = {}
+        policy_data = {}
+
+        # Check whether policy file exists.
+        if os.path.isfile(self.path):
+            with open(self.path, 'r') as policy_file:
+                file_policy_data = policy_file.read()
+            try:
+                file_policy_data = json.loads(file_policy_data)
+            except ValueError:
+                pass
+
+        # Check whether policy actions are defined in code. Nova and Keystone,
+        # for example, define their default policy actions in code.
+        mgr = stevedore.named.NamedExtensionManager(
+            'oslo.policy.policies',
+            names=[service],
+            on_load_failure_callback=None,
+            invoke_on_load=True,
+            warn_on_missing_entrypoint=False)
+
+        if mgr:
+            policy_generator = {policy.name: policy.obj for policy in mgr}
+            if policy_generator and service in policy_generator:
+                for rule in policy_generator[service]:
+                    mgr_policy_data[rule.name] = str(rule.check)
+
+        # If data from both file and code exist, combine both together.
+        if file_policy_data and mgr_policy_data:
+            # Add the policy actions from code first.
+            for action, rule in mgr_policy_data.items():
+                policy_data[action] = rule
+            # Overwrite with any custom policy actions defined in policy.json.
+            for action, rule in file_policy_data.items():
+                policy_data[action] = rule
+        elif file_policy_data:
+            policy_data = file_policy_data
+        elif mgr_policy_data:
+            policy_data = mgr_policy_data
+        else:
+            error_message = 'Policy file for {0} service neither found in '\
+                            'code nor at {1}.'.format(service, self.path)
+            raise rbac_exceptions.RbacParsingException(error_message)
+
+        try:
+            policy_data = json.dumps(policy_data)
+        except ValueError:
+            error_message = 'Policy file for {0} service is invalid.'.format(
+                service)
+            raise rbac_exceptions.RbacParsingException(error_message)
+
+        return policy_data
 
     def _is_admin_context(self, role):
         """Checks whether a role has admin context.

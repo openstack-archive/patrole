@@ -10,5 +10,5 @@
     "policy_action_3": "rule:zero_rule",
     "policy_action_4": "rule:prime_rule",
     "policy_action_5": "rule:all_rule",
-    "policy_action_6": "role:eight",
+    "policy_action_6": "role:eight"
 }

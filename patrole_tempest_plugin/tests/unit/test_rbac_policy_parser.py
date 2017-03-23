@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import json
 import mock
 import os
 
@@ -74,6 +75,11 @@ class RbacPolicyTest(base.TestCase):
         self.mock_admin_mgr.AdminManager.return_value.\
             identity_services_v3_client.list_services.return_value = \
             services
+
+    def _get_fake_policy_rule(self, name, rule):
+        fake_rule = mock.Mock(check=rule)
+        fake_rule.name = name
+        return fake_rule
 
     @mock.patch.object(rbac_policy_parser, 'LOG', autospec=True)
     def test_custom_policy(self, m_log):
@@ -294,3 +300,87 @@ class RbacPolicyTest(base.TestCase):
                               parser.allowed, mock.sentinel.rule, None)
         self.assertIn(expected_message, str(e))
         m_log.debug.assert_called_once_with(expected_message)
+
+    @mock.patch.object(rbac_policy_parser, 'stevedore', autospec=True)
+    def test_get_policy_data_from_file_and_from_code(self, mock_stevedore):
+        fake_policy_rules = [
+            self._get_fake_policy_rule('code_policy_action_1',
+                                       'rule:code_rule_1'),
+            self._get_fake_policy_rule('code_policy_action_2',
+                                       'rule:code_rule_2'),
+            self._get_fake_policy_rule('code_policy_action_3',
+                                       'rule:code_rule_3'),
+        ]
+
+        mock_manager = mock.Mock(obj=fake_policy_rules)
+        mock_manager.configure_mock(name='fake_service')
+        mock_stevedore.named.NamedExtensionManager.return_value = [
+            mock_manager
+        ]
+
+        test_tenant_id = mock.sentinel.tenant_id
+        test_user_id = mock.sentinel.user_id
+
+        parser = rbac_policy_parser.RbacPolicyParser(
+            test_tenant_id, test_user_id, "test", self.tenant_policy_file)
+
+        policy_data = parser._get_policy_data('fake_service')
+
+        self.assertIsInstance(policy_data, str)
+
+        actual_policy_data = json.loads(policy_data)
+        expected_policy_data = {
+            "code_policy_action_1": "rule:code_rule_1",
+            "code_policy_action_2": "rule:code_rule_2",
+            "code_policy_action_3": "rule:code_rule_3",
+            "rule1": "tenant_id:%(network:tenant_id)s",
+            "rule2": "tenant_id:%(tenant_id)s",
+            "rule3": "project_id:%(project_id)s",
+            "rule4": "user_id:%(user_id)s",
+            "admin_tenant_rule": "role:admin and tenant_id:%(tenant_id)s",
+            "admin_user_rule": "role:admin and user_id:%(user_id)s"
+
+        }
+
+        self.assertEqual(expected_policy_data, actual_policy_data)
+
+    @mock.patch.object(rbac_policy_parser, 'stevedore', autospec=True)
+    def test_get_policy_data_from_file_and_from_code_with_overwrite(
+            self, mock_stevedore):
+        # The custom policy file should overwrite default rules rule1 and rule2
+        # that are defined in code.
+        fake_policy_rules = [
+            self._get_fake_policy_rule('rule1', 'rule:code_rule_1'),
+            self._get_fake_policy_rule('rule2', 'rule:code_rule_2'),
+            self._get_fake_policy_rule('code_policy_action_3',
+                                       'rule:code_rule_3'),
+        ]
+
+        mock_manager = mock.Mock(obj=fake_policy_rules)
+        mock_manager.configure_mock(name='fake_service')
+        mock_stevedore.named.NamedExtensionManager.return_value = [
+            mock_manager
+        ]
+
+        test_tenant_id = mock.sentinel.tenant_id
+        test_user_id = mock.sentinel.user_id
+
+        parser = rbac_policy_parser.RbacPolicyParser(
+            test_tenant_id, test_user_id, "test", self.tenant_policy_file)
+
+        policy_data = parser._get_policy_data('fake_service')
+
+        self.assertIsInstance(policy_data, str)
+
+        actual_policy_data = json.loads(policy_data)
+        expected_policy_data = {
+            "code_policy_action_3": "rule:code_rule_3",
+            "rule1": "tenant_id:%(network:tenant_id)s",
+            "rule2": "tenant_id:%(tenant_id)s",
+            "rule3": "project_id:%(project_id)s",
+            "rule4": "user_id:%(user_id)s",
+            "admin_tenant_rule": "role:admin and tenant_id:%(tenant_id)s",
+            "admin_user_rule": "role:admin and user_id:%(user_id)s"
+        }
+
+        self.assertEqual(expected_policy_data, actual_policy_data)
