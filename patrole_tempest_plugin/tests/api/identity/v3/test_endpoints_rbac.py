@@ -13,69 +13,41 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from tempest import config
 from tempest.lib.common.utils import data_utils
-from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.identity.v3 import rbac_base
 
-CONF = config.CONF
-
 
 class IdentityEndpointsV3AdminRbacTest(
         rbac_base.BaseIdentityV3RbacAdminTest):
-
-    def _create_endpoint(self):
-        """Creates a service and an endpoint for test."""
-        interface = 'public'
-        url = data_utils.rand_url()
-        service = self._create_service()
-        endpoint = self.endpoints_client \
-                       .create_endpoint(service_id=service['id'],
-                                        interface=interface,
-                                        url=url)['endpoint']
-        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.endpoints_client.delete_endpoint, endpoint['id'])
-        return (service, endpoint)
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:create_endpoint")
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd127')
     def test_create_endpoint(self):
-        """Create an endpoint.
-
-        RBAC test for Keystone: identity:create_endpoint
-        """
+        service = self.setup_test_service()
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
-        self._create_endpoint()
+        self.setup_test_endpoint(service=service)
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:update_endpoint")
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd128')
     def test_update_endpoint(self):
-        """Update an endpoint.
-
-        RBAC test for Keystone: identity:update_endpoint
-        """
-        service, endpoint = self._create_endpoint()
+        endpoint = self.setup_test_endpoint()
         new_url = data_utils.rand_url()
 
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
-        self.endpoints_client.update_endpoint(endpoint["id"],
-                                              service_id=service['id'],
-                                              url=new_url)
+        self.endpoints_client.update_endpoint(
+            endpoint["id"],
+            url=new_url)
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:delete_endpoint")
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd129')
     def test_delete_endpoint(self):
-        """Delete an endpoint.
-
-        RBAC test for Keystone: identity:delete_endpoint
-        """
-        _, endpoint = self._create_endpoint()
+        endpoint = self.setup_test_endpoint()
 
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.endpoints_client.delete_endpoint(endpoint['id'])
@@ -84,11 +56,7 @@ class IdentityEndpointsV3AdminRbacTest(
                                  rule="identity:get_endpoint")
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd130')
     def test_show_endpoint(self):
-        """Show/Get an endpoint.
-
-        RBAC test for Keystone: identity:get_endpoint
-        """
-        _, endpoint = self._create_endpoint()
+        endpoint = self.setup_test_endpoint()
 
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.endpoints_client.show_endpoint(endpoint['id'])
@@ -97,9 +65,5 @@ class IdentityEndpointsV3AdminRbacTest(
                                  rule="identity:list_endpoints")
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd131')
     def test_list_endpoints(self):
-        """Create a Domain.
-
-        RBAC test for Keystone: identity:create_domain
-        """
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.endpoints_client.list_endpoints()
