@@ -104,7 +104,6 @@ class RbacPolicyParser(object):
             access=self._get_access_token(role),
             apply_rule=rule_name,
             is_admin=is_admin_context)
-
         return is_allowed
 
     def _is_admin_context(self, role):
@@ -168,16 +167,11 @@ class RbacPolicyParser(object):
         return result
 
     def _try_rule(self, apply_rule, target, access_data, o):
-        try:
-            rule = self.rules[apply_rule]
-            return rule(target, access_data, o)
-        except KeyError as e:
+        if apply_rule not in self.rules:
             message = "Policy action: {0} not found in policy file: {1}."\
                       .format(apply_rule, self.path)
             LOG.debug(message)
             raise rbac_exceptions.RbacParsingException(message)
-        except Exception as e:
-            message = "Unknown exception: {0} for policy action: {1} in "\
-                      "policy file: {2}.".format(e, apply_rule, self.path)
-            LOG.debug(message)
-            raise rbac_exceptions.RbacParsingException(message)
+        else:
+            rule = self.rules[apply_rule]
+            return rule(target, access_data, o)

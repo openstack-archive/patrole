@@ -13,7 +13,6 @@
 #    under the License.
 
 import mock
-import testtools
 
 from patrole_tempest_plugin import rbac_auth
 from patrole_tempest_plugin import rbac_exceptions
@@ -171,7 +170,7 @@ class RBACRuleValidationTest(base.TestCase):
         self.assertIsNone(wrapper(self.mock_args))
 
     @mock.patch.object(rbac_auth, 'rbac_policy_parser', autospec=True)
-    def test_invalid_policy_rule_throws_skip_exception(
+    def test_invalid_policy_rule_throws_parsing_exception(
             self, mock_rbac_policy_parser):
         mock_rbac_policy_parser.RbacPolicyParser.return_value.allowed.\
             side_effect = rbac_exceptions.RbacParsingException
@@ -180,7 +179,7 @@ class RBACRuleValidationTest(base.TestCase):
                                    mock.sentinel.policy_rule)
         wrapper = decorator(mock.Mock())
 
-        e = self.assertRaises(testtools.TestCase.skipException, wrapper,
+        e = self.assertRaises(rbac_exceptions.RbacParsingException, wrapper,
                               self.mock_args)
         self.assertEqual('Attempted to test an invalid policy file or action',
                          str(e))

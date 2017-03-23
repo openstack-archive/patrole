@@ -17,10 +17,13 @@ import testtools
 
 from oslo_log import log as logging
 
+from tempest import config
+
 from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_policy_parser
 
 LOG = logging.getLogger(__name__)
+CONF = config.CONF
 
 
 class RbacAuthority(object):
@@ -39,5 +42,8 @@ class RbacAuthority(object):
                           rule_name, role)
             return is_allowed
         except rbac_exceptions.RbacParsingException as e:
-            raise testtools.TestCase.skipException(str(e))
+            if CONF.rbac.strict_policy_check:
+                raise e
+            else:
+                raise testtools.TestCase.skipException(str(e))
         return False

@@ -48,9 +48,14 @@ the tempest.conf file.
 #. [rbac] section updates ::
 
        # The role that you want the RBAC tests to use for RBAC testing
-       # This needs to be edited to run the test as a different role. 
+       # This needs to be edited to run the test as a different role.
        rbac_test_role = _member_
 
        # Enables RBAC Tempest tests if set to True. Otherwise, they are
        # skipped.
-       rbac_flag = True
+       enable_rbac = True
+
+       # If set to true, tests throw a RbacParsingException for policies
+       # not found in the policy.json. Otherwise, they throw a
+       # skipException.
+       strict_policy_check = False

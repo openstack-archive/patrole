@@ -29,7 +29,7 @@ class BaseV2ComputeRbacTest(compute_base.BaseV2ComputeTest):
     @classmethod
     def skip_checks(cls):
         super(BaseV2ComputeRbacTest, cls).skip_checks()
-        if not CONF.rbac.rbac_flag:
+        if not CONF.rbac.enable_rbac:
             raise cls.skipException(
                 '%s skipped as RBAC flag not enabled' % cls.__name__)
 
@@ -48,7 +48,7 @@ class BaseV2ComputeAdminRbacTest(compute_base.BaseV2ComputeAdminTest):
     @classmethod
     def skip_checks(cls):
         super(BaseV2ComputeAdminRbacTest, cls).skip_checks()
-        if not CONF.rbac.rbac_flag:
+        if not CONF.rbac.enable_rbac:
             raise cls.skipException(
                 '%s skipped as RBAC flag not enabled' % cls.__name__)
 

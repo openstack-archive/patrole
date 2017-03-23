@@ -23,7 +23,12 @@ RbacGroup = [
                default='admin',
                help="The current RBAC role against which to run"
                     " Patrole tests."),
-    cfg.BoolOpt('rbac_flag',
+    cfg.BoolOpt('enable_rbac',
                 default=True,
-                help="Enables RBAC tests.")
+                help="Enables RBAC tests."),
+    cfg.BoolOpt('strict_policy_check',
+                default=False,
+                help="If true, throws RbacParsingException for"
+                     " policies which don't exist. If false, "
+                     "throws skipException.")
 ]

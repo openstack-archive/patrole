@@ -53,10 +53,12 @@ fi
 # a "fast' or "slow test" gate
 TYPE=$2
 
-# Set rbac_flag=True under [rbac] section in tempest.conf
-iniset $TEMPEST_CONFIG rbac rbac_flag True
+# Set enable_rbac=True under [rbac] section in tempest.conf
+iniset $TEMPEST_CONFIG rbac enable_rbac True
 # Set rbac_test_role=$RBAC_ROLE under [rbac] section in tempest.conf
 iniset $TEMPEST_CONFIG rbac rbac_test_role $RBAC_ROLE
+# Set strict_policy_check=False under [rbac] section in tempest.conf
+iniset $TEMPEST_CONFIG rbac strict_policy_check False
 # Set additional, necessary CONF values
 iniset $TEMPEST_CONFIG auth use_dynamic_credentials True
 iniset $TEMPEST_CONFIG auth tempest_roles Member

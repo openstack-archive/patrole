@@ -286,9 +286,8 @@ class RbacPolicyTest(base.TestCase):
             **{'__getitem__.return_value.side_effect': Exception(
                mock.sentinel.error)})
 
-        expected_message = "Unknown exception: {0} for policy action: {1} in "\
-                           "policy file: {2}.".format(mock.sentinel.error,
-                                                      mock.sentinel.rule,
+        expected_message = "Policy action: {0} not found in "\
+                           "policy file: {1}.".format(mock.sentinel.rule,
                                                       self.custom_policy_file)
 
         e = self.assertRaises(rbac_exceptions.RbacParsingException,
