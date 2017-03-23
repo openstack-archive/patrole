@@ -35,6 +35,11 @@ DEVSTACK_GATE_TEMPEST_REGEX="(?!.*\[.*\bslow\b.*\])(^patrole_tempest_plugin\.tes
 # Import devstack function 'iniset'.
 source $BASE/new/devstack/functions
 
+# Use uuid tokens for faster test runs
+KEYSTONE_CONF=/etc/keystone/keystone.conf
+iniset $KEYSTONE_CONF token provider uuid
+sudo service apache2 restart
+
 # First argument is expected to contain value equal either to 'admin' or
 # 'member' (both lower-case).
 RBAC_ROLE=$1

@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import oslo_utils.uuidutils as uuid_utils
 import six
 import time
 
@@ -96,8 +97,11 @@ class RbacUtils(object):
             test_obj.auth_provider.clear_auth()
             # Fernet tokens are not subsecond aware and Keystone should only be
             # precise to the second. Sleep to ensure we are passing the second
-            # boundary before attempting to authenticate.
-            time.sleep(1)
+            # boundary before attempting to authenticate. If token is of type
+            # uuid, then do not sleep.
+            if not uuid_utils.is_uuid_like(cls.creds_client.
+                                           identity_client.token):
+                time.sleep(1)
             test_obj.auth_provider.set_auth()
 
     def _clear_user_roles(cls, user_id, tenant_id):
