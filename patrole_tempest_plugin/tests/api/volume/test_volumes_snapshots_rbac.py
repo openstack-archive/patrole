@@ -39,8 +39,6 @@ class VolumesSnapshotRbacTest(rbac_base.BaseVolumeRbacTest):
     def resource_setup(cls):
         super(VolumesSnapshotRbacTest, cls).resource_setup()
         # Create a test shared volume for tests
-        cls.name_field = cls.special_fields['name_field']
-        cls.descrip_field = cls.special_fields['descrip_field']
         cls.volume = cls.create_volume()
         # Create a test shared snapshot for tests
         cls.snapshot = cls.create_snapshot(cls.volume['id'])
@@ -48,7 +46,6 @@ class VolumesSnapshotRbacTest(rbac_base.BaseVolumeRbacTest):
     def _list_by_param_values(self, params, with_detail=False):
         # Perform list or list_details action with given params
         # and validates result.
-
         if with_detail:
             self.snapshots_client.list_snapshots(
                 detail=True, params=params)['snapshots']
@@ -78,7 +75,7 @@ class VolumesSnapshotRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('53fe8ee3-3bea-4ae8-a979-3c98ea72f620')
     def test_snapshot_update(self):
         new_desc = 'This is the new description of snapshot.'
-        params = {self.descrip_field: new_desc}
+        params = {'description': new_desc}
         # Updates snapshot with new values
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.update_snapshot(
@@ -90,7 +87,7 @@ class VolumesSnapshotRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_snapshots_get_all(self):
         """list snapshots with params."""
         # Verify list snapshots by display_name filter
-        params = {self.name_field: self.snapshot[self.name_field]}
+        params = {'name': self.snapshot['name']}
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self._list_by_param_values(params)
 
