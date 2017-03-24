@@ -17,8 +17,8 @@ import testtools
 
 from tempest.common import waiters
 from tempest import config
-
 from tempest.lib import decorators
+from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base as base
@@ -67,6 +67,7 @@ class MigrateServerRbacTest(base.BaseV2ComputeRbacTest):
             server_id, host=dest_host, block_migration=block_migration,
             **kwargs)
 
+    @test.attr(type='slow')
     @testtools.skipUnless(CONF.compute_feature_enabled.cold_migration,
                           'Cold migration not available.')
     @rbac_rule_validation.action(
@@ -84,6 +85,7 @@ class MigrateServerRbacTest(base.BaseV2ComputeRbacTest):
         waiters.wait_for_server_status(self.admin_servers_client,
                                        server['id'], 'VERIFY_RESIZE')
 
+    @test.attr(type='slow')
     @testtools.skipUnless(CONF.compute_feature_enabled.live_migration,
                           'Live migration feature is not enabled.')
     @rbac_rule_validation.action(

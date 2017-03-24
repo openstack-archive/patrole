@@ -21,6 +21,7 @@ from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
+from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
@@ -69,6 +70,7 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
         # Attach the volume
         self._attach_volume(server)
 
+    @test.attr(type="slow")
     @rbac_rule_validation.action(service="cinder", rule="volume:detach")
     @decorators.idempotent_id('5a042f6a-688b-42e6-a02e-fe5c47b89b07')
     def test_detach_volume_to_instance(self):
