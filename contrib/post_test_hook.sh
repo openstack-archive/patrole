@@ -30,7 +30,8 @@ TEMPEST_COMMAND="sudo -H -u tempest tox"
 # tests that contain the @test.attr(type='slow') decorator above them. Slower
 # tests will execute those tests in a separate gate, which will require
 # future modification of this script.
-DEVSTACK_GATE_TEMPEST_REGEX="(?!.*\[.*\bslow\b.*\])(^patrole_tempest_plugin\.tests\.api)"
+DEVSTACK_FAST_GATE_TEMPEST_REGEX="(?!.*\[.*\bslow\b.*\])(^patrole_tempest_plugin\.tests\.api)"
+DEVSTACK_SLOW_GATE_TEMPEST_REGEX="(?=.*\[.*\bslow\b.*\])(^patrole_tempest_plugin\.tests\.api)"
 
 # Import devstack function 'iniset'.
 source $BASE/new/devstack/functions
@@ -47,6 +48,10 @@ RBAC_ROLE=$1
 if [[ "$RBAC_ROLE" == "member" ]]; then
     RBAC_ROLE="Member"
 fi
+
+# Second argument is expected to contain value to indicate whether it is
+# a "fast' or "slow test" gate
+TYPE=$2
 
 # Set rbac_flag=True under [rbac] section in tempest.conf
 iniset $TEMPEST_CONFIG rbac rbac_flag True
@@ -66,5 +71,11 @@ set -o errexit
 # cd into Tempest directory before executing tox.
 cd $BASE/new/tempest
 
-$TEMPEST_COMMAND -eall-plugin -- $DEVSTACK_GATE_TEMPEST_REGEX --concurrency=$TEMPEST_CONCURRENCY
+# Select Fast Gate if Type is set to 'fast', else use 'slow' gate
+if [[ "$TYPE" == "fast" ]]; then
+    $TEMPEST_COMMAND -eall-plugin -- $DEVSTACK_FAST_GATE_TEMPEST_REGEX --concurrency=$TEMPEST_CONCURRENCY
+else
+    $TEMPEST_COMMAND -eall-plugin -- $DEVSTACK_SLOW_GATE_TEMPEST_REGEX --concurrency=$TEMPEST_CONCURRENCY
+fi
+
 sudo -H -u tempest .tox/all-plugin/bin/tempest list-plugins
