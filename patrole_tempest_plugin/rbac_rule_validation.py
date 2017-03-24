@@ -14,6 +14,9 @@
 #    under the License.
 
 import logging
+import sys
+
+import six
 
 from tempest import config
 from tempest.lib import exceptions
@@ -93,7 +96,9 @@ def action(service, rule, admin_only=False, expected_error_code=403):
                 raise exceptions.NotFound(
                     "%s RbacInvalidService was: %s" %
                     (msg, e))
-            except expected_exception as e:
+            except (expected_exception, rbac_exceptions.RbacActionFailed) as e:
+                if irregular_msg:
+                    LOG.warning(irregular_msg.format(rule, service))
                 if allowed:
                     msg = ("Role %s was not allowed to perform %s." %
                            (CONF.rbac.rbac_test_role, rule))
@@ -101,16 +106,14 @@ def action(service, rule, admin_only=False, expected_error_code=403):
                     raise exceptions.Forbidden(
                         "%s exception was: %s" %
                         (msg, e))
-                if irregular_msg:
-                    LOG.warning(irregular_msg.format(rule, service))
-            except rbac_exceptions.RbacActionFailed as e:
-                if allowed:
-                    msg = ("Role %s was not allowed to perform %s." %
-                           (CONF.rbac.rbac_test_role, rule))
-                    LOG.error(msg)
-                    raise exceptions.Forbidden(
-                        "%s RbacActionFailed was: %s" %
-                        (msg, e))
+            except Exception as e:
+                exc_info = sys.exc_info()
+                error_details = exc_info[1].__str__()
+                msg = ("%s An unexpected exception has occurred: Expected "
+                       "exception was %s, which was not thrown."
+                       % (error_details, expected_exception.__name__))
+                LOG.error(msg)
+                six.reraise(exc_info[0], exc_info[0](msg), exc_info[2])
             else:
                 if not allowed:
                     LOG.error("Role %s was allowed to perform %s" %

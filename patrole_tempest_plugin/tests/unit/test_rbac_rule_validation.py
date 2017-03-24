@@ -15,14 +15,14 @@
 import mock
 import testtools
 
-from patrole_tempest_plugin import rbac_auth
-from patrole_tempest_plugin import rbac_exceptions
-from patrole_tempest_plugin import rbac_rule_validation as rbac_rv
-
 from tempest import config
 from tempest.lib import exceptions
 from tempest import test
 from tempest.tests import base
+
+from patrole_tempest_plugin import rbac_auth
+from patrole_tempest_plugin import rbac_exceptions
+from patrole_tempest_plugin import rbac_rule_validation as rbac_rv
 
 CONF = config.CONF
 
@@ -43,21 +43,69 @@ class RBACRuleValidationTest(base.TestCase):
                           enforce_type=True)
         self.addCleanup(CONF.clear_override, 'rbac_test_role', group='rbac')
 
-    @mock.patch('patrole_tempest_plugin.rbac_auth.RbacAuthority')
-    def test_RBAC_rv_happy_path(self, mock_auth):
-        decorator = rbac_rv.action("", "")
+    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
+    @mock.patch.object(rbac_auth, 'RbacAuthority', autospec=True)
+    def test_rule_validation_have_permission_no_exc(self, mock_auth, mock_log):
+        """Test that having permission and no exception thrown is success.
+
+        Positive test case success scenario.
+        """
+        decorator = rbac_rv.action(mock.sentinel.service, mock.sentinel.action)
+
         mock_function = mock.Mock()
         wrapper = decorator(mock_function)
-        wrapper((self.mock_args))
-        self.assertTrue(mock_function.called)
+
+        mock_permission = mock.Mock()
+        mock_permission.get_permission.return_value = True
+        mock_auth.return_value = mock_permission
+
+        result = wrapper(self.mock_args)
+
+        self.assertIsNone(result)
+        mock_log.warning.assert_not_called()
+        mock_log.error.assert_not_called()
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
-    @mock.patch('patrole_tempest_plugin.rbac_auth.RbacAuthority')
-    def test_RBAC_rv_forbidden(self, mock_auth, mock_log):
+    @mock.patch.object(rbac_auth, 'RbacAuthority', autospec=True)
+    def test_rule_validation_lack_permission_throw_exc(self, mock_auth,
+                                                       mock_log):
+        """Test that having no permission and exception thrown is success.
+
+        Negative test case success scenario.
+        """
+        decorator = rbac_rv.action(mock.sentinel.service, mock.sentinel.action)
+
+        mock_function = mock.Mock()
+        mock_function.side_effect = exceptions.Forbidden
+        wrapper = decorator(mock_function)
+
+        mock_permission = mock.Mock()
+        mock_permission.get_permission.return_value = False
+        mock_auth.return_value = mock_permission
+
+        result = wrapper(self.mock_args)
+
+        self.assertIsNone(result)
+        mock_log.warning.assert_not_called()
+        mock_log.error.assert_not_called()
+
+    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
+    @mock.patch.object(rbac_auth, 'RbacAuthority', autospec=True)
+    def test_rule_validation_forbidden_negative(self, mock_auth, mock_log):
+        """Test Forbidden error is thrown and have permission fails.
+
+        Negative test case: if Forbidden is thrown and the user should be
+        allowed to perform the action, then the Forbidden exception should be
+        raised.
+        """
         decorator = rbac_rv.action(mock.sentinel.service, mock.sentinel.action)
         mock_function = mock.Mock()
         mock_function.side_effect = exceptions.Forbidden
         wrapper = decorator(mock_function)
+
+        mock_permission = mock.Mock()
+        mock_permission.get_permission.return_value = True
+        mock_auth.return_value = mock_permission
 
         e = self.assertRaises(exceptions.Forbidden, wrapper, self.mock_args)
         self.assertIn(
@@ -67,8 +115,100 @@ class RBACRuleValidationTest(base.TestCase):
                                                " perform sentinel.action.")
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
-    @mock.patch('patrole_tempest_plugin.rbac_auth.RbacAuthority')
+    @mock.patch.object(rbac_auth, 'RbacAuthority', autospec=True)
+    def test_rule_validation_rbac_action_failed_positive(self, mock_auth,
+                                                         mock_log):
+        """Test RbacActionFailed error is thrown without permission passes.
+
+        Positive test case: if RbacActionFailed is thrown and the user is not
+        allowed to perform the action, then this is a success.
+        """
+        decorator = rbac_rv.action(mock.sentinel.service, mock.sentinel.action)
+        mock_function = mock.Mock()
+        mock_function.side_effect = rbac_exceptions.RbacActionFailed
+        wrapper = decorator(mock_function)
+
+        mock_permission = mock.Mock()
+        mock_permission.get_permission.return_value = False
+        mock_auth.return_value = mock_permission
+
+        result = wrapper(self.mock_args)
+
+        self.assertIsNone(result)
+        mock_log.error.assert_not_called()
+        mock_log.warning.assert_not_called()
+
+    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
+    @mock.patch.object(rbac_auth, 'RbacAuthority', autospec=True)
+    def test_rule_validation_rbac_action_failed_negative(self, mock_auth,
+                                                         mock_log):
+        """Test RbacActionFailed error is thrown with permission fails.
+
+        Negative test case: if RbacActionFailed is thrown and the user is
+        allowed to perform the action, then this is an expected failure.
+        """
+        decorator = rbac_rv.action(mock.sentinel.service, mock.sentinel.action)
+        mock_function = mock.Mock()
+        mock_function.side_effect = rbac_exceptions.RbacActionFailed
+        wrapper = decorator(mock_function)
+
+        mock_permission = mock.Mock()
+        mock_permission.get_permission.return_value = True
+        mock_auth.return_value = mock_permission
+
+        e = self.assertRaises(exceptions.Forbidden, wrapper, self.mock_args)
+        self.assertIn(
+            "Role Member was not allowed to perform sentinel.action.",
+            e.__str__())
+
+        mock_log.error.assert_called_once_with("Role Member was not allowed to"
+                                               " perform sentinel.action.")
+
+    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
+    @mock.patch.object(rbac_auth, 'RbacAuthority', autospec=True)
     def test_expect_not_found_but_raises_forbidden(self, mock_auth, mock_log):
+        """Test that expecting 404 but getting 403 works for all scenarios.
+
+        Tests the following scenarios:
+        1) Test no permission and 404 is expected but 403 is thrown throws
+           exception.
+        2) Test have permission and 404 is expected but 403 is thrown throws
+           exception.
+        """
+        decorator = rbac_rv.action(mock.sentinel.service,
+                                   mock.sentinel.action,
+                                   expected_error_code=404)
+        mock_function = mock.Mock()
+        mock_function.side_effect = exceptions.Forbidden('Random message.')
+        wrapper = decorator(mock_function)
+
+        expected_error = "Forbidden\nDetails: Random message. An unexpected "\
+                         "exception has occurred: Expected exception was "\
+                         "NotFound, which was not thrown."
+
+        for permission in [True, False]:
+            mock_permission = mock.Mock()
+            mock_permission.get_permission.return_value = permission
+            mock_auth.return_value = mock_permission
+
+            e = self.assertRaises(exceptions.Forbidden, wrapper,
+                                  self.mock_args)
+            self.assertIn(expected_error, e.__str__())
+            mock_log.error.assert_called_once_with(expected_error)
+            mock_log.error.reset_mock()
+
+    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
+    @mock.patch.object(rbac_auth, 'RbacAuthority', autospec=True)
+    def test_expect_not_found_and_raise_not_found(self, mock_auth, mock_log):
+        """Test that expecting 404 and getting 404 works for all scenarios.
+
+        Tests the following scenarios:
+        1) Test no permission and 404 is expected and 404 is thrown succeeds.
+        2) Test have permission and 404 is expected and 404 is thrown fails.
+
+        In both cases, a LOG.warning is called with the "irregular message"
+        that signals to user that a 404 was expected and caught.
+        """
         decorator = rbac_rv.action(mock.sentinel.service,
                                    mock.sentinel.action,
                                    expected_error_code=404)
@@ -76,32 +216,44 @@ class RBACRuleValidationTest(base.TestCase):
         mock_function.side_effect = exceptions.NotFound
         wrapper = decorator(mock_function)
 
-        e = self.assertRaises(exceptions.Forbidden, wrapper, self.mock_args)
-        self.assertIn(
-            "Role Member was not allowed to perform sentinel.action.",
-            e.__str__())
-        mock_log.error.assert_called_once_with("Role Member was not allowed to"
-                                               " perform sentinel.action.")
+        expected_errors = [
+            "Role Member was not allowed to perform sentinel.action.", None
+        ]
+
+        for pos, permission in enumerate([True, False]):
+            mock_permission = mock.Mock()
+            mock_permission.get_permission.return_value = permission
+            mock_auth.return_value = mock_permission
+
+            expected_error = expected_errors[pos]
+
+            if expected_error:
+                e = self.assertRaises(exceptions.Forbidden, wrapper,
+                                      self.mock_args)
+                self.assertIn(expected_error, e.__str__())
+                mock_log.error.assert_called_once_with(expected_error)
+            else:
+                wrapper(self.mock_args)
+                mock_log.error.assert_not_called()
+
+            mock_log.warning.assert_called_once_with(
+                "NotFound exception was caught for policy action {0}. The "
+                "service {1} throws a 404 instead of a 403, which is "
+                "irregular.".format(mock.sentinel.action,
+                                    mock.sentinel.service))
+
+            mock_log.warning.reset_mock()
+            mock_log.error.reset_mock()
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
-    @mock.patch('patrole_tempest_plugin.rbac_auth.RbacAuthority')
-    def test_RBAC_rv_rbac_action_failed(self, mock_auth, mock_log):
-        decorator = rbac_rv.action(mock.sentinel.service, mock.sentinel.action)
-        mock_function = mock.Mock()
-        mock_function.side_effect = rbac_exceptions.RbacActionFailed
-        wrapper = decorator(mock_function)
+    @mock.patch.object(rbac_auth, 'RbacAuthority', autospec=True)
+    def test_rule_validation_overpermission_negative(self, mock_auth,
+                                                     mock_log):
+        """Test that OverPermission is correctly handled.
 
-        e = self.assertRaises(exceptions.Forbidden, wrapper, self.mock_args)
-        self.assertIn(
-            "Role Member was not allowed to perform sentinel.action.",
-            e.__str__())
-
-        mock_log.error.assert_called_once_with("Role Member was not allowed to"
-                                               " perform sentinel.action.")
-
-    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
-    @mock.patch('patrole_tempest_plugin.rbac_auth.RbacAuthority')
-    def test_RBAC_rv_not_allowed(self, mock_auth, mock_log):
+        Tests that case where no exception is thrown but the Patrole framework
+        says that the role should not be allowed to perform the policy action.
+        """
         decorator = rbac_rv.action(mock.sentinel.service, mock.sentinel.action)
 
         mock_function = mock.Mock()
@@ -119,60 +271,10 @@ class RBACRuleValidationTest(base.TestCase):
         mock_log.error.assert_called_once_with(
             "Role Member was allowed to perform sentinel.action")
 
-    @mock.patch('patrole_tempest_plugin.rbac_auth.RbacAuthority')
-    def test_RBAC_rv_forbidden_not_allowed(self, mock_auth):
-        decorator = rbac_rv.action("", "")
-
-        mock_function = mock.Mock()
-        mock_function.side_effect = exceptions.Forbidden
-        wrapper = decorator(mock_function)
-
-        mock_permission = mock.Mock()
-        mock_permission.get_permission.return_value = False
-        mock_auth.return_value = mock_permission
-
-        self.assertIsNone(wrapper(self.mock_args))
-
-    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
-    @mock.patch('patrole_tempest_plugin.rbac_auth.RbacAuthority')
-    def test_expect_not_found_and_not_allowed(self, mock_auth, mock_log):
-        decorator = rbac_rv.action(mock.sentinel.service,
-                                   mock.sentinel.action,
-                                   expected_error_code=404)
-
-        mock_function = mock.Mock()
-        mock_function.side_effect = exceptions.NotFound
-        wrapper = decorator(mock_function)
-
-        mock_permission = mock.Mock()
-        mock_permission.get_permission.return_value = False
-        mock_auth.return_value = mock_permission
-
-        self.assertIsNone(wrapper(self.mock_args))
-
-        mock_log.warning.assert_called_once_with(
-            'NotFound exception was caught for policy action sentinel.action. '
-            'The service sentinel.service throws a 404 instead of a 403, '
-            'which is irregular.')
-        mock_log.error.assert_not_called()
-
-    @mock.patch('patrole_tempest_plugin.rbac_auth.RbacAuthority')
-    def test_RBAC_rv_rbac_action_failed_not_allowed(self, mock_auth):
-        decorator = rbac_rv.action("", "")
-
-        mock_function = mock.Mock()
-        mock_function.side_effect = rbac_exceptions.RbacActionFailed
-        wrapper = decorator(mock_function)
-
-        mock_permission = mock.Mock()
-        mock_permission.get_permission.return_value = False
-        mock_auth.return_value = mock_permission
-
-        self.assertIsNone(wrapper(self.mock_args))
-
     @mock.patch.object(rbac_auth, 'rbac_policy_parser', autospec=True)
     def test_invalid_policy_rule_throws_skip_exception(
             self, mock_rbac_policy_parser):
+        """Test that invalid policy action causes test to be skipped."""
         mock_rbac_policy_parser.RbacPolicyParser.return_value.allowed.\
             side_effect = rbac_exceptions.RbacParsingException
 
@@ -189,8 +291,9 @@ class RBACRuleValidationTest(base.TestCase):
             mock.sentinel.tenant_id, mock.sentinel.user_id,
             mock.sentinel.service)
 
-    @mock.patch('patrole_tempest_plugin.rbac_auth.RbacAuthority')
+    @mock.patch.object(rbac_auth, 'RbacAuthority', autospec=True)
     def test_get_exception_type_404(self, mock_auth):
+        """Test that getting a 404 exception type returns NotFound."""
         expected_exception = exceptions.NotFound
         expected_irregular_msg = ("NotFound exception was caught for policy "
                                   "action {0}. The service {1} throws a 404 "
@@ -202,8 +305,9 @@ class RBACRuleValidationTest(base.TestCase):
         self.assertEqual(expected_exception, actual_exception)
         self.assertEqual(expected_irregular_msg, actual_irregular_msg)
 
-    @mock.patch('patrole_tempest_plugin.rbac_auth.RbacAuthority')
+    @mock.patch.object(rbac_auth, 'RbacAuthority', autospec=True)
     def test_get_exception_type_403(self, mock_auth):
+        """Test that getting a 404 exception type returns Forbidden."""
         expected_exception = exceptions.Forbidden
         expected_irregular_msg = None
 
@@ -214,8 +318,9 @@ class RBACRuleValidationTest(base.TestCase):
         self.assertEqual(expected_irregular_msg, actual_irregular_msg)
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
-    @mock.patch('patrole_tempest_plugin.rbac_auth.RbacAuthority')
+    @mock.patch.object(rbac_auth, 'RbacAuthority', autospec=True)
     def test_exception_thrown_when_type_is_not_int(self, mock_auth, mock_log):
+        """Test that non-integer exception type raises error."""
         self.assertRaises(rbac_exceptions.RbacInvalidErrorCode,
                           rbac_rv._get_exception_type, "403")
 
@@ -224,37 +329,16 @@ class RBACRuleValidationTest(base.TestCase):
                                                "codes: [403, 404]")
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
-    def test_rbac_decorator_with_admin_only_and_have_permission(self,
-                                                                mock_log):
-        CONF.set_override('rbac_test_role', 'admin', group='rbac',
-                          enforce_type=True)
-        self.addCleanup(CONF.clear_override, 'rbac_test_role', group='rbac')
+    @mock.patch.object(rbac_auth, 'RbacAuthority', autospec=True)
+    def test_exception_thrown_when_type_is_403_or_404(self, mock_auth,
+                                                      mock_log):
+        """Test that unsupported exceptions throw error."""
+        invalid_exceptions = [200, 400, 500]
+        for exc in invalid_exceptions:
+            self.assertRaises(rbac_exceptions.RbacInvalidErrorCode,
+                              rbac_rv._get_exception_type, exc)
+            mock_log.error.assert_called_once_with(
+                "Please pass an expected error code. Currently supported "
+                "codes: [403, 404]")
 
-        decorator = rbac_rv.action(mock.sentinel.service,
-                                   mock.sentinel.policy_rule,
-                                   admin_only=True)
-        wrapper = decorator(mock.Mock(side_effect=None))
-        wrapper(self.mock_args)
-
-        mock_log.info.assert_called_once_with(
-            "As admin_only is True, only admin role should be allowed to "
-            "perform the API. Skipping oslo.policy check for policy action "
-            "{0}.".format(mock.sentinel.policy_rule))
-
-    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
-    def test_rbac_decorator_with_admin_only_and_lack_permission(self,
-                                                                mock_log):
-        CONF.set_override('rbac_test_role', 'Member', group='rbac',
-                          enforce_type=True)
-        self.addCleanup(CONF.clear_override, 'rbac_test_role', group='rbac')
-
-        decorator = rbac_rv.action(mock.sentinel.service,
-                                   mock.sentinel.policy_rule,
-                                   admin_only=True)
-        wrapper = decorator(mock.Mock(side_effect=exceptions.Forbidden))
-        wrapper(self.mock_args)
-
-        mock_log.info.assert_called_once_with(
-            "As admin_only is True, only admin role should be allowed to "
-            "perform the API. Skipping oslo.policy check for policy action "
-            "{0}.".format(mock.sentinel.policy_rule))
+            mock_log.error.reset_mock()
