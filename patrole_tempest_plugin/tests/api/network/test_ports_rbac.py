@@ -15,9 +15,10 @@
 #
 
 import netaddr
-import random
 
 from oslo_log import log
+
+from tempest.common.utils import net_utils
 from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
@@ -92,14 +93,13 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
     @decorators.idempotent_id('2551e10d-006a-413c-925a-8c6f834c09ac')
     def test_create_port_fixed_ips(self):
 
-        # Pick an unused ip address to avoid IpAddressAlreadyAllocated
-        # exception.
-        current_ports = self.ports_client.list_ports()['ports']
-        in_use_ips = [p['fixed_ips'][0]['ip_address'] for p in current_ports]
-        unused_ip_range = list(set(self.ip_range) - set(in_use_ips))
-        ip_address = random.choice(unused_ip_range)
-
-        fixed_ips = [{'ip_address': ip_address},
+        # Pick an unused ip address.
+        ip_list = net_utils.get_unused_ip_addresses(self.ports_client,
+                                                    self.subnets_client,
+                                                    self.network['id'],
+                                                    self.subnet['id'],
+                                                    1)
+        fixed_ips = [{'ip_address': ip_list[0]},
                      {'subnet_id': self.subnet['id']}]
 
         post_body = {'network_id': self.network['id'],
@@ -259,16 +259,17 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
         post_body = {'network_id': self.network['id']}
         port = self._create_port(**post_body)
 
-        # Pick an unused ip address to avoid IpAddressAlreadyAllocated
-        # exception.
-        current_ports = self.ports_client.list_ports()['ports']
-        in_use_ips = [p['fixed_ips'][0]['ip_address'] for p in current_ports]
-        unused_ip_range = list(set(self.ip_range) - set(in_use_ips))
-        ip_address = random.choice(unused_ip_range)
+        # Pick an unused ip address.
+        ip_list = net_utils.get_unused_ip_addresses(self.ports_client,
+                                                    self.subnets_client,
+                                                    self.network['id'],
+                                                    self.subnet['id'],
+                                                    1)
+        fixed_ips = [{'ip_address': ip_list[0]}]
 
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.ports_client.update_port(port['id'],
-                                      fixed_ips=[{'ip_address': ip_address}])
+                                      fixed_ips=fixed_ips)
 
     @rbac_rule_validation.action(service="neutron",
                                  rule="update_port:port_security_enabled")
@@ -318,9 +319,14 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
     @decorators.idempotent_id('729c2151-bb49-4f4f-9d58-3ed8819b7582')
     def test_update_port_allowed_address_pairs(self):
 
-        ip_address = random.choice(list(self.ip_range))
+        # Pick an unused ip address.
+        ip_list = net_utils.get_unused_ip_addresses(self.ports_client,
+                                                    self.subnets_client,
+                                                    self.network['id'],
+                                                    self.subnet['id'],
+                                                    1)
         # Update allowed address pair attribute of port
-        address_pairs = [{'ip_address': ip_address,
+        address_pairs = [{'ip_address': ip_list[0],
                           'mac_address': data_utils.rand_mac_address()}]
         post_body = {'network_id': self.network['id']}
         port = self._create_port(**post_body)
