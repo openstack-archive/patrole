@@ -13,7 +13,6 @@
 #    under the License.
 
 import mock
-import testtools
 
 from tempest import config
 from tempest.lib import exceptions
@@ -272,7 +271,7 @@ class RBACRuleValidationTest(base.TestCase):
             "Role Member was allowed to perform sentinel.action")
 
     @mock.patch.object(rbac_auth, 'rbac_policy_parser', autospec=True)
-    def test_invalid_policy_rule_throws_skip_exception(
+    def test_invalid_policy_rule_throws_parsing_exception(
             self, mock_rbac_policy_parser):
         """Test that invalid policy action causes test to be skipped."""
         mock_rbac_policy_parser.RbacPolicyParser.return_value.allowed.\
@@ -282,7 +281,7 @@ class RBACRuleValidationTest(base.TestCase):
                                    mock.sentinel.policy_rule)
         wrapper = decorator(mock.Mock())
 
-        e = self.assertRaises(testtools.TestCase.skipException, wrapper,
+        e = self.assertRaises(rbac_exceptions.RbacParsingException, wrapper,
                               self.mock_args)
         self.assertEqual('Attempted to test an invalid policy file or action',
                          str(e))
