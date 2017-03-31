@@ -30,6 +30,7 @@ class IdentityRolesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
         cls.project = cls.setup_test_project()
         cls.group = cls.setup_test_group()
         cls.role = cls.setup_test_role()
+        cls.implies_role = cls.setup_test_role()
         cls.user = cls.setup_test_user()
 
     @rbac_rule_validation.action(service="keystone",
@@ -267,3 +268,68 @@ class IdentityRolesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
         self.roles_client.list_group_roles_on_domain(
             self.domain['id'],
             self.group['id'])
+
+    @decorators.idempotent_id('2aef3eaa-8156-4962-a01d-c9bb0e499e15')
+    @rbac_rule_validation.action(service="keystone",
+                                 rule="identity:create_implied_role")
+    def test_create_role_inference_rule(self):
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.roles_client.create_role_inference_rule(
+            self.role['id'], self.implies_role['id'])['role_inference']
+        self.addCleanup(self.roles_client.delete_role_inference_rule,
+                        self.role['id'], self.implies_role['id'])
+
+    @decorators.idempotent_id('83f997b2-55c4-4894-b1f2-e175b19d1fa5')
+    @rbac_rule_validation.action(service="keystone",
+                                 rule="identity:get_implied_role")
+    def test_show_role_inference_rule(self):
+        self.roles_client.create_role_inference_rule(
+            self.role['id'], self.implies_role['id'])
+        self.addCleanup(self.roles_client.delete_role_inference_rule,
+                        self.role['id'], self.implies_role['id'])
+
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.roles_client.show_role_inference_rule(
+            self.role['id'], self.implies_role['id'])['role_inference']
+
+    @decorators.idempotent_id('f7bb39bf-0b06-468e-a8b0-60a4fb1f258d')
+    @rbac_rule_validation.action(service="keystone",
+                                 rule="identity:list_implied_roles")
+    def test_list_role_inferences_rules(self):
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.roles_client.list_role_inferences_rules(self.role['id'])[
+            'role_inference']
+
+    @decorators.idempotent_id('eca2d502-09bb-45cd-9773-bce2e7bcddd1')
+    @rbac_rule_validation.action(service="keystone",
+                                 rule="identity:check_implied_role")
+    def test_check_role_inference_rule(self):
+        self.roles_client.create_role_inference_rule(
+            self.role['id'], self.implies_role['id'])
+        self.addCleanup(self.roles_client.delete_role_inference_rule,
+                        self.role['id'], self.implies_role['id'])
+
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.roles_client.check_role_inference_rule(
+            self.role['id'], self.implies_role['id'])
+
+    @decorators.idempotent_id('13a5db1e-dd4a-4ca1-81ec-d5452aaaf54b')
+    @rbac_rule_validation.action(service="keystone",
+                                 rule="identity:delete_implied_role")
+    def test_delete_role_inference_rule(self):
+        self.roles_client.create_role_inference_rule(
+            self.role['id'], self.implies_role['id'])
+        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
+                        self.roles_client.delete_role_inference_rule,
+                        self.role['id'], self.implies_role['id'])
+
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.roles_client.delete_role_inference_rule(
+            self.role['id'], self.implies_role['id'])
+
+    @decorators.idempotent_id('05869f2b-4dd4-425a-905e-eec9a6f06374')
+    @rbac_rule_validation.action(service="keystone",
+                                 rule="identity:list_role_inference_rules")
+    def test_list_all_role_inference_rules(self):
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.roles_client.list_all_role_inference_rules()['role_inferences']
