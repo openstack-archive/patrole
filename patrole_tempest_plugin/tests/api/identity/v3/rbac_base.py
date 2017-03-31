@@ -53,138 +53,190 @@ class BaseIdentityV3RbacAdminTest(base.BaseIdentityV3AdminTest):
         cls.services_client = cls.os.identity_services_v3_client
         cls.users_client = cls.os.users_v3_client
 
-    def setup_test_credential(self, user=None):
-        """Creates a user, project, and credential for test."""
+    @classmethod
+    def resource_setup(cls):
+        super(BaseIdentityV3RbacAdminTest, cls).resource_setup()
+        cls.credentials = []
+        cls.domains = []
+        cls.endpoints = []
+        cls.groups = []
+        cls.policies = []
+        cls.projects = []
+        cls.regions = []
+        cls.roles = []
+        cls.services = []
+        cls.users = []
+
+    @classmethod
+    def resource_cleanup(cls):
+        for credential in cls.credentials:
+            test_utils.call_and_ignore_notfound_exc(
+                cls.creds_client.delete_credential, credential['id'])
+
+        # Delete each domain at the end of the test, but each domain must be
+        # disabled first.
+        for domain in cls.domains:
+            test_utils.call_and_ignore_notfound_exc(
+                cls.domains_client.update_domain, domain['id'], enabled=False)
+            test_utils.call_and_ignore_notfound_exc(
+                cls.domains_client.delete_domain, domain['id'])
+
+        for endpoint in cls.endpoints:
+            test_utils.call_and_ignore_notfound_exc(
+                cls.endpoints_client.delete_endpoint, endpoint['id'])
+
+        for group in cls.groups:
+            test_utils.call_and_ignore_notfound_exc(
+                cls.groups_client.delete_group, group['id'])
+
+        for policy in cls.policies:
+            test_utils.call_and_ignore_notfound_exc(
+                cls.policies_client.delete_policy, policy['id'])
+
+        for project in cls.projects:
+            test_utils.call_and_ignore_notfound_exc(
+                cls.projects_client.delete_project, project['id'])
+
+        for region in cls.regions:
+            test_utils.call_and_ignore_notfound_exc(
+                cls.regions_client.delete_region, region['id'])
+
+        for role in cls.roles:
+            test_utils.call_and_ignore_notfound_exc(
+                cls.roles_client.delete_role, role['id'])
+
+        for service in cls.services:
+            test_utils.call_and_ignore_notfound_exc(
+                cls.services_client.delete_service, service['id'])
+
+        for user in cls.users:
+            test_utils.call_and_ignore_notfound_exc(
+                cls.users_client.delete_user, user['id'])
+
+        super(BaseIdentityV3RbacAdminTest, cls).resource_cleanup()
+
+    @classmethod
+    def setup_test_credential(cls, user=None):
+        """Creates a credential for test."""
         keys = [data_utils.rand_uuid_hex(),
                 data_utils.rand_uuid_hex()]
         blob = '{"access": "%s", "secret": "%s"}' % (keys[0], keys[1])
-        credential = self.creds_client.create_credential(
+
+        credential = cls.creds_client.create_credential(
             user_id=user['id'],
             project_id=user['project_id'],
             blob=blob,
             type='ec2')['credential']
-
-        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.creds_client.delete_credential,
-                        credential['id'])
+        cls.credentials.append(credential)
 
         return credential
 
-    def setup_test_domain(self):
+    @classmethod
+    def setup_test_domain(cls):
         """Set up a test domain."""
-        domain = self.domains_client.create_domain(
+        domain = cls.domains_client.create_domain(
             name=data_utils.rand_name('test_domain'),
             description=data_utils.rand_name('desc'))['domain']
-        # Delete the domain at the end of the test, but the domain must be
-        # disabled first (cleanup called in reverse order)
-        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.domains_client.delete_domain,
-                        domain['id'])
-        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.domains_client.update_domain,
-                        domain['id'],
-                        enabled=False)
+        cls.domains.append(domain)
+
         return domain
 
-    def setup_test_endpoint(self, service=None):
+    @classmethod
+    def setup_test_endpoint(cls, service=None):
         """Creates a service and an endpoint for test."""
         interface = 'public'
         url = data_utils.rand_url()
         # Endpoint creation requires a service
         if service is None:
-            service = self.setup_test_service()
-        endpoint = self.endpoints_client.create_endpoint(
+            service = cls.setup_test_service()
+
+        endpoint = cls.endpoints_client.create_endpoint(
             service_id=service['id'],
             interface=interface,
             url=url)['endpoint']
-        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.endpoints_client.delete_endpoint,
-                        endpoint['id'])
+        cls.endpoints.append(endpoint)
+
         return endpoint
 
-    def setup_test_group(self):
+    @classmethod
+    def setup_test_group(cls):
         """Creates a group for test."""
         name = data_utils.rand_name('test_group')
-        group = self.groups_client.create_group(name=name)['group']
-        # Delete the group at the end of the test
-        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.groups_client.delete_group,
-                        group['id'])
+        group = cls.groups_client.create_group(name=name)['group']
+        cls.groups.append(group)
+
         return group
 
-    def setup_test_policy(self):
+    @classmethod
+    def setup_test_policy(cls):
         """Creates a policy for test."""
         blob = data_utils.rand_name('test_blob')
-        policy_type = data_utils.rand_name('PolicyType')
-        policy = self.policies_client.create_policy(
+        policy_type = data_utils.rand_name('policy_type')
+
+        policy = cls.policies_client.create_policy(
             blob=blob,
             policy=policy_type,
             type="application/json")['policy']
+        cls.policies.append(policy)
 
-        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.policies_client.delete_policy,
-                        policy['id'])
         return policy
 
-    def setup_test_project(self):
+    @classmethod
+    def setup_test_project(cls):
         """Set up a test project."""
-        project = self.projects_client.create_project(
+        project = cls.projects_client.create_project(
             name=data_utils.rand_name('test_project'),
             description=data_utils.rand_name('desc'))['project']
-        # Delete the project at the end of the test
-        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.projects_client.delete_project,
-                        project['id'])
+        cls.projects.append(project)
+
         return project
 
-    def setup_test_region(self):
+    @classmethod
+    def setup_test_region(cls):
         """Creates a region for test."""
         description = data_utils.rand_name('test_region_desc')
 
-        region = self.regions_client.create_region(
+        region = cls.regions_client.create_region(
             description=description)['region']
+        cls.regions.append(region)
 
-        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.regions_client.delete_region,
-                        region['id'])
         return region
 
-    def setup_test_role(self):
+    @classmethod
+    def setup_test_role(cls):
         """Set up a test role."""
         name = data_utils.rand_name('test_role')
-        role = self.roles_client.create_role(name=name)['role']
-        # Delete the role at the end of the test
-        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.roles_client.delete_role,
-                        role['id'])
+        role = cls.roles_client.create_role(name=name)['role']
+        cls.roles.append(role)
+
         return role
 
-    def setup_test_service(self):
+    @classmethod
+    def setup_test_service(cls):
         """Setup a test service."""
         name = data_utils.rand_name('service')
         serv_type = data_utils.rand_name('type')
         desc = data_utils.rand_name('description')
-        service = self.services_client.create_service(
+
+        service = cls.services_client.create_service(
             name=name,
             type=serv_type,
             description=desc)['service']
-        # Delete the service at the end of the test
-        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.services_client.delete_service,
-                        service['id'])
+        cls.services.append(service)
+
         return service
 
-    def setup_test_user(self, password=None, **kwargs):
+    @classmethod
+    def setup_test_user(cls, password=None, **kwargs):
         """Set up a test user."""
         username = data_utils.rand_name('test_user')
         email = username + '@testmail.tm'
-        user = self.users_client.create_user(
+
+        user = cls.users_client.create_user(
             name=username,
             email=email,
             password=password,
             **kwargs)['user']
-        # Delete the user at the end of the test
-        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.users_client.delete_user,
-                        user['id'])
+        cls.users.append(user)
+
         return user

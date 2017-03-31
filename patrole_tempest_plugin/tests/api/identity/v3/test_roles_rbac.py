@@ -23,6 +23,15 @@ from patrole_tempest_plugin.tests.api.identity.v3 import rbac_base
 
 class IdentityRolesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
 
+    @classmethod
+    def resource_setup(cls):
+        super(IdentityRolesV3AdminRbacTest, cls).resource_setup()
+        cls.domain = cls.setup_test_domain()
+        cls.project = cls.setup_test_project()
+        cls.group = cls.setup_test_group()
+        cls.role = cls.setup_test_role()
+        cls.user = cls.setup_test_user()
+
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:create_role")
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d904')
@@ -34,11 +43,10 @@ class IdentityRolesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
                                  rule="identity:update_role")
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d905')
     def test_update_role(self):
-        role = self.setup_test_role()
         new_role_name = data_utils.rand_name('test_update_role')
 
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
-        self.roles_client.update_role(role['id'],
+        self.roles_client.update_role(self.role['id'],
                                       name=new_role_name)
 
     @rbac_rule_validation.action(service="keystone",
@@ -54,9 +62,8 @@ class IdentityRolesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
                                  rule="identity:get_role")
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d907')
     def test_show_role(self):
-        role = self.setup_test_role()
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
-        self.roles_client.show_role(role['id'])
+        self.roles_client.show_role(self.role['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:list_roles")
@@ -69,224 +76,194 @@ class IdentityRolesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
                                  rule="identity:create_grant")
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d909')
     def test_create_user_role_on_project(self):
-        project = self.setup_test_project()
-        role = self.setup_test_role()
-        user = self.setup_test_user()
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.roles_client.create_user_role_on_project(
-            project['id'],
-            user['id'],
-            role['id'])
+            self.project['id'],
+            self.user['id'],
+            self.role['id'])
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self.roles_client.delete_role_from_user_on_project,
-                        project['id'],
-                        user['id'],
-                        role['id'])
+                        self.project['id'],
+                        self.user['id'],
+                        self.role['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:check_grant")
     @decorators.idempotent_id('22921b1e-1a33-4026-bff9-f236d6dd149c')
     def test_check_user_role_existence_on_project(self):
-        project = self.setup_test_project()
-        role = self.setup_test_role()
-        user = self.setup_test_user()
         self.roles_client.create_user_role_on_project(
-            project['id'],
-            user['id'],
-            role['id'])
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
-        self.roles_client.check_user_role_existence_on_project(
-            project['id'],
-            user['id'],
-            role['id'])
+            self.project['id'],
+            self.user['id'],
+            self.role['id'])
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self.roles_client.delete_role_from_user_on_project,
-                        project['id'],
-                        user['id'],
-                        role['id'])
+                        self.project['id'],
+                        self.user['id'],
+                        self.role['id'])
+
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.roles_client.check_user_role_existence_on_project(
+            self.project['id'],
+            self.user['id'],
+            self.role['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:revoke_grant")
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d90a')
     def test_delete_role_from_user_on_project(self):
-        project = self.setup_test_project()
-        role = self.setup_test_role()
-        user = self.setup_test_user()
         self.roles_client.create_user_role_on_project(
-            project['id'],
-            user['id'],
-            role['id'])
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
-        self.roles_client.delete_role_from_user_on_project(
-            project['id'],
-            user['id'],
-            role['id'])
+            self.project['id'],
+            self.user['id'],
+            self.role['id'])
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self.roles_client.delete_role_from_user_on_project,
-                        project['id'],
-                        user['id'],
-                        role['id'])
+                        self.project['id'],
+                        self.user['id'],
+                        self.role['id'])
+
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.roles_client.delete_role_from_user_on_project(
+            self.project['id'],
+            self.user['id'],
+            self.role['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:list_grants")
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d90b')
     def test_list_user_roles_on_project(self):
-        project = self.setup_test_project()
-        user = self.setup_test_user()
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.roles_client.list_user_roles_on_project(
-            project['id'],
-            user['id'])
+            self.project['id'],
+            self.user['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:create_grant")
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d90c')
     def test_create_group_role_on_project(self):
-        group = self.setup_test_group()
-        project = self.setup_test_project()
-        role = self.setup_test_role()
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.roles_client.create_group_role_on_project(
-            project['id'],
-            group['id'],
-            role['id'])
+            self.project['id'],
+            self.group['id'],
+            self.role['id'])
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self.roles_client.delete_role_from_group_on_project,
-                        project['id'],
-                        group['id'],
-                        role['id'])
+                        self.project['id'],
+                        self.group['id'],
+                        self.role['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:revoke_grant")
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d90d')
     def test_delete_role_from_group_on_project(self):
-        group = self.setup_test_group()
-        project = self.setup_test_project()
-        role = self.setup_test_role()
         self.roles_client.create_group_role_on_project(
-            project['id'],
-            group['id'],
-            role['id'])
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
-        self.roles_client.delete_role_from_group_on_project(
-            project['id'],
-            group['id'],
-            role['id'])
+            self.project['id'],
+            self.group['id'],
+            self.role['id'])
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self.roles_client.delete_role_from_group_on_project,
-                        project['id'],
-                        group['id'],
-                        role['id'])
+                        self.project['id'],
+                        self.group['id'],
+                        self.role['id'])
+
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.roles_client.delete_role_from_group_on_project(
+            self.project['id'],
+            self.group['id'],
+            self.role['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:list_grants")
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d90e')
     def test_list_group_roles_on_project(self):
-        group = self.setup_test_group()
-        project = self.setup_test_project()
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.roles_client.list_group_roles_on_project(
-            project['id'],
-            group['id'])
+            self.project['id'],
+            self.group['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:create_grant")
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d90f')
     def test_create_user_role_on_domain(self):
-        domain = self.setup_test_domain()
-        role = self.setup_test_role()
-        user = self.setup_test_user()
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.roles_client.create_user_role_on_domain(
-            domain['id'],
-            user['id'],
-            role['id'])
+            self.domain['id'],
+            self.user['id'],
+            self.role['id'])
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self.roles_client.delete_role_from_user_on_domain,
-                        domain['id'],
-                        user['id'],
-                        role['id'])
+                        self.domain['id'],
+                        self.user['id'],
+                        self.role['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:revoke_grant")
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d910')
     def test_delete_role_from_user_on_domain(self):
-        domain = self.setup_test_domain()
-        role = self.setup_test_role()
-        user = self.setup_test_user()
         self.roles_client.create_user_role_on_domain(
-            domain['id'],
-            user['id'],
-            role['id'])
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
-        self.roles_client.delete_role_from_user_on_domain(
-            domain['id'],
-            user['id'],
-            role['id'])
+            self.domain['id'],
+            self.user['id'],
+            self.role['id'])
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self.roles_client.delete_role_from_user_on_domain,
-                        domain['id'],
-                        user['id'],
-                        role['id'])
+                        self.domain['id'],
+                        self.user['id'],
+                        self.role['id'])
+
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.roles_client.delete_role_from_user_on_domain(
+            self.domain['id'],
+            self.user['id'],
+            self.role['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:list_grants")
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d911')
     def test_list_user_roles_on_domain(self):
-        domain = self.setup_test_domain()
-        user = self.setup_test_user()
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.roles_client.list_user_roles_on_domain(
-            domain['id'],
-            user['id'])
+            self.domain['id'],
+            self.user['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:create_grant")
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d912')
     def test_create_group_role_on_domain(self):
-        domain = self.setup_test_domain()
-        group = self.setup_test_group()
-        role = self.setup_test_role()
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.roles_client.create_group_role_on_domain(
-            domain['id'],
-            group['id'],
-            role['id'])
+            self.domain['id'],
+            self.group['id'],
+            self.role['id'])
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self.roles_client.delete_role_from_group_on_domain,
-                        domain['id'],
-                        group['id'],
-                        role['id'])
+                        self.domain['id'],
+                        self.group['id'],
+                        self.role['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:revoke_grant")
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d913')
     def test_delete_role_from_group_on_domain(self):
-        domain = self.setup_test_domain()
-        group = self.setup_test_group()
-        role = self.setup_test_role()
         self.roles_client.create_group_role_on_domain(
-            domain['id'],
-            group['id'],
-            role['id'])
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
-        self.roles_client.delete_role_from_group_on_domain(
-            domain['id'],
-            group['id'],
-            role['id'])
+            self.domain['id'],
+            self.group['id'],
+            self.role['id'])
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self.roles_client.delete_role_from_group_on_domain,
-                        domain['id'],
-                        group['id'],
-                        role['id'])
+                        self.domain['id'],
+                        self.group['id'],
+                        self.role['id'])
+
+        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.roles_client.delete_role_from_group_on_domain(
+            self.domain['id'],
+            self.group['id'],
+            self.role['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:list_grants")
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d914')
     def test_list_group_roles_on_domain(self):
-        domain = self.setup_test_domain()
-        group = self.setup_test_group()
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.roles_client.list_group_roles_on_domain(
-            domain['id'],
-            group['id'])
+            self.domain['id'],
+            self.group['id'])
