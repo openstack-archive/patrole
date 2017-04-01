@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from tempest.lib import decorators
 from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
@@ -39,6 +40,7 @@ class DeferredDeleteRbacTest(rbac_base.BaseV2ComputeRbacTest):
         super(DeferredDeleteRbacTest, cls).resource_setup()
         cls.server = cls.create_test_server(wait_until='ACTIVE')
 
+    @decorators.idempotent_id('189bfed4-1e6d-475c-bb8c-d57e60895391')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-deferred-delete")
