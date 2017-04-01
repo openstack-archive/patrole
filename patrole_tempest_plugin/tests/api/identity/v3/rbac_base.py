@@ -49,6 +49,7 @@ class BaseIdentityV3RbacAdminTest(base.BaseIdentityV3AdminTest):
         cls.projects_client = cls.os.projects_client
         cls.policies_client = cls.os.policies_client
         cls.regions_client = cls.os.regions_client
+        cls.role_assignments_client = cls.os.role_assignments_client
         cls.roles_client = cls.os.roles_v3_client
         cls.services_client = cls.os.identity_services_v3_client
         cls.users_client = cls.os.users_v3_client
