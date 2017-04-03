@@ -26,12 +26,9 @@ sudo chown -R jenkins:stack $BASE/data/tempest
 
 TEMPEST_CONFIG=$BASE/new/tempest/etc/tempest.conf
 TEMPEST_COMMAND="sudo -H -u tempest tox"
-# TODO(felipemonteiro): This regex does a negative lookahead to exclude slow
-# tests that contain the @test.attr(type='slow') decorator above them. Slower
-# tests will execute those tests in a separate gate, which will require
-# future modification of this script.
-DEVSTACK_FAST_GATE_TEMPEST_REGEX="(?!.*\[.*\bslow\b.*\])(^patrole_tempest_plugin\.tests\.api)"
-DEVSTACK_SLOW_GATE_TEMPEST_REGEX="(?=.*\[.*\bslow\b.*\])(^patrole_tempest_plugin\.tests\.api)"
+
+DEVSTACK_GATE_TEMPEST_REGEX="(?!.*\[.*\bslow\b.*\])(^patrole_tempest_plugin\.tests\.api)"
+DEVSTACK_MULTINODE_GATE_TEMPEST_REGEX="(?=.*\[.*\bslow\b.*\])(^patrole_tempest_plugin\.tests\.api)"
 
 # Import devstack function 'iniset'.
 source $BASE/new/devstack/functions
@@ -49,8 +46,8 @@ if [[ "$RBAC_ROLE" == "member" ]]; then
     RBAC_ROLE="Member"
 fi
 
-# Second argument is expected to contain value to indicate whether it is
-# a "fast' or "slow test" gate
+# Second argument is expected to contain value indicating whether the
+# environment is "multinode" or not (empty string).
 TYPE=$2
 
 # Set enable_rbac=True under [rbac] section in tempest.conf
@@ -73,11 +70,10 @@ set -o errexit
 # cd into Tempest directory before executing tox.
 cd $BASE/new/tempest
 
-# Select Fast Gate if Type is set to 'fast', else use 'slow' gate
-if [[ "$TYPE" == "fast" ]]; then
-    $TEMPEST_COMMAND -eall-plugin -- $DEVSTACK_FAST_GATE_TEMPEST_REGEX --concurrency=$TEMPEST_CONCURRENCY
+if [[ "$TYPE" == "multinode" ]]; then
+    $TEMPEST_COMMAND -eall-plugin -- $DEVSTACK_MULTINODE_GATE_TEMPEST_REGEX --concurrency=$TEMPEST_CONCURRENCY
 else
-    $TEMPEST_COMMAND -eall-plugin -- $DEVSTACK_SLOW_GATE_TEMPEST_REGEX --concurrency=$TEMPEST_CONCURRENCY
+    $TEMPEST_COMMAND -eall-plugin -- $DEVSTACK_GATE_TEMPEST_REGEX --concurrency=$TEMPEST_CONCURRENCY
 fi
 
 sudo -H -u tempest .tox/all-plugin/bin/tempest list-plugins
