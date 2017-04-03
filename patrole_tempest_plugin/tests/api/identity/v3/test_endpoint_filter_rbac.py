@@ -1,0 +1,91 @@
+# Copyright 2017 AT&T Corporation.
+# All Rights Reserved.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License"); you may
+#    not use this file except in compliance with the License. You may obtain
+#    a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#    License for the specific language governing permissions and limitations
+#    under the License.
+
+from tempest.lib.common.utils import test_utils
+from tempest.lib import decorators
+
+from patrole_tempest_plugin import rbac_rule_validation
+from patrole_tempest_plugin.tests.api.identity.v3 import rbac_base
+
+
+class IdentityEndpointsFilterV3RbacTest(
+        rbac_base.BaseIdentityV3RbacTest):
+
+    @classmethod
+    def setup_clients(cls):
+        super(IdentityEndpointsFilterV3RbacTest, cls).setup_clients()
+        cls.ep_api_client = cls.os.endpoint_filter_client
+
+    @classmethod
+    def resource_setup(cls):
+        super(IdentityEndpointsFilterV3RbacTest, cls).resource_setup()
+        cls.project = cls.setup_test_project()
+        cls.service = cls.setup_test_service()
+        cls.endpoint = cls.setup_test_endpoint(service=cls.service)
+
+    def _add_endpoint_to_project(self):
+        # Adding and cleaning up endpoints to projects
+        self.ep_api_client.add_endpoint_to_project(
+            self.project['id'], self.endpoint['id'])
+        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
+                        self.ep_api_client.delete_endpoint_from_project,
+                        self.project['id'], self.endpoint['id'])
+
+    @rbac_rule_validation.action(
+        service="keystone",
+        rule="identity:add_endpoint_to_project")
+    @decorators.idempotent_id('9199ec13-816d-4efe-b8b1-e1cd026b9747')
+    def test_add_endpoint_to_project(self):
+        # Adding endpoints to projects
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self._add_endpoint_to_project()
+
+    @rbac_rule_validation.action(
+        service="keystone",
+        rule="identity:list_projects_for_endpoint")
+    @decorators.idempotent_id('f53dca42-ec8a-48e9-924b-0bbe6c99727f')
+    def test_list_projects_for_endpoint(self):
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.ep_api_client.list_projects_for_endpoint(
+            self.endpoint['id'])
+
+    @rbac_rule_validation.action(
+        service="keystone",
+        rule="identity:check_endpoint_in_project")
+    @decorators.idempotent_id('0c1425eb-833c-4aa1-a21d-52ffa41fdc6a')
+    def test_check_endpoint_in_project(self):
+        self._add_endpoint_to_project()
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.ep_api_client.check_endpoint_in_project(
+            self.project['id'], self.endpoint['id'])
+
+    @rbac_rule_validation.action(
+        service="keystone",
+        rule="identity:list_endpoints_for_project")
+    @decorators.idempotent_id('5d86c659-c6ad-41e0-854e-3823e95c7cc2')
+    def test_list_endpoints_in_project(self):
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.ep_api_client.list_endpoints_in_project(
+            self.project['id'])
+
+    @rbac_rule_validation.action(
+        service="keystone",
+        rule="identity:remove_endpoint_from_project")
+    @decorators.idempotent_id('b4e21c10-4f47-427b-9b8a-f5b5601adfda')
+    def test_remove_endpoint_from_project(self):
+        self._add_endpoint_to_project()
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.ep_api_client.delete_endpoint_from_project(
+            self.project['id'], self.endpoint['id'])
