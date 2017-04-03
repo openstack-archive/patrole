@@ -30,20 +30,11 @@ the tempest.conf file.
 
 #. [auth] section updates ::
 
-       # Set tempest role to admin so all APIs are accessible
-       tempest_roles = admin
-
-       # Allows test cases to create/destroy tenants and users. This
-       # option enables isolated test cases and better parallel
-       # execution, but also requires that OpenStack Identity API
-       # admin credentials are known. (boolean value)
-       allow_tenant_isolation = True
-
        # Allows test cases to create/destroy projects and users. This option
        # requires that OpenStack Identity API admin credentials are known. If
        # false, isolated test cases and parallel execution, can still be
        # achieved configuring a list of test accounts (boolean value)
-       use_dynamic_credentials = False
+       use_dynamic_credentials = True
 
 #. [rbac] section updates ::
 
