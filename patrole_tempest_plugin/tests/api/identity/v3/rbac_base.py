@@ -43,6 +43,7 @@ class BaseIdentityV3RbacAdminTest(base.BaseIdentityV3AdminTest):
         cls.rbac_utils.switch_role(cls, switchToRbacRole=False)
 
         cls.creds_client = cls.os.credentials_client
+        cls.consumers_client = cls.os.oauth_consumers_client
         cls.domains_client = cls.os.domains_client
         cls.endpoints_client = cls.os.endpoints_v3_client
         cls.groups_client = cls.os.groups_client
