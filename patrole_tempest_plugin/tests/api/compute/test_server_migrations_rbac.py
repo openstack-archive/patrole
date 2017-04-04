@@ -26,11 +26,22 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base as base
 CONF = config.CONF
 
 
-class MigrateServerRbacTest(base.BaseV2ComputeRbacTest):
+class MigrateServerV225RbacTest(base.BaseV2ComputeRbacTest):
+    min_microversion = '2.25'
+    max_microversion = 'latest'
+    block_migration = 'auto'
+
+    @classmethod
+    def skip_checks(cls):
+        super(MigrateServerV225RbacTest, cls).skip_checks()
+
+        if CONF.compute.min_compute_nodes < 2:
+            raise cls.skipException(
+                "Less than 2 compute nodes, skipping migration tests.")
 
     @classmethod
     def setup_clients(cls):
-        super(MigrateServerRbacTest, cls).setup_clients()
+        super(MigrateServerV225RbacTest, cls).setup_clients()
         cls.client = cls.servers_client
         cls.admin_servers_client = cls.os_adm.servers_client
         cls.hosts_client = cls.os.hosts_client
@@ -55,18 +66,6 @@ class MigrateServerRbacTest(base.BaseV2ComputeRbacTest):
             if host_record['service'] == 'compute'
         ]
 
-    def _migrate_server_to(self, server_id, dest_host, volume_backed=False):
-        kwargs = dict()
-        block_migration = getattr(self, 'block_migration', None)
-        if self.block_migration is None:
-            kwargs['disk_over_commit'] = False
-            block_migration = (CONF.compute_feature_enabled.
-                               block_migration_for_live_migration and
-                               not volume_backed)
-        self.client.live_migrate_server(
-            server_id, host=dest_host, block_migration=block_migration,
-            **kwargs)
-
     @test.attr(type='slow')
     @testtools.skipUnless(CONF.compute_feature_enabled.cold_migration,
                           'Cold migration not available.')
@@ -75,10 +74,6 @@ class MigrateServerRbacTest(base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-migrate-server:migrate")
     @decorators.idempotent_id('c6f1607c-9fed-4c00-807e-9ba675b98b1b')
     def test_cold_migration(self):
-        if CONF.compute.min_compute_nodes < 2:
-            msg = "Less than 2 compute nodes, skipping multinode tests."
-            raise self.skipException(msg)
-
         server = self.create_test_server(wait_until="ACTIVE")
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
         self.client.migrate_server(server['id'])
@@ -93,15 +88,13 @@ class MigrateServerRbacTest(base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-migrate-server:migrate_live")
     @decorators.idempotent_id('33520834-72c8-4edb-a189-a2e0fc9eb0d3')
     def test_migration_live(self):
-        if CONF.compute.min_compute_nodes < 2:
-            msg = "Less than 2 compute nodes, skipping multinode tests."
-            raise self.skipException(msg)
-
         server_id = self.create_test_server(wait_until="ACTIVE",
                                             volume_backed=False)['id']
         actual_host = self._get_host_for_server(server_id)
         target_host = self._get_host_other_than(actual_host)
+
         self.rbac_utils.switch_role(self, switchToRbacRole=True)
-        self._migrate_server_to(server_id, target_host, volume_backed=False)
+        self.client.live_migrate_server(
+            server_id, host=target_host, block_migration=self.block_migration)
         waiters.wait_for_server_status(self.admin_servers_client,
                                        server_id, "ACTIVE")
