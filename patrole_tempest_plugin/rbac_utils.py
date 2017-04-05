@@ -45,7 +45,8 @@ class RbacUtils(object):
     # References the last value of `switch_to_rbac_role` that was passed to
     # `switch_role`. Used for ensuring that `switch_role` is correctly used
     # in a test file, so that false positives are prevented. The key used
-    # to index into the dictionary is the class name, which is unique.
+    # to index into the dictionary is the module path plus class name, which is
+    # unique.
     switch_role_history = {}
     admin_role_id = None
     rbac_role_id = None
@@ -127,8 +128,12 @@ class RbacUtils(object):
             raise rbac_exceptions.RbacResourceSetupFailed(
                 'switchToRbacRole must be a boolean value.')
 
-        key = test_obj.__name__ if isinstance(test_obj, type) else \
+        # The unique key is the combination of module path plus class name.
+        class_name = test_obj.__name__ if isinstance(test_obj, type) else \
             test_obj.__class__.__name__
+        module_name = test_obj.__module__
+        key = '%s.%s' % (module_name, class_name)
+
         self.switch_role_history.setdefault(key, None)
 
         if self.switch_role_history[key] == switchToRbacRole:
