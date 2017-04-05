@@ -40,10 +40,6 @@ class ImagesMemberRbacTest(base.BaseV2ImageRbacTest):
         cls.image_client = cls.os.image_client_v2
         cls.image_member_client = cls.os.image_member_client_v2
 
-    def setUp(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=False)
-        super(ImagesMemberRbacTest, self).setUp()
-
     @rbac_rule_validation.action(service="glance",
                                  rule="add_member")
     @decorators.idempotent_id('b1b85ace-6484-11e6-881e-080027d0d606')
