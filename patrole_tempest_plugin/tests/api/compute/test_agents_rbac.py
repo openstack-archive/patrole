@@ -13,15 +13,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from tempest import config
-from tempest import test
-
 from tempest.lib import decorators
+from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
-
-CONF = config.CONF
 
 
 class AgentsRbacTest(rbac_base.BaseV2ComputeRbacTest):
@@ -31,7 +27,7 @@ class AgentsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         super(AgentsRbacTest, cls).skip_checks()
         if not test.is_extension_enabled('os-agents', 'compute'):
             raise cls.skipException(
-                '%s skipped as no compute extensions enabled' % cls.__name__)
+                '%s skipped as os-agents not enabled' % cls.__name__)
 
     @rbac_rule_validation.action(
         service="nova", rule="os_compute_api:os-agents")
