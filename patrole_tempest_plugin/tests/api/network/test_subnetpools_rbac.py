@@ -62,7 +62,7 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron create_subnetpool policy
         """
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._create_subnetpool()
 
     @rbac_rule_validation.action(service="neutron",
@@ -73,7 +73,7 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron create_subnetpool:shared policy
         """
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._create_subnetpool(shared=True)
 
     @rbac_rule_validation.action(service="neutron",
@@ -86,7 +86,7 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron get_subnetpool policy
         """
         subnetpool = self._create_subnetpool()
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.subnetpools_client.show_subnetpool(subnetpool['id'])
 
     @rbac_rule_validation.action(service="neutron",
@@ -98,7 +98,7 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron update_subnetpool policy
         """
         subnetpool = self._create_subnetpool()
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.subnetpools_client.update_subnetpool(subnetpool['id'],
                                                   min_prefixlen=24)
 
@@ -112,5 +112,5 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron delete_subnetpool policy
         """
         subnetpool = self._create_subnetpool()
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.subnetpools_client.delete_subnetpool(subnetpool['id'])

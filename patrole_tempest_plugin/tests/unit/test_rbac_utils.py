@@ -174,7 +174,7 @@ class RBACUtilsTest(base.TestCase):
                               self.rbac_utils.switch_role, self.mock_test_obj,
                               False)
         self.assertIn(
-            '`switchToRbacRole` must not be called with the same bool value '
+            '`toggle_rbac_role` must not be called with the same bool value '
             'twice. Make sure that you included a rbac_utils.switch_role '
             'method call inside the test.', str(e))
 
@@ -187,7 +187,7 @@ class RBACUtilsTest(base.TestCase):
                               self.rbac_utils.switch_role, self.mock_test_obj,
                               True)
         self.assertIn(
-            '`switchToRbacRole` must not be called with the same bool value '
+            '`toggle_rbac_role` must not be called with the same bool value '
             'twice. Make sure that you included a rbac_utils.switch_role '
             'method call inside the test.', str(e))
 

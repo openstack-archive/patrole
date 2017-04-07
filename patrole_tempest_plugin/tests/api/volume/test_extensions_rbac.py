@@ -28,7 +28,7 @@ class ExtensionsRbacTest(rbac_base.BaseVolumeRbacTest):
                                  rule="volume:list_extensions")
     @decorators.idempotent_id('7f2dcc41-e850-493f-a400-82db4e2b50c0')
     def test_list_extensions(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.volumes_extension_client.list_extensions()
 
 

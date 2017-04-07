@@ -39,7 +39,7 @@ class VolumesRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_volume_reset_status(self):
         volume = self.create_volume()
         # Test volume reset status : available->error->available
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.reset_volume_status(volume['id'], status='error')
         self.client.reset_volume_status(volume['id'], status='available')
 
@@ -51,7 +51,7 @@ class VolumesRbacTest(rbac_base.BaseVolumeRbacTest):
         volume = self.create_volume()
         self.client.reset_volume_status(volume['id'], status='error')
         # Test force delete when status of volume is error
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.force_delete_volume(volume['id'])
         self.client.wait_for_resource_deletion(volume['id'])
 

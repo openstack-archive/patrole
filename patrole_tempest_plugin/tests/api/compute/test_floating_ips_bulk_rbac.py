@@ -48,5 +48,5 @@ class FloatingIpsBulkRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-floating-ips-bulk")
     def test_list_floating_ips_bulk(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.list_floating_ips_bulk()['floating_ip_info']

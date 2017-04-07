@@ -25,5 +25,5 @@ class VolumeHostsAdminRbacTest(rbac_base.BaseVolumeAdminRbacTest):
                                  rule="volume_extension:hosts")
     @decorators.idempotent_id('64e837f5-5452-4e26-b934-c721ea7a8644')
     def test_list_hosts(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.volume_hosts_client.list_hosts()

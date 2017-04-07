@@ -46,5 +46,5 @@ class RescueRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-rescue")
     @decorators.idempotent_id('fbbb2afc-ed0e-4552-887d-ac00fb5d436e')
     def test_rescue_server(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.rescue_server(self.server['id'])

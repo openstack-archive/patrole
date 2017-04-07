@@ -40,7 +40,7 @@ class NamespacesPropertyRbacTest(rbac_base.BaseV2ImageRbacTest):
         RBAC test for the glance add_metadef_property policy
         """
         namespace = self.create_namespace()
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         property_name = data_utils.rand_name('test-ns-property')
         self.namespace_properties_client.create_namespace_property(
             namespace=namespace['namespace'], type="string",
@@ -55,7 +55,7 @@ class NamespacesPropertyRbacTest(rbac_base.BaseV2ImageRbacTest):
         RBAC test for the glance get_metadef_properties policy
         """
         namespace = self.create_namespace()
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.namespace_properties_client.list_namespace_properties(
             namespace=namespace['namespace'])
 
@@ -73,7 +73,7 @@ class NamespacesPropertyRbacTest(rbac_base.BaseV2ImageRbacTest):
             namespace=namespace['namespace'], type="string",
             title=property_name, name=self.resource_name)
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.namespace_properties_client.show_namespace_properties(
             namespace['namespace'], self.resource_name)
 
@@ -91,7 +91,7 @@ class NamespacesPropertyRbacTest(rbac_base.BaseV2ImageRbacTest):
             namespace=namespace['namespace'], type="string",
             title=property_name, name=self.resource_name)
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.namespace_properties_client.update_namespace_properties(
             namespace['namespace'], self.resource_name, type="string",
             title=property_name, name=self.resource_name)

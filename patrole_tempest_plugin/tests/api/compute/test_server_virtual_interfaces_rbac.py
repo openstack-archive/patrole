@@ -38,7 +38,7 @@ class ServerVirtualInterfacesRbacTest(base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('fc719ae3-0f73-4689-8378-1b841f0f2818')
     def test_list_virtual_interfaces(self):
         server = self.create_test_server(wait_until='ACTIVE')
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         try:
             self.client.list_virtual_interfaces(server['id'])
         except exceptions.ServerFault as e:

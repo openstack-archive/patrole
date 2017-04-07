@@ -28,7 +28,7 @@ class IdentityEndpointsV3AdminRbacTest(
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd127')
     def test_create_endpoint(self):
         service = self.setup_test_service()
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.setup_test_endpoint(service=service)
 
     @rbac_rule_validation.action(service="keystone",
@@ -38,7 +38,7 @@ class IdentityEndpointsV3AdminRbacTest(
         endpoint = self.setup_test_endpoint()
         new_url = data_utils.rand_url()
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.endpoints_client.update_endpoint(
             endpoint["id"],
             url=new_url)
@@ -49,7 +49,7 @@ class IdentityEndpointsV3AdminRbacTest(
     def test_delete_endpoint(self):
         endpoint = self.setup_test_endpoint()
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.endpoints_client.delete_endpoint(endpoint['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -58,12 +58,12 @@ class IdentityEndpointsV3AdminRbacTest(
     def test_show_endpoint(self):
         endpoint = self.setup_test_endpoint()
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.endpoints_client.show_endpoint(endpoint['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:list_endpoints")
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd131')
     def test_list_endpoints(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.endpoints_client.list_endpoints()

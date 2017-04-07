@@ -75,7 +75,7 @@ class MeteringLabelRulesRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron create_metering_label_rule policy
         """
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._create_metering_label_rule(self.label)
 
     @rbac_rule_validation.action(service="neutron",
@@ -88,7 +88,7 @@ class MeteringLabelRulesRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron get_metering_label_rule policy
         """
         label_rule = self._create_metering_label_rule(self.label)
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.metering_label_rules_client.show_metering_label_rule(
             label_rule['id'])
 
@@ -102,6 +102,6 @@ class MeteringLabelRulesRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron delete_metering_label_rule policy
         """
         label_rule = self._create_metering_label_rule(self.label)
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.metering_label_rules_client.delete_metering_label_rule(
             label_rule['id'])

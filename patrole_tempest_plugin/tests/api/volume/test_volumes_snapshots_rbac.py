@@ -58,7 +58,7 @@ class VolumesSnapshotRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('ac7b2ee5-fbc0-4360-afc2-de8fa4881ede')
     def test_snapshot_create(self):
         # Create a temp snapshot
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.create_snapshot(self.volume['id'])
 
     @rbac_rule_validation.action(service="cinder",
@@ -66,7 +66,7 @@ class VolumesSnapshotRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('93a11b40-1ba8-44d6-a196-f8d97220f796')
     def test_snapshot_get(self):
         # Get the snapshot
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.show_snapshot(self.snapshot
                                   ['id'])['snapshot']
 
@@ -77,7 +77,7 @@ class VolumesSnapshotRbacTest(rbac_base.BaseVolumeRbacTest):
         new_desc = 'This is the new description of snapshot.'
         params = {'description': new_desc}
         # Updates snapshot with new values
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.update_snapshot(
             self.snapshot['id'], **params)['snapshot']
 
@@ -88,7 +88,7 @@ class VolumesSnapshotRbacTest(rbac_base.BaseVolumeRbacTest):
         """list snapshots with params."""
         # Verify list snapshots by display_name filter
         params = {'name': self.snapshot['name']}
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._list_by_param_values(params)
 
     @rbac_rule_validation.action(service="cinder",
@@ -97,7 +97,7 @@ class VolumesSnapshotRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_snapshot_delete(self):
         # Create a temp snapshot
         temp_snapshot = self.create_snapshot(self.volume['id'])
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # Delete the snapshot
         self.client.delete_snapshot(temp_snapshot['id'])
 

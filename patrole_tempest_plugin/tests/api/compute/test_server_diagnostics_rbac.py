@@ -46,5 +46,5 @@ class ServerDiagnosticsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-server-diagnostics")
     @decorators.idempotent_id('5dabfcc4-bedb-417b-8247-b3ee7c5c0f3e')
     def test_show_server_diagnostics(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.show_server_diagnostics(self.server['id'])

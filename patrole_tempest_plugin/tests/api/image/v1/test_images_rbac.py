@@ -36,7 +36,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV1ImageRbacTest):
         """
         properties = {'prop1': 'val1'}
         image_name = data_utils.rand_name('image')
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.create_image(name=image_name,
                           container_format='bare',
                           disk_format='raw',
@@ -58,7 +58,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV1ImageRbacTest):
                                  is_public=False,
                                  properties=properties)
         image_id = body['id']
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.delete_image(image_id)
 
     @rbac_rule_validation.action(service="glance", rule="download_image")
@@ -80,7 +80,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV1ImageRbacTest):
         image_file = moves.cStringIO(data_utils.random_bytes())
         self.client.update_image(image_id, data=image_file)
         # Toggle role and get created image
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.show_image(image_id)
 
     @rbac_rule_validation.action(service="glance", rule="get_image")
@@ -102,7 +102,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV1ImageRbacTest):
         image_file = moves.cStringIO(data_utils.random_bytes())
         self.client.update_image(image_id, data=image_file)
         # Toggle role and get created image
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.check_image(image_id)
 
     @rbac_rule_validation.action(service="glance", rule="get_images")
@@ -112,7 +112,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV1ImageRbacTest):
 
         RBAC test for the glance get_images policy.
         """
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.list_images()
 
     @rbac_rule_validation.action(service="glance", rule="modify_image")
@@ -131,7 +131,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV1ImageRbacTest):
                                  properties=properties)
         image_id = body.get('id')
         properties = {'prop1': 'val2'}
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.update_image(image_id, headers=properties)
 
     @rbac_rule_validation.action(service="glance", rule="publicize_image")
@@ -143,7 +143,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV1ImageRbacTest):
         """
         image_name = data_utils.rand_name('image')
         properties = {'prop1': 'val1'}
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.create_image(name=image_name,
                           container_format='bare',
                           disk_format='raw',

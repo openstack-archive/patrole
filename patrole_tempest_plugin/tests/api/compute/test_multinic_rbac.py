@@ -64,6 +64,6 @@ class MultinicV210RbacTest(rbac_base.BaseV2ComputeRbacTest):
             network_id = self.interfaces_client.create_interface(
                 self.server['id'])['interfaceAttachment']['net_id']
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.add_fixed_ip(self.server['id'],
                                  networkId=network_id)

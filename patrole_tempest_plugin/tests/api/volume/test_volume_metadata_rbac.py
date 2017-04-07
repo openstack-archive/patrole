@@ -45,7 +45,7 @@ class VolumeMetadataRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('232bbb8b-4c29-44dc-9077-b1398c20b738')
     def test_create_volume_metadata(self):
         volume = self.create_volume()
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._add_metadata(volume)
 
     @rbac_rule_validation.action(service="cinder",
@@ -54,7 +54,7 @@ class VolumeMetadataRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_get_volume_metadata(self):
         volume = self.create_volume()
         self._add_metadata(volume)
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.volumes_client.show_volume_metadata(volume['id'])['metadata']
 
     @rbac_rule_validation.action(service="cinder",
@@ -63,7 +63,7 @@ class VolumeMetadataRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_delete_volume_metadata(self):
         volume = self.create_volume()
         self._add_metadata(volume)
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.volumes_client.delete_volume_metadata_item(volume['id'],
                                                         "key1")
 
@@ -75,7 +75,7 @@ class VolumeMetadataRbacTest(rbac_base.BaseVolumeRbacTest):
         self._add_metadata(volume)
         # Metadata to update
         update_item = {"key3": "value3_update"}
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.volumes_client.update_volume_metadata_item(
             volume['id'], "key3", update_item)['meta']
 

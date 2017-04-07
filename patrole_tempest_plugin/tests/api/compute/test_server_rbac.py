@@ -110,7 +110,7 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
         rule="os_compute_api:servers:create")
     @decorators.idempotent_id('4f34c73a-6ddc-4677-976f-71320fa855bd')
     def test_create_server(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.create_test_server(wait_until='ACTIVE')
 
     @rbac_rule_validation.action(
@@ -128,7 +128,7 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
         # The first key of the dictionary specifies the host name.
         host = hosts[0].keys()[0]
         availability_zone = 'nova:' + host
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.create_test_server(wait_until='ACTIVE',
                                 availability_zone=availability_zone)
 
@@ -137,7 +137,7 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
         rule="os_compute_api:servers:create:attach_volume")
     @decorators.idempotent_id('eeddac5e-15aa-454f-838d-db608aae4dd8')
     def test_create_server_attach_volume(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._create_test_server_with_volume(self.volume_id)
 
     @rbac_rule_validation.action(
@@ -147,7 +147,7 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
     def test_create_server_attach_network(self):
         network = self._create_network_resources()
         network_id = {'uuid': network['id']}
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         server = self.create_test_server(wait_until='ACTIVE',
                                          networks=[network_id])
 
@@ -164,7 +164,7 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('062e3440-e873-4b41-9317-bf6d8be50c12')
     def test_delete_server(self):
         server = self.create_test_server(wait_until='ACTIVE')
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.delete_server(server['id'])
         waiters.wait_for_server_termination(self.client, server['id'])
 
@@ -175,7 +175,7 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
     def test_update_server(self):
         server = self.create_test_server(wait_until='ACTIVE')
         new_name = data_utils.rand_name('server')
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         try:
             self.client.update_server(server['id'], name=new_name)
         except exceptions.ServerFault as e:

@@ -123,7 +123,7 @@ def action(service, rule, admin_only=False, expected_error_code=403):
                         (CONF.rbac.rbac_test_role, rule))
             finally:
                 caller_ref.rbac_utils.switch_role(caller_ref,
-                                                  switchToRbacRole=False)
+                                                  toggle_rbac_role=False)
         return wrapper
     return decorator
 

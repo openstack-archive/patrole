@@ -33,7 +33,7 @@ class AgentsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova", rule="os_compute_api:os-agents")
     @decorators.idempotent_id('d1bc6d97-07f5-4f45-ac29-1c619a6a7e27')
     def test_list_agents_rbac(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.agents_client.list_agents()
 
     @rbac_rule_validation.action(
@@ -44,7 +44,7 @@ class AgentsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         params = {'hypervisor': 'kvm', 'os': 'win', 'architecture': 'x86',
                   'version': '7.0', 'url': 'xxx://xxxx/xxx/xxx',
                   'md5hash': 'add6bb58e139be103324d04d82d8f545'}
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         body = self.agents_client.create_agent(**params)['agent']
         self.addCleanup(self.agents_client.delete_agent,
                         body['agent_id'])

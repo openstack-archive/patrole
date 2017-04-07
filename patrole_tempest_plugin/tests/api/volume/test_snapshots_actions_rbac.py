@@ -54,7 +54,7 @@ class SnapshotsActionsRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_reset_snapshot_status(self):
         # Reset snapshot status to error
         status = 'error'
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.\
             reset_snapshot_status(self.snapshot['id'], status)
 
@@ -68,7 +68,7 @@ class SnapshotsActionsRbacTest(rbac_base.BaseVolumeRbacTest):
         # and force delete temp snapshot
         temp_snapshot = self.create_snapshot(self.volume['id'])
         # Force delete the snapshot
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.force_delete_snapshot(temp_snapshot['id'])
         self.client.wait_for_resource_deletion(temp_snapshot['id'])
 

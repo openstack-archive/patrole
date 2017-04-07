@@ -36,7 +36,7 @@ class VolumesExtendRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_volume_extend(self):
         # Extend volume test
         extend_size = int(self.volume['size']) + 1
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.volumes_client.extend_volume(self.volume['id'],
                                           new_size=extend_size)
         waiters.wait_for_volume_resource_status(

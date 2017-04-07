@@ -42,7 +42,7 @@ class Singleton(type):
 @six.add_metaclass(Singleton)
 class RbacUtils(object):
 
-    # References the last value of `switch_to_rbac_role` that was passed to
+    # References the last value of `toggle_rbac_role` that was passed to
     # `switch_role`. Used for ensuring that `switch_role` is correctly used
     # in a test file, so that false positives are prevented. The key used
     # to index into the dictionary is the module path plus class name, which is
@@ -51,7 +51,7 @@ class RbacUtils(object):
     admin_role_id = None
     rbac_role_id = None
 
-    def switch_role(self, test_obj, switchToRbacRole=False):
+    def switch_role(self, test_obj, toggle_rbac_role=False):
         self.user_id = test_obj.auth_provider.credentials.user_id
         self.project_id = test_obj.auth_provider.credentials.tenant_id
         self.token = test_obj.auth_provider.get_token()
@@ -62,15 +62,15 @@ class RbacUtils(object):
         else:
             self.roles_client = test_obj.os_admin.roles_client
 
-        LOG.debug('Switching role to: %s', switchToRbacRole)
+        LOG.debug('Switching role to: %s', toggle_rbac_role)
 
         try:
             if not self.admin_role_id or not self.rbac_role_id:
                 self._get_roles()
 
-            rbac_utils._validate_switch_role(self, test_obj, switchToRbacRole)
+            rbac_utils._validate_switch_role(self, test_obj, toggle_rbac_role)
 
-            if switchToRbacRole:
+            if toggle_rbac_role:
                 self._add_role_to_user(self.rbac_role_id)
             else:
                 self._add_role_to_user(self.admin_role_id)
@@ -116,7 +116,7 @@ class RbacUtils(object):
 
         return False
 
-    def _validate_switch_role(self, test_obj, switchToRbacRole):
+    def _validate_switch_role(self, test_obj, toggle_rbac_role):
         """Validates that the rbac role passed to `switch_role` is legal.
 
         Throws an error for the following improper usages of `switch_role`:
@@ -124,9 +124,9 @@ class RbacUtils(object):
             * `switch_role` is never called in a test file, except in tearDown
             * `switch_role` is called with the same boolean value twice
         """
-        if not isinstance(switchToRbacRole, bool):
+        if not isinstance(toggle_rbac_role, bool):
             raise rbac_exceptions.RbacResourceSetupFailed(
-                'switchToRbacRole must be a boolean value.')
+                'toggle_rbac_role must be a boolean value.')
 
         # The unique key is the combination of module path plus class name.
         class_name = test_obj.__name__ if isinstance(test_obj, type) else \
@@ -136,19 +136,19 @@ class RbacUtils(object):
 
         self.switch_role_history.setdefault(key, None)
 
-        if self.switch_role_history[key] == switchToRbacRole:
+        if self.switch_role_history[key] == toggle_rbac_role:
             # If the test was skipped, then this is a legitimate use case,
             # so do not throw an exception.
             exc_value = sys.exc_info()[1]
             if not isinstance(exc_value, testtools.TestCase.skipException):
                 self.switch_role_history[key] = False
-                error_message = '`switchToRbacRole` must not be called with '\
+                error_message = '`toggle_rbac_role` must not be called with '\
                     'the same bool value twice. Make sure that you included '\
                     'a rbac_utils.switch_role method call inside the test.'
                 LOG.error(error_message)
                 raise rbac_exceptions.RbacResourceSetupFailed(error_message)
         else:
-            self.switch_role_history[key] = switchToRbacRole
+            self.switch_role_history[key] = toggle_rbac_role
 
     def _get_roles(self):
         available_roles = self.roles_client.list_roles()

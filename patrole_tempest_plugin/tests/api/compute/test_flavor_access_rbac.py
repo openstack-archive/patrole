@@ -56,7 +56,7 @@ class FlavorAccessAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
     def test_show_flavor(self):
         # NOTE(felipemonteiro): show_flavor enforces the specified policy
         # action, but only works if a public flavor is passed.
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.show_flavor(self.public_flavor_id)['flavor']
 
     @decorators.idempotent_id('39cb5c8f-9990-436f-9282-fc76a41d9bac')
@@ -64,7 +64,7 @@ class FlavorAccessAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
         service="nova",
         rule="os_compute_api:os-flavor-access:add_tenant_access")
     def test_add_flavor_access(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.add_flavor_access(
             flavor_id=self.flavor_id, tenant_id=self.tenant_id)[
             'flavor_access']
@@ -81,6 +81,6 @@ class FlavorAccessAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self.client.remove_flavor_access,
                         flavor_id=self.flavor_id, tenant_id=self.tenant_id)
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.remove_flavor_access(
             flavor_id=self.flavor_id, tenant_id=self.tenant_id)

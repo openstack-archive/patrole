@@ -26,5 +26,5 @@ class SecurityGroupsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-security-groups")
     @decorators.idempotent_id('4ac58e49-48c1-4fca-a6c3-3f95fb99eb77')
     def test_server_security_groups(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.security_groups_client.list_security_groups()

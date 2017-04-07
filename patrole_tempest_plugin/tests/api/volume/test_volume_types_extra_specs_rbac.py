@@ -31,6 +31,6 @@ class VolumeTypesExtraSpecsAdminRbacTest(rbac_base.BaseVolumeAdminRbacTest):
         vol_type = self.create_volume_type()
         # List Volume types extra specs.
         extra_specs = {"spec1": "val1"}
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.volume_types_client.create_volume_type_extra_specs(
             vol_type['id'], extra_specs)

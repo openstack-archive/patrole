@@ -34,7 +34,7 @@ class ImageNamespacesResourceTypeRbacTest(rbac_base.BaseV2ImageRbacTest):
 
         RBAC test for the glance list_metadef_resource_type policy.
         """
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.resource_types_client.list_resource_types()
 
     @rbac_rule_validation.action(service="glance",
@@ -54,6 +54,6 @@ class ImageNamespacesResourceTypeRbacTest(rbac_base.BaseV2ImageRbacTest):
             self.namespaces_client.delete_namespace,
             namespace_name)
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.resource_types_client.list_resource_type_association(
             namespace_name)

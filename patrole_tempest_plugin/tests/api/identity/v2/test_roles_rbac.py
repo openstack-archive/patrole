@@ -63,7 +63,7 @@ class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         RBAC test for Identity Admin 2.0 role-create
         """
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._create_role()
 
     @rbac_rule_validation.action(service="keystone",
@@ -78,7 +78,7 @@ class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         """
         role = self._create_role()
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.delete_role(role['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -93,7 +93,7 @@ class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         """
         role = self._create_role()
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.show_role(role['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -106,7 +106,7 @@ class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         RBAC test for Identity Admin 2.0 role-list
         """
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.list_roles()
 
     @rbac_rule_validation.action(service="keystone",
@@ -120,7 +120,7 @@ class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         RBAC test for Identity Admin 2.0 create_user_role_on_project
         """
         tenant, user, role = self._create_tenant_user_and_role()
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._create_role_on_project(tenant, user, role)
 
     @rbac_rule_validation.action(service="keystone",
@@ -136,7 +136,7 @@ class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         tenant, user, role = self._create_tenant_user_and_role()
         self._create_role_on_project(tenant, user, role)
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.delete_role_from_user_on_project(
             tenant['id'], user['id'], role['id'])
 
@@ -153,6 +153,6 @@ class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         tenant = self._create_tenant()
         user = self._create_user(tenantid=tenant['id'])
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.list_user_roles_on_project(
             tenant['id'], user['id'])

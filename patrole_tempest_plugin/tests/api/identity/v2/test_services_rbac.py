@@ -38,7 +38,7 @@ class IdentityServicesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         RBAC test for Identity Admin 2.0 create_service
         """
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._create_service()
 
     @rbac_rule_validation.action(service="keystone",
@@ -52,7 +52,7 @@ class IdentityServicesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         """
         service_id = self._create_service()['OS-KSADM:service']['id']
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.services_client.delete_service(service_id)
 
     @rbac_rule_validation.action(service="keystone",
@@ -66,7 +66,7 @@ class IdentityServicesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         """
         service_id = self._create_service()['OS-KSADM:service']['id']
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.services_client.show_service(service_id)
 
     @rbac_rule_validation.action(service="keystone",
@@ -78,5 +78,5 @@ class IdentityServicesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         RBAC test for Identity Admin 2.0 list_service
         """
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.services_client.list_services()

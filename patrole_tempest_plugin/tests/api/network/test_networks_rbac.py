@@ -136,7 +136,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron create_network policy
         """
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._create_network()
 
     @rbac_rule_validation.action(service="neutron",
@@ -148,7 +148,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron create_network:shared policy
         """
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._create_network(shared=True)
 
     @rbac_rule_validation.action(service="neutron",
@@ -160,7 +160,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron create_network:router:external policy
         """
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._create_network(router_external=True)
 
     @rbac_rule_validation.action(service="neutron",
@@ -172,7 +172,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron create_network:provider:network_type policy
         """
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._create_network(provider_network_type='vxlan')
 
     @rbac_rule_validation.action(
@@ -185,7 +185,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron create_network:provider:segmentation_id
         """
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._create_network(provider_network_type='vxlan',
                              provider_segmentation_id=200)
 
@@ -198,7 +198,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron update_network policy
         """
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         updated_network = self._update_network(admin=False)
         self.assertEqual(updated_network['admin_state_up'], False)
 
@@ -215,7 +215,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron update_network:shared policy
         """
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         updated_network = self._update_network(shared_network=True)
         self.assertEqual(updated_network['shared'], True)
 
@@ -233,7 +233,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron update_network:router:external policy
         """
         network = self._create_network()
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._update_network(net_id=network['id'], router_external=True)
 
     @rbac_rule_validation.action(service="neutron",
@@ -245,7 +245,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron get_network policy
         """
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # show a network that has been created during class setup
         self.networks_client.show_network(self.admin_network['id'])
 
@@ -260,7 +260,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
         """
         post_body = {'fields': 'router:external'}
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.networks_client.show_network(self.admin_network['id'],
                                           **post_body)
 
@@ -275,7 +275,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
         """
         post_body = {'fields': 'provider:network_type'}
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         body = self.networks_client.show_network(self.admin_network['id'],
                                                  **post_body)
         showed_net = body['network']
@@ -294,7 +294,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
         """
         post_body = {'fields': 'provider:physical_network'}
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         body = self.networks_client.show_network(self.admin_network['id'],
                                                  **post_body)
         showed_net = body['network']
@@ -313,7 +313,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
         """
         post_body = {'fields': 'provider:segmentation_id'}
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         body = self.networks_client.show_network(self.admin_network['id'],
                                                  **post_body)
         showed_net = body['network']
@@ -334,7 +334,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron delete_network policy
         """
         network = self._create_network()
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.networks_client.delete_network(network['id'])
 
     @rbac_rule_validation.action(service="neutron",
@@ -349,7 +349,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
         network = self._create_network()
         self.assertEqual('ACTIVE', network['status'])
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # Create a subnet
         self.create_subnet(network, enable_dhcp=False)
 
@@ -362,7 +362,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron get_subnet policy
         """
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.subnets_client.show_subnet(self.admin_subnet['id'])
 
     @rbac_rule_validation.action(service="neutron",
@@ -374,7 +374,7 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron update_subnet policy
         """
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.subnets_client.update_subnet(self.admin_subnet['id'],
                                           name="New_subnet")
 
@@ -394,6 +394,6 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
         # Create a subnet using admin privilege
         subnet = self.create_subnet(network, enable_dhcp=False)
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # Delete the subnet
         self.subnets_client.delete_subnet(subnet['id'])

@@ -38,7 +38,7 @@ class BaseV2ComputeRbacTest(compute_base.BaseV2ComputeTest):
         super(BaseV2ComputeRbacTest, cls).setup_clients()
         cls.auth_provider = cls.os.auth_provider
         cls.rbac_utils = rbac_utils()
-        cls.rbac_utils.switch_role(cls, switchToRbacRole=False)
+        cls.rbac_utils.switch_role(cls, toggle_rbac_role=False)
 
 
 class BaseV2ComputeAdminRbacTest(compute_base.BaseV2ComputeAdminTest):
@@ -57,7 +57,7 @@ class BaseV2ComputeAdminRbacTest(compute_base.BaseV2ComputeAdminTest):
         super(BaseV2ComputeAdminRbacTest, cls).setup_clients()
         cls.auth_provider = cls.os.auth_provider
         cls.rbac_utils = rbac_utils()
-        cls.rbac_utils.switch_role(cls, switchToRbacRole=False)
+        cls.rbac_utils.switch_role(cls, toggle_rbac_role=False)
 
     @classmethod
     def resource_setup(cls):

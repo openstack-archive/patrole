@@ -37,7 +37,7 @@ class IdentityRolesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
                                  rule="identity:create_role")
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d904')
     def test_create_role(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.setup_test_role()
 
     @rbac_rule_validation.action(service="keystone",
@@ -46,7 +46,7 @@ class IdentityRolesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
     def test_update_role(self):
         new_role_name = data_utils.rand_name('test_update_role')
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.update_role(self.role['id'],
                                       name=new_role_name)
 
@@ -56,28 +56,28 @@ class IdentityRolesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
     def test_delete_role(self):
         role = self.setup_test_role()
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.delete_role(role['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:get_role")
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d907')
     def test_show_role(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.show_role(self.role['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:list_roles")
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d908')
     def test_list_roles(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.list_roles()
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:create_grant")
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d909')
     def test_create_user_role_on_project(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.create_user_role_on_project(
             self.project['id'],
             self.user['id'],
@@ -102,7 +102,7 @@ class IdentityRolesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
                         self.user['id'],
                         self.role['id'])
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.check_user_role_existence_on_project(
             self.project['id'],
             self.user['id'],
@@ -122,7 +122,7 @@ class IdentityRolesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
                         self.user['id'],
                         self.role['id'])
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.delete_role_from_user_on_project(
             self.project['id'],
             self.user['id'],
@@ -132,7 +132,7 @@ class IdentityRolesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
                                  rule="identity:list_grants")
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d90b')
     def test_list_user_roles_on_project(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.list_user_roles_on_project(
             self.project['id'],
             self.user['id'])
@@ -141,7 +141,7 @@ class IdentityRolesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
                                  rule="identity:create_grant")
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d90c')
     def test_create_group_role_on_project(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.create_group_role_on_project(
             self.project['id'],
             self.group['id'],
@@ -166,7 +166,7 @@ class IdentityRolesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
                         self.group['id'],
                         self.role['id'])
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.delete_role_from_group_on_project(
             self.project['id'],
             self.group['id'],
@@ -176,7 +176,7 @@ class IdentityRolesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
                                  rule="identity:list_grants")
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d90e')
     def test_list_group_roles_on_project(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.list_group_roles_on_project(
             self.project['id'],
             self.group['id'])
@@ -185,7 +185,7 @@ class IdentityRolesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
                                  rule="identity:create_grant")
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d90f')
     def test_create_user_role_on_domain(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.create_user_role_on_domain(
             self.domain['id'],
             self.user['id'],
@@ -210,7 +210,7 @@ class IdentityRolesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
                         self.user['id'],
                         self.role['id'])
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.delete_role_from_user_on_domain(
             self.domain['id'],
             self.user['id'],
@@ -220,7 +220,7 @@ class IdentityRolesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
                                  rule="identity:list_grants")
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d911')
     def test_list_user_roles_on_domain(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.list_user_roles_on_domain(
             self.domain['id'],
             self.user['id'])
@@ -229,7 +229,7 @@ class IdentityRolesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
                                  rule="identity:create_grant")
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d912')
     def test_create_group_role_on_domain(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.create_group_role_on_domain(
             self.domain['id'],
             self.group['id'],
@@ -254,7 +254,7 @@ class IdentityRolesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
                         self.group['id'],
                         self.role['id'])
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.delete_role_from_group_on_domain(
             self.domain['id'],
             self.group['id'],
@@ -264,7 +264,7 @@ class IdentityRolesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
                                  rule="identity:list_grants")
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d914')
     def test_list_group_roles_on_domain(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.list_group_roles_on_domain(
             self.domain['id'],
             self.group['id'])
@@ -273,7 +273,7 @@ class IdentityRolesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:create_implied_role")
     def test_create_role_inference_rule(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.create_role_inference_rule(
             self.role['id'], self.implies_role['id'])['role_inference']
         self.addCleanup(self.roles_client.delete_role_inference_rule,
@@ -288,7 +288,7 @@ class IdentityRolesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
         self.addCleanup(self.roles_client.delete_role_inference_rule,
                         self.role['id'], self.implies_role['id'])
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.show_role_inference_rule(
             self.role['id'], self.implies_role['id'])['role_inference']
 
@@ -296,7 +296,7 @@ class IdentityRolesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:list_implied_roles")
     def test_list_role_inferences_rules(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.list_role_inferences_rules(self.role['id'])[
             'role_inference']
 
@@ -309,7 +309,7 @@ class IdentityRolesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
         self.addCleanup(self.roles_client.delete_role_inference_rule,
                         self.role['id'], self.implies_role['id'])
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.check_role_inference_rule(
             self.role['id'], self.implies_role['id'])
 
@@ -323,7 +323,7 @@ class IdentityRolesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
                         self.roles_client.delete_role_inference_rule,
                         self.role['id'], self.implies_role['id'])
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.delete_role_inference_rule(
             self.role['id'], self.implies_role['id'])
 
@@ -331,5 +331,5 @@ class IdentityRolesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:list_role_inference_rules")
     def test_list_all_role_inference_rules(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.list_all_role_inference_rules()['role_inferences']

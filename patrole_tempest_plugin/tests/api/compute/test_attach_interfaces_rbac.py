@@ -72,7 +72,7 @@ class AttachInterfacesRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-attach-interfaces")
     def test_list_interfaces(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.list_interfaces(self.server['id'])['interfaceAttachments']
 
     @decorators.idempotent_id('d2d3a24d-4738-4bce-a287-36d664746cde')
@@ -80,7 +80,7 @@ class AttachInterfacesRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-attach-interfaces:create")
     def test_create_interface(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._attach_interface_to_server()
 
     @decorators.idempotent_id('55b05692-ed44-4608-a84c-cd4219c82799')
@@ -89,5 +89,5 @@ class AttachInterfacesRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-attach-interfaces:delete")
     def test_delete_interface(self):
         interface = self._attach_interface_to_server()
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.delete_interface(self.server['id'], interface['port_id'])

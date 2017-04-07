@@ -51,7 +51,7 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-volumes-attachments:index")
     @decorators.idempotent_id('529b668b-6edb-41d5-8886-d7dbd0614678')
     def test_list_volume_attachments(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.list_volume_attachments(self.server['id'])[
             'volumeAttachments']
 
@@ -60,7 +60,7 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-volumes-attachments:create")
     @decorators.idempotent_id('21c2c3fd-fbe8-41b1-8ef8-115ec47d54c1')
     def test_create_volume_attachment(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.attach_volume(self.server, self.volume)
 
     @rbac_rule_validation.action(
@@ -69,7 +69,7 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('997df9c2-6e54-47b6-ab74-e4fdb500f385')
     def test_show_volume_attachment(self):
         attachment = self.attach_volume(self.server, self.volume)
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.show_volume_attachment(
             self.server['id'], attachment['id'])
 
@@ -81,7 +81,7 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_update_volume_attachment(self):
         attachment = self.attach_volume(self.server, self.volume)
         alt_volume = self.create_volume()
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.update_attached_volume(
             self.server['id'], attachment['id'], volumeId=alt_volume['id'])
         waiters.wait_for_volume_resource_status(self.volumes_client,
@@ -103,7 +103,7 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('12b03e90-d087-46af-9c4d-507d021c4984')
     def test_delete_volume_attachment(self):
         self.attach_volume(self.server, self.volume)
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.detach_volume(self.server['id'], self.volume['id'])
         waiters.wait_for_volume_resource_status(self.volumes_client,
                                                 self.volume['id'], 'available')

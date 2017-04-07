@@ -59,7 +59,7 @@ class VolumesBackupsAdminRbacTest(rbac_base.BaseVolumeAdminRbacTest):
         # Create a temp backup
         backup = self.create_backup(volume_id=self.volume['id'])
         # Export Backup
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.backups_client.export_backup(
             backup['id'])['backup-record']
 
@@ -77,7 +77,7 @@ class VolumesBackupsAdminRbacTest(rbac_base.BaseVolumeAdminRbacTest):
         new_url = self._modify_backup_url(
             export_backup['backup_url'], {'id': new_id})
         # Import the temp backup
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         import_backup = self.backups_client.import_backup(
             backup_service=export_backup['backup_service'],
             backup_url=new_url)['backup']

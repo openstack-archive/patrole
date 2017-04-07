@@ -36,7 +36,7 @@ class IdentityConsumersV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
                                  rule="identity:create_consumer")
     @decorators.idempotent_id('0f148510-63bf-11e6-4522-080044d0d970')
     def test_create_consumer(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._create_consumer()
 
     @rbac_rule_validation.action(service="keystone",
@@ -45,7 +45,7 @@ class IdentityConsumersV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
     def test_delete_consumer(self):
         consumer = self._create_consumer()
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.consumers_client.delete_consumer(consumer['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -55,7 +55,7 @@ class IdentityConsumersV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
         consumer = self._create_consumer()
         new_description = data_utils.rand_name('test_update_consumer')
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.consumers_client.update_consumer(consumer['id'],
                                               new_description)
 
@@ -65,12 +65,12 @@ class IdentityConsumersV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
     def test_show_consumer(self):
         consumer = self._create_consumer()
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.consumers_client.show_consumer(consumer['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:list_consumers")
     @decorators.idempotent_id('0f148510-63bf-11e6-4522-080044d0d975')
     def test_list_consumers(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.consumers_client.list_consumers()

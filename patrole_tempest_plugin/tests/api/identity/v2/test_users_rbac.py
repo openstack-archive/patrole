@@ -27,7 +27,7 @@ class IdentityUserV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
                                  admin_only=True)
     @decorators.idempotent_id('0f148510-63bf-11e6-1342-080044d0d904')
     def test_create_user(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._create_user()
 
     @rbac_rule_validation.action(service="keystone",
@@ -37,7 +37,7 @@ class IdentityUserV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
     def test_update_user(self):
         user = self._create_user()
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.users_client.update_user(user['id'], email="changedUser@xyz.com")
 
     @rbac_rule_validation.action(service="keystone",
@@ -47,7 +47,7 @@ class IdentityUserV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
     def test_update_user_enabled(self):
         user = self._create_user()
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.users_client.update_user_enabled(user['id'], enabled=True)
 
     @rbac_rule_validation.action(service="keystone",
@@ -57,7 +57,7 @@ class IdentityUserV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
     def test_delete_user(self):
         user = self._create_user()
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.users_client.delete_user(user['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -65,7 +65,7 @@ class IdentityUserV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
                                  admin_only=True)
     @decorators.idempotent_id('0f148510-63bf-11e6-1342-080044d0d907')
     def test_list_users(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.users_client.list_users()
 
     @rbac_rule_validation.action(service="keystone",
@@ -75,7 +75,7 @@ class IdentityUserV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
     def test_show_user(self):
         user = self._create_user()
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.users_client.show_user(user['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -85,6 +85,6 @@ class IdentityUserV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
     def test_update_user_password(self):
         user = self._create_user()
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.users_client.update_user_password(
             user['id'], password=data_utils.rand_password())

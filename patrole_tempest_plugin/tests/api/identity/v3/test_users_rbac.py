@@ -32,7 +32,7 @@ class IdentityUserV3AdminRbacTest(
                                  rule="identity:create_user")
     @decorators.idempotent_id('0f148510-63bf-11e6-4522-080044d0d904')
     def test_create_user(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.setup_test_user()
 
     @rbac_rule_validation.action(service="keystone",
@@ -42,7 +42,7 @@ class IdentityUserV3AdminRbacTest(
         user = self.setup_test_user()
         new_email = data_utils.rand_name('user_email')
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.users_client.update_user(user['id'],
                                       name=user['name'],
                                       email=new_email)
@@ -53,21 +53,21 @@ class IdentityUserV3AdminRbacTest(
     def test_delete_user(self):
         user = self.setup_test_user()
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.users_client.delete_user(user['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:list_users")
     @decorators.idempotent_id('0f148510-63bf-11e6-4522-080044d0d907')
     def test_list_users(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.users_client.list_users()
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:get_user")
     @decorators.idempotent_id('0f148510-63bf-11e6-4522-080044d0d908')
     def test_show_own_user(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.users_client.show_user(self.default_user_id)
 
     @rbac_rule_validation.action(service="keystone",
@@ -77,7 +77,7 @@ class IdentityUserV3AdminRbacTest(
         original_password = data_utils.rand_password()
         user = self.setup_test_user(password=original_password)
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.users_client.update_user_password(
             user['id'],
             original_password=original_password,
@@ -87,12 +87,12 @@ class IdentityUserV3AdminRbacTest(
                                  rule="identity:list_groups_for_user")
     @decorators.idempotent_id('bd5946d4-46d2-423d-a800-a3e7aabc18b3')
     def test_list_own_user_group(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.users_client.list_user_groups(self.default_user_id)
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:list_user_projects")
     @decorators.idempotent_id('0f148510-63bf-11e6-1564-080044d0d909')
     def test_list_own_user_projects(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.users_client.list_user_projects(self.default_user_id)

@@ -64,7 +64,7 @@ class FlavorExtraSpecsAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
         rule="os_compute_api:os-flavor-extra-specs:show")
     def test_show_flavor_extra_spec(self):
         key = self._set_flavor_extra_spec()
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.show_flavor_extra_spec(self.flavor['id'], key)[key]
 
     @decorators.idempotent_id('fcffeca2-ed04-4e85-bf93-02fb5643f22b')
@@ -72,7 +72,7 @@ class FlavorExtraSpecsAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
         service="nova",
         rule="os_compute_api:os-flavor-extra-specs:create")
     def test_set_flavor_extra_spec(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._set_flavor_extra_spec()
 
     @decorators.idempotent_id('42b85279-6bfa-4f58-b7a2-258c284f03c5')
@@ -81,7 +81,7 @@ class FlavorExtraSpecsAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
         rule="os_compute_api:os-flavor-extra-specs:update")
     def test_update_flavor_extra_spec(self):
         key = self._set_flavor_extra_spec()
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         update_val = data_utils.rand_name('val')
         self.client.update_flavor_extra_spec(self.flavor['id'], key,
                                              **{key: update_val})[key]
@@ -92,7 +92,7 @@ class FlavorExtraSpecsAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
         rule="os_compute_api:os-flavor-extra-specs:delete")
     def test_unset_flavor_extra_spec(self):
         key = self._set_flavor_extra_spec()
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.unset_flavor_extra_spec(self.flavor['id'], key)
 
     @decorators.idempotent_id('02c3831a-3ce9-476e-a722-d805ac2da621')
@@ -101,5 +101,5 @@ class FlavorExtraSpecsAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
         rule="os_compute_api:os-flavor-extra-specs:index")
     def test_list_flavor_extra_specs(self):
         self._set_flavor_extra_spec()
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.list_flavor_extra_specs(self.flavor['id'])['extra_specs']

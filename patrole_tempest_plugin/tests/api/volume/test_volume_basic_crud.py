@@ -29,7 +29,7 @@ class VolumesV2BasicCrudRbacTest(rbac_base.BaseVolumeRbacTest):
                                  rule="volume:create")
     @decorators.idempotent_id('426b08ef-6394-4d06-9128-965d5a6c38ef')
     def test_create_volume(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.create_volume()
 
     @rbac_rule_validation.action(service="cinder",
@@ -37,14 +37,14 @@ class VolumesV2BasicCrudRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('6de9f9c2-509f-4558-867b-af21c7163be4')
     def test_delete_volume(self):
         volume = self.create_volume()
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.volumes_client.delete_volume(volume['id'])
 
     @rbac_rule_validation.action(service="cinder", rule="volume:get")
     @decorators.idempotent_id('c4c3fdd5-b1b1-49c3-b977-a9f40ee9257a')
     def test_get_volume(self):
         volume = self.create_volume()
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.volumes_client.show_volume(volume['id'])
 
     @rbac_rule_validation.action(service="cinder",
@@ -52,7 +52,7 @@ class VolumesV2BasicCrudRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('e3ab7906-b04b-4c45-aa11-1104d302f940')
     def test_volume_list(self):
         # Get a list of Volumes
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.volumes_client.list_volumes()
 
     @rbac_rule_validation.action(
@@ -61,7 +61,7 @@ class VolumesV2BasicCrudRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('3d48ca91-f02b-4616-a69d-4a8b296c8529')
     def test_volume_list_image_metadata(self):
         # Get a list of Volumes
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.volumes_client.list_volumes(detail=True)
 
     @rbac_rule_validation.action(service="cinder", rule="volume:update")
@@ -69,7 +69,7 @@ class VolumesV2BasicCrudRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_update_volume(self):
         volume = self.create_volume()
         new_name = data_utils.rand_name('volume')
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.volumes_client.update_volume(volume['id'],
                                           name=new_name)
 

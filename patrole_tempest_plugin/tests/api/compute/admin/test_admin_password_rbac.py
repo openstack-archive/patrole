@@ -51,7 +51,7 @@ class PasswordAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
         service="nova", rule="os_compute_api:os-admin-password")
     @decorators.idempotent_id('908a7d59-3a66-441c-94cf-38e57ed14956')
     def test_change_server_password(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.change_password(
             self.server_id,
             adminPass=data_utils.rand_password())
