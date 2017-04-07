@@ -35,7 +35,7 @@ class ImageNamespacesObjectsRbacTest(rbac_base.BaseV2ImageRbacTest):
         RBAC test for the glance add_metadef_object policy
         """
         namespace = self.create_namespace()
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # create a md object, it will be cleaned automatically after
         # cleanup of namespace
         object_name = data_utils.rand_name('test-object')
@@ -55,7 +55,7 @@ class ImageNamespacesObjectsRbacTest(rbac_base.BaseV2ImageRbacTest):
         RBAC test for the glance get_metadef_objects policy
         """
         namespace = self.create_namespace()
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # list md objects
         self.namespace_objects_client.list_namespace_objects(
             namespace['namespace'])
@@ -78,7 +78,7 @@ class ImageNamespacesObjectsRbacTest(rbac_base.BaseV2ImageRbacTest):
                         namespace['namespace'], object_name)
 
         # Toggle role and modify object
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         new_name = "Object New Name"
         self.namespace_objects_client.update_namespace_object(
             namespace['namespace'], object_name, name=new_name)
@@ -100,7 +100,7 @@ class ImageNamespacesObjectsRbacTest(rbac_base.BaseV2ImageRbacTest):
                         self.namespace_objects_client.delete_namespace_object,
                         namespace['namespace'], object_name)
         # Toggle role and get object
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.namespace_objects_client.show_namespace_object(
             namespace['namespace'],
             object_name)

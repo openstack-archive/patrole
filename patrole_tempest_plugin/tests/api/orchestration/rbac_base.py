@@ -35,4 +35,4 @@ class BaseOrchestrationRbacTest(heat_base.BaseOrchestrationTest):
         super(BaseOrchestrationRbacTest, cls).setup_clients()
         cls.auth_provider = cls.os.auth_provider
         cls.rbac_utils = rbac_utils()
-        cls.rbac_utils.switch_role(cls, switchToRbacRole=False)
+        cls.rbac_utils.switch_role(cls, toggle_rbac_role=False)

@@ -33,5 +33,5 @@ class AvailabilityZoneRbacTest(rbac_base.BaseVolumeRbacTest):
                                  rule="volume:availability_zone_list")
     @decorators.idempotent_id('8cfd920c-4b6c-402d-b6e2-ede86bedc702')
     def test_get_availability_zone_list(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.list_availability_zones()

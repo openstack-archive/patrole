@@ -35,7 +35,7 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         RBAC test for Identity 2.0 create_tenant
         """
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._create_tenant()
 
     @rbac_rule_validation.action(service="keystone",
@@ -50,7 +50,7 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         """
         tenant = self._create_tenant()
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.tenants_client.update_tenant(tenant['id'],
                                           description="Changed description")
 
@@ -66,7 +66,7 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         """
         tenant = self._create_tenant()
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.tenants_client.delete_tenant(tenant['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -82,7 +82,7 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         tenant = self._create_tenant()
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.tenants_client.show_tenant(tenant['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -95,7 +95,7 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         RBAC test for Identity 2.0 list_tenants
         """
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.tenants_client.list_tenants()
 
     @rbac_rule_validation.action(service="keystone",
@@ -110,5 +110,5 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         """
         tenant = self._create_tenant()
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.tenants_client.list_tenant_users(tenant['id'])

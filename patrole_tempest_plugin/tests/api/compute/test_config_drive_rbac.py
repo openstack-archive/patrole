@@ -40,7 +40,7 @@ class ConfigDriveRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-config-drive")
     def test_create_test_server_with_config_drive(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # NOTE(felipemonteiro): This policy action is always enforced,
         # regardless whether the config_drive flag is set to true or false.
         # However, it has been explicitly set to true below, in case that this

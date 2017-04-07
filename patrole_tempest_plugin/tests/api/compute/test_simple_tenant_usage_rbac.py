@@ -41,7 +41,7 @@ class SimpleTenantUsageRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-simple-tenant-usage:list")
     @decorators.idempotent_id('2aef094f-0452-4df6-a66a-0ec22a92b16e')
     def test_simple_tenant_usage_list(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.list_tenant_usages()
 
     @rbac_rule_validation.action(
@@ -53,5 +53,5 @@ class SimpleTenantUsageRbacTest(rbac_base.BaseV2ComputeRbacTest):
         # the validation method in the API call throws an error.
         self.create_test_server(wait_until='ACTIVE')['id']
         tenant_id = self.auth_provider.credentials.tenant_id
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.show_tenant_usage(tenant_id=tenant_id)

@@ -55,7 +55,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
                                  rule="backup:create")
     @decorators.idempotent_id('6887ec94-0bcf-4ab7-b30f-3808a4b5a2a5')
     def test_volume_backup_create(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._create_backup(volume_id=self.volume['id'])
 
     @test.attr(type="slow")
@@ -66,14 +66,14 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
         # Create a temp backup
         backup = self._create_backup(volume_id=self.volume['id'])
         # Get a given backup
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.backups_client.show_backup(backup['id'])
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="backup:get_all")
     @decorators.idempotent_id('4d18f0f0-7e01-4007-b622-dedc859b22f6')
     def test_volume_backup_list(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.backups_client.list_backups()
 
     @test.attr(type="slow")
@@ -84,7 +84,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
         # Create a temp backup
         backup = self._create_backup(volume_id=self.volume['id'])
         # Restore backup
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         restore = self.backups_client.restore_backup(backup['id'])['restore']
         waiters.wait_for_volume_resource_status(
             self.backups_client, restore['backup_id'], 'available')
@@ -96,7 +96,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_volume_backup_delete(self):
         # Create a temp backup
         backup = self._create_backup(volume_id=self.volume['id'])
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # Delete backup
         self.backups_client.delete_backup(backup['id'])
         self.backups_client.wait_for_resource_deletion(backup['id'])

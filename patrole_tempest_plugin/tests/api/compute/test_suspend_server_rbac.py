@@ -59,7 +59,7 @@ class SuspendServerRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-suspend-server:suspend")
     def test_suspend_server(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.suspend_server(self.server['id'])
         waiters.wait_for_server_status(self.client, self.server['id'],
                                        'SUSPENDED')
@@ -72,7 +72,7 @@ class SuspendServerRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.client.suspend_server(self.server['id'])
         waiters.wait_for_server_status(self.client, self.server['id'],
                                        'SUSPENDED')
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.resume_server(self.server['id'])
         waiters.wait_for_server_status(self.client,
                                        self.server['id'],

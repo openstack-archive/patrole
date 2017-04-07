@@ -45,7 +45,7 @@ class ImagesMemberRbacTest(base.BaseV1ImageRbacTest):
         """
         image = self.create_image()
         # Toggle role and add image member
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.image_member_client.create_image_member(image['id'],
                                                      self.alt_tenant_id)
 
@@ -60,7 +60,7 @@ class ImagesMemberRbacTest(base.BaseV1ImageRbacTest):
         self.image_member_client.create_image_member(image['id'],
                                                      self.alt_tenant_id)
         # Toggle role and delete image member
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.image_member_client.delete_image_member(image['id'],
                                                      self.alt_tenant_id)
 
@@ -75,5 +75,5 @@ class ImagesMemberRbacTest(base.BaseV1ImageRbacTest):
         self.image_member_client.create_image_member(image['id'],
                                                      self.alt_tenant_id)
         # Toggle role and delete image member
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.image_member_client.list_image_members(image['id'])

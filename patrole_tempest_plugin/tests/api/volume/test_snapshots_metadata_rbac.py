@@ -53,7 +53,7 @@ class SnapshotMetadataRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('c9cbec1c-edfe-46b8-825b-7b6ac0a58c25')
     def test_create_snapshot_metadata(self):
         # Create metadata for the snapshot
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._create_test_snapshot_metadata()
 
     @rbac_rule_validation.action(service="cinder",
@@ -63,7 +63,7 @@ class SnapshotMetadataRbacTest(rbac_base.BaseVolumeRbacTest):
         # Create volume and snapshot metadata
         self._create_test_snapshot_metadata()
         # Get metadata for the snapshot
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.snapshots_client.show_snapshot_metadata(
             self.snapshot_id)
 
@@ -75,7 +75,7 @@ class SnapshotMetadataRbacTest(rbac_base.BaseVolumeRbacTest):
         # Create volume and snapshot metadata
         self._create_test_snapshot_metadata()
         # Get metadata for the snapshot
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # Get the metadata of the snapshot
         self.snapshots_client.show_snapshot_metadata(
             self.snapshot_id)['metadata']

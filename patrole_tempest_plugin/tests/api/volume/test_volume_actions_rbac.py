@@ -66,7 +66,7 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('f97b10e4-2eed-4f8b-8632-71c02cb9fe42')
     def test_attach_volume_to_instance(self):
         server = self._create_server()
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # Attach the volume
         self._attach_volume(server)
 
@@ -77,7 +77,7 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
         # Attach the volume
         server = self._create_server()
         self._attach_volume(server)
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # Detach the volume
         self._detach_volume()
 
@@ -88,7 +88,7 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_volume_upload(self):
         self.image_client = self.os.image_client
         image_name = data_utils.rand_name('image')
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         body = self.client.upload_volume(
             self.volume['id'], image_name=image_name,
             disk_format=CONF.volume.disk_format)['os-volume_upload_image']
@@ -103,7 +103,7 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('2750717a-f250-4e41-9e09-02624aad6ff8')
     def test_volume_readonly_update(self):
         volume = self.create_volume()
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # Update volume readonly
         self.client.update_volume_readonly(volume['id'], readonly=True)
 

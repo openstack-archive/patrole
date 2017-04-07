@@ -54,7 +54,7 @@ class IpsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:ips:index")
     def test_list_addresses(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.list_addresses(self.server['id'])['addresses']
 
     @decorators.idempotent_id('fa43e7e5-0db9-48eb-9c6b-c11eb766b8e4')
@@ -64,6 +64,6 @@ class IpsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_list_addresses_by_network(self):
         addresses = self.client.list_addresses(self.server['id'])['addresses']
         address = next(iter(addresses))
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.list_addresses_by_network(
             self.server['id'], address)[address]

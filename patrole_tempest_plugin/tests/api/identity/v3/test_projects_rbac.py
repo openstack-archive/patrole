@@ -27,7 +27,7 @@ class IdentityProjectV3AdminRbacTest(
                                  rule="identity:create_project")
     @decorators.idempotent_id('0f148510-63bf-11e6-1564-080044d0d904')
     def test_create_project(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.setup_test_project()
 
     @rbac_rule_validation.action(service="keystone",
@@ -37,7 +37,7 @@ class IdentityProjectV3AdminRbacTest(
         project = self.setup_test_project()
         new_desc = data_utils.rand_name('description')
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.projects_client.update_project(project['id'],
                                             description=new_desc)
 
@@ -47,7 +47,7 @@ class IdentityProjectV3AdminRbacTest(
     def test_delete_project(self):
         project = self.setup_test_project()
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.projects_client.delete_project(project['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -56,12 +56,12 @@ class IdentityProjectV3AdminRbacTest(
     def test_show_project(self):
         project = self.setup_test_project()
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.projects_client.show_project(project['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:list_projects")
     @decorators.idempotent_id('0f148510-63bf-11e6-1564-080044d0d908')
     def test_list_projects(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.projects_client.list_projects()

@@ -73,7 +73,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
     @decorators.idempotent_id('0ec8c551-625c-4864-8a52-85baa7c40f22')
     def test_create_port(self):
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         post_body = {'network_id': self.network['id']}
         self._create_port(**post_body)
 
@@ -85,7 +85,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
         post_body = {'network_id': self.network['id'],
                      'binding:host_id': "rbac_test_host"}
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._create_port(**post_body)
 
     @rbac_rule_validation.action(service="neutron",
@@ -105,7 +105,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
         post_body = {'network_id': self.network['id'],
                      'fixed_ips': fixed_ips}
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._create_port(**post_body)
 
     @rbac_rule_validation.action(service="neutron",
@@ -116,7 +116,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
         post_body = {'network_id': self.network['id'],
                      'mac_address': data_utils.rand_mac_address()}
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._create_port(**post_body)
 
     @rbac_rule_validation.action(service="neutron",
@@ -129,7 +129,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
         post_body = {'network_id': self.network['id'],
                      'binding:profile': binding_profile}
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._create_port(**post_body)
 
     @rbac_rule_validation.action(service="neutron",
@@ -144,7 +144,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
         post_body = {'network_id': self.network['id'],
                      'allowed_address_pairs': allowed_address_pairs}
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._create_port(**post_body)
 
     @rbac_rule_validation.action(service="neutron",
@@ -152,7 +152,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
                                  expected_error_code=404)
     @decorators.idempotent_id('a9d41cb8-78a2-4b97-985c-44e4064416f4')
     def test_show_port(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.ports_client.show_port(self.port['id'])
 
     @rbac_rule_validation.action(service="neutron",
@@ -163,7 +163,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
         # Verify specific fields of a port
         fields = ['binding:vif_type']
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
 
         retrieved_port = self.ports_client.show_port(
             self.port['id'], fields=fields)['port']
@@ -180,7 +180,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
         # Verify specific fields of a port
         fields = ['binding:vif_details']
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
 
         retrieved_port = self.ports_client.show_port(
             self.port['id'], fields=fields)['port']
@@ -200,7 +200,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
                      'binding:host_id': data_utils.rand_name('host-id')}
         port = self._create_port(**post_body)
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
 
         retrieved_port = self.ports_client.show_port(
             port['id'], fields=fields)['port']
@@ -221,7 +221,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
                      'binding:profile': binding_profile}
         port = self._create_port(**post_body)
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
 
         retrieved_port = self.ports_client.show_port(
             port['id'], fields=fields)['port']
@@ -236,7 +236,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
     def test_update_port(self):
 
         port = self.create_port(self.network)
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.ports_client.update_port(port['id'], admin_state_up=False)
 
     @rbac_rule_validation.action(service="neutron",
@@ -245,7 +245,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
     def test_update_port_mac_address(self):
 
         port = self.create_port(self.network)
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.ports_client.update_port(
             port['id'],
             mac_address=data_utils.rand_mac_address())
@@ -267,7 +267,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
                                                     1)
         fixed_ips = [{'ip_address': ip_list[0]}]
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.ports_client.update_port(port['id'],
                                       fixed_ips=fixed_ips)
 
@@ -277,7 +277,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
     def test_update_port_security_enabled(self):
 
         port = self.create_port(self.network)
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.ports_client.update_port(port['id'],
                                       security_groups=[])
 
@@ -293,7 +293,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
         updated_body = {'port_id': port['id'],
                         'binding:host_id': 'rbac_test_host_updated'}
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.ports_client.update_port(**updated_body)
 
     @rbac_rule_validation.action(service="neutron",
@@ -311,7 +311,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
         updated_body = {'port_id': port['id'],
                         'binding:profile': new_binding_profile}
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.ports_client.update_port(**updated_body)
 
     @rbac_rule_validation.action(service="neutron",
@@ -331,7 +331,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
         post_body = {'network_id': self.network['id']}
         port = self._create_port(**post_body)
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.ports_client.update_port(port['id'],
                                       allowed_address_pairs=address_pairs)
 
@@ -342,5 +342,5 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
     def test_delete_port(self):
 
         port = self._create_port(network_id=self.network['id'])
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.ports_client.delete_port(port['id'])

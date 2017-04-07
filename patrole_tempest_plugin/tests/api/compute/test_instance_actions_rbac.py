@@ -46,7 +46,7 @@ class InstanceActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-instance-actions")
     def test_list_instance_actions(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.list_instance_actions(self.server['id'])
 
     @decorators.idempotent_id('eb04c439-4215-4029-9ccb-5b3c041bfc25')
@@ -54,7 +54,7 @@ class InstanceActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-instance-actions:events")
     def test_get_instance_action(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         instance_action = self.client.show_instance_action(
             self.server['id'], self.request_id)['instanceAction']
         if 'events' not in instance_action:

@@ -38,5 +38,5 @@ class LimitsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                                  rule="os_compute_api:limits")
     @decorators.idempotent_id('3fb60f83-9a5f-4fdd-89d9-26c3710844a1')
     def test_show_limits(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.show_limits()

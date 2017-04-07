@@ -39,6 +39,6 @@ class FlavorRxtxAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
         service="nova",
         rule="os_compute_api:os-flavor-rxtx")
     def test_create_flavor_rxtx(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # Enforces os_compute_api:os-flavor-rxtx.
         self.client.list_flavors(detail=True)['flavors']

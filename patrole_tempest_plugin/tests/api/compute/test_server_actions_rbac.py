@@ -163,7 +163,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:servers:stop")
     @decorators.idempotent_id('ab4a17d2-166f-4a6d-9944-f17baa576cf2')
     def test_stop_server(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._test_stop_server()
 
     @test.attr(type='slow')
@@ -173,7 +173,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('8876bfa9-4d10-406e-a335-a57e451abb12')
     def test_start_server(self):
         self._test_stop_server()
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._test_start_server()
 
     @test.attr(type='slow')
@@ -184,7 +184,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @testtools.skipUnless(CONF.compute_feature_enabled.resize,
                           'Resize is not available.')
     def test_resize_server(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._test_resize_server(self.flavor_ref_alt)
 
     @test.attr(type='slow')
@@ -196,7 +196,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                           'Resize is not available.')
     def test_revert_resize_server(self):
         self._test_resize_server(self.flavor_ref_alt)
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._test_revert_resize_server()
 
     @test.attr(type='slow')
@@ -208,7 +208,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                           'Resize is not available.')
     def test_confirm_resize_server(self):
         self._test_resize_server(self.flavor_ref_alt)
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.addCleanup(
             lambda: (self._test_resize_server(self.flavor_ref),
                      self._test_confirm_resize_server())
@@ -220,7 +220,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:servers:rebuild")
     @decorators.idempotent_id('54b1a30b-c96c-472c-9c83-ccaf6ec7e20b')
     def test_rebuild_server(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.rebuild_server(self.server_id, self.image_ref)
         waiters.wait_for_server_status(self.client, self.server_id,
                                        'ACTIVE')
@@ -230,7 +230,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:servers:reboot")
     @decorators.idempotent_id('19f27856-56e1-44f8-8615-7257f6b85cbb')
     def test_reboot_server(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.reboot_server(self.server_id, type='HARD')
         waiters.wait_for_server_status(self.client, self.server_id,
                                        'ACTIVE')
@@ -240,7 +240,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:servers:index")
     @decorators.idempotent_id('631f0d86-7607-4198-8312-9da2f05464a4')
     def test_server_index(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.list_servers(minimal=True)
 
     @rbac_rule_validation.action(
@@ -248,7 +248,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:servers:detail")
     @decorators.idempotent_id('96093480-3ce5-4a8b-b569-aed870379c24')
     def test_server_detail(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.list_servers(detail=True)
 
     @rbac_rule_validation.action(
@@ -256,7 +256,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:servers:detail:get_all_tenants")
     @decorators.idempotent_id('a9e5a1c0-acfe-49a2-b2b1-fd8b19d61f71')
     def test_server_detail_all_tenants(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.list_servers(detail=True, all_tenants=1)
 
     @rbac_rule_validation.action(
@@ -264,7 +264,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:servers:index:get_all_tenants")
     @decorators.idempotent_id('4b93ba56-69e6-41f5-82c4-84a5c4c42091')
     def test_server_index_all_tenants(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.list_servers(minimal=True, all_tenants=1)
 
     @rbac_rule_validation.action(
@@ -272,7 +272,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:servers:show")
     @decorators.idempotent_id('eaaf4f51-31b5-497f-8f0f-f527e5f70b83')
     def test_show_server(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.show_server(self.server_id)
 
     @rbac_rule_validation.action(
@@ -280,7 +280,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:servers:create_image")
     @decorators.idempotent_id('ba0ac859-99f4-4055-b5e0-e0905a44d331')
     def test_create_image(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
 
         # This function will also call show image
         self.create_image_from_server(self.server_id,
@@ -292,7 +292,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('8b869f73-49b3-4cc4-a0ce-ef64f8e1d6f9')
     def test_create_image_volume_backed(self):
         server = self._create_test_server_with_volume(self.volume_id)
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
 
         # This function will also call show image
         self.create_image_from_server(server['id'],
@@ -344,7 +344,7 @@ class ServerActionsV216RbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:servers:show:host_status")
     @decorators.idempotent_id('736da575-86f8-4b2a-9902-dd37dc9a409b')
     def test_show_server_host_status(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         server = self.client.show_server(self.server_id)['server']
 
         if 'host_status' not in server:

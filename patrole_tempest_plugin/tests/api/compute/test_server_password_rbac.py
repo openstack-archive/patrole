@@ -45,7 +45,7 @@ class ServerPasswordRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-server-password")
     def test_delete_server_password(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.delete_password(self.server['id'])
 
     @rbac_rule_validation.action(
@@ -53,5 +53,5 @@ class ServerPasswordRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-server-password")
     @decorators.idempotent_id('f677971a-7d20-493c-977f-6ff0a74b5b2c')
     def test_get_server_password(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.show_password(self.server['id'])

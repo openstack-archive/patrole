@@ -49,7 +49,7 @@ class AssistedVolumeSnapshotRbacTest(rbac_base.BaseV2ComputeRbacTest):
         RBAC test for assisted volume snapshot role-create
         """
         self._create_and_attach()
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.assisted_volume_snapshot_client.\
             create_volume_attachments(self.volume['id'],
                                       data_utils.rand_uuid())
@@ -68,6 +68,6 @@ class AssistedVolumeSnapshotRbacTest(rbac_base.BaseV2ComputeRbacTest):
         snapshot_id = data_utils.rand_uuid()
         self.assisted_volume_snapshot_client.\
             create_volume_attachments(self.volume['id'], snapshot_id)
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.assisted_volume_snapshot_client.\
             delete_volume_attachments(snapshot_id, self.volume['id'])

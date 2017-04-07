@@ -35,7 +35,7 @@ class BaseVolumeRbacTest(vol_base.BaseVolumeTest):
         super(BaseVolumeRbacTest, cls).setup_clients()
         cls.auth_provider = cls.os.auth_provider
         cls.rbac_utils = rbac_utils()
-        cls.rbac_utils.switch_role(cls, switchToRbacRole=False)
+        cls.rbac_utils.switch_role(cls, toggle_rbac_role=False)
 
 
 class BaseVolumeAdminRbacTest(vol_base.BaseVolumeAdminTest):
@@ -54,7 +54,7 @@ class BaseVolumeAdminRbacTest(vol_base.BaseVolumeAdminTest):
         super(BaseVolumeAdminRbacTest, cls).setup_clients()
         cls.auth_provider = cls.os.auth_provider
         cls.rbac_utils = rbac_utils()
-        cls.rbac_utils.switch_role(cls, switchToRbacRole=False)
+        cls.rbac_utils.switch_role(cls, toggle_rbac_role=False)
         version_checker = {
             1: [cls.os.volume_hosts_client, cls.os.volume_types_client],
             2: [cls.os.volume_hosts_v2_client, cls.os.volume_types_v2_client],

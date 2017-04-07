@@ -44,20 +44,20 @@ class ResourceTypesRbacTest(rbac_base.BaseOrchestrationRbacTest):
     @rbac_rule_validation.action(service="heat",
                                  rule="stacks:list_resource_types")
     def test_list_resource_types(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.list_resource_types()['resource_types']
 
     @decorators.idempotent_id('8b0290f9-0d53-479e-8e4d-3d865b0107a4')
     @rbac_rule_validation.action(service="heat",
                                  rule="stacks:generate_template")
     def test_show_resource_type_template(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.show_resource_type_template(self.resource_type_name)
 
     @decorators.idempotent_id('2cdcd47f-6abe-43af-b736-c188df27dd38')
     @rbac_rule_validation.action(service="heat",
                                  rule="stacks:resource_schema")
     def test_show_resource_type_schema(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.show_resource_type(self.resource_type_name)[
             'resource_type']

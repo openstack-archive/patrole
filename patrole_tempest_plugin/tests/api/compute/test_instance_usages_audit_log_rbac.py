@@ -40,6 +40,6 @@ class InstanceUsagesAuditLogAdminRbacTest(
     @rbac_rule_validation.action(
         service="nova", rule="os_compute_api:os-instance-usage-audit-log")
     def test_list_instance_usage_audit_logs(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.list_instance_usage_audit_logs()
         ["instance_usage_audit_logs"]

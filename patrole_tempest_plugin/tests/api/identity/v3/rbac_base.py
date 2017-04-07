@@ -40,7 +40,7 @@ class BaseIdentityV3RbacAdminTest(base.BaseIdentityV3AdminTest):
         cls.auth_provider = cls.os.auth_provider
 
         cls.rbac_utils = rbac_utils()
-        cls.rbac_utils.switch_role(cls, switchToRbacRole=False)
+        cls.rbac_utils.switch_role(cls, toggle_rbac_role=False)
 
         cls.creds_client = cls.os.credentials_client
         cls.consumers_client = cls.os.oauth_consumers_client

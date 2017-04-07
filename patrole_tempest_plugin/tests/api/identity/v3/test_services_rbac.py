@@ -26,7 +26,7 @@ class IdentitySericesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
                                  rule="identity:create_service")
     @decorators.idempotent_id('9a4bb317-f0bb-4005-8df0-4b672885b7c8')
     def test_create_service(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.setup_test_service()
 
     @rbac_rule_validation.action(service="keystone",
@@ -36,7 +36,7 @@ class IdentitySericesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
         service = self.setup_test_service()
         new_name = data_utils.rand_name('service')
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.services_client.update_service(service['id'],
                                             service=service,
                                             name=new_name,
@@ -48,7 +48,7 @@ class IdentitySericesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
     def test_delete_service(self):
         service = self.setup_test_service()
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.services_client.delete_service(service['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -57,12 +57,12 @@ class IdentitySericesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
     def test_show_service(self):
         service = self.setup_test_service()
 
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.services_client.show_service(service['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:list_services")
     @decorators.idempotent_id('706e6bea-3385-4718-919c-0b5121395806')
     def test_list_services(self):
-        self.rbac_utils.switch_role(self, switchToRbacRole=True)
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.services_client.list_services()
