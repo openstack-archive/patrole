@@ -15,31 +15,31 @@
 
 from tempest import config
 from tempest.lib import decorators
+from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
-
 CONF = config.CONF
 
 
-class ServersAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
+class AdminServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
     def setup_clients(cls):
-        super(ServersAdminRbacTest, cls).setup_clients()
+        super(AdminServerActionsRbacTest, cls).setup_clients()
         cls.client = cls.servers_client
 
     @classmethod
     def skip_checks(cls):
-        super(ServersAdminRbacTest, cls).skip_checks()
-        if not CONF.compute_feature_enabled.api_extensions:
-            raise cls.skipException(
-                '%s skipped as no compute extensions enabled' % cls.__name__)
+        super(AdminServerActionsRbacTest, cls).skip_checks()
+        if not test.is_extension_enabled('os-admin-actions', 'compute'):
+            msg = "%s skipped as os-admin-actions not enabled." % cls.__name__
+            raise cls.skipException(msg)
 
     @classmethod
     def resource_setup(cls):
-        super(ServersAdminRbacTest, cls).resource_setup()
+        super(AdminServerActionsRbacTest, cls).resource_setup()
         cls.server_id = cls.create_test_server(wait_until='ACTIVE')['id']
 
     @rbac_rule_validation.action(
