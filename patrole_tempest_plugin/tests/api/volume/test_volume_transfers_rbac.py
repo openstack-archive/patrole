@@ -14,26 +14,22 @@
 #    under the License.
 
 from tempest.common import waiters
-from tempest import config
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
-CONF = config.CONF
-
 
 class VolumesTransfersRbacTest(rbac_base.BaseVolumeRbacTest):
 
-    credentials = ['primary', 'admin', 'alt']
+    credentials = ['primary', 'admin']
 
     @classmethod
     def setup_clients(cls):
         super(VolumesTransfersRbacTest, cls).setup_clients()
-        cls.client = cls.volumes_client
-        cls.alt_client = cls.os_alt.volumes_client
-        cls.alt_tenant_id = cls.alt_client.tenant_id
+        cls.client = cls.os.volume_transfers_v2_client
+        cls.adm_volumes_client = cls.os_adm.volumes_v2_client
 
     @classmethod
     def resource_setup(cls):
@@ -43,11 +39,11 @@ class VolumesTransfersRbacTest(rbac_base.BaseVolumeRbacTest):
     def _delete_transfer(self, transfer):
         # Volume from create_volume_transfer test may get stuck in
         # 'awaiting-transfer' state, preventing cleanup and causing
-        # the test to fail
+        # the test to fail.
         test_utils.call_and_ignore_notfound_exc(
             self.client.delete_volume_transfer, transfer['id'])
         waiters.wait_for_volume_resource_status(
-            self.client, self.volume['id'], 'available')
+            self.adm_volumes_client, self.volume['id'], 'available')
 
     def _create_transfer(self):
         transfer = self.client.create_volume_transfer(
