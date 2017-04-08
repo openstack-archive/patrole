@@ -20,12 +20,11 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.identity.v3 import rbac_base
 
 
-class IdentityUserV3AdminRbacTest(
-        rbac_base.BaseIdentityV3RbacAdminTest):
+class IdentityUserV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     @classmethod
     def resource_setup(cls):
-        super(IdentityUserV3AdminRbacTest, cls).resource_setup()
+        super(IdentityUserV3RbacTest, cls).resource_setup()
         cls.default_user_id = cls.auth_provider.credentials.user_id
 
     @rbac_rule_validation.action(service="keystone",

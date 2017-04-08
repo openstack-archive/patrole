@@ -22,11 +22,11 @@ from patrole_tempest_plugin.tests.api.identity.v2 import rbac_base
 CONF = config.CONF
 
 
-class IdentityServicesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
+class IdentityServicesV2RbacTest(rbac_base.BaseIdentityV2RbacTest):
 
     @classmethod
     def setup_clients(cls):
-        super(IdentityServicesV2AdminRbacTest, cls).setup_clients()
+        super(IdentityServicesV2RbacTest, cls).setup_clients()
         cls.services_client = cls.os.identity_services_client
 
     @rbac_rule_validation.action(service="keystone",
@@ -36,7 +36,7 @@ class IdentityServicesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
     def test_create_service(self):
         """Create Service Test
 
-        RBAC test for Identity Admin 2.0 create_service
+        RBAC test for Identity v2 create_service
         """
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._create_service()
@@ -48,7 +48,7 @@ class IdentityServicesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
     def test_delete_service(self):
         """Delete Service Test
 
-        RBAC test for Identity Admin 2.0 delete_service
+        RBAC test for Identity v2 delete_service
         """
         service_id = self._create_service()['OS-KSADM:service']['id']
 
@@ -62,7 +62,7 @@ class IdentityServicesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
     def test_show_service(self):
         """Show Service Test
 
-        RBAC test for Identity Admin 2.0 show_service
+        RBAC test for Identity v2 show_service
         """
         service_id = self._create_service()['OS-KSADM:service']['id']
 
@@ -76,7 +76,7 @@ class IdentityServicesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
     def test_list_services(self):
         """List all the services
 
-        RBAC test for Identity Admin 2.0 list_service
+        RBAC test for Identity v2 list_service
         """
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.services_client.list_services()

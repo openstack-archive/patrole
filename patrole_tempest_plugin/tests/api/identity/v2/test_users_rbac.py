@@ -20,7 +20,7 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.identity.v2 import rbac_base
 
 
-class IdentityUserV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
+class IdentityUserV2RbacTest(rbac_base.BaseIdentityV2RbacTest):
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:create_user",

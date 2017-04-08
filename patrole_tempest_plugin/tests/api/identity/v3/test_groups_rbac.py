@@ -20,7 +20,7 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.identity.v3 import rbac_base
 
 
-class IdentityGroupsV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
+class IdentityGroupsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     def _create_user_and_add_to_new_group(self):
         """Creates a user and adds to a group for test."""
