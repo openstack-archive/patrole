@@ -13,22 +13,30 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from tempest import config
+from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
-CONF = config.CONF
 
+class VolumeTypesExtraSpecsRbacTest(rbac_base.BaseVolumeRbacTest):
 
-class VolumeTypesExtraSpecsAdminRbacTest(rbac_base.BaseVolumeAdminRbacTest):
+    def _create_volume_type(self, name=None, **kwargs):
+        """Create a test volume-type"""
+        name = name or data_utils.rand_name(
+            self.__class__.__name__ + '-volume-type')
+        volume_type = self.volume_types_client.create_volume_type(
+            name=name, **kwargs)['volume_type']
+        self.addCleanup(self.volume_types_client.delete_volume_type,
+                        volume_type['id'])
+        return volume_type
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume_extension:types_extra_specs")
     @decorators.idempotent_id('eea40251-990b-49b0-99ae-10e4585b479b')
-    def test_volume_type_extra_specs_list(self):
-        vol_type = self.create_volume_type()
+    def test_create_volume_type_extra_specs(self):
+        vol_type = self._create_volume_type()
         # List Volume types extra specs.
         extra_specs = {"spec1": "val1"}
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)

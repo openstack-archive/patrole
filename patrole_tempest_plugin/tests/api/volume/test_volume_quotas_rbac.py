@@ -27,16 +27,16 @@ CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
 
-class VolumeQuotasAdminRbacTest(rbac_base.BaseVolumeAdminRbacTest):
+class VolumeQuotasRbacTest(rbac_base.BaseVolumeRbacTest):
 
     @classmethod
     def setup_credentials(cls):
-        super(VolumeQuotasAdminRbacTest, cls).setup_credentials()
+        super(VolumeQuotasRbacTest, cls).setup_credentials()
         cls.demo_tenant_id = cls.os.credentials.tenant_id
 
     @classmethod
     def setup_clients(cls):
-        super(VolumeQuotasAdminRbacTest, cls).setup_clients()
+        super(VolumeQuotasRbacTest, cls).setup_clients()
         cls.client = cls.os.volume_quotas_client
 
     @rbac_rule_validation.action(service="cinder",
@@ -61,5 +61,5 @@ class VolumeQuotasAdminRbacTest(rbac_base.BaseVolumeAdminRbacTest):
             **new_quota_set)['quota_set']
 
 
-class VolumeQuotasAdminV3RbacTest(VolumeQuotasAdminRbacTest):
+class VolumeQuotasV3RbacTest(VolumeQuotasRbacTest):
     _api_version = 3
