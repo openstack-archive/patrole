@@ -274,6 +274,11 @@ class RBACRuleValidationTest(base.TestCase):
     def test_invalid_policy_rule_throws_parsing_exception(
             self, mock_rbac_policy_parser):
         """Test that invalid policy action causes test to be skipped."""
+        CONF.set_override('strict_policy_check', True, group='rbac',
+                          enforce_type=True)
+        self.addCleanup(CONF.clear_override, 'strict_policy_check',
+                        group='rbac')
+
         mock_rbac_policy_parser.RbacPolicyParser.return_value.allowed.\
             side_effect = rbac_exceptions.RbacParsingException
 
