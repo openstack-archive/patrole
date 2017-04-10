@@ -73,7 +73,7 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
     @test.attr(type="slow")
     @rbac_rule_validation.action(service="cinder", rule="volume:detach")
     @decorators.idempotent_id('5a042f6a-688b-42e6-a02e-fe5c47b89b07')
-    def test_detach_volume_to_instance(self):
+    def test_detach_volume_from_instance(self):
         # Attach the volume
         server = self._create_server()
         self._attach_volume(server)

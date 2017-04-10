@@ -57,7 +57,7 @@ class SnapshotMetadataRbacTest(rbac_base.BaseVolumeRbacTest):
         self._create_test_snapshot_metadata()
 
     @rbac_rule_validation.action(service="cinder",
-                                 rule="volume:get_volume_image_metadata")
+                                 rule="volume:get_snapshot_metadata")
     @decorators.idempotent_id('f6912bb1-62e6-483d-bcd0-e98c1641f4c3')
     def test_get_snapshot_metadata(self):
         # Create volume and snapshot metadata

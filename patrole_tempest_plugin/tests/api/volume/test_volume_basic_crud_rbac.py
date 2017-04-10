@@ -57,7 +57,7 @@ class VolumesV2BasicCrudRbacTest(rbac_base.BaseVolumeRbacTest):
 
     @rbac_rule_validation.action(
         service="cinder",
-        rule="volume_extension:get_volumes_image_metadata")
+        rule="volume_extension:volume_image_metadata")
     @decorators.idempotent_id('3d48ca91-f02b-4616-a69d-4a8b296c8529')
     def test_volume_list_image_metadata(self):
         # Get a list of Volumes
