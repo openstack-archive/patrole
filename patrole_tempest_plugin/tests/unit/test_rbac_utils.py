@@ -195,23 +195,38 @@ class RBACUtilsTest(base.TestCase):
                        autospec=True, return_value=False)
     @mock.patch.object(rbac_utils, 'LOG', autospec=True)
     @mock.patch.object(rbac_utils, 'sys', autospec=True)
-    def test_rbac_utils_switch_roles_with_skip_exception(self, mock_sys,
-                                                         mock_log, _):
+    def test_rbac_utils_switch_roles_with_unhandled_exception(self, mock_sys,
+                                                              mock_log, _):
+        """Test whether throwing an unhandled exception doesn't throw error.
+
+        If a skip exception, say, is thrown then this means that switch_role is
+        never called within the test function. But if an unhandled exception
+        or skip exception is thrown, then this should not result in an error
+        being raised.
+        """
         self._mock_list_user_roles_on_project('member_id')
 
-        mock_skip_exception = mock.Mock(spec=testtools.TestCase.skipException)
-        mock_sys.exc_info.return_value = [None, mock_skip_exception]
+        # Skip exception is an example of a legitimate case where `switch_role`
+        # is thrown. AttributeError, on the other hand, is an example of an
+        # unexpected exception being thrown that should be allowed to bubble
+        # up, rather than being obfuscated by `switch_role` error being thrown
+        # instead.
+        unhandled_exceptions = [testtools.TestCase.skipException,
+                                AttributeError]
 
-        # Ordinarily switching to the same role would result in an error,
-        # but because the skipException is thrown before the test finishes,
-        # this is not treated as a failure.
-        self.rbac_utils.switch_role(self.mock_test_obj, False)
-        self.rbac_utils.switch_role(self.mock_test_obj, False)
-        mock_log.error.assert_not_called()
+        for unhandled_exception in unhandled_exceptions:
+            mock_sys.exc_info.return_value = [unhandled_exception]
 
-        self.rbac_utils.switch_role(self.mock_test_obj, True)
-        self.rbac_utils.switch_role(self.mock_test_obj, True)
-        mock_log.error.assert_not_called()
+            # Ordinarily switching to the same role would result in an error,
+            # but because the skipException is thrown before the test finishes,
+            # this is not treated as a failure.
+            self.rbac_utils.switch_role(self.mock_test_obj, False)
+            self.rbac_utils.switch_role(self.mock_test_obj, False)
+            mock_log.error.assert_not_called()
+
+            self.rbac_utils.switch_role(self.mock_test_obj, True)
+            self.rbac_utils.switch_role(self.mock_test_obj, True)
+            mock_log.error.assert_not_called()
 
     @mock.patch.object(rbac_utils.rbac_utils, '_clear_user_roles',
                        autospec=True, return_value=False)

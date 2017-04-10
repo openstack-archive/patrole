@@ -14,7 +14,6 @@
 #    under the License.
 
 import sys
-import testtools
 import time
 
 from oslo_log import log as logging
@@ -137,10 +136,11 @@ class RbacUtils(object):
         self.switch_role_history.setdefault(key, None)
 
         if self.switch_role_history[key] == toggle_rbac_role:
-            # If the test was skipped, then this is a legitimate use case,
-            # so do not throw an exception.
-            exc_value = sys.exc_info()[1]
-            if not isinstance(exc_value, testtools.TestCase.skipException):
+            # If an exception was thrown, like a skipException or otherwise,
+            # then this is a legitimate reason why `switch_role` was not
+            # called, so only raise an exception if no current exception is
+            # being handled.
+            if sys.exc_info()[0] is None:
                 self.switch_role_history[key] = False
                 error_message = '`toggle_rbac_role` must not be called with '\
                     'the same bool value twice. Make sure that you included '\
