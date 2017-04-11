@@ -13,15 +13,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from oslo_log import log as logging
-from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.image import rbac_base as base
-
-CONF = config.CONF
-LOG = logging.getLogger(__name__)
 
 
 class ImagesMemberRbacTest(base.BaseV2ImageRbacTest):

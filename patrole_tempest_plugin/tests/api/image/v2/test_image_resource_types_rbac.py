@@ -13,7 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
@@ -21,10 +20,8 @@ from tempest.lib import decorators
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.image import rbac_base
 
-CONF = config.CONF
 
-
-class ImageNamespacesResourceTypeRbacTest(rbac_base.BaseV2ImageRbacTest):
+class ImageResourceTypesRbacTest(rbac_base.BaseV2ImageRbacTest):
 
     @rbac_rule_validation.action(service="glance",
                                  rule="list_metadef_resource_types")
