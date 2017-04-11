@@ -13,6 +13,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from oslo_serialization import base64
+from oslo_serialization import jsonutils as json
+
 from tempest.common import waiters
 from tempest import config
 from tempest.lib.common.utils import data_utils
@@ -49,6 +52,18 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
         waiters.wait_for_volume_resource_status(
             self.backups_client, backup['id'], 'available')
         return backup
+
+    def _decode_url(self, backup_url):
+        return json.loads(base64.decode_as_text(backup_url))
+
+    def _encode_backup(self, backup):
+        retval = json.dumps(backup)
+        return base64.encode_as_text(retval)
+
+    def _modify_backup_url(self, backup_url, changes):
+        backup = self._decode_url(backup_url)
+        backup.update(changes)
+        return self._encode_backup(backup)
 
     @test.attr(type="slow")
     @rbac_rule_validation.action(service="cinder",
@@ -100,6 +115,39 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
         # Delete backup
         self.backups_client.delete_backup(backup['id'])
         self.backups_client.wait_for_resource_deletion(backup['id'])
+
+    @test.attr(type='slow')
+    @rbac_rule_validation.action(service="cinder",
+                                 rule="backup:backup-export")
+    @decorators.idempotent_id('e984ec8d-e8eb-485c-98bc-f1856020303c')
+    def test_volume_backup_export(self):
+        # Create a temp backup
+        backup = self._create_backup(volume_id=self.volume['id'])
+
+        # Export Backup
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.backups_client.export_backup(backup['id'])['backup-record']
+
+    @test.attr(type='slow')
+    @rbac_rule_validation.action(service="cinder",
+                                 rule="backup:backup-import")
+    @decorators.idempotent_id('1e70f039-4556-44cc-9cc1-edf2b7ed648b')
+    def test_volume_backup_import(self):
+        # Create a temp backup
+        backup = self._create_backup(volume_id=self.volume['id'])
+        # Export a temp backup
+        export_backup = self.backups_client.export_backup(
+            backup['id'])['backup-record']
+        new_id = data_utils.rand_uuid()
+        new_url = self._modify_backup_url(
+            export_backup['backup_url'], {'id': new_id})
+
+        # Import the temp backup
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        import_backup = self.backups_client.import_backup(
+            backup_service=export_backup['backup_service'],
+            backup_url=new_url)['backup']
+        self.addCleanup(self.backups_client.delete_backup, import_backup['id'])
 
 
 class VolumesBackupsV3RbacTest(VolumesBackupsRbacTest):
