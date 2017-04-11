@@ -20,12 +20,12 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 
-class InstanceUsagesAuditLogAdminRbacTest(
-        rbac_base.BaseV2ComputeAdminRbacTest):
+class InstanceUsagesAuditLogRbacTest(
+        rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
     def skip_checks(cls):
-        super(InstanceUsagesAuditLogAdminRbacTest, cls).skip_checks()
+        super(InstanceUsagesAuditLogRbacTest, cls).skip_checks()
         if not test.is_extension_enabled('os-instance-usage-audit-log',
                                          'compute'):
             msg = "os-instance-usage-audit-log extension not enabled."
@@ -33,7 +33,7 @@ class InstanceUsagesAuditLogAdminRbacTest(
 
     @classmethod
     def setup_clients(cls):
-        super(InstanceUsagesAuditLogAdminRbacTest, cls).setup_clients()
+        super(InstanceUsagesAuditLogRbacTest, cls).setup_clients()
         cls.client = cls.instance_usages_audit_log_client
 
     @decorators.idempotent_id('c80246c0-5c13-4ab0-97ba-91551cd53dc1')

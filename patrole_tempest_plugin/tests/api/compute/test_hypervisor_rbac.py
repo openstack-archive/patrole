@@ -20,16 +20,16 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 
-class HypervisorAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
+class HypervisorRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
     def setup_clients(cls):
-        super(HypervisorAdminRbacTest, cls).setup_clients()
+        super(HypervisorRbacTest, cls).setup_clients()
         cls.client = cls.hypervisor_client
 
     @classmethod
     def skip_checks(cls):
-        super(HypervisorAdminRbacTest, cls).skip_checks()
+        super(HypervisorRbacTest, cls).skip_checks()
         if not test.is_extension_enabled('os-hypervisors', 'compute'):
             msg = "%s skipped as os-hypervisors extension not enabled." \
                   % cls.__name__

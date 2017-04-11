@@ -13,28 +13,26 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from tempest import config
 from tempest.lib import decorators
+from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
-CONF = config.CONF
 
-
-class ServicesAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
+class ServicesRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
     def setup_clients(cls):
-        super(ServicesAdminRbacTest, cls).setup_clients()
+        super(ServicesRbacTest, cls).setup_clients()
         cls.client = cls.services_client
 
     @classmethod
     def skip_checks(cls):
-        super(ServicesAdminRbacTest, cls).skip_checks()
-        if not CONF.compute_feature_enabled.api_extensions:
+        super(ServicesRbacTest, cls).skip_checks()
+        if not test.is_extension_enabled('os-services', 'compute'):
             raise cls.skipException(
-                '%s skipped as no compute extensions enabled' % cls.__name__)
+                '%s skipped as os-services not enabled' % cls.__name__)
 
     @rbac_rule_validation.action(
         service="nova",

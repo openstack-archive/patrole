@@ -22,16 +22,16 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 CONF = config.CONF
 
 
-class MigrationsAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
+class MigrationsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
     def setup_clients(cls):
-        super(MigrationsAdminRbacTest, cls).setup_clients()
+        super(MigrationsRbacTest, cls).setup_clients()
         cls.client = cls.migrations_client
 
     @classmethod
     def skip_checks(cls):
-        super(MigrationsAdminRbacTest, cls).skip_checks()
+        super(MigrationsRbacTest, cls).skip_checks()
         if not CONF.compute_feature_enabled.api_extensions:
             raise cls.skipException(
                 '%s skipped as no compute extensions enabled' % cls.__name__)

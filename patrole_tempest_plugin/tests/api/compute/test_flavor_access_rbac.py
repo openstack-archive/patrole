@@ -14,7 +14,6 @@
 #    under the License.
 
 from oslo_config import cfg
-from oslo_log import log
 
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
@@ -24,19 +23,18 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 CONF = cfg.CONF
-LOG = log.getLogger(__name__)
 
 
-class FlavorAccessAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
+class FlavorAccessRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
     def setup_clients(cls):
-        super(FlavorAccessAdminRbacTest, cls).setup_clients()
+        super(FlavorAccessRbacTest, cls).setup_clients()
         cls.client = cls.flavors_client
 
     @classmethod
     def skip_checks(cls):
-        super(FlavorAccessAdminRbacTest, cls).skip_checks()
+        super(FlavorAccessRbacTest, cls).skip_checks()
         if not test.is_extension_enabled('OS-FLV-EXT-DATA', 'compute'):
             msg = "%s skipped as OS-FLV-EXT-DATA extension not enabled."\
                   % cls.__name__
@@ -44,7 +42,7 @@ class FlavorAccessAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
 
     @classmethod
     def resource_setup(cls):
-        super(FlavorAccessAdminRbacTest, cls).resource_setup()
+        super(FlavorAccessRbacTest, cls).resource_setup()
         cls.flavor_id = cls._create_flavor(is_public=False)['id']
         cls.public_flavor_id = CONF.compute.flavor_ref
         cls.tenant_id = cls.auth_provider.credentials.tenant_id

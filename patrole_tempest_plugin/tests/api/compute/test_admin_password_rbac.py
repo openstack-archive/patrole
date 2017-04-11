@@ -13,8 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import testtools
-
 from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
@@ -26,27 +24,24 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 CONF = config.CONF
 
 
-class PasswordAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
-
-    @classmethod
-    def setup_clients(cls):
-        super(PasswordAdminRbacTest, cls).setup_clients()
-        cls.client = cls.servers_client
+class AdminPasswordRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
     def skip_checks(cls):
-        super(PasswordAdminRbacTest, cls).skip_checks()
-        if not CONF.compute_feature_enabled.api_extensions:
-            raise cls.skipException(
-                '%s skipped as no compute extensions enabled' % cls.__name__)
+        super(AdminPasswordRbacTest, cls).skip_checks()
+        if not CONF.compute_feature_enabled.change_password:
+            raise cls.skipException('Change password not available.')
+
+    @classmethod
+    def setup_clients(cls):
+        super(AdminPasswordRbacTest, cls).setup_clients()
+        cls.client = cls.servers_client
 
     @classmethod
     def resource_setup(cls):
-        super(PasswordAdminRbacTest, cls).resource_setup()
+        super(AdminPasswordRbacTest, cls).resource_setup()
         cls.server_id = cls.create_test_server(wait_until='ACTIVE')['id']
 
-    @testtools.skipUnless(CONF.compute_feature_enabled.change_password,
-                          'Change password not available.')
     @rbac_rule_validation.action(
         service="nova", rule="os_compute_api:os-admin-password")
     @decorators.idempotent_id('908a7d59-3a66-441c-94cf-38e57ed14956')

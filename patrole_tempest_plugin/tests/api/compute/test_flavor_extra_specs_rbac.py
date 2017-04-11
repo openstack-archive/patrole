@@ -22,30 +22,30 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 
-class FlavorExtraSpecsAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
+class FlavorExtraSpecsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
     def setup_clients(cls):
-        super(FlavorExtraSpecsAdminRbacTest, cls).setup_clients()
+        super(FlavorExtraSpecsRbacTest, cls).setup_clients()
         cls.client = cls.flavors_client
 
     @classmethod
     def skip_checks(cls):
-        super(FlavorExtraSpecsAdminRbacTest, cls).skip_checks()
+        super(FlavorExtraSpecsRbacTest, cls).skip_checks()
         if not test.is_extension_enabled('os-flavor-extra-specs', 'compute'):
             msg = "os-flavor-extra-specs extension not enabled."
             raise cls.skipException(msg)
 
     @classmethod
     def resource_setup(cls):
-        super(FlavorExtraSpecsAdminRbacTest, cls).resource_setup()
+        super(FlavorExtraSpecsRbacTest, cls).resource_setup()
         cls.flavor = cls._create_flavor()
 
     @classmethod
     def resource_cleanup(cls):
         cls.client.delete_flavor(cls.flavor['id'])
         cls.client.wait_for_resource_deletion(cls.flavor['id'])
-        super(FlavorExtraSpecsAdminRbacTest, cls).resource_cleanup()
+        super(FlavorExtraSpecsRbacTest, cls).resource_cleanup()
 
     def _set_flavor_extra_spec(self):
         rand_key = data_utils.rand_name('key')

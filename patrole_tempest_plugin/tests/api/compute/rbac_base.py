@@ -11,11 +11,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from tempest.lib.common.utils import data_utils
-from tempest.lib.common.utils import test_utils
-
 from tempest.api.compute import base as compute_base
 from tempest import config
+from tempest.lib.common.utils import data_utils
+from tempest.lib.common.utils import test_utils
 
 from patrole_tempest_plugin.rbac_utils import rbac_utils
 
@@ -40,34 +39,15 @@ class BaseV2ComputeRbacTest(compute_base.BaseV2ComputeTest):
         cls.rbac_utils = rbac_utils()
         cls.rbac_utils.switch_role(cls, toggle_rbac_role=False)
 
-
-class BaseV2ComputeAdminRbacTest(compute_base.BaseV2ComputeAdminTest):
-
-    credentials = ['admin', 'primary']
-
-    @classmethod
-    def skip_checks(cls):
-        super(BaseV2ComputeAdminRbacTest, cls).skip_checks()
-        if not CONF.rbac.enable_rbac:
-            raise cls.skipException(
-                '%s skipped as RBAC flag not enabled' % cls.__name__)
-
-    @classmethod
-    def setup_clients(cls):
-        super(BaseV2ComputeAdminRbacTest, cls).setup_clients()
-        cls.auth_provider = cls.os.auth_provider
-        cls.rbac_utils = rbac_utils()
-        cls.rbac_utils.switch_role(cls, toggle_rbac_role=False)
-
     @classmethod
     def resource_setup(cls):
-        super(BaseV2ComputeAdminRbacTest, cls).resource_setup()
+        super(BaseV2ComputeRbacTest, cls).resource_setup()
         cls.flavors = []
 
     @classmethod
     def resource_cleanup(cls):
         cls.clear_flavors()
-        super(BaseV2ComputeAdminRbacTest, cls).resource_cleanup()
+        super(BaseV2ComputeRbacTest, cls).resource_cleanup()
 
     @classmethod
     def clear_flavors(cls):

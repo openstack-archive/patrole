@@ -20,16 +20,16 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 
-class FlavorRxtxAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
+class FlavorRxtxRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
     def setup_clients(cls):
-        super(FlavorRxtxAdminRbacTest, cls).setup_clients()
+        super(FlavorRxtxRbacTest, cls).setup_clients()
         cls.client = cls.flavors_client
 
     @classmethod
     def skip_checks(cls):
-        super(FlavorRxtxAdminRbacTest, cls).skip_checks()
+        super(FlavorRxtxRbacTest, cls).skip_checks()
         if not test.is_extension_enabled('os-flavor-rxtx', 'compute'):
             msg = "os-flavor-rxtx extension not enabled."
             raise cls.skipException(msg)

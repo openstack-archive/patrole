@@ -22,16 +22,16 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 CONF = config.CONF
 
 
-class HostsAdminRbacTest(rbac_base.BaseV2ComputeAdminRbacTest):
+class HostsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
     def setup_clients(cls):
-        super(HostsAdminRbacTest, cls).setup_clients()
+        super(HostsRbacTest, cls).setup_clients()
         cls.client = cls.os.hosts_client
 
     @classmethod
     def skip_checks(cls):
-        super(HostsAdminRbacTest, cls).skip_checks()
+        super(HostsRbacTest, cls).skip_checks()
         if not CONF.compute_feature_enabled.api_extensions:
             raise cls.skipException(
                 '%s skipped as no compute extensions enabled' % cls.__name__)
