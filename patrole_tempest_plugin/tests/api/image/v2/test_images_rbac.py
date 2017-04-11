@@ -15,16 +15,11 @@
 
 from six import moves
 
-from oslo_log import log as logging
-from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.image import rbac_base
-
-CONF = config.CONF
-LOG = logging.getLogger(__name__)
 
 
 class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
