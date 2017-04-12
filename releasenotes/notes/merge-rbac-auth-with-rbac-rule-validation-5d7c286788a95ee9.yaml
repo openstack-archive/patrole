@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Merges `rbac_auth` with `rbac_rule_validation`, because `rbac_auth`
+    decentralized logic from `rbac_rule_validation` without providing any
+    authentication-related utility. This change facilitates code maintenance
+    and code readability.
