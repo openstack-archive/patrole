@@ -28,15 +28,11 @@ TEMPEST_CONFIG=$BASE/new/tempest/etc/tempest.conf
 TEMPEST_COMMAND="sudo -H -u tempest tox"
 
 DEVSTACK_GATE_TEMPEST_REGEX="(?!.*\[.*\bslow\b.*\])(^patrole_tempest_plugin\.tests\.api)"
+DEVSTACK_GATE_TEMPEST_HEAT_REGEX="(?!.*\[.*\bslow\b.*\])(^patrole_tempest_plugin\.tests\.api\.orchestration)"
 DEVSTACK_MULTINODE_GATE_TEMPEST_REGEX="(?=.*\[.*\bslow\b.*\])(^patrole_tempest_plugin\.tests\.api)"
 
 # Import devstack function 'iniset'.
 source $BASE/new/devstack/functions
-
-# Use uuid tokens for faster test runs
-KEYSTONE_CONF=/etc/keystone/keystone.conf
-iniset $KEYSTONE_CONF token provider uuid
-sudo service apache2 restart
 
 # First argument is expected to contain value equal either to 'admin' or
 # 'member' (both lower-case).
@@ -50,30 +46,47 @@ fi
 # environment is "multinode" or not (empty string).
 TYPE=$2
 
-# Set enable_rbac=True under [rbac] section in tempest.conf
-iniset $TEMPEST_CONFIG rbac enable_rbac True
-# Set rbac_test_role=$RBAC_ROLE under [rbac] section in tempest.conf
-iniset $TEMPEST_CONFIG rbac rbac_test_role $RBAC_ROLE
-# Set strict_policy_check=False under [rbac] section in tempest.conf
-iniset $TEMPEST_CONFIG rbac strict_policy_check False
-# Set additional, necessary CONF values
-iniset $TEMPEST_CONFIG auth use_dynamic_credentials True
-iniset $TEMPEST_CONFIG auth tempest_roles Member
-iniset $TEMPEST_CONFIG identity auth_version v3
+function set_uuid_tokens() {
+    # Use uuid tokens for faster test runs
+    KEYSTONE_CONF=/etc/keystone/keystone.conf
+    iniset $KEYSTONE_CONF token provider uuid
+    sudo service apache2 restart
+}
 
-# Give permissions back to Tempest.
-sudo chown -R tempest:stack $BASE/new/tempest
-sudo chown -R tempest:stack $BASE/data/tempest
+function setup_config() {
+    # Set enable_rbac=True under [rbac] section in tempest.conf
+    iniset $TEMPEST_CONFIG rbac enable_rbac True
+    # Set rbac_test_role=$RBAC_ROLE under [rbac] section in tempest.conf
+    iniset $TEMPEST_CONFIG rbac rbac_test_role $RBAC_ROLE
+    # Set strict_policy_check=False under [rbac] section in tempest.conf
+    iniset $TEMPEST_CONFIG rbac strict_policy_check False
+    # Set additional, necessary CONF values
+    iniset $TEMPEST_CONFIG auth use_dynamic_credentials True
+    iniset $TEMPEST_CONFIG auth tempest_roles Member
+    iniset $TEMPEST_CONFIG identity auth_version v3
+}
 
-set -o errexit
+function run_tests() {
+    # Give permissions back to Tempest.
+    sudo chown -R tempest:stack $BASE/new/tempest
+    sudo chown -R tempest:stack $BASE/data/tempest
 
-# cd into Tempest directory before executing tox.
-cd $BASE/new/tempest
+    set -o errexit
 
-if [[ "$TYPE" == "multinode" ]]; then
-    $TEMPEST_COMMAND -eall-plugin -- $DEVSTACK_MULTINODE_GATE_TEMPEST_REGEX --concurrency=$TEMPEST_CONCURRENCY
-else
-    $TEMPEST_COMMAND -eall-plugin -- $DEVSTACK_GATE_TEMPEST_REGEX --concurrency=$TEMPEST_CONCURRENCY
-fi
+    # cd into Tempest directory before executing tox.
+    cd $BASE/new/tempest
 
-sudo -H -u tempest .tox/all-plugin/bin/tempest list-plugins
+    if [[ "$TYPE" == "multinode" ]]; then
+        $TEMPEST_COMMAND -eall-plugin -- $DEVSTACK_MULTINODE_GATE_TEMPEST_REGEX --concurrency=$TEMPEST_CONCURRENCY
+    elif [[ "$TYPE" == "heat" ]]; then
+        $TEMPEST_COMMAND -eall-plugin -- $DEVSTACK_GATE_TEMPEST_HEAT_REGEX --concurrency=$TEMPEST_CONCURRENCY
+    else
+        $TEMPEST_COMMAND -eall-plugin -- $DEVSTACK_GATE_TEMPEST_REGEX --concurrency=$TEMPEST_CONCURRENCY
+    fi
+
+    sudo -H -u tempest .tox/all-plugin/bin/tempest list-plugins
+}
+
+set_uuid_tokens
+setup_config
+run_tests
