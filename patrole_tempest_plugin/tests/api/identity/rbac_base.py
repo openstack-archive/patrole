@@ -183,12 +183,17 @@ class BaseIdentityV2AdminRbacTest(BaseIdentityRbacTest):
     def resource_setup(cls):
         super(BaseIdentityV2AdminRbacTest, cls).resource_setup()
         cls.tenants = []
+        cls.tokens = []
 
     @classmethod
     def resource_cleanup(cls):
         for tenant in cls.tenants:
             test_utils.call_and_ignore_notfound_exc(
                 cls.tenants_client.delete_tenant, tenant['id'])
+
+        for token in cls.tokens:
+            test_utils.call_and_ignore_notfound_exc(
+                cls.client.delete_token, token)
 
         super(BaseIdentityV2AdminRbacTest, cls).resource_cleanup()
 
@@ -202,6 +207,15 @@ class BaseIdentityV2AdminRbacTest(BaseIdentityRbacTest):
                 cls.__name__ + '-desc'))['tenant']
         cls.tenants.append(tenant)
         return tenant
+
+    @classmethod
+    def setup_test_token(cls, user_name, password, tenant_name):
+        """Set up a test token."""
+        token = cls.token_client.auth(user_name, password,
+                                      tenant_name)['token']
+        token_id = token['id']
+        cls.tokens.append(token_id)
+        return token_id
 
 
 class BaseIdentityV3RbacTest(BaseIdentityRbacTest):
