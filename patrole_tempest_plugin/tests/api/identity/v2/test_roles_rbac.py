@@ -24,11 +24,11 @@ from patrole_tempest_plugin.tests.api.identity.v2 import rbac_base
 CONF = config.CONF
 
 
-class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
+class IdentityRoleV2RbacTest(rbac_base.BaseIdentityV2RbacTest):
 
     @classmethod
     def setup_clients(cls):
-        super(IdentityRoleV2AdminRbacTest, cls).setup_clients()
+        super(IdentityRoleV2RbacTest, cls).setup_clients()
         cls.roles_client = cls.os.roles_client
 
     def _create_role(self):
@@ -60,7 +60,7 @@ class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         """Create Role Test
 
-        RBAC test for Identity Admin 2.0 role-create
+        RBAC test for Identity v2 role-create
         """
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
@@ -74,7 +74,7 @@ class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         """Delete Role Test
 
-        RBAC test for Identity Admin 2.0 role-delete
+        RBAC test for Identity v2 delete_role
         """
         role = self._create_role()
 
@@ -89,7 +89,7 @@ class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         """Get Role Test
 
-        RBAC test for Identity Admin 2.0
+        RBAC test for Identity v2 show_role
         """
         role = self._create_role()
 
@@ -104,7 +104,7 @@ class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         """List Roles Test
 
-        RBAC test for Identity Admin 2.0 role-list
+        RBAC test for Identity v2 list_roles
         """
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.list_roles()
@@ -117,7 +117,7 @@ class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         """Assign User Role Test
 
-        RBAC test for Identity Admin 2.0 create_user_role_on_project
+        RBAC test for Identity v2 create_user_role_on_project
         """
         tenant, user, role = self._create_tenant_user_and_role()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
@@ -131,7 +131,7 @@ class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         """Remove User Roles Test
 
-        RBAC test for Identity Admin 2.0 delete_role_from_user_on_project
+        RBAC test for Identity v2 delete_role_from_user_on_project
         """
         tenant, user, role = self._create_tenant_user_and_role()
         self._create_role_on_project(tenant, user, role)
@@ -148,7 +148,7 @@ class IdentityRoleV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         """List User Roles Test
 
-        RBAC test for Identity Admin 2.0 list_user_roles_on_project
+        RBAC test for Identity v2 list_user_roles_on_project
         """
         tenant = self._create_tenant()
         user = self._create_user(tenantid=tenant['id'])

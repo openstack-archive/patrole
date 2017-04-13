@@ -19,12 +19,11 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.identity.v3 import rbac_base
 
 
-class IdentityRoleAssignmentsV3AdminRbacTest(
-        rbac_base.BaseIdentityV3RbacAdminTest):
+class IdentityRoleAssignmentsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     @classmethod
     def setup_clients(cls):
-        super(IdentityRoleAssignmentsV3AdminRbacTest, cls).setup_clients()
+        super(IdentityRoleAssignmentsV3RbacTest, cls).setup_clients()
         cls.client = cls.role_assignments_client
 
     @decorators.idempotent_id('afe57adb-1b9c-43d9-84a9-f0cf4c94e416')

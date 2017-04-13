@@ -23,25 +23,32 @@ from patrole_tempest_plugin.rbac_utils import rbac_utils
 CONF = config.CONF
 
 
-class BaseIdentityV2AdminRbacTest(base.BaseIdentityV2AdminTest):
+class BaseIdentityV2RbacTest(base.BaseIdentityV2Test):
 
     credentials = ['admin', 'primary']
 
     @classmethod
     def skip_checks(cls):
-        super(BaseIdentityV2AdminRbacTest, cls).skip_checks()
+        super(BaseIdentityV2RbacTest, cls).skip_checks()
         if not CONF.rbac.enable_rbac:
             raise cls.skipException(
-                "%s skipped as RBAC Flag not enabled" % cls.__name__)
+                "%s skipped as RBAC testing not enabled" % cls.__name__)
 
     @classmethod
     def setup_clients(cls):
-        super(BaseIdentityV2AdminRbacTest, cls).setup_clients()
+        super(BaseIdentityV2RbacTest, cls).setup_clients()
         cls.auth_provider = cls.os.auth_provider
-        cls.tenants_client = cls.os.tenants_client
-        cls.users_client = cls.os.users_client
+
         cls.rbac_utils = rbac_utils()
         cls.rbac_utils.switch_role(cls, toggle_rbac_role=False)
+
+        cls.client = cls.os.identity_client
+        cls.endpoints_client = cls.os.endpoints_client
+        cls.roles_client = cls.os.roles_client
+        cls.services_client = cls.os.identity_services_client
+        cls.tenants_client = cls.os.tenants_client
+        cls.token_client = cls.os.token_client
+        cls.users_client = cls.os.users_client
 
     def _create_service(self):
         name = data_utils.rand_name('service')
@@ -73,7 +80,7 @@ class BaseIdentityV2AdminRbacTest(base.BaseIdentityV2AdminTest):
     def _create_tenant(self):
         """Set up a test tenant."""
         name = data_utils.rand_name('test_tenant')
-        tenant = self.projects_client.create_tenant(
+        tenant = self.tenants_client.create_tenant(
             name=name,
             description=data_utils.rand_name('desc'))['tenant']
         # Delete the tenant at the end of the test

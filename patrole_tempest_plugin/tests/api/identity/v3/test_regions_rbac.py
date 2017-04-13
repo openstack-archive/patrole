@@ -20,7 +20,7 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.identity.v3 import rbac_base
 
 
-class IdentityRegionsV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
+class IdentityRegionsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:create_region")

@@ -20,7 +20,7 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.identity.v3 import rbac_base
 
 
-class IdentityPoliciesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
+class IdentityPoliciesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:create_policy")
@@ -34,11 +34,11 @@ class IdentityPoliciesV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
     @decorators.idempotent_id('9cfed3c6-0b27-4d15-be67-e06e0cfb01b9')
     def test_update_policy(self):
         policy = self.setup_test_policy()
-        new_policy_type = data_utils.rand_name('policy_type')
+        updated_policy_type = data_utils.rand_name('policy_type')
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.policies_client.update_policy(policy['id'],
-                                           type=new_policy_type)
+                                           type=updated_policy_type)
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:delete_policy")

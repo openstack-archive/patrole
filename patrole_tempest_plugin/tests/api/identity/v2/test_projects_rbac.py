@@ -22,7 +22,7 @@ from patrole_tempest_plugin.tests.api.identity.v2 import rbac_base
 CONF = config.CONF
 
 
-class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
+class IdentityProjectV2RbacTest(rbac_base.BaseIdentityV2RbacTest):
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:create_project",

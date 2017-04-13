@@ -21,7 +21,7 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.identity.v3 import rbac_base
 
 
-class IdentityConsumersV3AdminRbacTest(rbac_base.BaseIdentityV3RbacAdminTest):
+class IdentityConsumersV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     def _create_consumer(self):
         description = data_utils.rand_name('test_create_consumer')

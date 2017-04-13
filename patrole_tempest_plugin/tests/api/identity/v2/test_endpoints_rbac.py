@@ -24,16 +24,16 @@ from patrole_tempest_plugin.tests.api.identity.v2 import rbac_base
 CONF = config.CONF
 
 
-class IdentityEndpointsV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
+class IdentityEndpointsV2RbacTest(rbac_base.BaseIdentityV2RbacTest):
 
     @classmethod
     def setup_clients(cls):
-        super(IdentityEndpointsV2AdminRbacTest, cls).setup_clients()
+        super(IdentityEndpointsV2RbacTest, cls).setup_clients()
         cls.endpoints_client = cls.os.endpoints_client
 
     @classmethod
     def resource_setup(cls):
-        super(IdentityEndpointsV2AdminRbacTest, cls).resource_setup()
+        super(IdentityEndpointsV2RbacTest, cls).resource_setup()
         cls.region = data_utils.rand_name('region')
         cls.public_url = data_utils.rand_url()
         cls.admin_url = data_utils.rand_url()
@@ -61,7 +61,7 @@ class IdentityEndpointsV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         """Create Endpoint Test
 
-        RBAC test for Identity Admin 2.0 create_endpoint
+        RBAC test for Identity v2 create_endpoint
         """
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
@@ -75,7 +75,7 @@ class IdentityEndpointsV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         """Delete Endpoint Test
 
-        RBAC test for Identity Admin 2.0 delete_endpoint
+        RBAC test for Identity v2 delete_endpoint
         """
 
         endpoint = self._create_endpoint()
@@ -90,7 +90,7 @@ class IdentityEndpointsV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         """List Endpoints Test
 
-        RBAC test for Identity Admin 2.0 list_endpoint
+        RBAC test for Identity v2 list_endpoint
         """
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)

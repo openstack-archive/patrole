@@ -23,20 +23,20 @@ from patrole_tempest_plugin.rbac_utils import rbac_utils
 CONF = config.CONF
 
 
-class BaseIdentityV3RbacAdminTest(base.BaseIdentityV3AdminTest):
+class BaseIdentityV3RbacTest(base.BaseIdentityV3Test):
 
     credentials = ['admin', 'primary']
 
     @classmethod
     def skip_checks(cls):
-        super(BaseIdentityV3RbacAdminTest, cls).skip_checks()
+        super(BaseIdentityV3RbacTest, cls).skip_checks()
         if not CONF.rbac.enable_rbac:
             raise cls.skipException(
-                "%s skipped as RBAC Flag not enabled" % cls.__name__)
+                "%s skipped as RBAC testing not enabled" % cls.__name__)
 
     @classmethod
     def setup_clients(cls):
-        super(BaseIdentityV3RbacAdminTest, cls).setup_clients()
+        super(BaseIdentityV3RbacTest, cls).setup_clients()
         cls.auth_provider = cls.os.auth_provider
 
         cls.rbac_utils = rbac_utils()
@@ -57,7 +57,7 @@ class BaseIdentityV3RbacAdminTest(base.BaseIdentityV3AdminTest):
 
     @classmethod
     def resource_setup(cls):
-        super(BaseIdentityV3RbacAdminTest, cls).resource_setup()
+        super(BaseIdentityV3RbacTest, cls).resource_setup()
         cls.credentials = []
         cls.domains = []
         cls.endpoints = []
@@ -115,7 +115,7 @@ class BaseIdentityV3RbacAdminTest(base.BaseIdentityV3AdminTest):
             test_utils.call_and_ignore_notfound_exc(
                 cls.users_client.delete_user, user['id'])
 
-        super(BaseIdentityV3RbacAdminTest, cls).resource_cleanup()
+        super(BaseIdentityV3RbacTest, cls).resource_cleanup()
 
     @classmethod
     def setup_test_credential(cls, user=None):
