@@ -27,9 +27,9 @@ CONF = config.CONF
 
 
 class RbacAuthority(object):
-    def __init__(self, tenant_id, user_id, service=None):
+    def __init__(self, project_id, user_id, service, extra_target_data):
         self.policy_parser = rbac_policy_parser.RbacPolicyParser(
-            tenant_id, user_id, service)
+            project_id, user_id, service, extra_target_data=extra_target_data)
 
     def get_permission(self, rule_name, role):
         try:

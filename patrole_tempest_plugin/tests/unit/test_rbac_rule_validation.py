@@ -33,8 +33,8 @@ class RBACRuleValidationTest(base.TestCase):
         self.mock_args = mock.Mock(spec=test.BaseTestCase)
         self.mock_args.auth_provider = mock.Mock()
         self.mock_args.rbac_utils = mock.Mock()
-        self.mock_args.auth_provider.credentials.tenant_id = \
-            mock.sentinel.tenant_id
+        self.mock_args.auth_provider.credentials.project_id = \
+            mock.sentinel.project_id
         self.mock_args.auth_provider.credentials.user_id = \
             mock.sentinel.user_id
 
@@ -292,8 +292,8 @@ class RBACRuleValidationTest(base.TestCase):
                          str(e))
 
         mock_rbac_policy_parser.RbacPolicyParser.assert_called_once_with(
-            mock.sentinel.tenant_id, mock.sentinel.user_id,
-            mock.sentinel.service)
+            mock.sentinel.project_id, mock.sentinel.user_id,
+            mock.sentinel.service, extra_target_data={})
 
     @mock.patch.object(rbac_auth, 'RbacAuthority', autospec=True)
     def test_get_exception_type_404(self, mock_auth):

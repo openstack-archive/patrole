@@ -40,7 +40,8 @@ class RbacPolicyParser(object):
     each role, whether a given rule is allowed using oslo policy.
     """
 
-    def __init__(self, tenant_id, user_id, service=None, path=None):
+    def __init__(self, project_id, user_id, service=None, path=None,
+                 extra_target_data={}):
         """Initialization of Rbac Policy Parser.
 
         Parses a policy file to create a dictionary, mapping policy actions to
@@ -57,7 +58,7 @@ class RbacPolicyParser(object):
         the custom policy file over the default policy implementation is
         prioritized.
 
-        :param tenant_id: type uuid
+        :param project_id: type uuid
         :param user_id: type uuid
         :param service: type string
         :param path: type string
@@ -78,8 +79,9 @@ class RbacPolicyParser(object):
         self.path = path or os.path.join('/etc', service, 'policy.json')
         self.rules = policy.Rules.load(self._get_policy_data(service),
                                        'default')
-        self.tenant_id = tenant_id
+        self.project_id = project_id
         self.user_id = user_id
+        self.extra_target_data = extra_target_data
 
     def allowed(self, rule_name, role):
         is_admin_context = self._is_admin_context(role)
@@ -165,8 +167,8 @@ class RbacPolicyParser(object):
                         "name": role
                     }
                 ],
-                "project_id": self.tenant_id,
-                "tenant_id": self.tenant_id,
+                "project_id": self.project_id,
+                "tenant_id": self.project_id,
                 "user_id": self.user_id
             }
         }
@@ -200,6 +202,8 @@ class RbacPolicyParser(object):
                   "tenant_id": access_data['project_id'],
                   "network:tenant_id": access_data['project_id'],
                   "user_id": access_data['user_id']}
+        if self.extra_target_data:
+            target.update(self.extra_target_data)
 
         result = self._try_rule(apply_rule, target, access_data, o)
         return result
