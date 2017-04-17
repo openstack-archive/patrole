@@ -213,6 +213,7 @@ class BaseIdentityV3RbacTest(BaseIdentityRbacTest):
         cls.creds_client = cls.os_primary.credentials_client
         cls.consumers_client = cls.os_primary.oauth_consumers_client
         cls.domains_client = cls.os_primary.domains_client
+        cls.domain_config_client = cls.os_primary.domain_config_client
         cls.endpoints_client = cls.os_primary.endpoints_v3_client
         cls.groups_client = cls.os_primary.groups_client
         cls.projects_client = cls.os_primary.projects_client
