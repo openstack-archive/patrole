@@ -13,6 +13,8 @@
 
 from tempest.api.volume import base as vol_base
 from tempest import config
+from tempest.lib.common.utils import data_utils
+from tempest.lib.common.utils import test_utils
 
 from patrole_tempest_plugin.rbac_utils import rbac_utils
 
@@ -45,3 +47,32 @@ class BaseVolumeRbacTest(vol_base.BaseVolumeTest):
         }
         cls.volume_hosts_client, cls.volume_types_client = \
             version_checker[cls._api_version]
+
+    @classmethod
+    def resource_setup(cls):
+        super(BaseVolumeRbacTest, cls).resource_setup()
+        cls.volume_types = []
+
+    @classmethod
+    def resource_cleanup(cls):
+        super(BaseVolumeRbacTest, cls).resource_cleanup()
+        cls.clear_volume_types()
+
+    @classmethod
+    def create_volume_type(cls, name=None, **kwargs):
+        """Create a test volume-type"""
+        name = name or data_utils.rand_name(cls.__name__ + '-volume-type')
+        volume_type = cls.volume_types_client.create_volume_type(
+            name=name, **kwargs)['volume_type']
+        cls.volume_types.append(volume_type['id'])
+        return volume_type
+
+    @classmethod
+    def clear_volume_types(cls):
+        for vol_type in cls.volume_types:
+            test_utils.call_and_ignore_notfound_exc(
+                cls.volume_types_client.delete_volume_type, vol_type)
+
+        for vol_type in cls.volume_types:
+            test_utils.call_and_ignore_notfound_exc(
+                cls.volume_types_client.wait_for_resource_deletion, vol_type)
