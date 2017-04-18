@@ -351,3 +351,32 @@ class ServerActionsV216RbacTest(rbac_base.BaseV2ComputeRbacTest):
             LOG.info("host_status attribute not returned when role doesn't "
                      "have permission to access it.")
             raise rbac_exceptions.RbacActionFailed
+
+
+class ServerActionsV214RbacTest(rbac_base.BaseV2ComputeRbacTest):
+
+    min_microversion = '2.14'
+    max_microversion = 'latest'
+
+    @classmethod
+    def setup_clients(cls):
+        super(ServerActionsV214RbacTest, cls).setup_clients()
+        cls.client = cls.servers_client
+
+    @classmethod
+    def resource_setup(cls):
+        cls.set_validation_resources()
+        super(ServerActionsV214RbacTest, cls).resource_setup()
+        cls.server_id = cls.create_test_server(wait_until='ACTIVE')['id']
+
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-evacuate")
+    @decorators.idempotent_id('78ecef3c-faff-412a-83be-47651963eb21')
+    def test_evacuate_server(self):
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.assertRaisesRegex(lib_exc.NotFound,
+                               "Compute host fake-host not found.",
+                               self.client.evacuate_server,
+                               self.server_id,
+                               host='fake-host')
