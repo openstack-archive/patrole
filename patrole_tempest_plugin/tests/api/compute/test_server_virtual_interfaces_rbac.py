@@ -14,11 +14,9 @@
 #    under the License.
 
 from tempest import config
-
 from tempest.lib import decorators
 from tempest.lib import exceptions
 
-from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base as base
 
@@ -39,13 +37,10 @@ class ServerVirtualInterfacesRbacTest(base.BaseV2ComputeRbacTest):
     def test_list_virtual_interfaces(self):
         server = self.create_test_server(wait_until='ACTIVE')
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        try:
-            self.client.list_virtual_interfaces(server['id'])
-        except exceptions.ServerFault as e:
-            raise rbac_exceptions.RbacActionFailed(e)
-        except exceptions.BadRequest as e:
+
+        if CONF.service_available.neutron:
             msg = "Listing virtual interfaces is not supported by this cloud."
-            if msg == str(e.resp_body['message']):
-                raise self.skipException(msg)
-            else:
-                raise e
+            with self.assertRaisesRegex(exceptions.BadRequest, msg):
+                self.client.list_virtual_interfaces(server['id'])
+        else:
+            self.client.list_virtual_interfaces(server['id'])
