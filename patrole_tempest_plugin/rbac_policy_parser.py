@@ -101,7 +101,7 @@ class RbacPolicyParser(object):
             try:
                 file_policy_data = json.loads(file_policy_data)
             except ValueError:
-                pass
+                file_policy_data = None
 
         # Check whether policy actions are defined in code. Nova and Keystone,
         # for example, define their default policy actions in code.

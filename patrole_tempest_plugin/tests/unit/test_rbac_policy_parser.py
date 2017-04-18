@@ -384,3 +384,89 @@ class RbacPolicyTest(base.TestCase):
         }
 
         self.assertEqual(expected_policy_data, actual_policy_data)
+
+    @mock.patch.object(rbac_policy_parser, 'credentials', autospec=True)
+    @mock.patch.object(rbac_policy_parser, 'stevedore', autospec=True)
+    def test_get_policy_data_cannot_find_policy(self, mock_stevedore,
+                                                mock_creds):
+        mock_stevedore.named.NamedExtensionManager.return_value = None
+        mock_creds.AdminManager.return_value.identity_services_v3_client.\
+            list_services.return_value = {
+                'services': [{'name': 'test_service'}]}
+
+        e = self.assertRaises(rbac_exceptions.RbacParsingException,
+                              rbac_policy_parser.RbacPolicyParser,
+                              None, None, 'test_service', None)
+
+        expected_error = \
+            'Policy file for {0} service neither found in code '\
+            'nor at {1}.'.format('test_service',
+                                 '/etc/test_service/policy.json')
+
+        self.assertIn(expected_error, str(e))
+
+    @mock.patch.object(rbac_policy_parser, 'os', autospec=True)
+    @mock.patch.object(rbac_policy_parser, 'json', autospec=True)
+    @mock.patch.object(rbac_policy_parser, 'credentials', autospec=True)
+    @mock.patch.object(rbac_policy_parser, 'stevedore', autospec=True)
+    def test_get_policy_data_without_valid_policy(self, mock_stevedore,
+                                                  mock_credentials, mock_json,
+                                                  mock_os):
+        mock_os.path.isfile.return_value = False
+
+        test_policy_action = mock.Mock(check='rule:bar')
+        test_policy_action.configure_mock(name='foo')
+
+        test_policy = mock.Mock(obj=[test_policy_action])
+        test_policy.configure_mock(name='test_service')
+
+        mock_stevedore.named.NamedExtensionManager\
+            .return_value = [test_policy]
+
+        mock_credentials.AdminManager.return_value.identity_services_v3_client.\
+            list_services.return_value = {
+                'services': [{'name': 'test_service'}]
+            }
+
+        mock_json.dumps.side_effect = ValueError
+
+        e = self.assertRaises(rbac_exceptions.RbacParsingException,
+                              rbac_policy_parser.RbacPolicyParser,
+                              None, None, 'test_service', None)
+
+        expected_error = "Policy file for {0} service is invalid."\
+                         .format("test_service")
+
+        self.assertIn(expected_error, str(e))
+
+        mock_stevedore.named.NamedExtensionManager.assert_called_once_with(
+            'oslo.policy.policies',
+            names=['test_service'],
+            on_load_failure_callback=None,
+            invoke_on_load=True,
+            warn_on_missing_entrypoint=False)
+
+    @mock.patch.object(rbac_policy_parser, 'json', autospec=True)
+    @mock.patch.object(rbac_policy_parser, 'credentials', autospec=True)
+    @mock.patch.object(rbac_policy_parser, 'stevedore', autospec=True)
+    def test_get_policy_data_from_file_not_json(self, mock_stevedore,
+                                                mock_credentials,
+                                                mock_json):
+
+        mock_credentials.AdminManager.return_value.identity_services_v3_client.\
+            list_services.return_value = {
+                'services': [{'name': 'test_service'}]
+            }
+        mock_stevedore.named.NamedExtensionManager.return_value = None
+        mock_json.loads.side_effect = ValueError
+
+        e = self.assertRaises(rbac_exceptions.RbacParsingException,
+                              rbac_policy_parser.RbacPolicyParser,
+                              None, None, 'test_service',
+                              self.tenant_policy_file)
+
+        expected_error = 'Policy file for {0} service neither found in code '\
+                         'nor at {1}.'.format('test_service',
+                                              self.tenant_policy_file)
+
+        self.assertIn(expected_error, str(e))
