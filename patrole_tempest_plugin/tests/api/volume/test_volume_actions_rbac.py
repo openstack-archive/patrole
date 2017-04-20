@@ -74,8 +74,8 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._attach_volume(server)
 
-    @test.attr(type=["slow"])
     @test.services('compute')
+    @decorators.attr(type='slow')
     @rbac_rule_validation.action(service="cinder", rule="volume:detach")
     @decorators.idempotent_id('5a042f6a-688b-42e6-a02e-fe5c47b89b07')
     def test_detach_volume_from_instance(self):
@@ -85,7 +85,7 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._detach_volume()
 
-    @test.attr(type=["slow"])
+    @decorators.attr(type=["slow"])
     @test.services('image')
     @rbac_rule_validation.action(
         service="cinder",
@@ -224,7 +224,7 @@ class VolumesActionsV310RbacTest(rbac_base.BaseVolumeRbacTest):
         cls.admin_image_client = cls.os_admin.image_client_v2
         cls.admin_volumes_client = cls.os_admin.volumes_client_latest
 
-    @test.attr(type=["slow"])
+    @decorators.attr(type=["slow"])
     @test.services('image')
     @rbac_rule_validation.action(
         service="cinder",

@@ -17,7 +17,6 @@ from tempest.common import waiters
 from tempest import config
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
-from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
@@ -73,7 +72,7 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.servers_client.show_volume_attachment(
             self.server['id'], attachment['id'])
 
-    @test.attr(type='slow')
+    @decorators.attr(type='slow')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-volumes-attachments:update")

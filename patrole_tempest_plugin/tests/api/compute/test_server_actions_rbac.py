@@ -155,7 +155,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._test_stop_server()
 
-    @test.attr(type='slow')
+    @decorators.attr(type='slow')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:servers:start")
@@ -165,7 +165,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._test_start_server()
 
-    @test.attr(type='slow')
+    @decorators.attr(type='slow')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:servers:resize")
@@ -176,7 +176,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._test_resize_server(self.flavor_ref_alt)
 
-    @test.attr(type='slow')
+    @decorators.attr(type='slow')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:servers:revert_resize")
@@ -188,7 +188,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._test_revert_resize_server()
 
-    @test.attr(type='slow')
+    @decorators.attr(type='slow')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:servers:confirm_resize")
