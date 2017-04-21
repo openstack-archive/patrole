@@ -50,3 +50,13 @@ the tempest.conf file.
     # not found in the policy.json. Otherwise, they throw a
     # skipException.
     strict_policy_check = False
+
+    # The following config options set the location of the service's
+    # policy file. For services that have their policy in code (e.g.,
+    # Nova), this would be the location of a custom policy.json, if
+    # one exists.
+    cinder_policy_file = /etc/cinder/policy.json
+    glance_policy_file = /etc/glance/policy.json
+    keystone_policy_file = /etc/keystone/policy.json
+    neutron_policy_file = /etc/neutron/policy.json
+    nova_policy_file = /etc/nova/policy.json

@@ -30,5 +30,20 @@ RbacGroup = [
                 default=False,
                 help="If true, throws RbacParsingException for"
                      " policies which don't exist. If false, "
-                     "throws skipException.")
+                     "throws skipException."),
+    cfg.StrOpt('cinder_policy_file',
+               default='/etc/cinder/policy.json',
+               help="Location of the neutron policy file."),
+    cfg.StrOpt('glance_policy_file',
+               default='/etc/glance/policy.json',
+               help="Location of the glance policy file."),
+    cfg.StrOpt('keystone_policy_file',
+               default='/etc/keystone/policy.json',
+               help="Location of the keystone policy file."),
+    cfg.StrOpt('neutron_policy_file',
+               default='/etc/neutron/policy.json',
+               help="Location of the neutron policy file."),
+    cfg.StrOpt('nova_policy_file',
+               default='/etc/nova/policy.json',
+               help="Location of the nova policy file.")
 ]
