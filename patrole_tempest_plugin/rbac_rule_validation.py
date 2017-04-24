@@ -29,7 +29,8 @@ CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
 
-def action(service, rule, admin_only=False, expected_error_code=403):
+def action(service, rule, admin_only=False, expected_error_code=403,
+           extra_target_data={}):
     """A decorator which does a policy check and matches it against test run.
 
     A decorator which allows for positive and negative RBAC testing. Given
@@ -66,10 +67,10 @@ def action(service, rule, admin_only=False, expected_error_code=403):
                 caller_ref = None
                 if args and isinstance(args[0], test.BaseTestCase):
                     caller_ref = args[0]
-                tenant_id = caller_ref.auth_provider.credentials.tenant_id
+                project_id = caller_ref.auth_provider.credentials.project_id
                 user_id = caller_ref.auth_provider.credentials.user_id
             except AttributeError as e:
-                msg = ("{0}: tenant_id/user_id not found in "
+                msg = ("{0}: project_id/user_id not found in "
                        "cls.auth_provider.credentials".format(e))
                 LOG.error(msg)
                 raise rbac_exceptions.RbacResourceSetupFailed(msg)
@@ -80,10 +81,11 @@ def action(service, rule, admin_only=False, expected_error_code=403):
                          "check for policy action {0}.".format(rule))
                 allowed = CONF.rbac.rbac_test_role == 'admin'
             else:
-                authority = rbac_auth.RbacAuthority(tenant_id, user_id,
-                                                    service)
-                allowed = authority.get_permission(rule,
-                                                   CONF.rbac.rbac_test_role)
+                authority = rbac_auth.RbacAuthority(
+                    project_id, user_id, service,
+                    _format_extra_target_data(caller_ref, extra_target_data))
+                allowed = authority.get_permission(
+                    rule, CONF.rbac.rbac_test_role)
 
             expected_exception, irregular_msg = _get_exception_type(
                 expected_error_code)
@@ -146,3 +148,34 @@ def _get_exception_type(expected_error_code):
         raise rbac_exceptions.RbacInvalidErrorCode()
 
     return expected_exception, irregular_msg
+
+
+def _format_extra_target_data(test_obj, extra_target_data):
+    """Formats the "extra_target_data" dictionary with correct test data.
+
+    Before being formatted, "extra_target_data" is a dictionary that maps a
+    policy string like "trust.trustor_user_id" to a nested list of BaseTestCase
+    attributes. For example, the attribute list in:
+
+        "trust.trustor_user_id": "os.auth_provider.credentials.user_id"
+
+    is parsed by iteratively calling `getattr` until the value of "user_id"
+    is resolved. The resulting dictionary returns:
+
+        "trust.trustor_user_id": "the user_id of the `primary` credential"
+
+    :param test_obj: type BaseTestCase (tempest base test class)
+    :param extra_target_data: dictionary with unresolved string literals that
+                              reference nested BaseTestCase attributes
+    :returns: dictionary with resolved BaseTestCase attributes
+    """
+    attr_value = test_obj
+    formatted_target_data = {}
+
+    for user_attribute, attr_string in extra_target_data.items():
+        attrs = attr_string.split('.')
+        for attr in attrs:
+            attr_value = getattr(attr_value, attr)
+        formatted_target_data[user_attribute] = attr_value
+
+    return formatted_target_data

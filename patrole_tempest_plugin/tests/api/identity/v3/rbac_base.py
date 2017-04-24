@@ -53,6 +53,7 @@ class BaseIdentityV3RbacTest(base.BaseIdentityV3Test):
         cls.role_assignments_client = cls.os.role_assignments_client
         cls.roles_client = cls.os.roles_v3_client
         cls.services_client = cls.os.identity_services_v3_client
+        cls.trusts_client = cls.os.trusts_client
         cls.users_client = cls.os.users_v3_client
 
     @classmethod
@@ -67,6 +68,7 @@ class BaseIdentityV3RbacTest(base.BaseIdentityV3Test):
         cls.regions = []
         cls.roles = []
         cls.services = []
+        cls.trusts = []
         cls.users = []
 
     @classmethod
@@ -110,6 +112,10 @@ class BaseIdentityV3RbacTest(base.BaseIdentityV3Test):
         for service in cls.services:
             test_utils.call_and_ignore_notfound_exc(
                 cls.services_client.delete_service, service['id'])
+
+        for trust in cls.trusts:
+            test_utils.call_and_ignore_notfound_exc(
+                cls.trusts_client.delete_trust, trust['id'])
 
         for user in cls.users:
             test_utils.call_and_ignore_notfound_exc(
@@ -227,6 +233,16 @@ class BaseIdentityV3RbacTest(base.BaseIdentityV3Test):
         cls.services.append(service)
 
         return service
+
+    @classmethod
+    def setup_test_trust(cls, trustee_user_id, trustor_user_id, **kwargs):
+        """Setup a test trust."""
+        trust = cls.trusts_client.create_trust(
+            trustee_user_id=trustee_user_id, trustor_user_id=trustor_user_id,
+            impersonation=False, **kwargs)['trust']
+        cls.trusts.append(trust)
+
+        return trust
 
     @classmethod
     def setup_test_user(cls, password=None, **kwargs):
