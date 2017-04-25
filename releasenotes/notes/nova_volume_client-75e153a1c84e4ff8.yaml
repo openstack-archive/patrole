@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Adds RBAC tests for the Nova os-volumes API which is deprecated
+    from microversion 2.36 onward.
