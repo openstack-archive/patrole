@@ -40,7 +40,6 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
             cls.image_client = cls.os_primary.image_client
         elif CONF.image_feature_enabled.api_v2:
             cls.image_client = cls.os_primary.image_client_v2
-        cls.image_id = CONF.compute.image_ref
 
     @classmethod
     def resource_setup(cls):
@@ -119,28 +118,6 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
         self.addCleanup(self.client.update_volume_readonly,
                         self.volume['id'], readonly=False)
 
-    @decorators.idempotent_id('a9d9e825-5ea3-42e6-96f3-7ac4e97b2ed0')
-    @rbac_rule_validation.action(
-        service="cinder",
-        rule="volume:update_volume_metadata")
-    def test_update_volume_image_metadata(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-
-        self.volumes_client.update_volume_image_metadata(
-            self.volume['id'], image_id=self.image_id)
-
-    @decorators.idempotent_id('a41c8eed-2051-4a25-b401-df036faacbdc')
-    @rbac_rule_validation.action(
-        service="cinder",
-        rule="volume:delete_volume_metadata")
-    def test_delete_volume_image_metadata(self):
-        self.volumes_client.update_volume_image_metadata(
-            self.volume['id'], image_id=self.image_id)
-
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.volumes_client.delete_volume_image_metadata(
-            self.volume['id'], 'image_id')
-
     @decorators.idempotent_id('72bab13c-dfaf-4b6d-a132-c83a85fb1776')
     @rbac_rule_validation.action(
         service="cinder",
@@ -149,7 +126,37 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
         volume = self.create_volume()
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.volumes_client.unmanage_volume(volume['id'])
+        self.client.unmanage_volume(volume['id'])
+
+    @decorators.idempotent_id('59b783c0-f4ef-430c-8a90-1bad97d4ec5c')
+    @rbac_rule_validation.action(service="cinder",
+                                 rule="volume:update")
+    def test_volume_set_bootable(self):
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.client.set_bootable_volume(self.volume['id'], bootable=True)
+
+    @decorators.idempotent_id('41566922-75a1-4484-99c7-9c8782ee99ac')
+    @rbac_rule_validation.action(service="cinder",
+                                 rule="volume:reserve_volume")
+    def test_volume_reserve(self):
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.client.reserve_volume(self.volume['id'])
+
+    @decorators.idempotent_id('e5fa9564-77d9-4e57-b0c0-3e0ae4d08535')
+    @rbac_rule_validation.action(service="cinder",
+                                 rule="volume:unreserve_volume")
+    def test_volume_unreserve(self):
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.client.unreserve_volume(self.volume['id'])
+
+    @decorators.idempotent_id('c015c82f-7010-48cc-bd71-4ef542046f20')
+    @rbac_rule_validation.action(service="cinder",
+                                 rule="volume:retype")
+    def test_volume_retype(self):
+        volume = self.create_volume()
+        vol_type = self.create_volume_type()['name']
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.client.retype_volume(volume['id'], new_type=vol_type)
 
 
 class VolumesActionsV3RbacTest(VolumesActionsRbacTest):
