@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Adds RBAC tests for the project-related endpoints belonging to the
+    OS-EP-FILTER Keystone v3 extension API.
