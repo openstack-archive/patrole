@@ -180,6 +180,26 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
         self.client.force_delete_volume(volume['id'])
         self.client.wait_for_resource_deletion(volume['id'])
 
+    @decorators.idempotent_id('48bd302b-950a-4830-840c-3158246ecdcc')
+    @test.services('compute')
+    @rbac_rule_validation.action(
+        service="cinder",
+        rule="volume_extension:volume_admin_actions:force_detach")
+    def test_force_detach_volume_from_instance(self):
+        server = self._create_server()
+        self._attach_volume(server)
+        attachment = self.volumes_client.show_volume(
+            self.volume['id'])['volume']['attachments'][0]
+
+        # Reset volume's status to error.
+        self.volumes_client.reset_volume_status(self.volume['id'],
+                                                status='error')
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.volumes_client.force_detach_volume(
+            self.volume['id'], connector=None,
+            attachment_id=attachment['attachment_id'])
+
 
 class VolumesActionsV3RbacTest(VolumesActionsRbacTest):
     _api_version = 3
