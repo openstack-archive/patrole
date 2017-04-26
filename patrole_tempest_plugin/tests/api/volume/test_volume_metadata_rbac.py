@@ -29,7 +29,7 @@ class VolumeMetadataRbacTest(rbac_base.BaseVolumeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(VolumeMetadataRbacTest, cls).setup_clients()
-        cls.client = cls.os.volumes_client
+        cls.client = cls.volumes_client
 
     def _add_metadata(self, volume):
         # Create metadata for the volume

@@ -28,7 +28,7 @@ class QuotaSetsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def setup_clients(cls):
         super(QuotaSetsRbacTest, cls).setup_clients()
         cls.client = cls.quotas_client
-        cls.projects_client = cls.os.projects_client
+        cls.projects_client = cls.os_primary.projects_client
 
     @classmethod
     def skip_checks(cls):

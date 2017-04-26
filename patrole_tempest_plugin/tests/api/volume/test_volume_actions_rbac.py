@@ -37,9 +37,9 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
         super(VolumesActionsRbacTest, cls).setup_clients()
         cls.client = cls.volumes_client
         if CONF.image_feature_enabled.api_v1:
-            cls.image_client = cls.os.image_client
+            cls.image_client = cls.os_primary.image_client
         elif CONF.image_feature_enabled.api_v2:
-            cls.image_client = cls.os.image_client_v2
+            cls.image_client = cls.os_primary.image_client_v2
         cls.image_id = CONF.compute.image_ref
 
     @classmethod
@@ -48,7 +48,8 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
         cls.volume = cls.create_volume()
 
     def _create_server(self):
-        server, _ = compute.create_test_server(self.os, wait_until='ACTIVE')
+        server, _ = compute.create_test_server(
+            self.os_primary, wait_until='ACTIVE')
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self.servers_client.delete_server, server['id'])
         return server
@@ -105,7 +106,7 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
                         self.image_client.delete_image,
                         image_id)
         waiters.wait_for_image_status(self.image_client, image_id, 'active')
-        waiters.wait_for_volume_resource_status(self.os_adm.volumes_client,
+        waiters.wait_for_volume_resource_status(self.os_admin.volumes_client,
                                                 self.volume['id'], 'available')
 
     @rbac_rule_validation.action(service="cinder",

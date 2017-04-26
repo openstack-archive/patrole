@@ -31,7 +31,7 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def setup_clients(cls):
         super(ServerVolumeAttachmentRbacTest, cls).setup_clients()
         cls.client = cls.servers_client
-        cls.volumes_client = cls.os.volumes_client
+        cls.volumes_client = cls.os_primary.volumes_client
 
     @classmethod
     def skip_checks(cls):

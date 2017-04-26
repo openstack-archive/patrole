@@ -43,8 +43,8 @@ class MigrateServerV225RbacTest(base.BaseV2ComputeRbacTest):
     def setup_clients(cls):
         super(MigrateServerV225RbacTest, cls).setup_clients()
         cls.client = cls.servers_client
-        cls.admin_servers_client = cls.os_adm.servers_client
-        cls.hosts_client = cls.os.hosts_client
+        cls.admin_servers_client = cls.os_admin.servers_client
+        cls.hosts_client = cls.os_primary.hosts_client
 
     def _get_server_details(self, server_id):
         body = self.client.show_server(server_id)['server']

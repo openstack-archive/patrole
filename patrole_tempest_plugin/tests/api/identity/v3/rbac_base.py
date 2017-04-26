@@ -37,24 +37,24 @@ class BaseIdentityV3RbacTest(base.BaseIdentityV3Test):
     @classmethod
     def setup_clients(cls):
         super(BaseIdentityV3RbacTest, cls).setup_clients()
-        cls.auth_provider = cls.os.auth_provider
+        cls.auth_provider = cls.os_primary.auth_provider
 
         cls.rbac_utils = rbac_utils()
         cls.rbac_utils.switch_role(cls, toggle_rbac_role=False)
 
-        cls.creds_client = cls.os.credentials_client
-        cls.consumers_client = cls.os.oauth_consumers_client
-        cls.domains_client = cls.os.domains_client
-        cls.endpoints_client = cls.os.endpoints_v3_client
-        cls.groups_client = cls.os.groups_client
-        cls.projects_client = cls.os.projects_client
-        cls.policies_client = cls.os.policies_client
-        cls.regions_client = cls.os.regions_client
-        cls.role_assignments_client = cls.os.role_assignments_client
-        cls.roles_client = cls.os.roles_v3_client
-        cls.services_client = cls.os.identity_services_v3_client
-        cls.trusts_client = cls.os.trusts_client
-        cls.users_client = cls.os.users_v3_client
+        cls.creds_client = cls.os_primary.credentials_client
+        cls.consumers_client = cls.os_primary.oauth_consumers_client
+        cls.domains_client = cls.os_primary.domains_client
+        cls.endpoints_client = cls.os_primary.endpoints_v3_client
+        cls.groups_client = cls.os_primary.groups_client
+        cls.projects_client = cls.os_primary.projects_client
+        cls.policies_client = cls.os_primary.policies_client
+        cls.regions_client = cls.os_primary.regions_client
+        cls.role_assignments_client = cls.os_primary.role_assignments_client
+        cls.roles_client = cls.os_primary.roles_v3_client
+        cls.services_client = cls.os_primary.identity_services_v3_client
+        cls.trusts_client = cls.os_primary.trusts_client
+        cls.users_client = cls.os_primary.users_v3_client
 
     @classmethod
     def resource_setup(cls):

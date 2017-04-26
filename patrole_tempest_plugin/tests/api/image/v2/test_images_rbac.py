@@ -27,7 +27,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
     @classmethod
     def setup_clients(cls):
         super(BasicOperationsImagesRbacTest, cls).setup_clients()
-        cls.client = cls.os.image_client_v2
+        cls.client = cls.os_primary.image_client_v2
 
     def _create_image(self, **kwargs):
         image_name = data_utils.rand_name('image')

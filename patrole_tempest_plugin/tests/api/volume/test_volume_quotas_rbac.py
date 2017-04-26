@@ -32,12 +32,12 @@ class VolumeQuotasRbacTest(rbac_base.BaseVolumeRbacTest):
     @classmethod
     def setup_credentials(cls):
         super(VolumeQuotasRbacTest, cls).setup_credentials()
-        cls.demo_tenant_id = cls.os.credentials.tenant_id
+        cls.demo_tenant_id = cls.os_primary.credentials.tenant_id
 
     @classmethod
     def setup_clients(cls):
         super(VolumeQuotasRbacTest, cls).setup_clients()
-        cls.client = cls.os.volume_quotas_client
+        cls.client = cls.os_primary.volume_quotas_client
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume_extension:quotas:show")

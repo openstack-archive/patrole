@@ -34,7 +34,7 @@ class TenantNetworksRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(TenantNetworksRbacTest, cls).setup_clients()
-        cls.client = cls.os.tenant_networks_client
+        cls.client = cls.os_primary.tenant_networks_client
 
     @classmethod
     def skip_checks(cls):

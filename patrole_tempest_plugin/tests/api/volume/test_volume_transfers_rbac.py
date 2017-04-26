@@ -28,8 +28,8 @@ class VolumesTransfersRbacTest(rbac_base.BaseVolumeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(VolumesTransfersRbacTest, cls).setup_clients()
-        cls.client = cls.os.volume_transfers_v2_client
-        cls.adm_volumes_client = cls.os_adm.volumes_v2_client
+        cls.client = cls.os_primary.volume_transfers_v2_client
+        cls.adm_volumes_client = cls.os_admin.volumes_v2_client
 
     @classmethod
     def resource_setup(cls):

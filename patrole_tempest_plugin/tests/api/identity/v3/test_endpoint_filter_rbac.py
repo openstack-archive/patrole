@@ -26,7 +26,7 @@ class IdentityEndpointsFilterV3RbacTest(
     @classmethod
     def setup_clients(cls):
         super(IdentityEndpointsFilterV3RbacTest, cls).setup_clients()
-        cls.ep_api_client = cls.os.endpoint_filter_client
+        cls.ep_api_client = cls.os_primary.endpoint_filter_client
 
     @classmethod
     def resource_setup(cls):

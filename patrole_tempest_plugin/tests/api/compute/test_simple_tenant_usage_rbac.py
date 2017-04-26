@@ -27,7 +27,7 @@ class SimpleTenantUsageRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(SimpleTenantUsageRbacTest, cls).setup_clients()
-        cls.client = cls.os.tenant_usages_client
+        cls.client = cls.os_primary.tenant_usages_client
 
     @classmethod
     def skip_checks(cls):

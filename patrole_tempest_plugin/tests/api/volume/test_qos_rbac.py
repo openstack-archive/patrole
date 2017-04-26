@@ -26,8 +26,8 @@ class VolumeQOSRbacTest(rbac_base.BaseVolumeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(VolumeQOSRbacTest, cls).setup_clients()
-        cls.auth_provider = cls.os.auth_provider
-        cls.client = cls.os.volume_qos_v2_client
+        cls.auth_provider = cls.os_primary.auth_provider
+        cls.client = cls.os_primary.volume_qos_v2_client
 
     def _create_test_qos_specs(self, name=None, consumer=None, **kwargs):
         """Create a test Qos-Specs."""

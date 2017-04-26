@@ -39,8 +39,9 @@ class MeteringLabelRulesRbacTest(base.BaseNetworkRbacTest):
     @classmethod
     def setup_clients(cls):
         super(MeteringLabelRulesRbacTest, cls).setup_clients()
-        cls.metering_labels_client = cls.os.metering_labels_client
-        cls.metering_label_rules_client = cls.os.metering_label_rules_client
+        cls.metering_labels_client = cls.os_primary.metering_labels_client
+        cls.metering_label_rules_client = \
+            cls.os_primary.metering_label_rules_client
 
     @classmethod
     def resource_setup(cls):

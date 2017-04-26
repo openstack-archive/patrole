@@ -36,7 +36,7 @@ class SnapshotsActionsRbacTest(rbac_base.BaseVolumeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(SnapshotsActionsRbacTest, cls).setup_clients()
-        cls.client = cls.os.snapshots_client
+        cls.client = cls.snapshots_client
 
     @classmethod
     def resource_setup(cls):

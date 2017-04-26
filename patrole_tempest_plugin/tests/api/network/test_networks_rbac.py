@@ -30,12 +30,6 @@ CONF = config.CONF
 class RbacNetworksTest(base.BaseNetworkRbacTest):
 
     @classmethod
-    def setup_clients(cls):
-        super(RbacNetworksTest, cls).setup_clients()
-        cls.networks_client = cls.os.networks_client
-        cls.subnet_client = cls.os.subnets_client
-
-    @classmethod
     def resource_setup(cls):
         super(RbacNetworksTest, cls).resource_setup()
 

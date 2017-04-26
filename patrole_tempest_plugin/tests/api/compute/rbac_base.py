@@ -35,7 +35,7 @@ class BaseV2ComputeRbacTest(compute_base.BaseV2ComputeTest):
     @classmethod
     def setup_clients(cls):
         super(BaseV2ComputeRbacTest, cls).setup_clients()
-        cls.auth_provider = cls.os.auth_provider
+        cls.auth_provider = cls.os_primary.auth_provider
         cls.rbac_utils = rbac_utils()
         cls.rbac_utils.switch_role(cls, toggle_rbac_role=False)
 

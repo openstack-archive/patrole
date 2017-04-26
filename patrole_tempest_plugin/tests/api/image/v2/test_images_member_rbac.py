@@ -32,8 +32,8 @@ class ImagesMemberRbacTest(base.BaseV2ImageRbacTest):
     @classmethod
     def setup_clients(cls):
         super(ImagesMemberRbacTest, cls).setup_clients()
-        cls.image_client = cls.os.image_client_v2
-        cls.image_member_client = cls.os.image_member_client_v2
+        cls.image_client = cls.os_primary.image_client_v2
+        cls.image_member_client = cls.os_primary.image_member_client_v2
 
     @rbac_rule_validation.action(service="glance",
                                  rule="add_member")

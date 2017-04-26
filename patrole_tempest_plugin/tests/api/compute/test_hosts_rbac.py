@@ -27,7 +27,7 @@ class HostsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(HostsRbacTest, cls).setup_clients()
-        cls.client = cls.os.hosts_client
+        cls.client = cls.os_primary.hosts_client
 
     @classmethod
     def skip_checks(cls):

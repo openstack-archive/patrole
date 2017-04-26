@@ -29,7 +29,7 @@ class ImagesMemberRbacTest(base.BaseV1ImageRbacTest):
     @classmethod
     def setup_clients(cls):
         super(ImagesMemberRbacTest, cls).setup_clients()
-        cls.image_member_client = cls.os.image_member_client
+        cls.image_member_client = cls.os_primary.image_member_client
 
     @classmethod
     def resource_setup(cls):

@@ -48,7 +48,7 @@ class ImagesV235RbacTest(rbac_base.BaseV2ComputeRbacTest):
     def setup_clients(cls):
         super(ImagesV235RbacTest, cls).setup_clients()
         cls.client = cls.compute_images_client
-        cls.glance_image_client = cls.os.image_client_v2
+        cls.glance_image_client = cls.os_primary.image_client_v2
 
     @classmethod
     def resource_setup(cls):

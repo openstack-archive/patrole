@@ -36,7 +36,7 @@ class AggregatesRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(AggregatesRbacTest, cls).setup_clients()
-        cls.hosts_client = cls.os.hosts_client
+        cls.hosts_client = cls.os_primary.hosts_client
 
     def _create_aggregate(self):
         agg_name = data_utils.rand_name('aggregate')

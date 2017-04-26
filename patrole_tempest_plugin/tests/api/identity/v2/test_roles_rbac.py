@@ -29,7 +29,7 @@ class IdentityRoleV2RbacTest(rbac_base.BaseIdentityV2RbacTest):
     @classmethod
     def setup_clients(cls):
         super(IdentityRoleV2RbacTest, cls).setup_clients()
-        cls.roles_client = cls.os.roles_client
+        cls.roles_client = cls.os_primary.roles_client
 
     def _create_role(self):
         role = self.roles_client.create_role(

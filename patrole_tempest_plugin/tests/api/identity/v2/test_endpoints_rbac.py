@@ -29,7 +29,7 @@ class IdentityEndpointsV2RbacTest(rbac_base.BaseIdentityV2RbacTest):
     @classmethod
     def setup_clients(cls):
         super(IdentityEndpointsV2RbacTest, cls).setup_clients()
-        cls.endpoints_client = cls.os.endpoints_client
+        cls.endpoints_client = cls.os_primary.endpoints_client
 
     @classmethod
     def resource_setup(cls):

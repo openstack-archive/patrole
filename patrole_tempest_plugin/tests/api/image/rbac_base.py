@@ -33,7 +33,7 @@ class BaseV1ImageRbacTest(image_base.BaseV1ImageTest):
     @classmethod
     def setup_clients(cls):
         super(BaseV1ImageRbacTest, cls).setup_clients()
-        cls.auth_provider = cls.os.auth_provider
+        cls.auth_provider = cls.os_primary.auth_provider
         cls.rbac_utils = rbac_utils()
         cls.rbac_utils.switch_role(cls, toggle_rbac_role=False)
 
@@ -52,6 +52,6 @@ class BaseV2ImageRbacTest(image_base.BaseV2ImageTest):
     @classmethod
     def setup_clients(cls):
         super(BaseV2ImageRbacTest, cls).setup_clients()
-        cls.auth_provider = cls.os.auth_provider
+        cls.auth_provider = cls.os_primary.auth_provider
         cls.rbac_utils = rbac_utils()
         cls.rbac_utils.switch_role(cls, toggle_rbac_role=False)

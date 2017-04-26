@@ -37,18 +37,18 @@ class BaseIdentityV2RbacTest(base.BaseIdentityV2Test):
     @classmethod
     def setup_clients(cls):
         super(BaseIdentityV2RbacTest, cls).setup_clients()
-        cls.auth_provider = cls.os.auth_provider
+        cls.auth_provider = cls.os_primary.auth_provider
 
         cls.rbac_utils = rbac_utils()
         cls.rbac_utils.switch_role(cls, toggle_rbac_role=False)
 
-        cls.client = cls.os.identity_client
-        cls.endpoints_client = cls.os.endpoints_client
-        cls.roles_client = cls.os.roles_client
-        cls.services_client = cls.os.identity_services_client
-        cls.tenants_client = cls.os.tenants_client
-        cls.token_client = cls.os.token_client
-        cls.users_client = cls.os.users_client
+        cls.client = cls.os_primary.identity_client
+        cls.endpoints_client = cls.os_primary.endpoints_client
+        cls.roles_client = cls.os_primary.roles_client
+        cls.services_client = cls.os_primary.identity_services_client
+        cls.tenants_client = cls.os_primary.tenants_client
+        cls.token_client = cls.os_primary.token_client
+        cls.users_client = cls.os_primary.users_client
 
     def _create_service(self):
         name = data_utils.rand_name('service')

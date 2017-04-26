@@ -27,7 +27,7 @@ class IdentityServicesV2RbacTest(rbac_base.BaseIdentityV2RbacTest):
     @classmethod
     def setup_clients(cls):
         super(IdentityServicesV2RbacTest, cls).setup_clients()
-        cls.services_client = cls.os.identity_services_client
+        cls.services_client = cls.os_primary.identity_services_client
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:create_service",

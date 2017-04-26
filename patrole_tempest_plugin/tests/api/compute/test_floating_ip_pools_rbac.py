@@ -33,7 +33,7 @@ class FloatingIpPoolsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(FloatingIpPoolsRbacTest, cls).setup_clients()
-        cls.client = cls.os.floating_ip_pools_client
+        cls.client = cls.os_primary.floating_ip_pools_client
 
     @classmethod
     def skip_checks(cls):
