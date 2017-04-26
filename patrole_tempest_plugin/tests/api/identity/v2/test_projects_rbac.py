@@ -18,7 +18,7 @@ from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.tests.api.identity.v2 import rbac_base
+from patrole_tempest_plugin.tests.api.identity import rbac_base
 
 CONF = config.CONF
 
@@ -36,7 +36,7 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         """
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self._create_tenant()
+        self.setup_test_tenant()
 
     @rbac_rule_validation.action(service="keystone",
                                  admin_only=True)
@@ -47,7 +47,7 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         RBAC test for Identity 2.0 update_tenant
         """
-        tenant = self._create_tenant()
+        tenant = self.setup_test_tenant()
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.tenants_client.update_tenant(tenant['id'],
@@ -62,7 +62,7 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         RBAC test for Identity 2.0 delete_tenant
         """
-        tenant = self._create_tenant()
+        tenant = self.setup_test_tenant()
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.tenants_client.delete_tenant(tenant['id'])
@@ -77,7 +77,7 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         RBAC test for Identity 2.0 show_tenant
         """
 
-        tenant = self._create_tenant()
+        tenant = self.setup_test_tenant()
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.tenants_client.show_tenant(tenant['id'])
@@ -91,7 +91,7 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         RBAC test for Identity 2.0 list_tenant_users
         """
-        tenant = self._create_tenant()
+        tenant = self.setup_test_tenant()
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.tenants_client.list_tenant_users(tenant['id'])

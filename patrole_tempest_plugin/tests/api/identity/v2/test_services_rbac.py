@@ -16,15 +16,10 @@
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.tests.api.identity.v2 import rbac_base
+from patrole_tempest_plugin.tests.api.identity import rbac_base
 
 
 class IdentityServicesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
-
-    @classmethod
-    def setup_clients(cls):
-        super(IdentityServicesV2AdminRbacTest, cls).setup_clients()
-        cls.services_client = cls.os_primary.identity_services_client
 
     @rbac_rule_validation.action(service="keystone",
                                  admin_only=True)
@@ -35,7 +30,7 @@ class IdentityServicesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         RBAC test for Identity v2 create_service
         """
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self._create_service()
+        self.setup_test_service()
 
     @rbac_rule_validation.action(service="keystone",
                                  admin_only=True)
@@ -45,7 +40,7 @@ class IdentityServicesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         RBAC test for Identity v2 delete_service
         """
-        service_id = self._create_service()['OS-KSADM:service']['id']
+        service_id = self.setup_test_service()['id']
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.services_client.delete_service(service_id)
@@ -58,7 +53,7 @@ class IdentityServicesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         RBAC test for Identity v2 show_service
         """
-        service_id = self._create_service()['OS-KSADM:service']['id']
+        service_id = self.setup_test_service()['id']
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.services_client.show_service(service_id)

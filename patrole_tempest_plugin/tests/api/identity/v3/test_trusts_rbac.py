@@ -19,7 +19,7 @@ from tempest.lib import exceptions as lib_exc
 from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.tests.api.identity.v3 import rbac_base
+from patrole_tempest_plugin.tests.api.identity import rbac_base
 
 CONF = config.CONF
 

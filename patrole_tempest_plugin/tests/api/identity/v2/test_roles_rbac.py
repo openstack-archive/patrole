@@ -13,12 +13,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.tests.api.identity.v2 import rbac_base
+from patrole_tempest_plugin.tests.api.identity import rbac_base
 
 
 class IdentityRolesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
@@ -28,17 +27,10 @@ class IdentityRolesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         super(IdentityRolesV2AdminRbacTest, cls).setup_clients()
         cls.roles_client = cls.os_primary.roles_client
 
-    def _create_role(self):
-        role = self.roles_client.create_role(
-            name=data_utils.rand_name('test_role'))['role']
-        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.roles_client.delete_role, role['id'])
-        return role
-
     def _create_tenant_user_and_role(self):
-        tenant = self._create_tenant()
-        user = self._create_user(tenantid=tenant['id'])
-        role = self._create_role()
+        tenant = self.setup_test_tenant()
+        user = self.setup_test_user(tenantid=tenant['id'])
+        role = self.setup_test_role()
         return tenant, user, role
 
     def _create_role_on_project(self, tenant, user, role):
@@ -60,7 +52,7 @@ class IdentityRolesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         """
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self._create_role()
+        self.setup_test_role()
 
     @rbac_rule_validation.action(service="keystone",
                                  admin_only=True)
@@ -71,7 +63,7 @@ class IdentityRolesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         RBAC test for Identity v2 delete_role
         """
-        role = self._create_role()
+        role = self.setup_test_role()
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.delete_role(role['id'])
@@ -85,7 +77,7 @@ class IdentityRolesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         RBAC test for Identity v2 show_role
         """
-        role = self._create_role()
+        role = self.setup_test_role()
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.show_role(role['id'])
@@ -140,8 +132,8 @@ class IdentityRolesV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         RBAC test for Identity v2 list_user_roles_on_project
         """
-        tenant = self._create_tenant()
-        user = self._create_user(tenantid=tenant['id'])
+        tenant = self.setup_test_tenant()
+        user = self.setup_test_user(tenantid=tenant['id'])
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.list_user_roles_on_project(

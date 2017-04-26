@@ -13,42 +13,13 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from tempest.lib.common.utils import data_utils
-from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
-from patrole_tempest_plugin.tests.api.identity.v2 import rbac_base
+from patrole_tempest_plugin.tests.api.identity import rbac_base
 
 
 class IdentityEndpointsV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
-
-    @classmethod
-    def setup_clients(cls):
-        super(IdentityEndpointsV2AdminRbacTest, cls).setup_clients()
-        cls.endpoints_client = cls.os_primary.endpoints_client
-
-    @classmethod
-    def resource_setup(cls):
-        super(IdentityEndpointsV2AdminRbacTest, cls).resource_setup()
-        cls.region = data_utils.rand_name('region')
-        cls.public_url = data_utils.rand_url()
-        cls.admin_url = data_utils.rand_url()
-        cls.internal_url = data_utils.rand_url()
-
-    def _create_endpoint(self):
-        self._create_service()
-        endpoint = self.endpoints_client.create_endpoint(
-            service_id=self.service['OS-KSADM:service']['id'],
-            region=self.region,
-            publicurl=self.public_url,
-            adminurl=self.admin_url,
-            internalurl=self.internal_url
-        )
-        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.endpoints_client.delete_endpoint,
-                        endpoint['endpoint']['id'])
-        return endpoint
 
     @rbac_rule_validation.action(service="keystone",
                                  admin_only=True)
@@ -61,7 +32,7 @@ class IdentityEndpointsV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         """
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self._create_endpoint()
+        self.setup_test_endpoint()
 
     @rbac_rule_validation.action(service="keystone",
                                  admin_only=True)
@@ -73,9 +44,9 @@ class IdentityEndpointsV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         RBAC test for Identity v2 delete_endpoint
         """
 
-        endpoint = self._create_endpoint()
+        endpoint = self.setup_test_endpoint()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.endpoints_client.delete_endpoint(endpoint['endpoint']['id'])
+        self.endpoints_client.delete_endpoint(endpoint['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  admin_only=True)
