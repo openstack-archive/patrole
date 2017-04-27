@@ -13,13 +13,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from tempest import config
 from tempest.lib import decorators
+from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
-
-CONF = config.CONF
 
 
 class HostsRbacTest(rbac_base.BaseV2ComputeRbacTest):
@@ -32,9 +30,9 @@ class HostsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @classmethod
     def skip_checks(cls):
         super(HostsRbacTest, cls).skip_checks()
-        if not CONF.compute_feature_enabled.api_extensions:
-            raise cls.skipException(
-                '%s skipped as no compute extensions enabled' % cls.__name__)
+        if not test.is_extension_enabled('os-hosts', 'compute'):
+            msg = "%s skipped as os-hosts not enabled." % cls.__name__
+            raise cls.skipException(msg)
 
     @decorators.idempotent_id('035b7935-2fae-4218-8d37-27fa83097494')
     @rbac_rule_validation.action(
