@@ -23,6 +23,21 @@ from patrole_tempest_plugin.tests.api.image import rbac_base
 
 class ImageResourceTypesRbacTest(rbac_base.BaseV2ImageRbacTest):
 
+    @classmethod
+    def resource_setup(cls):
+        super(ImageResourceTypesRbacTest, cls).resource_setup()
+        cls.namespace_name = data_utils.rand_name('test-ns')
+        cls.namespaces_client.create_namespace(
+            namespace=cls.namespace_name,
+            protected=False)
+
+    @classmethod
+    def resource_cleanup(cls):
+        test_utils.call_and_ignore_notfound_exc(
+            cls.namespaces_client.delete_namespace,
+            cls.namespace_name)
+        super(ImageResourceTypesRbacTest, cls).resource_setup()
+
     @rbac_rule_validation.action(service="glance",
                                  rule="list_metadef_resource_types")
     @decorators.idempotent_id('0416fc4d-cfdc-447b-88b6-d9f1dd0382f7')
@@ -42,15 +57,15 @@ class ImageResourceTypesRbacTest(rbac_base.BaseV2ImageRbacTest):
 
         RBAC test for the glance get_metadef_resource_type policy.
         """
-        namespace_name = data_utils.rand_name('test-ns')
-        self.namespaces_client.create_namespace(
-            namespace=namespace_name,
-            protected=False)
-        self.addCleanup(
-            test_utils.call_and_ignore_notfound_exc,
-            self.namespaces_client.delete_namespace,
-            namespace_name)
-
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.resource_types_client.list_resource_type_association(
-            namespace_name)
+            self.namespace_name)
+
+    @rbac_rule_validation.action(service="glance",
+                                 rule="add_metadef_resource_type_association")
+    @decorators.idempotent_id('ef9fbc60-3e28-4164-a25c-d30d892f7939')
+    def test_add_metadef_resource_type(self):
+        type_name = data_utils.rand_name()
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.resource_types_client.create_resource_type_association(
+            self.namespace_name, name=type_name)

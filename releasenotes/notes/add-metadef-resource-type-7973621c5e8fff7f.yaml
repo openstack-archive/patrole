@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Adds test for glance's
+    add_metadef_resource_type_association policy.
