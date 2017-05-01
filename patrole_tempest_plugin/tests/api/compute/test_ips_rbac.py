@@ -15,6 +15,7 @@
 
 from tempest import config
 from tempest.lib import decorators
+from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
@@ -32,9 +33,9 @@ class IpsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @classmethod
     def skip_checks(cls):
         super(IpsRbacTest, cls).skip_checks()
-        if not CONF.compute_feature_enabled.api_extensions:
-            raise cls.skipException(
-                '%s skipped as no compute extensions enabled' % cls.__name__)
+        if not test.is_extension_enabled('os-ips', 'compute'):
+            msg = "%s skipped as os-ips not enabled." % cls.__name__
+            raise cls.skipException(msg)
         if not CONF.service_available.neutron:
             raise cls.skipException(
                 '%s skipped as Neutron is required' % cls.__name__)
