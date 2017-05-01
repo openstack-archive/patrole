@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    Added an RBAC test for force-deleting a backup which enforces the cinder
+    policy action: "volume_extension:backup_admin_actions:force_delete".
+fixes:
+  - |
+    Corrected the policy action in the ``rbac_rule_validation`` decorator
+    for the test ``test_snapshot_force_delete`` from
+    "volume_extension:volume_admin_actions:force_delete" to
+    "volume_extension:snapshot_admin_actions:force_delete".

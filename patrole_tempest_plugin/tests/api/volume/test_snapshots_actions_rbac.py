@@ -13,8 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from oslo_log import log as logging
-
 from tempest import config
 from tempest.lib import decorators
 
@@ -22,7 +20,6 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 CONF = config.CONF
-LOG = logging.getLogger(__name__)
 
 
 class SnapshotsActionsRbacTest(rbac_base.BaseVolumeRbacTest):
@@ -41,9 +38,7 @@ class SnapshotsActionsRbacTest(rbac_base.BaseVolumeRbacTest):
     @classmethod
     def resource_setup(cls):
         super(SnapshotsActionsRbacTest, cls).resource_setup()
-        # Create a volume
         cls.volume = cls.create_volume()
-        # Create a snapshot
         cls.snapshot = cls.create_snapshot(volume_id=cls.volume['id'])
         cls.snapshot_id = cls.snapshot['id']
 
@@ -52,22 +47,17 @@ class SnapshotsActionsRbacTest(rbac_base.BaseVolumeRbacTest):
         rule="volume_extension:snapshot_admin_actions:reset_status")
     @decorators.idempotent_id('ea430145-34ef-408d-b678-95d5ae5f46eb')
     def test_reset_snapshot_status(self):
-        # Reset snapshot status to error
         status = 'error'
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.\
-            reset_snapshot_status(self.snapshot['id'], status)
+        self.client.reset_snapshot_status(self.snapshot['id'], status)
 
     @rbac_rule_validation.action(
         service="cinder",
-        rule="volume_extension:volume_admin_actions:force_delete")
+        rule="volume_extension:snapshot_admin_actions:force_delete")
     @decorators.idempotent_id('a8b0f7d8-4c00-4645-b8d5-33ab4eecc6cb')
     def test_snapshot_force_delete(self):
-        # Test force delete of snapshot
-        # Create snapshot,
-        # and force delete temp snapshot
         temp_snapshot = self.create_snapshot(self.volume['id'])
-        # Force delete the snapshot
+
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.force_delete_snapshot(temp_snapshot['id'])
         self.client.wait_for_resource_deletion(temp_snapshot['id'])
