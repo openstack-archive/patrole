@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add RBAC tests for cinder os-quota-class-sets API, which cover the
+    policy action "volume_extension:quota_classes".
