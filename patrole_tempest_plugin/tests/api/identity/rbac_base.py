@@ -12,6 +12,7 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+
 from oslo_log import log as logging
 
 from tempest.api.identity import base
@@ -215,6 +216,7 @@ class BaseIdentityV3RbacTest(BaseIdentityRbacTest):
         cls.domains_client = cls.os_primary.domains_client
         cls.endpoints_client = cls.os_primary.endpoints_v3_client
         cls.groups_client = cls.os_primary.groups_client
+        cls.identity_client = cls.os_primary.identity_v3_client
         cls.projects_client = cls.os_primary.projects_client
         cls.policies_client = cls.os_primary.policies_client
         cls.regions_client = cls.os_primary.regions_client
