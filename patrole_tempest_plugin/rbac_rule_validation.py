@@ -29,7 +29,7 @@ CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
 
-def action(service, rule, admin_only=False, expected_error_code=403,
+def action(service, rule='', admin_only=False, expected_error_code=403,
            extra_target_data={}):
     """A decorator which does a policy check and matches it against test run.
 

@@ -23,20 +23,30 @@ from patrole_tempest_plugin.rbac_utils import rbac_utils
 CONF = config.CONF
 
 
-class BaseIdentityV2RbacTest(base.BaseIdentityV2Test):
+class BaseIdentityV2AdminRbacTest(base.BaseIdentityV2Test):
+    """Base test class for the Identity v2 admin API.
+
+    Keystone's v2 API is split into two APIs: an admin and non-admin API. RBAC
+    testing is only provided for the admin API. Instead of policy enforcement,
+    these APIs execute ``self.assert_admin(request)``, which checks that the
+    request object has ``context_is_admin``. For more details, see the
+    implementation of ``assert_admin`` in ``keystone.common.wsgi``.
+    """
 
     credentials = ['admin', 'primary']
 
     @classmethod
     def skip_checks(cls):
-        super(BaseIdentityV2RbacTest, cls).skip_checks()
+        super(BaseIdentityV2AdminRbacTest, cls).skip_checks()
         if not CONF.rbac.enable_rbac:
             raise cls.skipException(
                 "%s skipped as RBAC testing not enabled" % cls.__name__)
+        if not CONF.identity_feature_enabled.api_v2_admin:
+            raise cls.skipException('Identity v2 admin not available')
 
     @classmethod
     def setup_clients(cls):
-        super(BaseIdentityV2RbacTest, cls).setup_clients()
+        super(BaseIdentityV2AdminRbacTest, cls).setup_clients()
         cls.auth_provider = cls.os_primary.auth_provider
 
         cls.rbac_utils = rbac_utils()

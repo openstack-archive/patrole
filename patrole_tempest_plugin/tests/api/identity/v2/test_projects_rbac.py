@@ -16,16 +16,16 @@
 from tempest import config
 from tempest.lib import decorators
 
+from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.identity.v2 import rbac_base
 
 CONF = config.CONF
 
 
-class IdentityProjectV2RbacTest(rbac_base.BaseIdentityV2RbacTest):
+class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:create_project",
                                  admin_only=True)
     @decorators.idempotent_id('0f148510-63bf-11e6-b348-080044d0d904')
     def test_create_project(self):
@@ -39,7 +39,6 @@ class IdentityProjectV2RbacTest(rbac_base.BaseIdentityV2RbacTest):
         self._create_tenant()
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:update_project",
                                  admin_only=True)
     @decorators.idempotent_id('0f148510-63bf-11e6-b348-080044d0d905')
     def test_update_project(self):
@@ -55,7 +54,6 @@ class IdentityProjectV2RbacTest(rbac_base.BaseIdentityV2RbacTest):
                                           description="Changed description")
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:delete_project",
                                  admin_only=True)
     @decorators.idempotent_id('0f148510-63bf-11e6-b348-080044d0d906')
     def test_delete_project(self):
@@ -70,7 +68,6 @@ class IdentityProjectV2RbacTest(rbac_base.BaseIdentityV2RbacTest):
         self.tenants_client.delete_tenant(tenant['id'])
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:get_project",
                                  admin_only=True)
     @decorators.idempotent_id('0f148510-63bf-11e6-b348-080044d0d907')
     def test_get_project(self):
@@ -86,20 +83,6 @@ class IdentityProjectV2RbacTest(rbac_base.BaseIdentityV2RbacTest):
         self.tenants_client.show_tenant(tenant['id'])
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:list_projects",
-                                 admin_only=True)
-    @decorators.idempotent_id('0f148510-63bf-11e6-b348-080044d0d908')
-    def test_get_all_projects(self):
-
-        """List All Projects Test
-
-        RBAC test for Identity 2.0 list_tenants
-        """
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.tenants_client.list_tenants()
-
-    @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:list_user_projects",
                                  admin_only=True)
     @decorators.idempotent_id('0f148510-63bf-11e6-b348-080044d0d909')
     def test_list_project_users(self):
@@ -112,3 +95,37 @@ class IdentityProjectV2RbacTest(rbac_base.BaseIdentityV2RbacTest):
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.tenants_client.list_tenant_users(tenant['id'])
+
+    @rbac_rule_validation.action(service="keystone",
+                                 admin_only=True)
+    @decorators.idempotent_id('0f148510-63bf-11e6-b348-080044d0d908')
+    def test_list_all_projects(self):
+
+        """List All Projects Test
+
+        RBAC test for Identity 2.0 list_tenants (admin endpoint)
+
+        There are two separate APIs for listing tenants in the Keystone
+        v2 API: one for admin and one for non-admin. The ``os_admin`` client
+        calls the admin endpoint and the ``os_primary`` client calls the
+        non-admin endpoint. To ensure that the admin endpoint only returns
+        admin-scoped tenants, raise ``RbacActionFailed`` exception otherwise.
+        """
+        tenants_client = self.os_admin.tenants_client if \
+            CONF.identity.admin_role == CONF.rbac.rbac_test_role else \
+            self.os_primary.tenants_client
+        admin_tenant_id = self.os_admin.auth_provider.credentials.project_id
+        non_admin_tenant_id = self.auth_provider.credentials.project_id
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        tenants = tenants_client.list_tenants()['tenants']
+
+        tenant_ids = [t['id'] for t in tenants]
+        if admin_tenant_id not in tenant_ids:
+            raise rbac_exceptions.RbacActionFailed(
+                "The admin tenant id was not returned by the call to "
+                "``list_tenants``.")
+        if non_admin_tenant_id in tenant_ids:
+            raise rbac_exceptions.RbacActionFailed(
+                "The non-admin tenant id was returned by the call to "
+                "``list_tenants``.")

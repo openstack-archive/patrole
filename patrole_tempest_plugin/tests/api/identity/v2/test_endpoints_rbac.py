@@ -13,7 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
@@ -21,19 +20,17 @@ from tempest.lib import decorators
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.identity.v2 import rbac_base
 
-CONF = config.CONF
 
-
-class IdentityEndpointsV2RbacTest(rbac_base.BaseIdentityV2RbacTest):
+class IdentityEndpointsV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
     @classmethod
     def setup_clients(cls):
-        super(IdentityEndpointsV2RbacTest, cls).setup_clients()
+        super(IdentityEndpointsV2AdminRbacTest, cls).setup_clients()
         cls.endpoints_client = cls.os_primary.endpoints_client
 
     @classmethod
     def resource_setup(cls):
-        super(IdentityEndpointsV2RbacTest, cls).resource_setup()
+        super(IdentityEndpointsV2AdminRbacTest, cls).resource_setup()
         cls.region = data_utils.rand_name('region')
         cls.public_url = data_utils.rand_url()
         cls.admin_url = data_utils.rand_url()
@@ -54,7 +51,6 @@ class IdentityEndpointsV2RbacTest(rbac_base.BaseIdentityV2RbacTest):
         return endpoint
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:create_endpoint",
                                  admin_only=True)
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd124')
     def test_create_endpoint(self):
@@ -68,7 +64,6 @@ class IdentityEndpointsV2RbacTest(rbac_base.BaseIdentityV2RbacTest):
         self._create_endpoint()
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:delete_endpoint",
                                  admin_only=True)
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd125')
     def test_delete_endpoint(self):
@@ -83,7 +78,6 @@ class IdentityEndpointsV2RbacTest(rbac_base.BaseIdentityV2RbacTest):
         self.endpoints_client.delete_endpoint(endpoint['endpoint']['id'])
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:list_endpoints",
                                  admin_only=True)
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd126')
     def test_list_endpoints(self):

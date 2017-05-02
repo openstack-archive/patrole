@@ -20,6 +20,7 @@ from oslo_log import log as logging
 import oslo_utils.uuidutils as uuid_utils
 import six
 
+from tempest.common import credentials_factory as credentials
 from tempest import config
 
 from patrole_tempest_plugin import rbac_exceptions
@@ -56,10 +57,12 @@ class RbacUtils(object):
         self.token = test_obj.auth_provider.get_token()
         self.identity_version = test_obj.get_identity_version()
 
-        if self.identity_version.endswith('v3'):
-            self.roles_client = test_obj.os_admin.roles_v3_client
-        else:
-            self.roles_client = test_obj.os_admin.roles_client
+        if not credentials.is_admin_available(
+                identity_version=self.identity_version):
+            msg = "Missing Identity Admin API credentials in configuration."
+            raise rbac_exceptions.RbacResourceSetupFailed(msg)
+
+        self.roles_client = test_obj.os_admin.roles_v3_client
 
         LOG.debug('Switching role to: %s', toggle_rbac_role)
 

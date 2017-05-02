@@ -61,9 +61,7 @@ function setup_config() {
     # Set strict_policy_check=False under [rbac] section in tempest.conf
     iniset $TEMPEST_CONFIG rbac strict_policy_check False
     # Set additional, necessary CONF values
-    iniset $TEMPEST_CONFIG auth use_dynamic_credentials True
     iniset $TEMPEST_CONFIG auth tempest_roles Member
-    iniset $TEMPEST_CONFIG identity auth_version v3
 }
 
 function run_tests() {
