@@ -116,18 +116,6 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
         self.backups_client.delete_backup(backup['id'])
         self.backups_client.wait_for_resource_deletion(backup['id'])
 
-    @decorators.idempotent_id('48325aaa-13f5-4ba3-96a3-24b6c9d77b6d')
-    @test.attr(type=["slow"])
-    @rbac_rule_validation.action(
-        service="cinder",
-        rule="volume_extension:backup_admin_actions:force_delete")
-    def test_volume_backup_force_delete(self):
-        backup = self._create_backup(volume_id=self.volume['id'])
-
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.backups_client.force_delete_backup(backup['id'])
-        self.backups_client.wait_for_resource_deletion(backup['id'])
-
     @test.attr(type=["slow"])
     @rbac_rule_validation.action(service="cinder",
                                  rule="backup:backup-export")
