@@ -1,0 +1,13 @@
+---
+features:
+  - |
+    Add security groups and server security groups
+    tests to Nova RBAC tests.
+fixes:
+  - |
+    Add microversion check to test_security_groups_rbac
+    as tests in this file will fail with a 404 after
+    2.36.
+  - Rename test_server_security_groups to
+    test_list_security_groups to properly reflect the
+    test actually being run.
