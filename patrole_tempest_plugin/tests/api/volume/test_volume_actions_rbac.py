@@ -158,6 +158,28 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.retype_volume(volume['id'], new_type=vol_type)
 
+    @rbac_rule_validation.action(
+        service="cinder",
+        rule="volume_extension:volume_admin_actions:reset_status")
+    @decorators.idempotent_id('4b3dad7d-0e73-4839-8781-796dd3d7af1d')
+    def test_volume_reset_status(self):
+        volume = self.create_volume()
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.client.reset_volume_status(volume['id'], status='error')
+
+    @rbac_rule_validation.action(
+        service="cinder",
+        rule="volume_extension:volume_admin_actions:force_delete")
+    @decorators.idempotent_id('a312a937-6abf-4b91-a950-747086cbce48')
+    def test_volume_force_delete(self):
+        volume = self.create_volume()
+        self.client.reset_volume_status(volume['id'], status='error')
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.client.force_delete_volume(volume['id'])
+        self.client.wait_for_resource_deletion(volume['id'])
+
 
 class VolumesActionsV3RbacTest(VolumesActionsRbacTest):
     _api_version = 3
