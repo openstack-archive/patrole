@@ -40,7 +40,7 @@ class RbacPolicyParser(object):
     each role, whether a given rule is allowed using oslo policy.
     """
 
-    def __init__(self, project_id, user_id, service=None, path=None,
+    def __init__(self, project_id, user_id, service=None,
                  extra_target_data={}):
         """Initialization of Rbac Policy Parser.
 
@@ -76,7 +76,12 @@ class RbacPolicyParser(object):
 
         # Use default path in /etc/<service_name/policy.json if no path
         # is provided.
-        self.path = path or os.path.join('/etc', service, 'policy.json')
+        path = getattr(CONF.rbac, '%s_policy_file' % str(service), None)
+        if not path:
+            LOG.info("No config option found for %s,"
+                     " using default path" % str(service))
+            path = os.path.join('/etc', service, 'policy.json')
+        self.path = path
         self.rules = policy.Rules.load(self._get_policy_data(service),
                                        'default')
         self.project_id = project_id
@@ -98,12 +103,18 @@ class RbacPolicyParser(object):
 
         # Check whether policy file exists.
         if os.path.isfile(self.path):
-            with open(self.path, 'r') as policy_file:
-                file_policy_data = policy_file.read()
             try:
+                with open(self.path, 'r') as policy_file:
+                    file_policy_data = policy_file.read()
                 file_policy_data = json.loads(file_policy_data)
-            except ValueError:
-                file_policy_data = None
+            except (IOError, ValueError) as e:
+                msg = "Failed to read policy file for service. "
+                if isinstance(e, IOError):
+                    msg += "Please check that policy path exists."
+                else:
+                    msg += "JSON may be improperly formatted."
+                LOG.debug(msg)
+                file_policy_data = {}
 
         # Check whether policy actions are defined in code. Nova and Keystone,
         # for example, define their default policy actions in code.
