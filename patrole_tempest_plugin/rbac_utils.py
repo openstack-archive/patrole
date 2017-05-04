@@ -160,7 +160,7 @@ class RbacUtils(object):
         for role in available_roles['roles']:
             if role['name'] == CONF.rbac.rbac_test_role:
                 rbac_role_id = role['id']
-            if role['name'] == 'admin':
+            if role['name'] == CONF.identity.admin_role:
                 admin_role_id = role['id']
 
         if not admin_role_id or not rbac_role_id:

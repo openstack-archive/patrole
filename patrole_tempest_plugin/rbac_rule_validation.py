@@ -77,7 +77,7 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
                 LOG.info("As admin_only is True, only admin role should be "
                          "allowed to perform the API. Skipping oslo.policy "
                          "check for policy action {0}.".format(rule))
-                allowed = CONF.rbac.rbac_test_role == 'admin'
+                allowed = CONF.rbac.rbac_test_role == CONF.identity.admin_role
             else:
                 allowed = _is_authorized(test_obj, service, rule,
                                          extra_target_data)

@@ -51,12 +51,15 @@ class RBACUtilsTest(base.TestCase):
         self.mock_test_obj.os_admin = mock.Mock(
             **{'roles_v3_client.list_roles.return_value': available_roles})
 
-        CONF.set_override('rbac_test_role', 'Member', group='rbac',
+        CONF.set_override('admin_role', 'admin', group='identity',
                           enforce_type=True)
         CONF.set_override('auth_version', 'v3', group='identity',
                           enforce_type=True)
+        CONF.set_override('rbac_test_role', 'Member', group='rbac',
+                          enforce_type=True)
 
         self.addCleanup(CONF.clear_override, 'rbac_test_role', group='rbac')
+        self.addCleanup(CONF.clear_override, 'admin_role', group='identity')
         self.addCleanup(CONF.clear_override, 'auth_version', group='identity')
         self.addCleanup(mock.patch.stopall)
 
