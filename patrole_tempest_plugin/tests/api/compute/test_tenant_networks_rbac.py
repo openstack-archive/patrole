@@ -26,9 +26,10 @@ CONF = cfg.CONF
 
 class TenantNetworksRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
-    # Tests will fail with a 404 starting from microversion 2.36, according to:
-    # https://developer.openstack.org/api-ref/
-    # compute/?expanded=list-project-networks-detail
+    # Tests will fail with a 404 starting from microversion 2.36.
+    # See the following link for details:
+    # https://developer.openstack.org/api-ref/compute/#project-networks-os-tenant-networks-deprecated
+    min_microversion = '2.10'
     max_microversion = '2.35'
 
     @classmethod
