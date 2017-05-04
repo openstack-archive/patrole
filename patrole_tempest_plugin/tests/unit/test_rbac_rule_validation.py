@@ -19,7 +19,6 @@ from tempest.lib import exceptions
 from tempest import test
 from tempest.tests import base
 
-from patrole_tempest_plugin import rbac_auth
 from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation as rbac_rv
 
@@ -43,8 +42,9 @@ class RBACRuleValidationTest(base.TestCase):
         self.addCleanup(CONF.clear_override, 'rbac_test_role', group='rbac')
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
-    @mock.patch.object(rbac_auth, 'RbacAuthority', autospec=True)
-    def test_rule_validation_have_permission_no_exc(self, mock_auth, mock_log):
+    @mock.patch.object(rbac_rv, 'rbac_policy_parser', autospec=True)
+    def test_rule_validation_have_permission_no_exc(self, mock_policy,
+                                                    mock_log):
         """Test that having permission and no exception thrown is success.
 
         Positive test case success scenario.
@@ -54,9 +54,7 @@ class RBACRuleValidationTest(base.TestCase):
         mock_function = mock.Mock()
         wrapper = decorator(mock_function)
 
-        mock_permission = mock.Mock()
-        mock_permission.get_permission.return_value = True
-        mock_auth.return_value = mock_permission
+        mock_policy.RbacPolicyParser.return_value.allowed.return_value = True
 
         result = wrapper(self.mock_args)
 
@@ -65,8 +63,8 @@ class RBACRuleValidationTest(base.TestCase):
         mock_log.error.assert_not_called()
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
-    @mock.patch.object(rbac_auth, 'RbacAuthority', autospec=True)
-    def test_rule_validation_lack_permission_throw_exc(self, mock_auth,
+    @mock.patch.object(rbac_rv, 'rbac_policy_parser', autospec=True)
+    def test_rule_validation_lack_permission_throw_exc(self, mock_policy,
                                                        mock_log):
         """Test that having no permission and exception thrown is success.
 
@@ -78,9 +76,7 @@ class RBACRuleValidationTest(base.TestCase):
         mock_function.side_effect = exceptions.Forbidden
         wrapper = decorator(mock_function)
 
-        mock_permission = mock.Mock()
-        mock_permission.get_permission.return_value = False
-        mock_auth.return_value = mock_permission
+        mock_policy.RbacPolicyParser.return_value.allowed.return_value = False
 
         result = wrapper(self.mock_args)
 
@@ -89,8 +85,8 @@ class RBACRuleValidationTest(base.TestCase):
         mock_log.error.assert_not_called()
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
-    @mock.patch.object(rbac_auth, 'RbacAuthority', autospec=True)
-    def test_rule_validation_forbidden_negative(self, mock_auth, mock_log):
+    @mock.patch.object(rbac_rv, 'rbac_policy_parser', autospec=True)
+    def test_rule_validation_forbidden_negative(self, mock_policy, mock_log):
         """Test Forbidden error is thrown and have permission fails.
 
         Negative test case: if Forbidden is thrown and the user should be
@@ -102,9 +98,7 @@ class RBACRuleValidationTest(base.TestCase):
         mock_function.side_effect = exceptions.Forbidden
         wrapper = decorator(mock_function)
 
-        mock_permission = mock.Mock()
-        mock_permission.get_permission.return_value = True
-        mock_auth.return_value = mock_permission
+        mock_policy.RbacPolicyParser.return_value.allowed.return_value = True
 
         e = self.assertRaises(exceptions.Forbidden, wrapper, self.mock_args)
         self.assertIn(
@@ -114,8 +108,8 @@ class RBACRuleValidationTest(base.TestCase):
                                                " perform sentinel.action.")
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
-    @mock.patch.object(rbac_auth, 'RbacAuthority', autospec=True)
-    def test_rule_validation_rbac_action_failed_positive(self, mock_auth,
+    @mock.patch.object(rbac_rv, 'rbac_policy_parser', autospec=True)
+    def test_rule_validation_rbac_action_failed_positive(self, mock_policy,
                                                          mock_log):
         """Test RbacActionFailed error is thrown without permission passes.
 
@@ -127,9 +121,7 @@ class RBACRuleValidationTest(base.TestCase):
         mock_function.side_effect = rbac_exceptions.RbacActionFailed
         wrapper = decorator(mock_function)
 
-        mock_permission = mock.Mock()
-        mock_permission.get_permission.return_value = False
-        mock_auth.return_value = mock_permission
+        mock_policy.RbacPolicyParser.return_value.allowed.return_value = False
 
         result = wrapper(self.mock_args)
 
@@ -138,8 +130,8 @@ class RBACRuleValidationTest(base.TestCase):
         mock_log.warning.assert_not_called()
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
-    @mock.patch.object(rbac_auth, 'RbacAuthority', autospec=True)
-    def test_rule_validation_rbac_action_failed_negative(self, mock_auth,
+    @mock.patch.object(rbac_rv, 'rbac_policy_parser', autospec=True)
+    def test_rule_validation_rbac_action_failed_negative(self, mock_policy,
                                                          mock_log):
         """Test RbacActionFailed error is thrown with permission fails.
 
@@ -151,9 +143,7 @@ class RBACRuleValidationTest(base.TestCase):
         mock_function.side_effect = rbac_exceptions.RbacActionFailed
         wrapper = decorator(mock_function)
 
-        mock_permission = mock.Mock()
-        mock_permission.get_permission.return_value = True
-        mock_auth.return_value = mock_permission
+        mock_policy.RbacPolicyParser.return_value.allowed.return_value = True
 
         e = self.assertRaises(exceptions.Forbidden, wrapper, self.mock_args)
         self.assertIn(
@@ -164,8 +154,9 @@ class RBACRuleValidationTest(base.TestCase):
                                                " perform sentinel.action.")
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
-    @mock.patch.object(rbac_auth, 'RbacAuthority', autospec=True)
-    def test_expect_not_found_but_raises_forbidden(self, mock_auth, mock_log):
+    @mock.patch.object(rbac_rv, 'rbac_policy_parser', autospec=True)
+    def test_expect_not_found_but_raises_forbidden(self, mock_policy,
+                                                   mock_log):
         """Test that expecting 404 but getting 403 works for all scenarios.
 
         Tests the following scenarios:
@@ -186,9 +177,8 @@ class RBACRuleValidationTest(base.TestCase):
                          "NotFound, which was not thrown."
 
         for permission in [True, False]:
-            mock_permission = mock.Mock()
-            mock_permission.get_permission.return_value = permission
-            mock_auth.return_value = mock_permission
+            mock_policy.RbacPolicyParser.return_value.allowed.return_value =\
+                permission
 
             e = self.assertRaises(exceptions.Forbidden, wrapper,
                                   self.mock_args)
@@ -197,8 +187,8 @@ class RBACRuleValidationTest(base.TestCase):
             mock_log.error.reset_mock()
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
-    @mock.patch.object(rbac_auth, 'RbacAuthority', autospec=True)
-    def test_expect_not_found_and_raise_not_found(self, mock_auth, mock_log):
+    @mock.patch.object(rbac_rv, 'rbac_policy_parser', autospec=True)
+    def test_expect_not_found_and_raise_not_found(self, mock_policy, mock_log):
         """Test that expecting 404 and getting 404 works for all scenarios.
 
         Tests the following scenarios:
@@ -220,9 +210,8 @@ class RBACRuleValidationTest(base.TestCase):
         ]
 
         for pos, permission in enumerate([True, False]):
-            mock_permission = mock.Mock()
-            mock_permission.get_permission.return_value = permission
-            mock_auth.return_value = mock_permission
+            mock_policy.RbacPolicyParser.return_value.allowed.return_value =\
+                permission
 
             expected_error = expected_errors[pos]
 
@@ -245,8 +234,8 @@ class RBACRuleValidationTest(base.TestCase):
             mock_log.error.reset_mock()
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
-    @mock.patch.object(rbac_auth, 'RbacAuthority', autospec=True)
-    def test_rule_validation_overpermission_negative(self, mock_auth,
+    @mock.patch.object(rbac_rv, 'rbac_policy_parser', autospec=True)
+    def test_rule_validation_overpermission_negative(self, mock_policy,
                                                      mock_log):
         """Test that OverPermission is correctly handled.
 
@@ -258,9 +247,7 @@ class RBACRuleValidationTest(base.TestCase):
         mock_function = mock.Mock()
         wrapper = decorator(mock_function)
 
-        mock_permission = mock.Mock()
-        mock_permission.get_permission.return_value = False
-        mock_auth.return_value = mock_permission
+        mock_policy.RbacPolicyParser.return_value.allowed.return_value = False
 
         e = self.assertRaises(rbac_exceptions.RbacOverPermission, wrapper,
                               self.mock_args)
@@ -270,7 +257,7 @@ class RBACRuleValidationTest(base.TestCase):
         mock_log.error.assert_called_once_with(
             "Role Member was allowed to perform sentinel.action")
 
-    @mock.patch.object(rbac_auth, 'rbac_policy_parser', autospec=True)
+    @mock.patch.object(rbac_rv, 'rbac_policy_parser', autospec=True)
     def test_invalid_policy_rule_throws_parsing_exception(
             self, mock_rbac_policy_parser):
         """Test that invalid policy action causes test to be skipped."""
@@ -295,8 +282,8 @@ class RBACRuleValidationTest(base.TestCase):
             mock.sentinel.project_id, mock.sentinel.user_id,
             mock.sentinel.service, extra_target_data={})
 
-    @mock.patch.object(rbac_auth, 'RbacAuthority', autospec=True)
-    def test_get_exception_type_404(self, mock_auth):
+    @mock.patch.object(rbac_rv, 'rbac_policy_parser', autospec=True)
+    def test_get_exception_type_404(self, mock_policy):
         """Test that getting a 404 exception type returns NotFound."""
         expected_exception = exceptions.NotFound
         expected_irregular_msg = ("NotFound exception was caught for policy "
@@ -309,8 +296,8 @@ class RBACRuleValidationTest(base.TestCase):
         self.assertEqual(expected_exception, actual_exception)
         self.assertEqual(expected_irregular_msg, actual_irregular_msg)
 
-    @mock.patch.object(rbac_auth, 'RbacAuthority', autospec=True)
-    def test_get_exception_type_403(self, mock_auth):
+    @mock.patch.object(rbac_rv, 'rbac_policy_parser', autospec=True)
+    def test_get_exception_type_403(self, mock_policy):
         """Test that getting a 404 exception type returns Forbidden."""
         expected_exception = exceptions.Forbidden
         expected_irregular_msg = None
@@ -322,8 +309,9 @@ class RBACRuleValidationTest(base.TestCase):
         self.assertEqual(expected_irregular_msg, actual_irregular_msg)
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
-    @mock.patch.object(rbac_auth, 'RbacAuthority', autospec=True)
-    def test_exception_thrown_when_type_is_not_int(self, mock_auth, mock_log):
+    @mock.patch.object(rbac_rv, 'rbac_policy_parser', autospec=True)
+    def test_exception_thrown_when_type_is_not_int(self, mock_policy,
+                                                   mock_log):
         """Test that non-integer exception type raises error."""
         self.assertRaises(rbac_exceptions.RbacInvalidErrorCode,
                           rbac_rv._get_exception_type, "403")
@@ -333,8 +321,8 @@ class RBACRuleValidationTest(base.TestCase):
                                                "codes: [403, 404]")
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
-    @mock.patch.object(rbac_auth, 'RbacAuthority', autospec=True)
-    def test_exception_thrown_when_type_is_403_or_404(self, mock_auth,
+    @mock.patch.object(rbac_rv, 'rbac_policy_parser', autospec=True)
+    def test_exception_thrown_when_type_is_403_or_404(self, mock_policy,
                                                       mock_log):
         """Test that unsupported exceptions throw error."""
         invalid_exceptions = [200, 400, 500]

@@ -15,6 +15,7 @@
 
 import logging
 import sys
+import testtools
 
 import six
 
@@ -22,8 +23,8 @@ from tempest import config
 from tempest.lib import exceptions
 from tempest import test
 
-from patrole_tempest_plugin import rbac_auth
 from patrole_tempest_plugin import rbac_exceptions
+from patrole_tempest_plugin import rbac_policy_parser
 
 CONF = config.CONF
 LOG = logging.getLogger(__name__)
@@ -62,18 +63,15 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
     :raises RbacOverPermission: for bullet (3) above.
     """
     def decorator(func):
+        role = CONF.rbac.rbac_test_role
+
         def wrapper(*args, **kwargs):
-            try:
-                caller_ref = None
-                if args and isinstance(args[0], test.BaseTestCase):
-                    caller_ref = args[0]
-                project_id = caller_ref.auth_provider.credentials.project_id
-                user_id = caller_ref.auth_provider.credentials.user_id
-            except AttributeError as e:
-                msg = ("{0}: project_id/user_id not found in "
-                       "cls.auth_provider.credentials".format(e))
-                LOG.error(msg)
-                raise rbac_exceptions.RbacResourceSetupFailed(msg)
+            if args and isinstance(args[0], test.BaseTestCase):
+                test_obj = args[0]
+            else:
+                raise rbac_exceptions.RbacResourceSetupFailed(
+                    '`rbac_rule_validation` decorator can only be applied to '
+                    'an instance of `tempest.test.BaseTestCase`.')
 
             if admin_only:
                 LOG.info("As admin_only is True, only admin role should be "
@@ -81,33 +79,28 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
                          "check for policy action {0}.".format(rule))
                 allowed = CONF.rbac.rbac_test_role == 'admin'
             else:
-                authority = rbac_auth.RbacAuthority(
-                    project_id, user_id, service,
-                    _format_extra_target_data(caller_ref, extra_target_data))
-                allowed = authority.get_permission(
-                    rule, CONF.rbac.rbac_test_role)
+                allowed = _is_authorized(test_obj, service, rule,
+                                         extra_target_data)
 
             expected_exception, irregular_msg = _get_exception_type(
                 expected_error_code)
 
             try:
-                func(*args)
+                func(*args, **kwargs)
             except rbac_exceptions.RbacInvalidService as e:
                 msg = ("%s is not a valid service." % service)
                 LOG.error(msg)
                 raise exceptions.NotFound(
-                    "%s RbacInvalidService was: %s" %
-                    (msg, e))
+                    "%s RbacInvalidService was: %s" % (msg, e))
             except (expected_exception, rbac_exceptions.RbacActionFailed) as e:
                 if irregular_msg:
                     LOG.warning(irregular_msg.format(rule, service))
                 if allowed:
                     msg = ("Role %s was not allowed to perform %s." %
-                           (CONF.rbac.rbac_test_role, rule))
+                           (role, rule))
                     LOG.error(msg)
                     raise exceptions.Forbidden(
-                        "%s exception was: %s" %
-                        (msg, e))
+                        "%s exception was: %s" % (msg, e))
             except Exception as e:
                 exc_info = sys.exc_info()
                 error_details = exc_info[1].__str__()
@@ -119,21 +112,58 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
             else:
                 if not allowed:
                     LOG.error("Role %s was allowed to perform %s" %
-                              (CONF.rbac.rbac_test_role, rule))
+                              (role, rule))
                     raise rbac_exceptions.RbacOverPermission(
                         "OverPermission: Role %s was allowed to perform %s" %
-                        (CONF.rbac.rbac_test_role, rule))
+                        (role, rule))
             finally:
-                caller_ref.rbac_utils.switch_role(caller_ref,
-                                                  toggle_rbac_role=False)
-        return wrapper
+                test_obj.rbac_utils.switch_role(test_obj,
+                                                toggle_rbac_role=False)
+
+        _wrapper = testtools.testcase.attr(role)(wrapper)
+        return _wrapper
     return decorator
+
+
+def _is_authorized(test_obj, service, rule_name, extra_target_data):
+    try:
+        project_id = test_obj.auth_provider.credentials.project_id
+        user_id = test_obj.auth_provider.credentials.user_id
+    except AttributeError as e:
+        msg = ("{0}: project_id/user_id not found in "
+               "cls.auth_provider.credentials".format(e))
+        LOG.error(msg)
+        raise rbac_exceptions.RbacResourceSetupFailed(msg)
+
+    try:
+        role = CONF.rbac.rbac_test_role
+        formatted_target_data = _format_extra_target_data(
+            test_obj, extra_target_data)
+        policy_parser = rbac_policy_parser.RbacPolicyParser(
+            project_id, user_id, service,
+            extra_target_data=formatted_target_data)
+        is_allowed = policy_parser.allowed(rule_name, role)
+
+        if is_allowed:
+            LOG.debug("[Action]: %s, [Role]: %s is allowed!", rule_name,
+                      role)
+        else:
+            LOG.debug("[Action]: %s, [Role]: %s is NOT allowed!",
+                      rule_name, role)
+        return is_allowed
+    except rbac_exceptions.RbacParsingException as e:
+        if CONF.rbac.strict_policy_check:
+            raise e
+        else:
+            raise testtools.TestCase.skipException(str(e))
+    return False
 
 
 def _get_exception_type(expected_error_code):
     expected_exception = None
     irregular_msg = None
     supported_error_codes = [403, 404]
+
     if expected_error_code == 403:
         expected_exception = exceptions.Forbidden
     elif expected_error_code == 404:
