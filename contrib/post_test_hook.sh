@@ -28,7 +28,6 @@ TEMPEST_CONFIG=$BASE/new/tempest/etc/tempest.conf
 TEMPEST_COMMAND="sudo -H -u tempest tox"
 
 DEVSTACK_GATE_TEMPEST_REGEX="(?!.*\[.*\bslow\b.*\])(^patrole_tempest_plugin\.tests\.api)"
-DEVSTACK_GATE_TEMPEST_HEAT_REGEX="(?!.*\[.*\bslow\b.*\])(^patrole_tempest_plugin\.tests\.api\.orchestration)"
 DEVSTACK_MULTINODE_GATE_TEMPEST_REGEX="(?=.*\[.*\bslow\b.*\])(^patrole_tempest_plugin\.tests\.api)"
 
 # Import devstack function 'iniset'.
@@ -76,8 +75,6 @@ function run_tests() {
 
     if [[ "$TYPE" == "multinode" ]]; then
         $TEMPEST_COMMAND -eall-plugin -- $DEVSTACK_MULTINODE_GATE_TEMPEST_REGEX --concurrency=$TEMPEST_CONCURRENCY
-    elif [[ "$TYPE" == "heat" ]]; then
-        $TEMPEST_COMMAND -eall-plugin -- $DEVSTACK_GATE_TEMPEST_HEAT_REGEX --concurrency=$TEMPEST_CONCURRENCY
     else
         $TEMPEST_COMMAND -eall-plugin -- $DEVSTACK_GATE_TEMPEST_REGEX --concurrency=$TEMPEST_CONCURRENCY
     fi
