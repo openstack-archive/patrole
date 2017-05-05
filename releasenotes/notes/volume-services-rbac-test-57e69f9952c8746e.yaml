@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added RBAC test for the volume services API, which covers the following
+    policy action: "volume_extension:services:index".
