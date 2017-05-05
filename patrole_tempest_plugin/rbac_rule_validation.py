@@ -31,7 +31,7 @@ LOG = logging.getLogger(__name__)
 
 
 def action(service, rule='', admin_only=False, expected_error_code=403,
-           extra_target_data={}):
+           extra_target_data=None):
     """A decorator which does a policy check and matches it against test run.
 
     A decorator which allows for positive and negative RBAC testing. Given
@@ -62,6 +62,10 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
     :raises Forbidden: for bullet (2) above.
     :raises RbacOverPermission: for bullet (3) above.
     """
+
+    if extra_target_data is None:
+        extra_target_data = {}
+
     def decorator(func):
         role = CONF.rbac.rbac_test_role
 

@@ -40,8 +40,7 @@ class RbacPolicyParser(object):
     each role, whether a given rule is allowed using oslo policy.
     """
 
-    def __init__(self, project_id, user_id, service=None,
-                 extra_target_data={}):
+    def __init__(self, project_id, user_id, service, extra_target_data=None):
         """Initialization of Rbac Policy Parser.
 
         Parses a policy file to create a dictionary, mapping policy actions to
@@ -63,6 +62,9 @@ class RbacPolicyParser(object):
         :param service: type string
         :param path: type string
         """
+
+        if extra_target_data is None:
+            extra_target_data = {}
 
         # First check if the service is valid
         service = service.lower().strip() if service else None
