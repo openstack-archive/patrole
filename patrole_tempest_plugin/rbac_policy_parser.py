@@ -81,7 +81,7 @@ class RbacPolicyParser(object):
         path = getattr(CONF.rbac, '%s_policy_file' % str(service), None)
         if not path:
             LOG.info("No config option found for %s,"
-                     " using default path" % str(service))
+                     " using default path", str(service))
             path = os.path.join('/etc', service, 'policy.json')
         self.path = path
         self.rules = policy.Rules.load(self._get_policy_data(service),
