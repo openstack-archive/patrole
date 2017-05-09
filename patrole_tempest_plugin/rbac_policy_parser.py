@@ -168,7 +168,7 @@ class RbacPolicyParser(object):
             return self._allowed(
                 access=self._get_access_token(role),
                 apply_rule='context_is_admin')
-        return role == 'admin'
+        return role == CONF.identity.admin_role
 
     def _get_access_token(self, role):
         access_token = {
