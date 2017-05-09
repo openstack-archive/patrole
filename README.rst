@@ -24,11 +24,21 @@ corresponding API endpoint, access is only granted for correct roles.
 Currently, Patrole supports policies contained in code and in policy.json files.
 If both exist, the policy actions in the policy.json are prioritized.
 
+Stable Interface
+----------------
+Patrole offers a stable interface that is guaranteed to be backwards compatible and
+can be directly consumed by other projects. Currently, rbac_exceptions.py and
+rbac_policy_parser.py are guaranteed to be stable.
+
+Release Versioning
+------------------
+`Patrole Release Notes <https://docs.openstack.org/releasenotes/patrole/>`_ show
+what changes have been released.
+
 .. _test-flows:
 
 Test Flows
 ----------
-
 There are several possible test flows.
 
 If the ``rbac_test_role`` is allowed to access the endpoint:
@@ -47,7 +57,7 @@ If the ``rbac_test_role`` is not allowed to access the endpoint:
 
     Certain services like Neutron *intentionally* raise a 404 instead of a 403
     for security concerns. Patrole accomodates this behavior by anticipating
-    a 404 instead of a 403, if specified through a special argument. For more
+    a 404 instead of a 403, using the ``expected_exception`` argument. For more
     information about Neutron's policy enforcement, see:
     `<https://docs.openstack.org/developer/neutron/devref/policy.html#request-authorization>`__.
 
@@ -70,7 +80,6 @@ as outlined above: :ref:`test-flows`.
 
 Test Execution Workflow
 -----------------------
-
 The workflow is as follows:
 
 #. Each test uses the ``rbac_rule_validation.action`` decorator, like below: ::
