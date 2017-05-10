@@ -28,7 +28,7 @@ class BaseV1ImageRbacTest(image_base.BaseV1ImageTest):
         super(BaseV1ImageRbacTest, cls).skip_checks()
         if not CONF.rbac.enable_rbac:
             raise cls.skipException(
-                "%s skipped as RBAC Flag not enabled" % cls.__name__)
+                "%s skipped as RBAC testing not enabled" % cls.__name__)
 
     @classmethod
     def setup_clients(cls):
@@ -47,7 +47,7 @@ class BaseV2ImageRbacTest(image_base.BaseV2ImageTest):
         super(BaseV2ImageRbacTest, cls).skip_checks()
         if not CONF.rbac.enable_rbac:
             raise cls.skipException(
-                "%s skipped as RBAC Flag not enabled" % cls.__name__)
+                "%s skipped as RBAC testing not enabled" % cls.__name__)
 
     @classmethod
     def setup_clients(cls):
