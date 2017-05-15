@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Added RBAC network test for listing dhcp agents on a hosting
+    network, providing coverage for the following Neutron policy action:
+    * "get_dhcp-agents"
