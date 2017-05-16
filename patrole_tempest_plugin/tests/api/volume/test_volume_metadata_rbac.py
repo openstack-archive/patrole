@@ -23,6 +23,7 @@ CONF = config.CONF
 
 
 class VolumeMetadataRbacTest(rbac_base.BaseVolumeRbacTest):
+
     @classmethod
     def setup_clients(cls):
         super(VolumeMetadataRbacTest, cls).setup_clients()
@@ -31,36 +32,38 @@ class VolumeMetadataRbacTest(rbac_base.BaseVolumeRbacTest):
             cls.image_client = cls.os_primary.image_client
         elif CONF.image_feature_enabled.api_v2:
             cls.image_client = cls.os_primary.image_client_v2
-        cls.image_id = CONF.compute.image_ref
 
     @classmethod
     def resource_setup(cls):
         super(VolumeMetadataRbacTest, cls).resource_setup()
         cls.volume = cls.create_volume()
-        cls._add_metadata(cls.volume)
         cls.image_id = CONF.compute.image_ref
 
-    @classmethod
-    def _add_metadata(cls, volume):
+    def setUp(self):
+        super(VolumeMetadataRbacTest, self).setUp()
+        self._add_metadata(self.volume)
+
+    def tearDown(self):
+        self.volumes_client.update_volume_metadata(self.volume['id'], {})
+        super(VolumeMetadataRbacTest, self).tearDown()
+
+    def _add_metadata(self, volume):
         # Create metadata for the volume
-        metadata = {"key1": "value1",
-                    "key2": "value2",
-                    "key3": "value3",
-                    "key4": "<value&special_chars>"}
-        cls.client.create_volume_metadata(cls.volume['id'],
-                                          metadata)['metadata']
+        metadata = {"key1": "value1"}
+        self.client.create_volume_metadata(self.volume['id'], metadata)[
+            'metadata']
 
     @rbac_rule_validation.action(service="cinder",
-                                 rule="volume:update_volume_metadata")
+                                 rule="volume:create_volume_metadata")
     @decorators.idempotent_id('232bbb8b-4c29-44dc-9077-b1398c20b738')
     def test_create_volume_metadata(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._add_metadata(self.volume)
 
     @rbac_rule_validation.action(service="cinder",
-                                 rule="volume:get")
+                                 rule="volume:get_volume_metadata")
     @decorators.idempotent_id('87ea37d9-23ab-47b2-a59c-16fc4d2c6dfa')
-    def test_get_volume_metadata(self):
+    def test_show_volume_metadata(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.show_volume_metadata(self.volume['id'])['metadata']
 
@@ -85,21 +88,18 @@ class VolumeMetadataRbacTest(rbac_base.BaseVolumeRbacTest):
                                  rule="volume:update_volume_metadata")
     @decorators.idempotent_id('8ce2ff80-99ba-49ae-9bb1-7e96729ee5af')
     def test_update_volume_metadata_item(self):
-        # Metadata to update
-        update_item = {"key3": "value3_update"}
+        updated_metadata_item = {"key1": "value1_update"}
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.update_volume_metadata_item(self.volume['id'], "key3",
-                                                update_item)['meta']
+        self.client.update_volume_metadata_item(
+            self.volume['id'], "key1", updated_metadata_item)['meta']
 
     @decorators.idempotent_id('a231b445-97a5-4657-b05f-245895e88da9')
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:update_volume_metadata")
     def test_update_volume_metadata(self):
-        # Metadata to update
-        update = {"key1": "value1",
-                  "key3": "value3"}
+        updated_metadata = {"key1": "value1"}
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.update_volume_metadata(self.volume['id'], update)
+        self.client.update_volume_metadata(self.volume['id'], updated_metadata)
 
     @decorators.idempotent_id('a9d9e825-5ea3-42e6-96f3-7ac4e97b2ed0')
     @rbac_rule_validation.action(
@@ -107,9 +107,5 @@ class VolumeMetadataRbacTest(rbac_base.BaseVolumeRbacTest):
         rule="volume:update_volume_metadata")
     def test_update_volume_image_metadata(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.update_volume_image_metadata(self.volume['id'],
-                                                 image_id=self.image_id)
-
-
-class VolumeMetadataV3RbacTest(VolumeMetadataRbacTest):
-    _api_version = 3
+        self.client.update_volume_image_metadata(
+            self.volume['id'], image_id=self.image_id)
