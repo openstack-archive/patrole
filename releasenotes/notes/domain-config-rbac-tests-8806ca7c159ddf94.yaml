@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Adds RBAC tests for the domain configuration Keystone v3 extension
+    API.
