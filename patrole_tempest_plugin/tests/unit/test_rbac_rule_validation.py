@@ -37,8 +37,7 @@ class RBACRuleValidationTest(base.TestCase):
         self.mock_args.auth_provider.credentials.user_id = \
             mock.sentinel.user_id
 
-        CONF.set_override('rbac_test_role', 'Member', group='rbac',
-                          enforce_type=True)
+        CONF.set_override('rbac_test_role', 'Member', group='rbac')
         self.addCleanup(CONF.clear_override, 'rbac_test_role', group='rbac')
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
@@ -261,8 +260,7 @@ class RBACRuleValidationTest(base.TestCase):
     def test_invalid_policy_rule_throws_parsing_exception(
             self, mock_rbac_policy_parser):
         """Test that invalid policy action causes test to be skipped."""
-        CONF.set_override('strict_policy_check', True, group='rbac',
-                          enforce_type=True)
+        CONF.set_override('strict_policy_check', True, group='rbac')
         self.addCleanup(CONF.clear_override, 'strict_policy_check',
                         group='rbac')
 
