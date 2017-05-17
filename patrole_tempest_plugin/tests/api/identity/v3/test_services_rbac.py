@@ -34,7 +34,7 @@ class IdentitySericesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @decorators.idempotent_id('b39447d1-2cf6-40e5-a899-46f287f2ecf0')
     def test_update_service(self):
         service = self.setup_test_service()
-        new_name = data_utils.rand_name('service')
+        new_name = data_utils.rand_name(self.__class__.__name__ + '-service')
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.services_client.update_service(service['id'],

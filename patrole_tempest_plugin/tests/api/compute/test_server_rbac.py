@@ -174,7 +174,7 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('077b17cb-5621-43b9-8adf-5725f0d7a863')
     def test_update_server(self):
         server = self.create_test_server(wait_until='ACTIVE')
-        new_name = data_utils.rand_name('server')
+        new_name = data_utils.rand_name(self.__class__.__name__ + '-server')
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         try:
             self.client.update_server(server['id'], name=new_name)

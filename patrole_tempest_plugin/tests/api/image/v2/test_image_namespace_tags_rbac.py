@@ -42,7 +42,8 @@ class NamespaceTagsRbacTest(base.BaseV2ImageRbacTest):
     def resource_setup(cls):
         super(NamespaceTagsRbacTest, cls).resource_setup()
         cls.namespace = cls.namespaces_client.create_namespace(
-            namespace=data_utils.rand_name('namespace'))['namespace']
+            namespace=data_utils.rand_name(
+                cls.__name__ + '-namespace'))['namespace']
 
     @classmethod
     def resource_cleanup(cls):
@@ -54,7 +55,7 @@ class NamespaceTagsRbacTest(base.BaseV2ImageRbacTest):
         namespace_tag_names = []
 
         for i in range(tag_count):
-            tag_name = data_utils.rand_name('tag')
+            tag_name = data_utils.rand_name(self.__class__.__name__ + '-tag')
             namespace_tag_names.append({'name': tag_name})
 
         if multiple:
@@ -91,7 +92,8 @@ class NamespaceTagsRbacTest(base.BaseV2ImageRbacTest):
                                  rule="modify_metadef_tag")
     def test_update_namespace_tag(self):
         tag_name = self._create_namespace_tag()
-        updated_tag_name = data_utils.rand_name('tag')
+        updated_tag_name = data_utils.rand_name(
+            self.__class__.__name__ + '-tag')
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.client.update_namespace_tag(self.namespace, tag_name,

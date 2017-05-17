@@ -33,7 +33,8 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
     def resource_setup(cls):
         super(RbacNetworksTest, cls).resource_setup()
 
-        network_name = data_utils.rand_name('rbac-admin-network-')
+        network_name = data_utils.rand_name(
+            cls.__name__ + '-rbac-admin-network-')
 
         post_body = {'name': network_name}
         body = cls.networks_client.create_network(**post_body)
@@ -65,7 +66,8 @@ class RbacNetworksTest(base.BaseNetworkRbacTest):
                         provider_physical_network=None,
                         provider_segmentation_id=None):
 
-        network_name = data_utils.rand_name('test-network-')
+        network_name = data_utils.rand_name(
+            self.__class__.__name__ + '-test-network-')
         post_body = {'name': network_name}
 
         if shared is not None:

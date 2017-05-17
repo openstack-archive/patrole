@@ -36,8 +36,10 @@ class MessagesV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     def _create_user_message(self):
         """Trigger a 'no valid host' situation to generate a message."""
-        bad_protocol = data_utils.rand_name('storage_protocol')
-        bad_vendor = data_utils.rand_name('vendor_name')
+        bad_protocol = data_utils.rand_name(
+            self.__class__.__name__ + '-storage_protocol')
+        bad_vendor = data_utils.rand_name(
+            self.__class__.__name__ + '-vendor_name')
         extra_specs = {'storage_protocol': bad_protocol,
                        'vendor_name': bad_vendor}
         vol_type_name = data_utils.rand_name(

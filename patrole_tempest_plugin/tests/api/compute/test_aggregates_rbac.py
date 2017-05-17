@@ -37,7 +37,7 @@ class AggregatesRbacTest(rbac_base.BaseV2ComputeRbacTest):
         cls.hosts_client = cls.os_primary.hosts_client
 
     def _create_aggregate(self):
-        agg_name = data_utils.rand_name('aggregate')
+        agg_name = data_utils.rand_name(self.__class__.__name__ + '-aggregate')
         aggregate = self.aggregates_client.create_aggregate(name=agg_name)
         aggregate_id = aggregate['aggregate']['id']
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
@@ -82,7 +82,7 @@ class AggregatesRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_update_aggregate_rbac(self):
         aggregate_id = self._create_aggregate()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        new_name = data_utils.rand_name('aggregate')
+        new_name = data_utils.rand_name(self.__class__.__name__ + '-aggregate')
         self.aggregates_client.update_aggregate(aggregate_id, name=new_name)
 
     @rbac_rule_validation.action(
@@ -115,8 +115,8 @@ class AggregatesRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('ed6f3849-065c-4ae9-a81e-6ad7ed0d3d9d')
     def test_set_metadata_on_aggregate_rbac(self):
         aggregate_id = self._create_aggregate()
-        rand_key = data_utils.rand_name('key')
-        rand_val = data_utils.rand_name('val')
+        rand_key = data_utils.rand_name(self.__class__.__name__ + '-key')
+        rand_val = data_utils.rand_name(self.__class__.__name__ + '-val')
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.aggregates_client.set_metadata(
             aggregate_id,

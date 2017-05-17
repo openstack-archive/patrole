@@ -44,7 +44,7 @@ class ServerTagsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         cls.server = cls.create_test_server(wait_until='ACTIVE')
 
     def _add_tag_to_server(self):
-        tag_name = data_utils.rand_name('tag')
+        tag_name = data_utils.rand_name(self.__class__.__name__ + '-tag')
         self.client.update_tag(self.server['id'], tag_name)
         self.addCleanup(self.client.delete_all_tags, self.server['id'])
         return tag_name
@@ -89,7 +89,7 @@ class ServerTagsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-server-tags:update_all")
     def test_update_all_tags(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        new_tag_name = data_utils.rand_name('tag')
+        new_tag_name = data_utils.rand_name(self.__class__.__name__ + '-tag')
         self.client.update_all_tags(self.server['id'], [new_tag_name])['tags']
 
     @decorators.idempotent_id('89d51936-e333-42f9-a045-132a4865ba1a')

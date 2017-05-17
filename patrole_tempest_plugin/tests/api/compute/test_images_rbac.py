@@ -54,7 +54,7 @@ class ImagesV235RbacTest(rbac_base.BaseV2ComputeRbacTest):
     def resource_setup(cls):
         super(ImagesV235RbacTest, cls).resource_setup()
         cls.image = cls.glance_image_client.create_image(
-            name=data_utils.rand_name('image'))
+            name=data_utils.rand_name(cls.__name__ + '-image'))
 
     @classmethod
     def resource_cleanup(cls):
@@ -111,7 +111,7 @@ class ImagesV235RbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="delete_image")
     def test_delete_image(self):
         image = self.glance_image_client.create_image(
-            name=data_utils.rand_name('image'))
+            name=data_utils.rand_name(self.__class__.__name__ + '-image'))
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self.glance_image_client.delete_image, image['id'])
 

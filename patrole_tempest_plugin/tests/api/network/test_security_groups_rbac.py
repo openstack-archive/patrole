@@ -30,7 +30,7 @@ class SecGroupRbacTest(base.BaseNetworkRbacTest):
     @classmethod
     def resource_setup(cls):
         super(SecGroupRbacTest, cls).resource_setup()
-        secgroup_name = data_utils.rand_name('secgroup')
+        secgroup_name = data_utils.rand_name(cls.__name__ + '-secgroup')
         cls.secgroup = cls.security_groups_client.create_security_group(
             name=secgroup_name)['security_group']
 
@@ -44,7 +44,7 @@ class SecGroupRbacTest(base.BaseNetworkRbacTest):
 
     def _create_security_group(self):
         # Create a security group
-        name = data_utils.rand_name('secgroup')
+        name = data_utils.rand_name(self.__class__.__name__ + '-secgroup')
         security_group =\
             self.security_groups_client.create_security_group(
                 name=name)['security_group']

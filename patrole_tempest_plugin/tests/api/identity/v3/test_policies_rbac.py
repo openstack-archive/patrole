@@ -34,7 +34,8 @@ class IdentityPoliciesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @decorators.idempotent_id('9cfed3c6-0b27-4d15-be67-e06e0cfb01b9')
     def test_update_policy(self):
         policy = self.setup_test_policy()
-        updated_policy_type = data_utils.rand_name('policy_type')
+        updated_policy_type = data_utils.rand_name(
+            self.__class__.__name__ + '-policy_type')
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.policies_client.update_policy(policy['id'],

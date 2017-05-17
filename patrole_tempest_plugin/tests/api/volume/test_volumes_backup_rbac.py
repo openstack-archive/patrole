@@ -43,7 +43,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
         cls.volume = cls.create_volume()
 
     def _create_backup(self, volume_id):
-        backup_name = data_utils.rand_name('backup')
+        backup_name = data_utils.rand_name(self.__class__.__name__ + 'backup')
         backup = self.backups_client.create_backup(
             volume_id=volume_id, name=backup_name)['backup']
         self.addCleanup(

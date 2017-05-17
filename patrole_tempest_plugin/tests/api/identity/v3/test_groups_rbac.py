@@ -41,7 +41,8 @@ class IdentityGroupsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @decorators.idempotent_id('790fb7be-a657-4a64-9b83-c43425cf180b')
     def test_update_group(self):
         group = self.setup_test_group()
-        new_group_name = data_utils.rand_name('group')
+        new_group_name = data_utils.rand_name(
+            self.__class__.__name__ + '-group')
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.groups_client.update_group(group['id'],

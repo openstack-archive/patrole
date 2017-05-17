@@ -31,7 +31,8 @@ class ImageNamespacesRbacTest(rbac_base.BaseV2ImageRbacTest):
 
         RBAC test for the glance add_metadef_namespace policy
         """
-        namespace_name = data_utils.rand_name('test-ns')
+        namespace_name = data_utils.rand_name(
+            self.__class__.__name__ + '-test-ns')
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.namespaces_client.create_namespace(
             namespace=namespace_name,
@@ -60,7 +61,8 @@ class ImageNamespacesRbacTest(rbac_base.BaseV2ImageRbacTest):
 
         RBAC test for the glance modify_metadef_namespace policy
         """
-        namespace_name = data_utils.rand_name('test-ns')
+        namespace_name = data_utils.rand_name(
+            self.__class__.__name__ + '-test-ns')
         body = self.namespaces_client.create_namespace(
             namespace=namespace_name,
             protected=False)

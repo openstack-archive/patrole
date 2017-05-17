@@ -74,7 +74,7 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron
         create_router:external_gateway_info:enable_snat policy
         """
-        name = data_utils.rand_name('snat-router')
+        name = data_utils.rand_name(self.__class__.__name__ + '-snat-router')
         external_gateway_info = {'network_id': self.network['id'],
                                  'enable_snat': True}
 
@@ -94,7 +94,7 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron
         create_router:external_gateway_info:external_fixed_ips policy
         """
-        name = data_utils.rand_name('snat-router')
+        name = data_utils.rand_name(self.__class__.__name__ + '-snat-router')
 
         # Pick an unused IP address.
         ip_list = net_utils.get_unused_ip_addresses(self.ports_client,
@@ -134,7 +134,8 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron update_router policy
         """
-        new_name = data_utils.rand_name('new-router-name')
+        new_name = data_utils.rand_name(self.__class__.__name__ +
+                                        '-new-router-name')
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.routers_client.update_router(self.router['id'],
                                           name=new_name)

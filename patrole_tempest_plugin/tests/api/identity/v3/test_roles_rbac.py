@@ -44,7 +44,8 @@ class IdentityRolesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                                  rule="identity:update_role")
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d905')
     def test_update_role(self):
-        new_role_name = data_utils.rand_name('test_update_role')
+        new_role_name = data_utils.rand_name(
+            self.__class__.__name__ + '-test_update_role')
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.roles_client.update_role(self.role['id'],

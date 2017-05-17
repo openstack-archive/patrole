@@ -35,7 +35,8 @@ class ImageNamespacesObjectsRbacTest(rbac_base.BaseV2ImageRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # create a md object, it will be cleaned automatically after
         # cleanup of namespace
-        object_name = data_utils.rand_name('test-object')
+        object_name = data_utils.rand_name(
+            self.__class__.__name__ + '-test-object')
         self.namespace_objects_client.create_namespace_object(
             namespace['namespace'],
             name=object_name)
@@ -66,7 +67,8 @@ class ImageNamespacesObjectsRbacTest(rbac_base.BaseV2ImageRbacTest):
         RBAC test for the glance modify_metadef_object policy
         """
         namespace = self.create_namespace()
-        object_name = data_utils.rand_name('test-object')
+        object_name = data_utils.rand_name(
+            self.__class__.__name__ + '-test-object')
         self.namespace_objects_client.create_namespace_object(
             namespace['namespace'],
             name=object_name)
@@ -89,7 +91,8 @@ class ImageNamespacesObjectsRbacTest(rbac_base.BaseV2ImageRbacTest):
         RBAC test for the glance get_metadef_object policy
         """
         namespace = self.create_namespace()
-        object_name = data_utils.rand_name('test-object')
+        object_name = data_utils.rand_name(
+            self.__class__.__name__ + '-test-object')
         self.namespace_objects_client.create_namespace_object(
             namespace['namespace'],
             name=object_name)

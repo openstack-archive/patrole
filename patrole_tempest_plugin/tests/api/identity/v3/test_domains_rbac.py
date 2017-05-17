@@ -34,7 +34,8 @@ class IdentityDomainsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd111')
     def test_update_domain(self):
         domain = self.setup_test_domain()
-        new_domain_name = data_utils.rand_name('test_update_domain')
+        new_domain_name = data_utils.rand_name(
+            self.__class__.__name__ + '-test_update_domain')
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.domains_client.update_domain(domain['id'],
                                           domain=domain,

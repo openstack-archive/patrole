@@ -78,7 +78,8 @@ class BaseIdentityRbacTest(base.BaseIdentityTest):
         """Creates a service and an endpoint for test."""
         interface = 'public'
         url = data_utils.rand_url()
-        region_name = data_utils.rand_name('region')
+        region_name = data_utils.rand_name(
+            cls.__name__ + '-region')
         # Endpoint creation requires a service
         if service is None:
             service = cls.setup_test_service()
@@ -104,7 +105,7 @@ class BaseIdentityRbacTest(base.BaseIdentityTest):
     @classmethod
     def setup_test_role(cls):
         """Set up a test role."""
-        name = data_utils.rand_name('test_role')
+        name = data_utils.rand_name(cls.__name__ + '-test_role')
         role = cls.roles_client.create_role(name=name)['role']
         cls.roles.append(role)
 
@@ -113,9 +114,9 @@ class BaseIdentityRbacTest(base.BaseIdentityTest):
     @classmethod
     def setup_test_service(cls):
         """Setup a test service."""
-        name = data_utils.rand_name('service')
+        name = data_utils.rand_name(cls.__name__ + '-service')
         serv_type = data_utils.rand_name('type')
-        desc = data_utils.rand_name('description')
+        desc = data_utils.rand_name(cls.__name__ + '-description')
 
         service = cls.services_client.create_service(
             name=name,
@@ -138,7 +139,7 @@ class BaseIdentityRbacTest(base.BaseIdentityTest):
     @classmethod
     def setup_test_user(cls, password=None, **kwargs):
         """Set up a test user."""
-        username = data_utils.rand_name('test_user')
+        username = data_utils.rand_name(cls.__name__ + '-test_user')
         email = username + '@testmail.tm'
 
         user = cls.users_client.create_user(
@@ -196,10 +197,11 @@ class BaseIdentityV2AdminRbacTest(BaseIdentityRbacTest):
     @classmethod
     def setup_test_tenant(cls):
         """Set up a test tenant."""
-        name = data_utils.rand_name('test_tenant')
+        name = data_utils.rand_name(cls.__name__ + '-test_tenant')
         tenant = cls.tenants_client.create_tenant(
             name=name,
-            description=data_utils.rand_name('desc'))['tenant']
+            description=data_utils.rand_name(
+                cls.__name__ + '-desc'))['tenant']
         cls.tenants.append(tenant)
         return tenant
 
@@ -294,8 +296,9 @@ class BaseIdentityV3RbacTest(BaseIdentityRbacTest):
     def setup_test_domain(cls):
         """Set up a test domain."""
         domain = cls.domains_client.create_domain(
-            name=data_utils.rand_name('test_domain'),
-            description=data_utils.rand_name('desc'))['domain']
+            name=data_utils.rand_name(cls.__name__ + '-test_domain'),
+            description=data_utils.rand_name(
+                cls.__name__ + '-desc'))['domain']
         cls.domains.append(domain)
 
         return domain
@@ -303,7 +306,7 @@ class BaseIdentityV3RbacTest(BaseIdentityRbacTest):
     @classmethod
     def setup_test_group(cls):
         """Creates a group for test."""
-        name = data_utils.rand_name('test_group')
+        name = data_utils.rand_name(cls.__name__ + '-test_group')
         group = cls.groups_client.create_group(name=name)['group']
         cls.groups.append(group)
 
@@ -312,8 +315,9 @@ class BaseIdentityV3RbacTest(BaseIdentityRbacTest):
     @classmethod
     def setup_test_policy(cls):
         """Creates a policy for test."""
-        blob = data_utils.rand_name('test_blob')
-        policy_type = data_utils.rand_name('policy_type')
+        blob = data_utils.rand_name(cls.__name__ + '-test_blob')
+        policy_type = data_utils.rand_name(
+            cls.__name__ + '-policy_type')
 
         policy = cls.policies_client.create_policy(
             blob=blob,
@@ -327,8 +331,10 @@ class BaseIdentityV3RbacTest(BaseIdentityRbacTest):
     def setup_test_project(cls):
         """Set up a test project."""
         project = cls.projects_client.create_project(
-            name=data_utils.rand_name('test_project'),
-            description=data_utils.rand_name('desc'))['project']
+            name=data_utils.rand_name(
+                cls.__name__ + '-testproject'),
+            description=data_utils.rand_name(
+                cls.__name__ + '-desc'))['project']
         cls.projects.append(project)
 
         return project
@@ -336,7 +342,8 @@ class BaseIdentityV3RbacTest(BaseIdentityRbacTest):
     @classmethod
     def setup_test_region(cls):
         """Creates a region for test."""
-        description = data_utils.rand_name('test_region_desc')
+        description = data_utils.rand_name(
+            cls.__name__ + '-test_region_desc')
 
         region = cls.regions_client.create_region(
             description=description)['region']

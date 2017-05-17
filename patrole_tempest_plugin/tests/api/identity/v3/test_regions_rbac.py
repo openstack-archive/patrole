@@ -34,7 +34,8 @@ class IdentityRegionsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd120')
     def test_update_region(self):
         region = self.setup_test_region()
-        new_description = data_utils.rand_name('test_update_region')
+        new_description = data_utils.rand_name(
+            self.__class__.__name__ + '-test_update_region')
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.regions_client.update_region(region['id'],

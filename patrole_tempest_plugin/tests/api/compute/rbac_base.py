@@ -58,7 +58,7 @@ class BaseV2ComputeRbacTest(compute_base.BaseV2ComputeTest):
     @classmethod
     def _create_flavor(cls, **kwargs):
         flavor_kwargs = {
-            "name": data_utils.rand_name('flavor'),
+            "name": data_utils.rand_name(cls.__name__ + '-flavor'),
             "ram": data_utils.rand_int_id(1, 10),
             "vcpus": data_utils.rand_int_id(1, 10),
             "disk": data_utils.rand_int_id(1, 10),

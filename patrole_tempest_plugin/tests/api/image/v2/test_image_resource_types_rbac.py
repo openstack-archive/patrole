@@ -26,7 +26,8 @@ class ImageResourceTypesRbacTest(rbac_base.BaseV2ImageRbacTest):
     @classmethod
     def resource_setup(cls):
         super(ImageResourceTypesRbacTest, cls).resource_setup()
-        cls.namespace_name = data_utils.rand_name('test-ns')
+        cls.namespace_name = data_utils.rand_name(
+            cls.__name__ + '-test-ns')
         cls.namespaces_client.create_namespace(
             namespace=cls.namespace_name,
             protected=False)

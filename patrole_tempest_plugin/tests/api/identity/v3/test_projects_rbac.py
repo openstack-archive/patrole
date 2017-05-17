@@ -34,7 +34,8 @@ class IdentityProjectV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @decorators.idempotent_id('0f148510-63bf-11e6-1564-080044d0d905')
     def test_update_project(self):
         project = self.setup_test_project()
-        new_desc = data_utils.rand_name('description')
+        new_desc = data_utils.rand_name(
+            self.__class__.__name__ + '-description')
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.projects_client.update_project(project['id'],

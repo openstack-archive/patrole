@@ -35,7 +35,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV1ImageRbacTest):
         RBAC test for the glance add_image policy.
         """
         properties = {'prop1': 'val1'}
-        image_name = data_utils.rand_name('image')
+        image_name = data_utils.rand_name(self.__class__.__name__ + '-Image')
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.create_image(name=image_name,
                           container_format='bare',
@@ -50,7 +50,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV1ImageRbacTest):
 
         RBAC test for the glance delete_image policy.
         """
-        image_name = data_utils.rand_name('image')
+        image_name = data_utils.rand_name(self.__class__.__name__ + '-Image')
         properties = {'prop1': 'val1'}
         body = self.create_image(name=image_name,
                                  container_format='bare',
@@ -68,7 +68,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV1ImageRbacTest):
 
         RBAC test for the glance download_image policy.
         """
-        image_name = data_utils.rand_name('image')
+        image_name = data_utils.rand_name(self.__class__.__name__ + '-Image')
         properties = {'prop1': 'val1'}
         body = self.create_image(name=image_name,
                                  container_format='bare',
@@ -90,7 +90,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV1ImageRbacTest):
 
         RBAC test for the glance get_image policy.
         """
-        image_name = data_utils.rand_name('image')
+        image_name = data_utils.rand_name(self.__class__.__name__ + '-Image')
         properties = {'prop1': 'val1'}
         body = self.create_image(name=image_name,
                                  container_format='bare',
@@ -122,7 +122,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV1ImageRbacTest):
 
         RBAC test for the glance modify_image policy.
         """
-        image_name = data_utils.rand_name('image')
+        image_name = data_utils.rand_name(self.__class__.__name__ + '-Image')
         properties = {'prop1': 'val1'}
         body = self.create_image(name=image_name,
                                  container_format='bare',
@@ -141,7 +141,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV1ImageRbacTest):
 
         RBAC test for the glance publicize_image policy.
         """
-        image_name = data_utils.rand_name('image')
+        image_name = data_utils.rand_name(self.__class__.__name__ + '-Image')
         properties = {'prop1': 'val1'}
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.create_image(name=image_name,

@@ -30,7 +30,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         cls.client = cls.os_primary.image_client_v2
 
     def _create_image(self, **kwargs):
-        image_name = data_utils.rand_name('image')
+        image_name = data_utils.rand_name(self.__class__.__name__ + '-Image')
         image = self.create_image(name=image_name,
                                   container_format='bare',
                                   disk_format='raw',
@@ -135,7 +135,8 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         image = self._create_image()
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        updated_image_name = data_utils.rand_name('image')
+        updated_image_name = data_utils.rand_name(
+            self.__class__.__name__ + '-image')
         self.client.update_image(image['id'], [
             dict(replace='/name', value=updated_image_name)])
 
@@ -151,7 +152,9 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         image = self._create_image()
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.add_image_tag(image['id'], data_utils.rand_name('tag'))
+        self.client.add_image_tag(
+            image['id'],
+            data_utils.rand_name(self.__class__.__name__ + '-tag'))
 
     @decorators.idempotent_id('c4a0bf9c-b78b-48c6-a31f-72c95f943c6e')
     @rbac_rule_validation.action(service="glance",
@@ -163,7 +166,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         RBAC test for the glance delete_image_tag endpoint
         """
         image = self._create_image()
-        tag_name = data_utils.rand_name('tag')
+        tag_name = data_utils.rand_name(self.__class__.__name__ + '-tag')
         self.client.add_image_tag(image['id'], tag_name)
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)

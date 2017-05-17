@@ -48,8 +48,8 @@ class FlavorExtraSpecsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         super(FlavorExtraSpecsRbacTest, cls).resource_cleanup()
 
     def _set_flavor_extra_spec(self):
-        rand_key = data_utils.rand_name('key')
-        rand_val = data_utils.rand_name('val')
+        rand_key = data_utils.rand_name(self.__class__.__name__ + '-key')
+        rand_val = data_utils.rand_name(self.__class__.__name__ + '-val')
         specs = {rand_key: rand_val}
         self.client.set_flavor_extra_spec(self.flavor['id'],
                                           **specs)['extra_specs']
@@ -82,7 +82,7 @@ class FlavorExtraSpecsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_update_flavor_extra_spec(self):
         key = self._set_flavor_extra_spec()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        update_val = data_utils.rand_name('val')
+        update_val = data_utils.rand_name(self.__class__.__name__ + '-val')
         self.client.update_flavor_extra_spec(self.flavor['id'], key,
                                              **{key: update_val})[key]
 

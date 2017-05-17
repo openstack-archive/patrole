@@ -88,7 +88,8 @@ class QuotaSetsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-quota-sets:delete")
     def test_delete_quota_set(self):
-        project_name = data_utils.rand_name('project')
+        project_name = data_utils.rand_name(
+            self.__class__.__name__ + '-project')
         project = self.projects_client.create_project(name=project_name)
         project_id = project['project']['id']
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,

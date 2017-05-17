@@ -29,7 +29,7 @@ class KeypairsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         cls.client = cls.keypairs_client
 
     def _create_keypair(self):
-        key_name = data_utils.rand_name('key')
+        key_name = data_utils.rand_name(self.__class__.__name__ + '-key')
         keypair = self.client.create_keypair(name=key_name)
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self.client.delete_keypair,

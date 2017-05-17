@@ -58,7 +58,7 @@ class VolumesV2BasicCrudRbacTest(rbac_base.BaseVolumeRbacTest):
     @rbac_rule_validation.action(service="cinder", rule="volume:update")
     @decorators.idempotent_id('b751b889-9a9b-40d8-ae7d-4b0f65e71ac7')
     def test_update_volume(self):
-        update_name = data_utils.rand_name('volume')
+        update_name = data_utils.rand_name(self.__class__.__name__ + 'volume')
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.volumes_client.update_volume(self.volume['id'],
                                           name=update_name)

@@ -39,7 +39,8 @@ class IdentityUserV3AdminRbacTest(rbac_base.BaseIdentityV3RbacTest):
     @decorators.idempotent_id('0f148510-63bf-11e6-4522-080044d0d905')
     def test_update_user(self):
         user = self.setup_test_user()
-        new_email = data_utils.rand_name('user_email')
+        new_email = data_utils.rand_name(
+            self.__class__.__name__ + '-user_email')
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.users_client.update_user(user['id'],

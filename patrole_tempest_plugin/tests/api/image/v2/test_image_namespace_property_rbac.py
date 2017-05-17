@@ -38,7 +38,8 @@ class NamespacesPropertyRbacTest(rbac_base.BaseV2ImageRbacTest):
         """
         namespace = self.create_namespace()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        property_name = data_utils.rand_name('test-ns-property')
+        property_name = data_utils.rand_name(
+            self.__class__.__name__ + '-test-ns-property')
         self.namespace_properties_client.create_namespace_property(
             namespace=namespace['namespace'], type="string",
             title=property_name, name=self.resource_name)
@@ -65,7 +66,8 @@ class NamespacesPropertyRbacTest(rbac_base.BaseV2ImageRbacTest):
         RBAC test for the glance get_metadef_property policy
         """
         namespace = self.create_namespace()
-        property_name = data_utils.rand_name('test-ns-property')
+        property_name = data_utils.rand_name(
+            self.__class__.__name__ + '-test-ns-property')
         self.namespace_properties_client.create_namespace_property(
             namespace=namespace['namespace'], type="string",
             title=property_name, name=self.resource_name)
@@ -83,7 +85,8 @@ class NamespacesPropertyRbacTest(rbac_base.BaseV2ImageRbacTest):
         RBAC test for the glance modify_metadef_property policy
         """
         namespace = self.create_namespace()
-        property_name = data_utils.rand_name('test-ns-property')
+        property_name = data_utils.rand_name(
+            self.__class__.__name__ + '-test-ns-property')
         self.namespace_properties_client.create_namespace_property(
             namespace=namespace['namespace'], type="string",
             title=property_name, name=self.resource_name)
