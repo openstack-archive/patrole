@@ -25,11 +25,6 @@ CONF = config.CONF
 
 class ServerVirtualInterfacesRbacTest(base.BaseV2ComputeRbacTest):
 
-    @classmethod
-    def setup_clients(cls):
-        super(ServerVirtualInterfacesRbacTest, cls).setup_clients()
-        cls.client = cls.servers_client
-
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-virtual-interfaces")
@@ -41,6 +36,6 @@ class ServerVirtualInterfacesRbacTest(base.BaseV2ComputeRbacTest):
         if CONF.service_available.neutron:
             msg = "Listing virtual interfaces is not supported by this cloud."
             with self.assertRaisesRegex(exceptions.BadRequest, msg):
-                self.client.list_virtual_interfaces(server['id'])
+                self.servers_client.list_virtual_interfaces(server['id'])
         else:
-            self.client.list_virtual_interfaces(server['id'])
+            self.servers_client.list_virtual_interfaces(server['id'])

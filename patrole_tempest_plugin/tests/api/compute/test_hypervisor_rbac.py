@@ -31,14 +31,10 @@ class HypervisorRbacTest(rbac_base.BaseV2ComputeRbacTest):
             raise cls.skipException(msg)
 
     @classmethod
-    def setup_clients(cls):
-        super(HypervisorRbacTest, cls).setup_clients()
-        cls.client = cls.hypervisor_client
-
-    @classmethod
     def resource_setup(cls):
         super(HypervisorRbacTest, cls).resource_setup()
-        cls.hypervisor = cls.client.list_hypervisors()['hypervisors'][0]
+        cls.hypervisor =\
+            cls.hypervisor_client.list_hypervisors()['hypervisors'][0]
 
     @decorators.idempotent_id('17bbeb9a-e73e-445f-a771-c794448ef562')
     @rbac_rule_validation.action(
@@ -46,7 +42,7 @@ class HypervisorRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-hypervisors")
     def test_list_hypervisors(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_hypervisors()['hypervisors']
+        self.hypervisor_client.list_hypervisors()['hypervisors']
 
     @decorators.idempotent_id('8a7f6f9e-34a6-4480-8875-bba566c3a581')
     @rbac_rule_validation.action(
@@ -54,7 +50,8 @@ class HypervisorRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-hypervisors")
     def test_show_hypervisor(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.show_hypervisor(self.hypervisor['id'])['hypervisor']
+        self.hypervisor_client.show_hypervisor(
+            self.hypervisor['id'])['hypervisor']
 
     @decorators.idempotent_id('b86f03cf-2e79-4d88-9eea-62f761591413')
     @rbac_rule_validation.action(
@@ -62,7 +59,7 @@ class HypervisorRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-hypervisors")
     def test_list_servers_on_hypervisor(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_servers_on_hypervisor(
+        self.hypervisor_client.list_servers_on_hypervisor(
             self.hypervisor['hypervisor_hostname'])['hypervisors']
 
     @decorators.idempotent_id('ca0e465c-6365-4a7f-ae58-6f8ddbca06c2')
@@ -71,7 +68,8 @@ class HypervisorRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-hypervisors")
     def test_show_hypervisor_statistics(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.show_hypervisor_statistics()['hypervisor_statistics']
+        self.hypervisor_client.\
+            show_hypervisor_statistics()['hypervisor_statistics']
 
     @decorators.idempotent_id('109b37c5-91ba-4da5-b2a2-d7618d84406d')
     @rbac_rule_validation.action(
@@ -79,7 +77,8 @@ class HypervisorRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-hypervisors")
     def test_show_hypervisor_uptime(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.show_hypervisor_uptime(self.hypervisor['id'])['hypervisor']
+        self.hypervisor_client.show_hypervisor_uptime(
+            self.hypervisor['id'])['hypervisor']
 
     @decorators.idempotent_id('3dbc71c1-8f04-4674-a67c-dcb2fd99b1b4')
     @rbac_rule_validation.action(
@@ -87,5 +86,5 @@ class HypervisorRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-hypervisors")
     def test_search_hypervisor(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.search_hypervisor(self.hypervisor['hypervisor_hostname'])[
-            'hypervisors']
+        self.hypervisor_client.search_hypervisor(
+            self.hypervisor['hypervisor_hostname'])['hypervisors']

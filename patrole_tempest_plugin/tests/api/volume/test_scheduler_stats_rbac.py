@@ -32,7 +32,8 @@ class SchedulerStatsRbacTest(rbac_base.BaseVolumeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(SchedulerStatsRbacTest, cls).setup_clients()
-        cls.client = cls.os_primary.volume_scheduler_stats_v2_client
+        cls.scheduler_stats_client =\
+            cls.os_primary.volume_scheduler_stats_v2_client
 
     @rbac_rule_validation.action(
         service="cinder",
@@ -40,7 +41,7 @@ class SchedulerStatsRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('5f800441-4d30-48ec-9e5b-0d55bc86acbb')
     def test_list_back_end_storage_pools(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_pools()
+        self.scheduler_stats_client.list_pools()
 
 
 class SchedulerStatsV3RbacTest(SchedulerStatsRbacTest):

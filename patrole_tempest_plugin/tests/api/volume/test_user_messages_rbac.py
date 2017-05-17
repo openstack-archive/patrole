@@ -32,7 +32,7 @@ class MessagesV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(MessagesV3RbacTest, cls).setup_clients()
-        cls.client = cls.os_primary.volume_v3_messages_client
+        cls.messages_client = cls.os_primary.volume_v3_messages_client
 
     def _create_user_message(self):
         """Trigger a 'no valid host' situation to generate a message."""
@@ -59,7 +59,7 @@ class MessagesV3RbacTest(rbac_base.BaseVolumeRbacTest):
                                          'volume %s' % volume['id'])
 
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.client.delete_message, message_id)
+                        self.messages_client.delete_message, message_id)
 
         return message_id
 
@@ -69,7 +69,7 @@ class MessagesV3RbacTest(rbac_base.BaseVolumeRbacTest):
         rule="message:get_all")
     def test_list_messages(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_messages()['messages']
+        self.messages_client.list_messages()['messages']
 
     @decorators.idempotent_id('9cc1ad1e-68a2-4407-8b60-ea77909bce08')
     @rbac_rule_validation.action(
@@ -79,7 +79,7 @@ class MessagesV3RbacTest(rbac_base.BaseVolumeRbacTest):
         message_id = self._create_user_message()
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.show_message(message_id)['message']
+        self.messages_client.show_message(message_id)['message']
 
     @decorators.idempotent_id('65ca7fb7-7f2c-443e-b144-ac86973a97be')
     @rbac_rule_validation.action(
@@ -89,5 +89,5 @@ class MessagesV3RbacTest(rbac_base.BaseVolumeRbacTest):
         message_id = self._create_user_message()
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.delete_message(message_id)
-        self.client.wait_for_resource_deletion(message_id)
+        self.messages_client.delete_message(message_id)
+        self.messages_client.wait_for_resource_deletion(message_id)

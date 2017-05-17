@@ -23,11 +23,6 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 class ServerPasswordRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
-    def setup_clients(cls):
-        super(ServerPasswordRbacTest, cls).setup_clients()
-        cls.client = cls.servers_client
-
-    @classmethod
     def skip_checks(cls):
         super(ServerPasswordRbacTest, cls).skip_checks()
         if not test.is_extension_enabled('os-server-password', 'compute'):
@@ -46,7 +41,7 @@ class ServerPasswordRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-server-password")
     def test_delete_server_password(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.delete_password(self.server['id'])
+        self.servers_client.delete_password(self.server['id'])
 
     @rbac_rule_validation.action(
         service="nova",
@@ -54,4 +49,4 @@ class ServerPasswordRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('f677971a-7d20-493c-977f-6ff0a74b5b2c')
     def test_get_server_password(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.show_password(self.server['id'])
+        self.servers_client.show_password(self.server['id'])

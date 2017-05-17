@@ -23,11 +23,6 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 class ServicesRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
-    def setup_clients(cls):
-        super(ServicesRbacTest, cls).setup_clients()
-        cls.client = cls.services_client
-
-    @classmethod
     def skip_checks(cls):
         super(ServicesRbacTest, cls).skip_checks()
         if not test.is_extension_enabled('os-services', 'compute'):
@@ -40,4 +35,4 @@ class ServicesRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('7472261b-9c6d-453a-bcb3-aecaa29ad281')
     def test_list_services(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_services()['services']
+        self.services_client.list_services()['services']

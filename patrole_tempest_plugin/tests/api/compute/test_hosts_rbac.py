@@ -23,11 +23,6 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 class HostsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
-    def setup_clients(cls):
-        super(HostsRbacTest, cls).setup_clients()
-        cls.client = cls.os_primary.hosts_client
-
-    @classmethod
     def skip_checks(cls):
         super(HostsRbacTest, cls).skip_checks()
         if not test.is_extension_enabled('os-hosts', 'compute'):
@@ -40,4 +35,4 @@ class HostsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-hosts")
     def test_list_hosts(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_hosts()['hosts']
+        self.hosts_client.list_hosts()['hosts']

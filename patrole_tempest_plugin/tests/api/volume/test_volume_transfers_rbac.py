@@ -28,7 +28,7 @@ class VolumesTransfersRbacTest(rbac_base.BaseVolumeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(VolumesTransfersRbacTest, cls).setup_clients()
-        cls.client = cls.os_primary.volume_transfers_v2_client
+        cls.transfers_client = cls.os_primary.volume_transfers_v2_client
         cls.adm_volumes_client = cls.os_admin.volumes_v2_client
 
     @classmethod
@@ -41,12 +41,12 @@ class VolumesTransfersRbacTest(rbac_base.BaseVolumeRbacTest):
         # 'awaiting-transfer' state, preventing cleanup and causing
         # the test to fail.
         test_utils.call_and_ignore_notfound_exc(
-            self.client.delete_volume_transfer, transfer['id'])
+            self.transfers_client.delete_volume_transfer, transfer['id'])
         waiters.wait_for_volume_resource_status(
             self.adm_volumes_client, self.volume['id'], 'available')
 
     def _create_transfer(self):
-        transfer = self.client.create_volume_transfer(
+        transfer = self.transfers_client.create_volume_transfer(
             volume_id=self.volume['id'])['transfer']
         self.addCleanup(self._delete_transfer, transfer)
         return transfer
@@ -64,14 +64,14 @@ class VolumesTransfersRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_get_volume_transfer(self):
         transfer = self._create_transfer()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.show_volume_transfer(transfer['id'])
+        self.transfers_client.show_volume_transfer(transfer['id'])
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:get_all_transfers")
     @decorators.idempotent_id('02a06f2b-5040-49e2-b2b7-619a7db59603')
     def test_list_volume_transfers(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_volume_transfers()
+        self.transfers_client.list_volume_transfers()
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:accept_transfer")
@@ -79,8 +79,8 @@ class VolumesTransfersRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_accept_volume_transfer(self):
         transfer = self._create_transfer()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.accept_volume_transfer(transfer['id'],
-                                           auth_key=transfer['auth_key'])
+        self.transfers_client.accept_volume_transfer(
+            transfer['id'], auth_key=transfer['auth_key'])
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:delete_transfer")
@@ -88,7 +88,7 @@ class VolumesTransfersRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_delete_volume_transfer(self):
         transfer = self._create_transfer()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.delete_volume_transfer(transfer['id'])
+        self.transfers_client.delete_volume_transfer(transfer['id'])
 
 
 class VolumesTransfersV3RbacTest(VolumesTransfersRbacTest):

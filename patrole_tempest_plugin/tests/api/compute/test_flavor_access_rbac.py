@@ -28,11 +28,6 @@ CONF = cfg.CONF
 class FlavorAccessRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
-    def setup_clients(cls):
-        super(FlavorAccessRbacTest, cls).setup_clients()
-        cls.client = cls.flavors_client
-
-    @classmethod
     def skip_checks(cls):
         super(FlavorAccessRbacTest, cls).skip_checks()
         if not test.is_extension_enabled('OS-FLV-EXT-DATA', 'compute'):
@@ -55,7 +50,7 @@ class FlavorAccessRbacTest(rbac_base.BaseV2ComputeRbacTest):
         # NOTE(felipemonteiro): show_flavor enforces the specified policy
         # action, but only works if a public flavor is passed.
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.show_flavor(self.public_flavor_id)['flavor']
+        self.flavors_client.show_flavor(self.public_flavor_id)['flavor']
 
     @decorators.idempotent_id('39cb5c8f-9990-436f-9282-fc76a41d9bac')
     @rbac_rule_validation.action(
@@ -63,10 +58,10 @@ class FlavorAccessRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-flavor-access:add_tenant_access")
     def test_add_flavor_access(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.add_flavor_access(
+        self.flavors_client.add_flavor_access(
             flavor_id=self.flavor_id, tenant_id=self.tenant_id)[
             'flavor_access']
-        self.addCleanup(self.client.remove_flavor_access,
+        self.addCleanup(self.flavors_client.remove_flavor_access,
                         flavor_id=self.flavor_id, tenant_id=self.tenant_id)
 
     @decorators.idempotent_id('61b8621f-52e4-473a-8d07-e228af8853d1')
@@ -74,11 +69,11 @@ class FlavorAccessRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-flavor-access:remove_tenant_access")
     def test_remove_flavor_access(self):
-        self.client.add_flavor_access(
+        self.flavors_client.add_flavor_access(
             flavor_id=self.flavor_id, tenant_id=self.tenant_id)
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.client.remove_flavor_access,
+                        self.flavors_client.remove_flavor_access,
                         flavor_id=self.flavor_id, tenant_id=self.tenant_id)
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.remove_flavor_access(
+        self.flavors_client.remove_flavor_access(
             flavor_id=self.flavor_id, tenant_id=self.tenant_id)

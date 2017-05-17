@@ -34,11 +34,6 @@ class NamespaceTagsRbacTest(base.BaseV2ImageRbacTest):
     """
 
     @classmethod
-    def setup_clients(cls):
-        super(NamespaceTagsRbacTest, cls).setup_clients()
-        cls.client = cls.namespace_tags_client
-
-    @classmethod
     def resource_setup(cls):
         super(NamespaceTagsRbacTest, cls).resource_setup()
         cls.namespace = cls.namespaces_client.create_namespace(
@@ -59,14 +54,14 @@ class NamespaceTagsRbacTest(base.BaseV2ImageRbacTest):
             namespace_tag_names.append({'name': tag_name})
 
         if multiple:
-            namespace_tags = self.client.create_namespace_tags(
+            namespace_tags = self.namespace_tags_client.create_namespace_tags(
                 self.namespace, tags=namespace_tag_names)['tags']
         else:
-            namespace_tags = self.client.create_namespace_tag(
+            namespace_tags = self.namespace_tags_client.create_namespace_tag(
                 self.namespace, namespace_tag_names[0]['name'])
 
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.client.delete_namespace_tags,
+                        self.namespace_tags_client.delete_namespace_tags,
                         self.namespace)
 
         return [nt['name'] for nt in namespace_tags] if multiple \
@@ -85,7 +80,7 @@ class NamespaceTagsRbacTest(base.BaseV2ImageRbacTest):
     def test_show_namespace_tag(self):
         tag_name = self._create_namespace_tag()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.show_namespace_tag(self.namespace, tag_name)
+        self.namespace_tags_client.show_namespace_tag(self.namespace, tag_name)
 
     @decorators.idempotent_id('01593828-3edb-461e-8abc-8fdeb3927e37')
     @rbac_rule_validation.action(service="glance",
@@ -96,8 +91,8 @@ class NamespaceTagsRbacTest(base.BaseV2ImageRbacTest):
             self.__class__.__name__ + '-tag')
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.update_namespace_tag(self.namespace, tag_name,
-                                         name=updated_tag_name)
+        self.namespace_tags_client.update_namespace_tag(
+            self.namespace, tag_name, name=updated_tag_name)
 
     @decorators.idempotent_id('20ffaf76-ebdc-4267-a1ad-194346f5cc91')
     @rbac_rule_validation.action(service="glance",
@@ -111,4 +106,4 @@ class NamespaceTagsRbacTest(base.BaseV2ImageRbacTest):
                                  rule="get_metadef_tags")
     def test_list_namespace_tags(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_namespace_tags(self.namespace)
+        self.namespace_tags_client.list_namespace_tags(self.namespace)

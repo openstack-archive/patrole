@@ -25,11 +25,6 @@ CONF = config.CONF
 class VolumesSnapshotRbacTest(rbac_base.BaseVolumeRbacTest):
 
     @classmethod
-    def setup_clients(cls):
-        super(VolumesSnapshotRbacTest, cls).setup_clients()
-        cls.client = cls.snapshots_client
-
-    @classmethod
     def skip_checks(cls):
         super(VolumesSnapshotRbacTest, cls).skip_checks()
         if not CONF.volume_feature_enabled.snapshot:
@@ -67,8 +62,8 @@ class VolumesSnapshotRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_snapshot_get(self):
         # Get the snapshot
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.show_snapshot(self.snapshot
-                                  ['id'])['snapshot']
+        self.snapshots_client.show_snapshot(self.snapshot
+                                            ['id'])['snapshot']
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:update_snapshot")
@@ -78,7 +73,7 @@ class VolumesSnapshotRbacTest(rbac_base.BaseVolumeRbacTest):
         params = {'description': new_desc}
         # Updates snapshot with new values
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.update_snapshot(
+        self.snapshots_client.update_snapshot(
             self.snapshot['id'], **params)['snapshot']
 
     @rbac_rule_validation.action(service="cinder",
@@ -99,7 +94,7 @@ class VolumesSnapshotRbacTest(rbac_base.BaseVolumeRbacTest):
         temp_snapshot = self.create_snapshot(self.volume['id'])
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # Delete the snapshot
-        self.client.delete_snapshot(temp_snapshot['id'])
+        self.snapshots_client.delete_snapshot(temp_snapshot['id'])
 
 
 class VolumesSnapshotV3RbacTest(VolumesSnapshotRbacTest):

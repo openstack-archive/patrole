@@ -23,11 +23,6 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 class RescueRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
-    def setup_clients(cls):
-        super(RescueRbacTest, cls).setup_clients()
-        cls.client = cls.servers_client
-
-    @classmethod
     def skip_checks(cls):
         super(RescueRbacTest, cls).skip_checks()
         if not test.is_extension_enabled('os-rescue', 'compute'):
@@ -45,4 +40,4 @@ class RescueRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('fbbb2afc-ed0e-4552-887d-ac00fb5d436e')
     def test_rescue_server(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.rescue_server(self.server['id'])
+        self.servers_client.rescue_server(self.server['id'])

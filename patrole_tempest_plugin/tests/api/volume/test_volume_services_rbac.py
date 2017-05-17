@@ -36,7 +36,7 @@ class VolumeServicesRbacTest(rbac_base.BaseVolumeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(VolumeServicesRbacTest, cls).setup_clients()
-        cls.client = cls.os_primary.volume_services_v2_client
+        cls.services_client = cls.os_primary.volume_services_v2_client
 
     @decorators.idempotent_id('b9134f01-97c0-4abd-9455-fe2f03e3f966')
     @rbac_rule_validation.action(
@@ -44,7 +44,7 @@ class VolumeServicesRbacTest(rbac_base.BaseVolumeRbacTest):
         rule="volume_extension:services:index")
     def test_list_services(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_services()['services']
+        self.services_client.list_services()['services']
 
 
 class VolumeServicesV3RbacTest(VolumeServicesRbacTest):

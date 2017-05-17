@@ -27,7 +27,6 @@ class QuotaSetsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(QuotaSetsRbacTest, cls).setup_clients()
-        cls.client = cls.quotas_client
         cls.projects_client = cls.os_primary.projects_client
 
     @classmethod
@@ -55,16 +54,16 @@ class QuotaSetsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-quota-sets:update")
     def test_update_quota_set(self):
-        default_quota_set = self.client.show_default_quota_set(
+        default_quota_set = self.quotas_client.show_default_quota_set(
             self.tenant_id)['quota_set']
         default_quota_set.pop('id')
         new_quota_set = {'injected_file_content_bytes': 20480}
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.update_quota_set(self.tenant_id,
-                                     force=True,
-                                     **new_quota_set)['quota_set']
-        self.addCleanup(self.client.update_quota_set, self.tenant_id,
+        self.quotas_client.update_quota_set(self.tenant_id,
+                                            force=True,
+                                            **new_quota_set)['quota_set']
+        self.addCleanup(self.quotas_client.update_quota_set, self.tenant_id,
                         **default_quota_set)
 
     @decorators.idempotent_id('58df5613-8f3c-400a-8b4b-2bae624d05e9')
@@ -73,7 +72,7 @@ class QuotaSetsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-quota-sets:defaults")
     def test_show_default_quota_set(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.show_default_quota_set(self.tenant_id)['quota_set']
+        self.quotas_client.show_default_quota_set(self.tenant_id)['quota_set']
 
     @decorators.idempotent_id('e8169ac4-c402-4864-894e-aba74e3a459c')
     @rbac_rule_validation.action(
@@ -81,7 +80,7 @@ class QuotaSetsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-quota-sets:show")
     def test_show_quota_set(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.show_quota_set(self.tenant_id)['quota_set']
+        self.quotas_client.show_quota_set(self.tenant_id)['quota_set']
 
     @decorators.idempotent_id('4e240644-bf61-4872-9c32-8289ee2fdbbd')
     @rbac_rule_validation.action(
@@ -96,7 +95,7 @@ class QuotaSetsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                         self.projects_client.delete_project, project_id)
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.delete_quota_set(project_id)
+        self.quotas_client.delete_quota_set(project_id)
 
     @decorators.idempotent_id('ac9184b6-f3b3-4e17-a632-4b92c6500f86')
     @rbac_rule_validation.action(
@@ -104,4 +103,5 @@ class QuotaSetsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-quota-sets:detail")
     def test_show_quota_set_details(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.show_quota_set(self.tenant_id, detail=True)['quota_set']
+        self.quotas_client.show_quota_set(self.tenant_id,
+                                          detail=True)['quota_set']

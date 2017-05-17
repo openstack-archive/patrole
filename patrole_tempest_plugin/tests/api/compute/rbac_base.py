@@ -37,6 +37,7 @@ class BaseV2ComputeRbacTest(compute_base.BaseV2ComputeTest):
         super(BaseV2ComputeRbacTest, cls).setup_clients()
         cls.auth_provider = cls.os_primary.auth_provider
         cls.rbac_utils = rbac_utils.RbacUtils(cls)
+        cls.hosts_client = cls.os_primary.hosts_client
 
     @classmethod
     def resource_setup(cls):

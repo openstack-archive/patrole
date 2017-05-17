@@ -23,11 +23,6 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 class MigrationsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
-    def setup_clients(cls):
-        super(MigrationsRbacTest, cls).setup_clients()
-        cls.client = cls.migrations_client
-
-    @classmethod
     def skip_checks(cls):
         super(MigrationsRbacTest, cls).skip_checks()
         if not test.is_extension_enabled('os-migrations', 'compute'):
@@ -40,4 +35,4 @@ class MigrationsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-migrations:index")
     def test_list_services(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_migrations()['migrations']
+        self.migrations_client.list_migrations()['migrations']

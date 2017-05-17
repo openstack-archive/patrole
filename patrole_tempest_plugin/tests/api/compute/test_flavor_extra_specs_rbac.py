@@ -25,11 +25,6 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 class FlavorExtraSpecsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
-    def setup_clients(cls):
-        super(FlavorExtraSpecsRbacTest, cls).setup_clients()
-        cls.client = cls.flavors_client
-
-    @classmethod
     def skip_checks(cls):
         super(FlavorExtraSpecsRbacTest, cls).skip_checks()
         if not test.is_extension_enabled('os-flavor-extra-specs', 'compute'):
@@ -43,19 +38,19 @@ class FlavorExtraSpecsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
     def resource_cleanup(cls):
-        cls.client.delete_flavor(cls.flavor['id'])
-        cls.client.wait_for_resource_deletion(cls.flavor['id'])
+        cls.flavors_client.delete_flavor(cls.flavor['id'])
+        cls.flavors_client.wait_for_resource_deletion(cls.flavor['id'])
         super(FlavorExtraSpecsRbacTest, cls).resource_cleanup()
 
     def _set_flavor_extra_spec(self):
         rand_key = data_utils.rand_name(self.__class__.__name__ + '-key')
         rand_val = data_utils.rand_name(self.__class__.__name__ + '-val')
         specs = {rand_key: rand_val}
-        self.client.set_flavor_extra_spec(self.flavor['id'],
-                                          **specs)['extra_specs']
+        self.flavors_client.set_flavor_extra_spec(self.flavor['id'],
+                                                  **specs)['extra_specs']
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.client.unset_flavor_extra_spec, self.flavor['id'],
-                        rand_key)
+                        self.flavors_client.unset_flavor_extra_spec,
+                        self.flavor['id'], rand_key)
         return rand_key
 
     @decorators.idempotent_id('daee891d-dfe9-4501-a39c-29f2371bec3c')
@@ -65,7 +60,7 @@ class FlavorExtraSpecsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_show_flavor_extra_spec(self):
         key = self._set_flavor_extra_spec()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.show_flavor_extra_spec(self.flavor['id'], key)[key]
+        self.flavors_client.show_flavor_extra_spec(self.flavor['id'], key)[key]
 
     @decorators.idempotent_id('fcffeca2-ed04-4e85-bf93-02fb5643f22b')
     @rbac_rule_validation.action(
@@ -83,8 +78,8 @@ class FlavorExtraSpecsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         key = self._set_flavor_extra_spec()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         update_val = data_utils.rand_name(self.__class__.__name__ + '-val')
-        self.client.update_flavor_extra_spec(self.flavor['id'], key,
-                                             **{key: update_val})[key]
+        self.flavors_client.update_flavor_extra_spec(
+            self.flavor['id'], key, **{key: update_val})[key]
 
     @decorators.idempotent_id('4b0e5471-e010-4c09-8965-80898e6760a3')
     @rbac_rule_validation.action(
@@ -93,7 +88,7 @@ class FlavorExtraSpecsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_unset_flavor_extra_spec(self):
         key = self._set_flavor_extra_spec()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.unset_flavor_extra_spec(self.flavor['id'], key)
+        self.flavors_client.unset_flavor_extra_spec(self.flavor['id'], key)
 
     @decorators.idempotent_id('02c3831a-3ce9-476e-a722-d805ac2da621')
     @rbac_rule_validation.action(
@@ -102,4 +97,5 @@ class FlavorExtraSpecsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_list_flavor_extra_specs(self):
         self._set_flavor_extra_spec()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_flavor_extra_specs(self.flavor['id'])['extra_specs']
+        self.flavors_client.list_flavor_extra_specs(
+            self.flavor['id'])['extra_specs']

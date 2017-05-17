@@ -32,11 +32,6 @@ class FloatingIpsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     max_microversion = '2.35'
 
     @classmethod
-    def setup_clients(cls):
-        super(FloatingIpsRbacTest, cls).setup_clients()
-        cls.client = cls.floating_ips_client
-
-    @classmethod
     def skip_checks(cls):
         super(FloatingIpsRbacTest, cls).skip_checks()
         if not test.is_extension_enabled('os-floating-ips', 'compute'):
@@ -50,4 +45,4 @@ class FloatingIpsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-floating-ips")
     def test_list_floating_ips(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_floating_ips()['floating_ips']
+        self.floating_ips_client.list_floating_ips()['floating_ips']

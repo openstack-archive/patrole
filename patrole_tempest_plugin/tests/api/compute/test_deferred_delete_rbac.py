@@ -23,11 +23,6 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 class DeferredDeleteRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
-    def setup_clients(cls):
-        super(DeferredDeleteRbacTest, cls).setup_clients()
-        cls.client = cls.servers_client
-
-    @classmethod
     def skip_checks(cls):
         super(DeferredDeleteRbacTest, cls).skip_checks()
         if not test.is_extension_enabled('os-deferred-delete', 'compute'):
@@ -49,4 +44,4 @@ class DeferredDeleteRbacTest(rbac_base.BaseV2ComputeRbacTest):
         # Force-deleting a server enforces os-deferred-delete according to the
         # following API: https://github.com/openstack/nova/blob/master/nova/api
         # /openstack/compute/deferred_delete.py
-        self.client.force_delete_server(self.server['id'])
+        self.servers_client.force_delete_server(self.server['id'])

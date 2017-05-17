@@ -95,12 +95,13 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
 
         # Since the server is booted from volume, the imageRef does not need
         # to be specified.
-        server = self.client.create_server(name=server_name,
-                                           imageRef='',
-                                           flavorRef=CONF.compute.flavor_ref,
-                                           **device_mapping)['server']
+        server = self.servers_client.create_server(
+            name=server_name, imageRef='',
+            flavorRef=CONF.compute.flavor_ref,
+            **device_mapping)['server']
 
-        waiters.wait_for_server_status(self.client, server['id'], 'ACTIVE')
+        waiters.wait_for_server_status(self.servers_client, server['id'],
+                                       'ACTIVE')
 
         self.servers.append(server)
         return server
@@ -155,8 +156,8 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
         # clean them up after this test case. In order to do that,
         # we need to clean up the server first.
         self.addCleanup(waiters.wait_for_server_termination,
-                        self.client, server['id'])
-        self.addCleanup(self.client.delete_server, server['id'])
+                        self.servers_client, server['id'])
+        self.addCleanup(self.servers_client.delete_server, server['id'])
 
     @rbac_rule_validation.action(
         service="nova",
@@ -165,8 +166,8 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
     def test_delete_server(self):
         server = self.create_test_server(wait_until='ACTIVE')
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.delete_server(server['id'])
-        waiters.wait_for_server_termination(self.client, server['id'])
+        self.servers_client.delete_server(server['id'])
+        waiters.wait_for_server_termination(self.servers_client, server['id'])
 
     @rbac_rule_validation.action(
         service="nova",
@@ -177,7 +178,7 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
         new_name = data_utils.rand_name(self.__class__.__name__ + '-server')
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         try:
-            self.client.update_server(server['id'], name=new_name)
+            self.servers_client.update_server(server['id'], name=new_name)
         except exceptions.ServerFault as e:
             # Some other policy may have blocked it.
             LOG.info("ServerFault exception caught. Some other policy "

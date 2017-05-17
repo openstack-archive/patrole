@@ -37,14 +37,14 @@ class VolumeQuotasRbacTest(rbac_base.BaseVolumeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(VolumeQuotasRbacTest, cls).setup_clients()
-        cls.client = cls.os_primary.volume_quotas_client
+        cls.quotas_client = cls.os_primary.volume_quotas_client
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume_extension:quotas:show")
     @decorators.idempotent_id('b3c7177e-b6b1-4d0f-810a-fc95606964dd')
     def test_list_default_quotas(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.show_default_quota_set(
+        self.quotas_client.show_default_quota_set(
             self.demo_tenant_id)['quota_set']
 
     @rbac_rule_validation.action(service="cinder",
@@ -56,7 +56,7 @@ class VolumeQuotasRbacTest(rbac_base.BaseVolumeRbacTest):
                          'snapshots': 11}
         # Update limits for all quota resources
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.update_quota_set(
+        self.quotas_client.update_quota_set(
             self.demo_tenant_id,
             **new_quota_set)['quota_set']
 

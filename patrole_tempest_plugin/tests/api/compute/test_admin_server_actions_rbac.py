@@ -26,11 +26,6 @@ CONF = config.CONF
 class AdminServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
-    def setup_clients(cls):
-        super(AdminServerActionsRbacTest, cls).setup_clients()
-        cls.client = cls.servers_client
-
-    @classmethod
     def skip_checks(cls):
         super(AdminServerActionsRbacTest, cls).skip_checks()
         if not test.is_extension_enabled('os-admin-actions', 'compute'):
@@ -48,8 +43,8 @@ class AdminServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('ae84dd0b-f364-462e-b565-3457f9c019ef')
     def test_reset_server_state(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.reset_state(self.server_id, state='error')
-        self.addCleanup(self.client.reset_state,
+        self.servers_client.reset_state(self.server_id, state='error')
+        self.addCleanup(self.servers_client.reset_state,
                         self.server_id,
                         state='active')
 
@@ -59,7 +54,7 @@ class AdminServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('ce48c340-51c1-4cff-9b6e-0cc5ef008630')
     def test_inject_network_info(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.inject_network_info(self.server_id)
+        self.servers_client.inject_network_info(self.server_id)
 
     @rbac_rule_validation.action(
         service="nova",
@@ -67,4 +62,4 @@ class AdminServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('2911a242-15c4-4fcb-80d5-80a8930661b0')
     def test_reset_network(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.reset_network(self.server_id)
+        self.servers_client.reset_network(self.server_id)

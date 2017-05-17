@@ -34,7 +34,7 @@ class FloatingIpPoolsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(FloatingIpPoolsRbacTest, cls).setup_clients()
-        cls.client = cls.os_primary.floating_ip_pools_client
+        cls.fip_pools_client = cls.os_primary.floating_ip_pools_client
 
     @classmethod
     def skip_checks(cls):
@@ -50,4 +50,4 @@ class FloatingIpPoolsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-floating-ip-pools")
     def test_list_floating_ip_pools(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_floating_ip_pools()['floating_ip_pools']
+        self.fip_pools_client.list_floating_ip_pools()['floating_ip_pools']

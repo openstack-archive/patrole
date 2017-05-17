@@ -25,7 +25,7 @@ class SimpleTenantUsageRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(SimpleTenantUsageRbacTest, cls).setup_clients()
-        cls.client = cls.os_primary.tenant_usages_client
+        cls.tenant_usages_client = cls.os_primary.tenant_usages_client
 
     @classmethod
     def skip_checks(cls):
@@ -41,7 +41,7 @@ class SimpleTenantUsageRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('2aef094f-0452-4df6-a66a-0ec22a92b16e')
     def test_simple_tenant_usage_list(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_tenant_usages()
+        self.tenant_usages_client.list_tenant_usages()
 
     @rbac_rule_validation.action(
         service="nova",
@@ -53,4 +53,4 @@ class SimpleTenantUsageRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.create_test_server(wait_until='ACTIVE')['id']
         tenant_id = self.auth_provider.credentials.tenant_id
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.show_tenant_usage(tenant_id=tenant_id)
+        self.tenant_usages_client.show_tenant_usage(tenant_id=tenant_id)

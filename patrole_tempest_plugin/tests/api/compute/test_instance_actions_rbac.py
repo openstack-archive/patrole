@@ -24,11 +24,6 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 class InstanceActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
-    def setup_clients(cls):
-        super(InstanceActionsRbacTest, cls).setup_clients()
-        cls.client = cls.servers_client
-
-    @classmethod
     def skip_checks(cls):
         super(InstanceActionsRbacTest, cls).skip_checks()
         if not test.is_extension_enabled('os-instance-actions', 'compute'):
@@ -47,7 +42,7 @@ class InstanceActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-instance-actions")
     def test_list_instance_actions(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_instance_actions(self.server['id'])
+        self.servers_client.list_instance_actions(self.server['id'])
 
     @decorators.idempotent_id('eb04c439-4215-4029-9ccb-5b3c041bfc25')
     @rbac_rule_validation.action(
@@ -55,7 +50,7 @@ class InstanceActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-instance-actions:events")
     def test_get_instance_action(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        instance_action = self.client.show_instance_action(
+        instance_action = self.servers_client.show_instance_action(
             self.server['id'], self.request_id)['instanceAction']
         if 'events' not in instance_action:
             raise rbac_exceptions.RbacActionFailed

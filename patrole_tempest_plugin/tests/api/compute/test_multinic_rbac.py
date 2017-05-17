@@ -28,11 +28,6 @@ class MultinicV210RbacTest(rbac_base.BaseV2ComputeRbacTest):
     max_microversion = '2.36'
 
     @classmethod
-    def setup_clients(cls):
-        super(MultinicV210RbacTest, cls).setup_clients()
-        cls.client = cls.servers_client
-
-    @classmethod
     def skip_checks(cls):
         super(MultinicV210RbacTest, cls).skip_checks()
         if not CONF.service_available.neutron:
@@ -65,5 +60,5 @@ class MultinicV210RbacTest(rbac_base.BaseV2ComputeRbacTest):
                 self.server['id'])['interfaceAttachment']['net_id']
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.add_fixed_ip(self.server['id'],
-                                 networkId=network_id)
+        self.servers_client.add_fixed_ip(self.server['id'],
+                                         networkId=network_id)

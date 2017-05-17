@@ -23,16 +23,11 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 class KeypairsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
-    @classmethod
-    def setup_clients(cls):
-        super(KeypairsRbacTest, cls).setup_clients()
-        cls.client = cls.keypairs_client
-
     def _create_keypair(self):
         key_name = data_utils.rand_name(self.__class__.__name__ + '-key')
-        keypair = self.client.create_keypair(name=key_name)
+        keypair = self.keypairs_client.create_keypair(name=key_name)
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.client.delete_keypair,
+                        self.keypairs_client.delete_keypair,
                         key_name)
         return keypair
 
@@ -51,7 +46,7 @@ class KeypairsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_show_keypair(self):
         kp_name = self._create_keypair()['keypair']['name']
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.show_keypair(kp_name)
+        self.keypairs_client.show_keypair(kp_name)
 
     @decorators.idempotent_id('6bff9f1c-b809-43c1-8d63-61fbd19d49d3')
     @rbac_rule_validation.action(
@@ -60,7 +55,7 @@ class KeypairsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_delete_keypair(self):
         kp_name = self._create_keypair()['keypair']['name']
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.delete_keypair(kp_name)
+        self.keypairs_client.delete_keypair(kp_name)
 
     @decorators.idempotent_id('6bb31346-ff7f-4b10-978e-170ac5fcfa3e')
     @rbac_rule_validation.action(
@@ -68,4 +63,4 @@ class KeypairsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-keypairs:index")
     def test_index_keypair(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_keypairs()
+        self.keypairs_client.list_keypairs()

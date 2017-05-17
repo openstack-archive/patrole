@@ -27,16 +27,16 @@ class VolumeQOSRbacTest(rbac_base.BaseVolumeRbacTest):
     def setup_clients(cls):
         super(VolumeQOSRbacTest, cls).setup_clients()
         cls.auth_provider = cls.os_primary.auth_provider
-        cls.client = cls.os_primary.volume_qos_v2_client
+        cls.qos_client = cls.os_primary.volume_qos_v2_client
 
     def _create_test_qos_specs(self, name=None, consumer=None, **kwargs):
         """Create a test Qos-Specs."""
         name = name or data_utils.rand_name(self.__class__.__name__ + '-QoS')
         consumer = consumer or 'front-end'
-        qos_specs = self.client.create_qos(
+        qos_specs = self.qos_client.create_qos(
             name=name, consumer=consumer, **kwargs)['qos_specs']
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.client.delete_qos, qos_specs['id'])
+                        self.qos_client.delete_qos, qos_specs['id'])
         return qos_specs
 
     @rbac_rule_validation.action(
@@ -55,7 +55,7 @@ class VolumeQOSRbacTest(rbac_base.BaseVolumeRbacTest):
         qos = self._create_test_qos_specs()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # Delete a qos
-        self.client.delete_qos(qos['id'])
+        self.qos_client.delete_qos(qos['id'])
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume_extension:qos_specs_manage:read")
@@ -65,7 +65,7 @@ class VolumeQOSRbacTest(rbac_base.BaseVolumeRbacTest):
         qos = self._create_test_qos_specs()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # Get a qos
-        self.client.show_qos(qos['id'])['qos_specs']
+        self.qos_client.show_qos(qos['id'])['qos_specs']
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume_extension:qos_specs_manage:read")
@@ -73,7 +73,7 @@ class VolumeQOSRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_list_qos(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # list all qos
-        self.client.list_qos()['qos_specs']
+        self.qos_client.list_qos()['qos_specs']
 
     @rbac_rule_validation.action(
         service="cinder", rule="volume_extension:qos_specs_manage:update")
@@ -83,7 +83,7 @@ class VolumeQOSRbacTest(rbac_base.BaseVolumeRbacTest):
         qos = self._create_test_qos_specs()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # set key
-        self.client.set_qos_key(qos['id'], iops_bytes='500')['qos_specs']
+        self.qos_client.set_qos_key(qos['id'], iops_bytes='500')['qos_specs']
 
     @rbac_rule_validation.action(
         service="cinder", rule="volume_extension:qos_specs_manage:update")
@@ -92,13 +92,13 @@ class VolumeQOSRbacTest(rbac_base.BaseVolumeRbacTest):
         # Create a qos
         qos = self._create_test_qos_specs()
         # Set key
-        self.client.set_qos_key(qos['id'], iops_bytes='500')['qos_specs']
+        self.qos_client.set_qos_key(qos['id'], iops_bytes='500')['qos_specs']
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # Unset key
         keys = ['iops_bytes']
-        self.client.unset_qos_key(qos['id'], keys)
+        self.qos_client.unset_qos_key(qos['id'], keys)
         operation = 'qos-key-unset'
-        waiters.wait_for_qos_operations(self.client, qos['id'],
+        waiters.wait_for_qos_operations(self.qos_client, qos['id'],
                                         operation, args=keys)
 
     @rbac_rule_validation.action(
@@ -111,8 +111,8 @@ class VolumeQOSRbacTest(rbac_base.BaseVolumeRbacTest):
         vol_type = self.create_volume_type()['id']
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # associate the qos-specs with volume-types
-        self.client.associate_qos(qos['id'], vol_type)
-        self.addCleanup(self.client.disassociate_qos, qos['id'], vol_type)
+        self.qos_client.associate_qos(qos['id'], vol_type)
+        self.addCleanup(self.qos_client.disassociate_qos, qos['id'], vol_type)
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume_extension:qos_specs_manage:read")
@@ -122,11 +122,11 @@ class VolumeQOSRbacTest(rbac_base.BaseVolumeRbacTest):
         qos = self._create_test_qos_specs()
         vol_type = self.create_volume_type()['id']
         # associate the qos-specs with volume-types
-        self.client.associate_qos(qos['id'], vol_type)
-        self.addCleanup(self.client.disassociate_qos, qos['id'], vol_type)
+        self.qos_client.associate_qos(qos['id'], vol_type)
+        self.addCleanup(self.qos_client.disassociate_qos, qos['id'], vol_type)
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # get the association of the qos-specs
-        self.client.show_association_qos(qos['id'])
+        self.qos_client.show_association_qos(qos['id'])
 
     @rbac_rule_validation.action(
         service="cinder", rule="volume_extension:qos_specs_manage:update")
@@ -136,14 +136,14 @@ class VolumeQOSRbacTest(rbac_base.BaseVolumeRbacTest):
         qos = self._create_test_qos_specs()
         vol_type = self.create_volume_type()['id']
         # associate the qos-specs with volume-types
-        self.client.associate_qos(qos['id'], vol_type)
+        self.qos_client.associate_qos(qos['id'], vol_type)
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.client.disassociate_qos, qos['id'], vol_type)
+                        self.qos_client.disassociate_qos, qos['id'], vol_type)
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # disassociate a volume-type with qos-specs
-        self.client.disassociate_qos(qos['id'], vol_type)
+        self.qos_client.disassociate_qos(qos['id'], vol_type)
         operation = 'disassociate'
-        waiters.wait_for_qos_operations(self.client, qos['id'],
+        waiters.wait_for_qos_operations(self.qos_client, qos['id'],
                                         operation, args=vol_type)
 
     @rbac_rule_validation.action(
@@ -154,12 +154,12 @@ class VolumeQOSRbacTest(rbac_base.BaseVolumeRbacTest):
         # create a test volume-type
         vol_type = self.create_volume_type()['id']
         # associate the qos-specs with volume-types
-        self.client.associate_qos(qos['id'], vol_type)
+        self.qos_client.associate_qos(qos['id'], vol_type)
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.client.disassociate_qos, qos['id'], vol_type)
+                        self.qos_client.disassociate_qos, qos['id'], vol_type)
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # disassociate all volume-types from qos-specs
-        self.client.disassociate_all_qos(qos['id'])
+        self.qos_client.disassociate_all_qos(qos['id'])
         operation = 'disassociate-all'
-        waiters.wait_for_qos_operations(self.client, qos['id'],
+        waiters.wait_for_qos_operations(self.qos_client, qos['id'],
                                         operation)

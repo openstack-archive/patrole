@@ -34,7 +34,6 @@ class MigrateServerV225RbacTest(base.BaseV2ComputeRbacTest):
     @classmethod
     def skip_checks(cls):
         super(MigrateServerV225RbacTest, cls).skip_checks()
-
         if CONF.compute.min_compute_nodes < 2:
             raise cls.skipException(
                 "Less than 2 compute nodes, skipping migration tests.")
@@ -42,12 +41,10 @@ class MigrateServerV225RbacTest(base.BaseV2ComputeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(MigrateServerV225RbacTest, cls).setup_clients()
-        cls.client = cls.servers_client
         cls.admin_servers_client = cls.os_admin.servers_client
-        cls.hosts_client = cls.os_primary.hosts_client
 
     def _get_server_details(self, server_id):
-        body = self.client.show_server(server_id)['server']
+        body = self.servers_client.show_server(server_id)['server']
         return body
 
     def _get_host_for_server(self, server_id):
@@ -76,7 +73,7 @@ class MigrateServerV225RbacTest(base.BaseV2ComputeRbacTest):
     def test_cold_migration(self):
         server = self.create_test_server(wait_until="ACTIVE")
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.migrate_server(server['id'])
+        self.servers_client.migrate_server(server['id'])
         waiters.wait_for_server_status(self.admin_servers_client,
                                        server['id'], 'VERIFY_RESIZE')
 
@@ -94,7 +91,7 @@ class MigrateServerV225RbacTest(base.BaseV2ComputeRbacTest):
         target_host = self._get_host_other_than(actual_host)
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.live_migrate_server(
+        self.servers_client.live_migrate_server(
             server_id, host=target_host, block_migration=self.block_migration)
         waiters.wait_for_server_status(self.admin_servers_client,
                                        server_id, "ACTIVE")

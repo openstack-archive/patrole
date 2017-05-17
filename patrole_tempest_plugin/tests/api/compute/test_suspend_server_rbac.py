@@ -26,11 +26,6 @@ CONF = config.CONF
 class SuspendServerRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
-    def setup_clients(cls):
-        super(SuspendServerRbacTest, cls).setup_clients()
-        cls.client = cls.servers_client
-
-    @classmethod
     def skip_checks(cls):
         super(SuspendServerRbacTest, cls).skip_checks()
         if not CONF.compute_feature_enabled.suspend:
@@ -45,11 +40,12 @@ class SuspendServerRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     def tearDown(self):
         # Guarantee that the server is active during each test run.
-        vm_state = self.client.show_server(self.server['id'])['server'][
-            'OS-EXT-STS:vm_state'].upper()
+        vm_state = self.servers_client.show_server(
+            self.server['id'])['server']['OS-EXT-STS:vm_state'].upper()
         if vm_state != 'ACTIVE':
-            self.client.resume_server(self.server['id'])
-            waiters.wait_for_server_status(self.client, self.server['id'],
+            self.servers_client.resume_server(self.server['id'])
+            waiters.wait_for_server_status(self.servers_client,
+                                           self.server['id'],
                                            'ACTIVE')
 
         super(SuspendServerRbacTest, self).tearDown()
@@ -60,8 +56,8 @@ class SuspendServerRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-suspend-server:suspend")
     def test_suspend_server(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.suspend_server(self.server['id'])
-        waiters.wait_for_server_status(self.client, self.server['id'],
+        self.servers_client.suspend_server(self.server['id'])
+        waiters.wait_for_server_status(self.servers_client, self.server['id'],
                                        'SUSPENDED')
 
     @decorators.idempotent_id('4d90bd02-11f8-45b1-a8a1-534665584675')
@@ -69,11 +65,11 @@ class SuspendServerRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-suspend-server:resume")
     def test_resume_server(self):
-        self.client.suspend_server(self.server['id'])
-        waiters.wait_for_server_status(self.client, self.server['id'],
+        self.servers_client.suspend_server(self.server['id'])
+        waiters.wait_for_server_status(self.servers_client, self.server['id'],
                                        'SUSPENDED')
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.resume_server(self.server['id'])
-        waiters.wait_for_server_status(self.client,
+        self.servers_client.resume_server(self.server['id'])
+        waiters.wait_for_server_status(self.servers_client,
                                        self.server['id'],
                                        'ACTIVE')

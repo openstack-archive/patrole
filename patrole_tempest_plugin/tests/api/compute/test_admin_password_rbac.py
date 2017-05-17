@@ -33,11 +33,6 @@ class AdminPasswordRbacTest(rbac_base.BaseV2ComputeRbacTest):
             raise cls.skipException('Change password not available.')
 
     @classmethod
-    def setup_clients(cls):
-        super(AdminPasswordRbacTest, cls).setup_clients()
-        cls.client = cls.servers_client
-
-    @classmethod
     def resource_setup(cls):
         super(AdminPasswordRbacTest, cls).resource_setup()
         cls.server_id = cls.create_test_server(wait_until='ACTIVE')['id']
@@ -47,6 +42,6 @@ class AdminPasswordRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('908a7d59-3a66-441c-94cf-38e57ed14956')
     def test_change_server_password(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.change_password(
+        self.servers_client.change_password(
             self.server_id,
             adminPass=data_utils.rand_password())

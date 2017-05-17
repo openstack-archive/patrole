@@ -47,7 +47,6 @@ class ImagesV235RbacTest(rbac_base.BaseV2ComputeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(ImagesV235RbacTest, cls).setup_clients()
-        cls.client = cls.compute_images_client
         cls.glance_image_client = cls.os_primary.image_client_v2
 
     @classmethod
@@ -67,7 +66,7 @@ class ImagesV235RbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="get_images")
     def test_list_images(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_images()
+        self.compute_images_client.list_images()
 
     @decorators.idempotent_id('4365ae0f-15ee-4b54-a527-1679faaed140')
     @rbac_rule_validation.action(
@@ -75,7 +74,7 @@ class ImagesV235RbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="get_images")
     def test_list_images_with_details(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_images(detail=True)
+        self.compute_images_client.list_images(detail=True)
 
     @decorators.idempotent_id('886dfcae-51bf-4610-9e52-82d7189524c2')
     @rbac_rule_validation.action(
@@ -83,19 +82,21 @@ class ImagesV235RbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="get_image")
     def test_show_image_details(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.show_image(self.image['id'])
+        self.compute_images_client.show_image(self.image['id'])
 
     @decorators.idempotent_id('dbe09d4c-e615-48cb-b908-a06a0f410a8e')
     @rbac_rule_validation.action(
         service="glance",
         rule="get_image")
     def test_show_image_metadata_item(self):
-        self.client.set_image_metadata(self.image['id'], meta={'foo': 'bar'})
-        self.addCleanup(self.client.delete_image_metadata_item,
+        self.compute_images_client.set_image_metadata(self.image['id'],
+                                                      meta={'foo': 'bar'})
+        self.addCleanup(self.compute_images_client.delete_image_metadata_item,
                         self.image['id'], key='foo')
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.show_image_metadata_item(self.image['id'], key='foo')
+        self.compute_images_client.show_image_metadata_item(self.image['id'],
+                                                            key='foo')
 
     @decorators.idempotent_id('59f66079-d564-47e8-81b0-03c2e84d339e')
     @rbac_rule_validation.action(
@@ -103,7 +104,7 @@ class ImagesV235RbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="get_image")
     def test_list_image_metadata(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_image_metadata(self.image['id'])
+        self.compute_images_client.list_image_metadata(self.image['id'])
 
     @decorators.idempotent_id('5888c7aa-0803-46d4-a3fb-5d4729465cd5')
     @rbac_rule_validation.action(
@@ -116,7 +117,7 @@ class ImagesV235RbacTest(rbac_base.BaseV2ComputeRbacTest):
                         self.glance_image_client.delete_image, image['id'])
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.delete_image(image['id'])
+        self.compute_images_client.delete_image(image['id'])
 
     @decorators.idempotent_id('575604aa-909f-4b1b-a5a5-cfae1f63044b')
     @rbac_rule_validation.action(
@@ -127,9 +128,9 @@ class ImagesV235RbacTest(rbac_base.BaseV2ComputeRbacTest):
         # NOTE(felipemonteiro): Although the name of the client function
         # appears wrong, it's actually correct: update_image_metadata does an
         # http post.
-        self.client.update_image_metadata(self.image['id'],
-                                          meta={'foo': 'bar'})
-        self.addCleanup(self.client.delete_image_metadata_item,
+        self.compute_images_client.update_image_metadata(self.image['id'],
+                                                         meta={'foo': 'bar'})
+        self.addCleanup(self.compute_images_client.delete_image_metadata_item,
                         self.image['id'], key='foo')
 
     @decorators.idempotent_id('fb8c4eb6-00e5-454c-b8bc-0e801ec369f1')
@@ -138,8 +139,9 @@ class ImagesV235RbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="modify_image")
     def test_update_image_metadata(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.set_image_metadata(self.image['id'], meta={'foo': 'bar'})
-        self.addCleanup(self.client.delete_image_metadata_item,
+        self.compute_images_client.set_image_metadata(self.image['id'],
+                                                      meta={'foo': 'bar'})
+        self.addCleanup(self.compute_images_client.delete_image_metadata_item,
                         self.image['id'], key='foo')
 
     @decorators.idempotent_id('9c7c2036-af9b-49a8-8ba1-09b027ee5def')
@@ -148,9 +150,9 @@ class ImagesV235RbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="modify_image")
     def test_update_image_metadata_item(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.set_image_metadata_item(self.image['id'],
-                                            meta={'foo': 'bar'}, key='foo')
-        self.addCleanup(self.client.delete_image_metadata_item,
+        self.compute_images_client.set_image_metadata_item(
+            self.image['id'], meta={'foo': 'bar'}, key='foo')
+        self.addCleanup(self.compute_images_client.delete_image_metadata_item,
                         self.image['id'], key='foo')
 
     @decorators.idempotent_id('5f0dc4e6-0761-4613-9bde-0a6acdc78f46')
@@ -158,10 +160,12 @@ class ImagesV235RbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="glance",
         rule="modify_image")
     def test_delete_image_metadata_item(self):
-        self.client.set_image_metadata(self.image['id'], meta={'foo': 'bar'})
+        self.compute_images_client.set_image_metadata(self.image['id'],
+                                                      meta={'foo': 'bar'})
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.client.delete_image_metadata_item,
+                        self.compute_images_client.delete_image_metadata_item,
                         self.image['id'], key='foo')
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.delete_image_metadata_item(self.image['id'], key='foo')
+        self.compute_images_client.delete_image_metadata_item(self.image['id'],
+                                                              key='foo')

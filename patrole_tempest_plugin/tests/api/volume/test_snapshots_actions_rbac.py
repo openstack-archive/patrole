@@ -31,11 +31,6 @@ class SnapshotsActionsRbacTest(rbac_base.BaseVolumeRbacTest):
             raise cls.skipException("Cinder snapshot feature disabled")
 
     @classmethod
-    def setup_clients(cls):
-        super(SnapshotsActionsRbacTest, cls).setup_clients()
-        cls.client = cls.snapshots_client
-
-    @classmethod
     def resource_setup(cls):
         super(SnapshotsActionsRbacTest, cls).resource_setup()
         cls.volume = cls.create_volume()
@@ -49,7 +44,8 @@ class SnapshotsActionsRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_reset_snapshot_status(self):
         status = 'error'
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.reset_snapshot_status(self.snapshot['id'], status)
+        self.snapshots_client.reset_snapshot_status(self.snapshot['id'],
+                                                    status)
 
     @rbac_rule_validation.action(
         service="cinder",
@@ -59,8 +55,8 @@ class SnapshotsActionsRbacTest(rbac_base.BaseVolumeRbacTest):
         temp_snapshot = self.create_snapshot(self.volume['id'])
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.force_delete_snapshot(temp_snapshot['id'])
-        self.client.wait_for_resource_deletion(temp_snapshot['id'])
+        self.snapshots_client.force_delete_snapshot(temp_snapshot['id'])
+        self.snapshots_client.wait_for_resource_deletion(temp_snapshot['id'])
 
 
 class SnapshotsActionsV3RbacTest(SnapshotsActionsRbacTest):

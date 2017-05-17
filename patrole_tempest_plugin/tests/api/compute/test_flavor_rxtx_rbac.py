@@ -23,11 +23,6 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 class FlavorRxtxRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
-    def setup_clients(cls):
-        super(FlavorRxtxRbacTest, cls).setup_clients()
-        cls.client = cls.flavors_client
-
-    @classmethod
     def skip_checks(cls):
         super(FlavorRxtxRbacTest, cls).skip_checks()
         if not test.is_extension_enabled('os-flavor-rxtx', 'compute'):
@@ -41,4 +36,4 @@ class FlavorRxtxRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_create_flavor_rxtx(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # Enforces os_compute_api:os-flavor-rxtx.
-        self.client.list_flavors(detail=True)['flavors']
+        self.flavors_client.list_flavors(detail=True)['flavors']

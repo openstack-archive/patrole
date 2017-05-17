@@ -31,15 +31,10 @@ class InstanceUsagesAuditLogRbacTest(
             msg = "os-instance-usage-audit-log extension not enabled."
             raise cls.skipException(msg)
 
-    @classmethod
-    def setup_clients(cls):
-        super(InstanceUsagesAuditLogRbacTest, cls).setup_clients()
-        cls.client = cls.instance_usages_audit_log_client
-
     @decorators.idempotent_id('c80246c0-5c13-4ab0-97ba-91551cd53dc1')
     @rbac_rule_validation.action(
         service="nova", rule="os_compute_api:os-instance-usage-audit-log")
     def test_list_instance_usage_audit_logs(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_instance_usage_audit_logs()
+        self.instance_usages_audit_log_client.list_instance_usage_audit_logs()
         ["instance_usage_audit_logs"]

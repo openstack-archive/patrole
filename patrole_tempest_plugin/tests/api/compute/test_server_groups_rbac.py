@@ -23,11 +23,6 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 class ServerGroupsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
-    def setup_clients(cls):
-        super(ServerGroupsRbacTest, cls).setup_clients()
-        cls.client = cls.server_groups_client
-
-    @classmethod
     def skip_checks(cls):
         super(ServerGroupsRbacTest, cls).skip_checks()
         if not test.is_extension_enabled('os-server-groups', 'compute'):
@@ -54,7 +49,7 @@ class ServerGroupsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_delete_server_group(self):
         server_group = self.create_test_server_group()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.delete_server_group(server_group['id'])
+        self.server_groups_client.delete_server_group(server_group['id'])
 
     @rbac_rule_validation.action(
         service="nova",
@@ -62,7 +57,7 @@ class ServerGroupsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('5eccd67f-5945-483b-b1c8-de851ebfc1c1')
     def test_list_server_groups(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_server_groups()
+        self.server_groups_client.list_server_groups()
 
     @rbac_rule_validation.action(
         service="nova",
@@ -71,4 +66,4 @@ class ServerGroupsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_show_server_group(self):
         server_group = self.create_test_server_group()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.show_server_group(server_group['id'])
+        self.server_groups_client.show_server_group(server_group['id'])

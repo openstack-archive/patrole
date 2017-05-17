@@ -31,11 +31,11 @@ class EncryptionTypesRbacTest(rbac_base.BaseVolumeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(EncryptionTypesRbacTest, cls).setup_clients()
-        cls.client = cls.os_primary.encryption_types_v2_client
+        cls.encryption_types_client = cls.os_primary.encryption_types_v2_client
 
     def _create_volume_type_encryption(self):
         vol_type_id = self.create_volume_type()['id']
-        self.client.create_encryption_type(
+        self.encryption_types_client.create_encryption_type(
             vol_type_id,
             provider="nova.volume.encryptors.luks.LuksEncryptor",
             control_location="front-end")['encryption']
@@ -48,7 +48,7 @@ class EncryptionTypesRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_create_volume_type_encryption(self):
         vol_type_id = self.create_volume_type()['id']
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.create_encryption_type(
+        self.encryption_types_client.create_encryption_type(
             vol_type_id,
             provider="nova.volume.encryptors.luks.LuksEncryptor",
             control_location="front-end")['encryption']
@@ -60,7 +60,7 @@ class EncryptionTypesRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_delete_volume_type_encryption(self):
         vol_type_id = self._create_volume_type_encryption()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.delete_encryption_type(vol_type_id)
+        self.encryption_types_client.delete_encryption_type(vol_type_id)
 
     @decorators.idempotent_id('42da9fec-32fd-4dca-9242-8a53b2fed25a')
     @rbac_rule_validation.action(
@@ -69,8 +69,9 @@ class EncryptionTypesRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_update_volume_type_encryption(self):
         vol_type_id = self._create_volume_type_encryption()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.update_encryption_type(vol_type_id,
-                                           control_location="front-end")
+        self.encryption_types_client.update_encryption_type(
+            vol_type_id,
+            control_location="front-end")
 
     @decorators.idempotent_id('1381a3dc-248f-4282-b231-c9399018c804')
     @rbac_rule_validation.action(
@@ -79,7 +80,7 @@ class EncryptionTypesRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_show_volume_type_encryption(self):
         vol_type_id = self._create_volume_type_encryption()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.show_encryption_type(vol_type_id)
+        self.encryption_types_client.show_encryption_type(vol_type_id)
 
 
 class EncryptionTypesV3RbacTest(EncryptionTypesRbacTest):

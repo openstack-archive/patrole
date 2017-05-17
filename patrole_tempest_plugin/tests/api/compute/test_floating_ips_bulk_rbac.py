@@ -34,7 +34,7 @@ class FloatingIpsBulkRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(FloatingIpsBulkRbacTest, cls).setup_clients()
-        cls.client = cls.os_primary.floating_ips_bulk_client
+        cls.fip_bulk_client = cls.os_primary.floating_ips_bulk_client
 
     @classmethod
     def skip_checks(cls):
@@ -50,4 +50,4 @@ class FloatingIpsBulkRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-floating-ips-bulk")
     def test_list_floating_ips_bulk(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_floating_ips_bulk()['floating_ip_info']
+        self.fip_bulk_client.list_floating_ips_bulk()['floating_ip_info']

@@ -34,7 +34,7 @@ class QuotaClassesRbacTest(rbac_base.BaseVolumeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(QuotaClassesRbacTest, cls).setup_clients()
-        cls.client = cls.os_primary.quota_classes_client
+        cls.quota_classes_client = cls.os_primary.quota_classes_client
         cls.quota_name = data_utils.rand_name(cls.__name__ + '-QuotaClass')
 
     @decorators.idempotent_id('1a060def-2b43-4534-97f5-5eadbbe8c726')
@@ -42,18 +42,20 @@ class QuotaClassesRbacTest(rbac_base.BaseVolumeRbacTest):
                                  rule="volume_extension:quota_classes")
     def test_show_quota_class_set(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.show_quota_class_set(self.quota_name)['quota_class_set']
+        self.quota_classes_client.show_quota_class_set(
+            self.quota_name)['quota_class_set']
 
     @decorators.idempotent_id('72159478-23a7-4c75-989f-6bac609eca62')
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume_extension:quota_classes")
     def test_update_quota_class_set(self):
-        quota_class_set = self.client.show_quota_class_set(self.quota_name)[
-            'quota_class_set']
+        quota_class_set = self.quota_classes_client.show_quota_class_set(
+            self.quota_name)['quota_class_set']
         quota_class_set.pop('id')
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.update_quota_class_set(self.quota_name, **quota_class_set)
+        self.quota_classes_client.update_quota_class_set(self.quota_name,
+                                                         **quota_class_set)
 
 
 class QuotaClassesV3RbacTest(QuotaClassesRbacTest):

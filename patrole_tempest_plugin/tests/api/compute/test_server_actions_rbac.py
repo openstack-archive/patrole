@@ -35,12 +35,6 @@ LOG = log.getLogger(__name__)
 class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
-    def setup_clients(cls):
-        super(ServerActionsRbacTest, cls).setup_clients()
-        cls.client = cls.servers_client
-        cls.snapshots_client = cls.snapshots_extensions_client
-
-    @classmethod
     def resource_setup(cls):
         cls.set_validation_resources()
         super(ServerActionsRbacTest, cls).resource_setup()
@@ -69,7 +63,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def setUp(self):
         super(ServerActionsRbacTest, self).setUp()
         try:
-            waiters.wait_for_server_status(self.client,
+            waiters.wait_for_server_status(self.servers_client,
                                            self.server_id, 'ACTIVE')
         except lib_exc.NotFound:
             # if the server was found to be deleted by a previous test,
@@ -99,14 +93,17 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                     # Wait for snapshot status to become 'available' before
                     # deletion
                     waiters.wait_for_volume_resource_status(
-                        cls.snapshots_client, snapshot['id'], 'available')
+                        cls.snapshots_extensions_client, snapshot['id'],
+                        'available')
                     test_utils.call_and_ignore_notfound_exc(
-                        cls.snapshots_client.delete_snapshot, snapshot['id'])
+                        cls.snapshots_extensions_client.delete_snapshot,
+                        snapshot['id'])
 
             for snapshot in volume_snapshots:
                 if snapshot['volumeId'] == cls.volume_id:
                     test_utils.call_and_ignore_notfound_exc(
-                        cls.snapshots_client.wait_for_resource_deletion,
+                        (cls.snapshots_extensions_client.
+                            wait_for_resource_deletion),
                         snapshot['id'])
 
         super(ServerActionsRbacTest, cls).resource_cleanup()
@@ -123,39 +120,40 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
         # Since the server is booted from volume, the imageRef does not need
         # to be specified.
-        server = self.client.create_server(name=server_name,
-                                           imageRef='',
-                                           flavorRef=CONF.compute.flavor_ref,
-                                           **device_mapping)['server']
+        server = self.servers_client.create_server(
+            name=server_name, imageRef='',
+            flavorRef=CONF.compute.flavor_ref,
+            **device_mapping)['server']
 
-        waiters.wait_for_server_status(self.client, server['id'], 'ACTIVE')
+        waiters.wait_for_server_status(self.servers_client, server['id'],
+                                       'ACTIVE')
 
         self.servers.append(server)
         return server
 
     def _test_start_server(self):
-        self.client.start_server(self.server_id)
-        waiters.wait_for_server_status(self.client, self.server_id,
+        self.servers_client.start_server(self.server_id)
+        waiters.wait_for_server_status(self.servers_client, self.server_id,
                                        'ACTIVE')
 
     def _test_stop_server(self):
-        self.client.stop_server(self.server_id)
-        waiters.wait_for_server_status(self.client, self.server_id,
+        self.servers_client.stop_server(self.server_id)
+        waiters.wait_for_server_status(self.servers_client, self.server_id,
                                        'SHUTOFF')
 
     def _test_resize_server(self, flavor):
-        self.client.resize_server(self.server_id, flavor)
-        waiters.wait_for_server_status(self.client, self.server_id,
+        self.servers_client.resize_server(self.server_id, flavor)
+        waiters.wait_for_server_status(self.servers_client, self.server_id,
                                        'VERIFY_RESIZE')
 
     def _test_revert_resize_server(self):
-        self.client.revert_resize_server(self.server_id)
-        waiters.wait_for_server_status(self.client, self.server_id,
+        self.servers_client.revert_resize_server(self.server_id)
+        waiters.wait_for_server_status(self.servers_client, self.server_id,
                                        'ACTIVE')
 
     def _test_confirm_resize_server(self):
-        self.client.confirm_resize_server(self.server_id)
-        waiters.wait_for_server_status(self.client, self.server_id,
+        self.servers_client.confirm_resize_server(self.server_id)
+        waiters.wait_for_server_status(self.servers_client, self.server_id,
                                        'ACTIVE')
 
     @rbac_rule_validation.action(
@@ -221,8 +219,8 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('54b1a30b-c96c-472c-9c83-ccaf6ec7e20b')
     def test_rebuild_server(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.rebuild_server(self.server_id, self.image_ref)
-        waiters.wait_for_server_status(self.client, self.server_id,
+        self.servers_client.rebuild_server(self.server_id, self.image_ref)
+        waiters.wait_for_server_status(self.servers_client, self.server_id,
                                        'ACTIVE')
 
     @rbac_rule_validation.action(
@@ -231,8 +229,8 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('19f27856-56e1-44f8-8615-7257f6b85cbb')
     def test_reboot_server(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.reboot_server(self.server_id, type='HARD')
-        waiters.wait_for_server_status(self.client, self.server_id,
+        self.servers_client.reboot_server(self.server_id, type='HARD')
+        waiters.wait_for_server_status(self.servers_client, self.server_id,
                                        'ACTIVE')
 
     @rbac_rule_validation.action(
@@ -241,7 +239,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('631f0d86-7607-4198-8312-9da2f05464a4')
     def test_server_index(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_servers(minimal=True)
+        self.servers_client.list_servers(minimal=True)
 
     @rbac_rule_validation.action(
         service="nova",
@@ -249,7 +247,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('96093480-3ce5-4a8b-b569-aed870379c24')
     def test_server_detail(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_servers(detail=True)
+        self.servers_client.list_servers(detail=True)
 
     @rbac_rule_validation.action(
         service="nova",
@@ -257,7 +255,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('a9e5a1c0-acfe-49a2-b2b1-fd8b19d61f71')
     def test_server_detail_all_tenants(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_servers(detail=True, all_tenants=1)
+        self.servers_client.list_servers(detail=True, all_tenants=1)
 
     @rbac_rule_validation.action(
         service="nova",
@@ -265,7 +263,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('4b93ba56-69e6-41f5-82c4-84a5c4c42091')
     def test_server_index_all_tenants(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_servers(minimal=True, all_tenants=1)
+        self.servers_client.list_servers(minimal=True, all_tenants=1)
 
     @rbac_rule_validation.action(
         service="nova",
@@ -273,7 +271,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('eaaf4f51-31b5-497f-8f0f-f527e5f70b83')
     def test_show_server(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.show_server(self.server_id)
+        self.servers_client.show_server(self.server_id)
 
     @rbac_rule_validation.action(
         service="nova",
@@ -322,7 +320,7 @@ class ServerActionsV216RbacTest(rbac_base.BaseV2ComputeRbacTest):
     def setUp(self):
         super(ServerActionsV216RbacTest, self).setUp()
         try:
-            waiters.wait_for_server_status(self.client,
+            waiters.wait_for_server_status(self.servers_client,
                                            self.server_id, 'ACTIVE')
         except lib_exc.NotFound:
             # if the server was found to be deleted by a previous test,
@@ -342,7 +340,7 @@ class ServerActionsV216RbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('736da575-86f8-4b2a-9902-dd37dc9a409b')
     def test_show_server_host_status(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        server = self.client.show_server(self.server_id)['server']
+        server = self.servers_client.show_server(self.server_id)['server']
 
         if 'host_status' not in server:
             LOG.info("host_status attribute not returned when role doesn't "
@@ -374,6 +372,6 @@ class ServerActionsV214RbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.assertRaisesRegex(lib_exc.NotFound,
                                "Compute host fake-host not found.",
-                               self.client.evacuate_server,
+                               self.servers_client.evacuate_server,
                                self.server_id,
                                host='fake-host')

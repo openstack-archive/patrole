@@ -34,19 +34,14 @@ class ServerTagsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             raise cls.skipException(msg)
 
     @classmethod
-    def setup_clients(cls):
-        super(ServerTagsRbacTest, cls).setup_clients()
-        cls.client = cls.servers_client
-
-    @classmethod
     def resource_setup(cls):
         super(ServerTagsRbacTest, cls).resource_setup()
         cls.server = cls.create_test_server(wait_until='ACTIVE')
 
     def _add_tag_to_server(self):
         tag_name = data_utils.rand_name(self.__class__.__name__ + '-tag')
-        self.client.update_tag(self.server['id'], tag_name)
-        self.addCleanup(self.client.delete_all_tags, self.server['id'])
+        self.servers_client.update_tag(self.server['id'], tag_name)
+        self.addCleanup(self.servers_client.delete_all_tags, self.server['id'])
         return tag_name
 
     @decorators.idempotent_id('99e73dd3-adec-4044-b46c-84bdded35d09')
@@ -55,7 +50,7 @@ class ServerTagsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-server-tags:index")
     def test_list_tags(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_tags(self.server['id'])['tags']
+        self.servers_client.list_tags(self.server['id'])['tags']
 
     @decorators.idempotent_id('9297c99e-94eb-429f-93cf-9b1838e33622')
     @rbac_rule_validation.action(
@@ -64,7 +59,7 @@ class ServerTagsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_check_tag_existence(self):
         tag_name = self._add_tag_to_server()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.check_tag_existence(self.server['id'], tag_name)
+        self.servers_client.check_tag_existence(self.server['id'], tag_name)
 
     @decorators.idempotent_id('0d84ee94-d3ca-4635-8edf-b7f67ab8e4a3')
     @rbac_rule_validation.action(
@@ -81,7 +76,7 @@ class ServerTagsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_delete_tag(self):
         tag_name = self._add_tag_to_server()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.delete_tag(self.server['id'], tag_name)
+        self.servers_client.delete_tag(self.server['id'], tag_name)
 
     @decorators.idempotent_id('a8e19b87-6580-4bc8-9933-e62561ff667d')
     @rbac_rule_validation.action(
@@ -90,7 +85,8 @@ class ServerTagsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_update_all_tags(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         new_tag_name = data_utils.rand_name(self.__class__.__name__ + '-tag')
-        self.client.update_all_tags(self.server['id'], [new_tag_name])['tags']
+        self.servers_client.update_all_tags(self.server['id'],
+                                            [new_tag_name])['tags']
 
     @decorators.idempotent_id('89d51936-e333-42f9-a045-132a4865ba1a')
     @rbac_rule_validation.action(
@@ -98,4 +94,4 @@ class ServerTagsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-server-tags:delete_all")
     def test_delete_all_tags(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.delete_all_tags(self.server['id'])
+        self.servers_client.delete_all_tags(self.server['id'])

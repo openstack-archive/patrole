@@ -26,11 +26,6 @@ CONF = config.CONF
 class IpsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
-    def setup_clients(cls):
-        super(IpsRbacTest, cls).setup_clients()
-        cls.client = cls.servers_client
-
-    @classmethod
     def skip_checks(cls):
         super(IpsRbacTest, cls).skip_checks()
         if not test.is_extension_enabled('os-ips', 'compute'):
@@ -56,15 +51,16 @@ class IpsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:ips:index")
     def test_list_addresses(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_addresses(self.server['id'])['addresses']
+        self.servers_client.list_addresses(self.server['id'])['addresses']
 
     @decorators.idempotent_id('fa43e7e5-0db9-48eb-9c6b-c11eb766b8e4')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:ips:show")
     def test_list_addresses_by_network(self):
-        addresses = self.client.list_addresses(self.server['id'])['addresses']
+        addresses = self.servers_client.list_addresses(
+            self.server['id'])['addresses']
         address = next(iter(addresses))
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_addresses_by_network(
+        self.servers_client.list_addresses_by_network(
             self.server['id'], address)[address]

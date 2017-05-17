@@ -32,7 +32,7 @@ class CapabilitiesRbacTest(rbac_base.BaseVolumeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(CapabilitiesRbacTest, cls).setup_clients()
-        cls.client = cls.os_primary.volume_capabilities_v2_client
+        cls.capabilities_client = cls.os_primary.volume_capabilities_v2_client
         cls.hosts_client = cls.os_primary.volume_hosts_v2_client
 
     @rbac_rule_validation.action(service="cinder",
@@ -41,7 +41,7 @@ class CapabilitiesRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_show_back_end_capabilities(self):
         host = self.hosts_client.list_hosts()['hosts'][0]['host_name']
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.show_backend_capabilities(host)
+        self.capabilities_client.show_backend_capabilities(host)
 
 
 class CapabilitiesV3RbacTest(CapabilitiesRbacTest):

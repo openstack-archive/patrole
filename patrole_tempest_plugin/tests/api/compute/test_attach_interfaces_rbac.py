@@ -28,11 +28,6 @@ CONF = config.CONF
 class AttachInterfacesRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
-    def setup_clients(cls):
-        super(AttachInterfacesRbacTest, cls).setup_clients()
-        cls.client = cls.interfaces_client
-
-    @classmethod
     def skip_checks(cls):
         super(AttachInterfacesRbacTest, cls).skip_checks()
         if not test.is_extension_enabled('os-attach-interfaces', 'compute'):
@@ -58,14 +53,14 @@ class AttachInterfacesRbacTest(rbac_base.BaseV2ComputeRbacTest):
         cls.server = cls.create_test_server(wait_until='ACTIVE')
 
     def _attach_interface_to_server(self):
-        interface = self.client.create_interface(
+        interface = self.interfaces_client.create_interface(
             self.server['id'])['interfaceAttachment']
         waiters.wait_for_interface_status(
             self.interfaces_client, self.server['id'], interface['port_id'],
             'ACTIVE')
         self.addCleanup(
             test_utils.call_and_ignore_notfound_exc,
-            self.client.delete_interface, self.server['id'],
+            self.interfaces_client.delete_interface, self.server['id'],
             interface['port_id'])
         return interface
 
@@ -75,7 +70,8 @@ class AttachInterfacesRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-attach-interfaces")
     def test_list_interfaces(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_interfaces(self.server['id'])['interfaceAttachments']
+        self.interfaces_client.list_interfaces(
+            self.server['id'])['interfaceAttachments']
 
     @decorators.idempotent_id('d2d3a24d-4738-4bce-a287-36d664746cde')
     @rbac_rule_validation.action(
@@ -92,4 +88,5 @@ class AttachInterfacesRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_delete_interface(self):
         interface = self._attach_interface_to_server()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.delete_interface(self.server['id'], interface['port_id'])
+        self.interfaces_client.delete_interface(self.server['id'],
+                                                interface['port_id'])

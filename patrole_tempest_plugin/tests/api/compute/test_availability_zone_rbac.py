@@ -28,21 +28,16 @@ class NovaAvailabilityZoneRbacTest(rbac_base.BaseV2ComputeRbacTest):
                    "enabled." % cls.__name__)
             raise cls.skipException(msg)
 
-    @classmethod
-    def setup_clients(cls):
-        super(NovaAvailabilityZoneRbacTest, cls).setup_clients()
-        cls.client = cls.availability_zone_client
-
     @rbac_rule_validation.action(service="nova", rule="os_compute_api:"
                                  "os-availability-zone:list")
     @decorators.idempotent_id('cd34e7ea-d26e-4fa3-a8d0-f8883726ce3d')
     def test_get_availability_zone_list_rbac(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_availability_zones()
+        self.availability_zone_client.list_availability_zones()
 
     @rbac_rule_validation.action(service="nova", rule="os_compute_api:"
                                  "os-availability-zone:detail")
     @decorators.idempotent_id('2f61c191-6ece-4f21-b487-39d749e3d38e')
     def test_get_availability_zone_list_detail_rbac(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_availability_zones(detail=True)
+        self.availability_zone_client.list_availability_zones(detail=True)

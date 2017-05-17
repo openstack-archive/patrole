@@ -30,7 +30,6 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(ServerVolumeAttachmentRbacTest, cls).setup_clients()
-        cls.client = cls.servers_client
         cls.volumes_client = cls.os_primary.volumes_client
 
     @classmethod
@@ -52,7 +51,7 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('529b668b-6edb-41d5-8886-d7dbd0614678')
     def test_list_volume_attachments(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_volume_attachments(self.server['id'])[
+        self.servers_client.list_volume_attachments(self.server['id'])[
             'volumeAttachments']
 
     @rbac_rule_validation.action(
@@ -70,7 +69,7 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_show_volume_attachment(self):
         attachment = self.attach_volume(self.server, self.volume)
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.show_volume_attachment(
+        self.servers_client.show_volume_attachment(
             self.server['id'], attachment['id'])
 
     @test.attr(type='slow')
@@ -82,7 +81,7 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
         attachment = self.attach_volume(self.server, self.volume)
         alt_volume = self.create_volume()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.update_attached_volume(
+        self.servers_client.update_attached_volume(
             self.server['id'], attachment['id'], volumeId=alt_volume['id'])
         waiters.wait_for_volume_resource_status(self.volumes_client,
                                                 alt_volume['id'], 'in-use')
@@ -104,6 +103,6 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_delete_volume_attachment(self):
         self.attach_volume(self.server, self.volume)
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.detach_volume(self.server['id'], self.volume['id'])
+        self.servers_client.detach_volume(self.server['id'], self.volume['id'])
         waiters.wait_for_volume_resource_status(self.volumes_client,
                                                 self.volume['id'], 'available')

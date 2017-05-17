@@ -113,9 +113,9 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('2750717a-f250-4e41-9e09-02624aad6ff8')
     def test_volume_readonly_update(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-
-        self.client.update_volume_readonly(self.volume['id'], readonly=True)
-        self.addCleanup(self.client.update_volume_readonly,
+        self.volumes_client.update_volume_readonly(self.volume['id'],
+                                                   readonly=True)
+        self.addCleanup(self.volumes_client.update_volume_readonly,
                         self.volume['id'], readonly=False)
 
     @decorators.idempotent_id('72bab13c-dfaf-4b6d-a132-c83a85fb1776')
@@ -133,7 +133,8 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
                                  rule="volume:update")
     def test_volume_set_bootable(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.set_bootable_volume(self.volume['id'], bootable=True)
+        self.volumes_client.set_bootable_volume(self.volume['id'],
+                                                bootable=True)
 
     @decorators.idempotent_id('41566922-75a1-4484-99c7-9c8782ee99ac')
     @rbac_rule_validation.action(service="cinder",
@@ -203,3 +204,15 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
 
 class VolumesActionsV3RbacTest(VolumesActionsRbacTest):
     _api_version = 3
+
+
+class VolumesActionsV312RbacTest(rbac_base.BaseVolumeRbacTest):
+    _api_version = 3
+    min_microversion = '3.12'
+    max_microversion = 'latest'
+
+    @decorators.idempotent_id('a654833d-4811-4acd-93ef-5ac4a34c75bc')
+    @rbac_rule_validation.action(service="cinder", rule="volume:get_all")
+    def test_show_volume_summary(self):
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.volumes_client.show_volume_summary()['volume-summary']

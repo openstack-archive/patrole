@@ -30,14 +30,9 @@ class IdentityAuthV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     # identity:get_auth_domains once the endpoints are implemented in Tempest's
     # identity v3 client.
 
-    @classmethod
-    def setup_clients(cls):
-        super(IdentityAuthV3RbacTest, cls).setup_clients()
-        cls.client = cls.identity_client
-
     @decorators.idempotent_id('2a9fbf7f-6feb-4161-ae4b-faf7d6421b1a')
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:get_auth_projects")
     def test_list_auth_projects(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_auth_projects()['projects']
+        self.identity_client.list_auth_projects()['projects']
