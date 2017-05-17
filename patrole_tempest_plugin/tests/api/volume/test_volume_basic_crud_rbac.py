@@ -13,17 +13,19 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
-CONF = config.CONF
-
 
 class VolumesV2BasicCrudRbacTest(rbac_base.BaseVolumeRbacTest):
+
+    @classmethod
+    def resource_setup(cls):
+        super(VolumesV2BasicCrudRbacTest, cls).resource_setup()
+        cls.volume = cls.create_volume()
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:create")
@@ -43,35 +45,31 @@ class VolumesV2BasicCrudRbacTest(rbac_base.BaseVolumeRbacTest):
     @rbac_rule_validation.action(service="cinder", rule="volume:get")
     @decorators.idempotent_id('c4c3fdd5-b1b1-49c3-b977-a9f40ee9257a')
     def test_get_volume(self):
-        volume = self.create_volume()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.volumes_client.show_volume(volume['id'])
+        self.volumes_client.show_volume(self.volume['id'])
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:get_all")
     @decorators.idempotent_id('e3ab7906-b04b-4c45-aa11-1104d302f940')
     def test_volume_list(self):
-        # Get a list of Volumes
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.volumes_client.list_volumes()
+
+    @rbac_rule_validation.action(service="cinder", rule="volume:update")
+    @decorators.idempotent_id('b751b889-9a9b-40d8-ae7d-4b0f65e71ac7')
+    def test_update_volume(self):
+        update_name = data_utils.rand_name('volume')
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.volumes_client.update_volume(self.volume['id'],
+                                          name=update_name)
 
     @rbac_rule_validation.action(
         service="cinder",
         rule="volume_extension:volume_image_metadata")
     @decorators.idempotent_id('3d48ca91-f02b-4616-a69d-4a8b296c8529')
     def test_volume_list_image_metadata(self):
-        # Get a list of Volumes
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.volumes_client.list_volumes(detail=True)
-
-    @rbac_rule_validation.action(service="cinder", rule="volume:update")
-    @decorators.idempotent_id('b751b889-9a9b-40d8-ae7d-4b0f65e71ac7')
-    def test_update_volume(self):
-        volume = self.create_volume()
-        new_name = data_utils.rand_name('volume')
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.volumes_client.update_volume(volume['id'],
-                                          name=new_name)
 
 
 class VolumesV3BasicCrudRbacTest(VolumesV2BasicCrudRbacTest):
