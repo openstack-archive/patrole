@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    Add additional compute hypervisor RBAC tests, so that the previously
+    missing hypervisor endpoints are covered. Tests for the following
+    endpoints were written:
+    * show_hypervisor
+    * list_servers_on_hypervisor
+    * show_hypervisor_statistics
+    * show_hypervisor_uptime
+    * search_hypervisor
