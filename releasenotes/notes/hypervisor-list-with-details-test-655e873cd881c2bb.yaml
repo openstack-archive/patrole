@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Add RBAC test for listing hypervisors with details.
