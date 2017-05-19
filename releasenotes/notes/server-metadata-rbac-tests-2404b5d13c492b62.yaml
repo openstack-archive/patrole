@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    Add RBAC tests for the compute server metadata API, providing
+    coverage for the following policy actions:
+    * os_compute_api:server-metadata:index
+    * os_compute_api:server-metadata:update_all
+    * os_compute_api:server-metadata:create
+    * os_compute_api:server-metadata:show
+    * os_compute_api:server-metadata:update
+    * os_compute_api:server-metadata:delete
