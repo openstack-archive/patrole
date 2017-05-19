@@ -243,6 +243,7 @@ class BaseIdentityV3RbacTest(BaseIdentityRbacTest):
         cls.trusts_client = cls.os_primary.trusts_client
         cls.users_client = cls.os_primary.users_v3_client
         cls.oauth_token_client = cls.os_primary.oauth_token_client
+        cls.token_client = cls.os_primary.token_v3_client
 
     @classmethod
     def resource_setup(cls):
@@ -254,6 +255,7 @@ class BaseIdentityV3RbacTest(BaseIdentityRbacTest):
         cls.projects = []
         cls.regions = []
         cls.trusts = []
+        cls.tokens = []
 
     @classmethod
     def resource_cleanup(cls):
@@ -288,6 +290,10 @@ class BaseIdentityV3RbacTest(BaseIdentityRbacTest):
         for trust in cls.trusts:
             test_utils.call_and_ignore_notfound_exc(
                 cls.trusts_client.delete_trust, trust['id'])
+
+        for token in cls.tokens:
+            test_utils.call_and_ignore_notfound_exc(
+                cls.identity_client.delete_token, token)
 
         super(BaseIdentityV3RbacTest, cls).resource_cleanup()
 
@@ -375,3 +381,12 @@ class BaseIdentityV3RbacTest(BaseIdentityRbacTest):
         cls.trusts.append(trust)
 
         return trust
+
+    @classmethod
+    def setup_test_token(cls, user_id, password):
+        """Set up a test token."""
+        token = cls.token_client.auth(user_id=user_id,
+                                      password=password).response
+        token_id = token['x-subject-token']
+        cls.tokens.append(token_id)
+        return token_id
