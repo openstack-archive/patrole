@@ -104,7 +104,7 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
                            (role, rule))
                     LOG.error(msg)
                     raise exceptions.Forbidden(
-                        "%s exception was: %s" % (msg, e))
+                        "%s Exception was: %s" % (msg, e))
             except Exception as e:
                 exc_info = sys.exc_info()
                 error_details = exc_info[1].__str__()
@@ -115,7 +115,7 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
                 six.reraise(exc_info[0], exc_info[0](msg), exc_info[2])
             else:
                 if not allowed:
-                    LOG.error("Role %s was allowed to perform %s" %
+                    LOG.error("Role %s was allowed to perform %s",
                               (role, rule))
                     raise rbac_exceptions.RbacOverPermission(
                         "OverPermission: Role %s was allowed to perform %s" %

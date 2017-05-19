@@ -254,7 +254,8 @@ class RBACRuleValidationTest(base.TestCase):
                       "sentinel.action"), e.__str__())
 
         mock_log.error.assert_called_once_with(
-            "Role Member was allowed to perform sentinel.action")
+            'Role %s was allowed to perform %s', ('Member',
+                                                  mock.sentinel.action))
 
     @mock.patch.object(rbac_rv, 'rbac_policy_parser', autospec=True)
     def test_invalid_policy_rule_throws_parsing_exception(
