@@ -242,6 +242,7 @@ class BaseIdentityV3RbacTest(BaseIdentityRbacTest):
         cls.services_client = cls.os_primary.identity_services_v3_client
         cls.trusts_client = cls.os_primary.trusts_client
         cls.users_client = cls.os_primary.users_v3_client
+        cls.oauth_token_client = cls.os_primary.oauth_token_client
 
     @classmethod
     def resource_setup(cls):

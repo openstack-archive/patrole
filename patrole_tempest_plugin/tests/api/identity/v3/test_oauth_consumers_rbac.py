@@ -25,7 +25,7 @@ class IdentityConsumersV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     def _create_consumer(self):
         description = data_utils.rand_name(
-            self.__class__.__name__ + '-test_consumer')
+            self.__class__.__name__ + '-IdentityConsumer')
         consumer = self.consumers_client.create_consumer(
             description)['consumer']
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
@@ -54,12 +54,12 @@ class IdentityConsumersV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @decorators.idempotent_id('0f148510-63bf-11e6-4522-080044d0d972')
     def test_update_consumer(self):
         consumer = self._create_consumer()
-        new_description = data_utils.rand_name(
-            self.__class__.__name__ + '-test_consumer')
+        updated_description = data_utils.rand_name(
+            self.__class__.__name__ + '-IdentityConsumer')
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.consumers_client.update_consumer(consumer['id'],
-                                              new_description)
+                                              updated_description)
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:get_consumer")
