@@ -40,8 +40,6 @@ class BaseVolumeRbacTest(vol_base.BaseVolumeTest):
         cls.rbac_utils = rbac_utils.RbacUtils(cls)
 
         version_checker = {
-            1: [cls.os_primary.volume_hosts_client,
-                cls.os_primary.volume_types_client],
             2: [cls.os_primary.volume_hosts_v2_client,
                 cls.os_primary.volume_types_v2_client],
             3: [cls.os_primary.volume_hosts_v2_client,
