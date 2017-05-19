@@ -18,7 +18,6 @@ import time
 
 from oslo_log import log as logging
 import oslo_utils.uuidutils as uuid_utils
-import six
 
 from tempest.common import credentials_factory as credentials
 from tempest import config
@@ -29,18 +28,10 @@ CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
 
-class Singleton(type):
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args,
-                                                                 **kwargs)
-        return cls._instances[cls]
-
-
-@six.add_metaclass(Singleton)
 class RbacUtils(object):
+
+    def __init__(self, test_obj):
+        self.switch_role(test_obj, toggle_rbac_role=False)
 
     # References the last value of `toggle_rbac_role` that was passed to
     # `switch_role`. Used for ensuring that `switch_role` is correctly used
@@ -70,7 +61,7 @@ class RbacUtils(object):
             if not self.admin_role_id or not self.rbac_role_id:
                 self._get_roles()
 
-            rbac_utils._validate_switch_role(self, test_obj, toggle_rbac_role)
+            self._validate_switch_role(test_obj, toggle_rbac_role)
 
             if toggle_rbac_role:
                 self._add_role_to_user(self.rbac_role_id)
@@ -171,5 +162,3 @@ class RbacUtils(object):
 
         self.admin_role_id = admin_role_id
         self.rbac_role_id = rbac_role_id
-
-rbac_utils = RbacUtils

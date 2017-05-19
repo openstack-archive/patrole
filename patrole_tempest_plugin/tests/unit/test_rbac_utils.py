@@ -17,6 +17,7 @@ import mock
 import testtools
 
 from tempest import config
+from tempest.lib import base as lib_base
 from tempest.lib import exceptions as lib_exc
 from tempest.tests import base
 
@@ -28,32 +29,42 @@ CONF = config.CONF
 
 class RBACUtilsTest(base.TestCase):
 
-    def setUp(self):
+    available_roles = {
+        'roles': [
+            {'name': 'admin', 'id': 'admin_id'},
+            {'name': 'Member', 'id': 'member_id'}
+        ]
+    }
+
+    @mock.patch.object(rbac_utils, 'credentials', autospec=True,
+                       **{'is_admin_available.return_value': True})
+    @mock.patch.object(rbac_utils.RbacUtils, '_clear_user_roles',
+                       autospec=True, return_value=False)
+    def setUp(self, *args):
         super(RBACUtilsTest, self).setUp()
-        available_roles = {
-            'roles': [
-                {'name': 'admin', 'id': 'admin_id'},
-                {'name': 'Member', 'id': 'member_id'}
-            ]
-        }
 
-        # Because rbac_utils is a singleton, reset all of its role-related
-        # parameters to the correct values for each test run.
-        self.rbac_utils = rbac_utils.rbac_utils()
-        self.rbac_utils.switch_role_history = {}
-        self.rbac_utils.admin_role_id = 'admin_id'
-        self.rbac_utils.rbac_role_id = 'member_id'
-
-        self.mock_test_obj = mock.Mock()
+        self.mock_test_obj = mock.Mock(spec=lib_base.BaseTestCase)
         self.mock_test_obj.auth_provider = mock.Mock(
             **{'credentials.user_id': mock.sentinel.user_id,
                'credentials.tenant_id': mock.sentinel.project_id})
         self.mock_test_obj.os_admin = mock.Mock(
-            **{'roles_v3_client.list_roles.return_value': available_roles})
+            **{'roles_v3_client.list_roles.return_value': self.available_roles}
+        )
+        self.mock_test_obj.get_identity_version = mock.Mock(return_value=3)
+
+        with mock.patch.object(rbac_utils.RbacUtils, '_validate_switch_role'):
+            self.rbac_utils = rbac_utils.RbacUtils(self.mock_test_obj)
+        self.rbac_utils.switch_role_history = {}
+        self.rbac_utils.admin_role_id = 'admin_id'
+        self.rbac_utils.rbac_role_id = 'member_id'
 
         CONF.set_override('admin_role', 'admin', group='identity')
         CONF.set_override('auth_version', 'v3', group='identity')
         CONF.set_override('rbac_test_role', 'Member', group='rbac')
+
+        roles_client = self.mock_test_obj.os_admin.roles_v3_client
+        roles_client.create_user_role_on_project.reset_mock()
+        self.mock_test_obj.auth_provider.reset_mock()
 
         self.addCleanup(CONF.clear_override, 'rbac_test_role', group='rbac')
         self.addCleanup(CONF.clear_override, 'admin_role', group='identity')
@@ -65,7 +76,7 @@ class RBACUtilsTest(base.TestCase):
             **{'roles_client.list_user_roles_on_project.'
                'return_value': {'roles': [{'id': return_value}]}})
 
-    @mock.patch.object(rbac_utils.rbac_utils, '_clear_user_roles',
+    @mock.patch.object(rbac_utils.RbacUtils, '_clear_user_roles',
                        autospec=True, return_value=False)
     def test_initialization_with_missing_admin_role(self, _):
         self.mock_test_obj.os_admin = mock.Mock(
@@ -79,7 +90,7 @@ class RBACUtilsTest(base.TestCase):
         self.assertIn("Role with name 'admin' does not exist in the system.",
                       e.__str__())
 
-    @mock.patch.object(rbac_utils.rbac_utils, '_clear_user_roles',
+    @mock.patch.object(rbac_utils.RbacUtils, '_clear_user_roles',
                        autospec=True, return_value=False)
     def test_initialization_with_missing_rbac_role(self, _):
         self.mock_test_obj.os_admin = mock.Mock(
@@ -116,43 +127,33 @@ class RBACUtilsTest(base.TestCase):
                           'member_id'),
             ])
 
-    @mock.patch.object(rbac_utils.rbac_utils, '_clear_user_roles',
+    @mock.patch.object(rbac_utils.RbacUtils, '_clear_user_roles',
                        autospec=True, return_value=False)
     @mock.patch.object(rbac_utils, 'time', autospec=True)
-    def test_rbac_utils_switch_role_to_admin_role(self, mock_time,
-                                                  mock_clear_user_roles):
+    def test_rbac_utils_switch_role_to_admin_role(self, mock_time, _):
         self.rbac_utils.prev_switch_role = True
         self._mock_list_user_roles_on_project('admin_id')
         roles_client = self.mock_test_obj.os_admin.roles_v3_client
 
         self.rbac_utils.switch_role(self.mock_test_obj, False)
 
-        roles_client.create_user_role_on_project.\
-            assert_called_once_with(mock.sentinel.project_id,
-                                    mock.sentinel.user_id,
-                                    'admin_id')
-        mock_clear_user_roles.assert_called_once_with(
-            self.rbac_utils, 'admin_id')
+        roles_client.create_user_role_on_project.assert_called_once_with(
+            mock.sentinel.project_id, mock.sentinel.user_id, 'admin_id')
         self.mock_test_obj.auth_provider.clear_auth.assert_called_once_with()
         self.mock_test_obj.auth_provider.set_auth.assert_called_once_with()
         mock_time.sleep.assert_called_once_with(1)
 
-    @mock.patch.object(rbac_utils.rbac_utils, '_clear_user_roles',
+    @mock.patch.object(rbac_utils.RbacUtils, '_clear_user_roles',
                        autospec=True, return_value=False)
     @mock.patch.object(rbac_utils, 'time', autospec=True)
-    def test_rbac_utils_switch_role_to_rbac_role(self, mock_time,
-                                                 mock_clear_user_roles):
+    def test_rbac_utils_switch_role_to_rbac_role(self, mock_time, _):
         self._mock_list_user_roles_on_project('member_id')
         roles_client = self.mock_test_obj.os_admin.roles_v3_client
 
         self.rbac_utils.switch_role(self.mock_test_obj, True)
 
-        roles_client.create_user_role_on_project.\
-            assert_called_once_with(mock.sentinel.project_id,
-                                    mock.sentinel.user_id,
-                                    'member_id')
-        mock_clear_user_roles.assert_called_once_with(
-            self.rbac_utils, 'member_id')
+        roles_client.create_user_role_on_project.assert_called_once_with(
+            mock.sentinel.project_id, mock.sentinel.user_id, 'member_id')
         self.mock_test_obj.auth_provider.clear_auth.assert_called_once_with()
         self.mock_test_obj.auth_provider.set_auth.assert_called_once_with()
         mock_time.sleep.assert_called_once_with(1)
@@ -165,7 +166,7 @@ class RBACUtilsTest(base.TestCase):
                           self.rbac_utils.switch_role, self.mock_test_obj,
                           None)
 
-    @mock.patch.object(rbac_utils.rbac_utils, '_clear_user_roles',
+    @mock.patch.object(rbac_utils.RbacUtils, '_clear_user_roles',
                        autospec=True, return_value=False)
     def test_rbac_utils_switch_roles_with_false_value_twice(self, _):
         self._mock_list_user_roles_on_project('admin_id')
@@ -178,7 +179,7 @@ class RBACUtilsTest(base.TestCase):
             'twice. Make sure that you included a rbac_utils.switch_role '
             'method call inside the test.', str(e))
 
-    @mock.patch.object(rbac_utils.rbac_utils, '_clear_user_roles',
+    @mock.patch.object(rbac_utils.RbacUtils, '_clear_user_roles',
                        autospec=True, return_value=False)
     def test_rbac_utils_switch_roles_with_true_value_twice(self, _):
         self._mock_list_user_roles_on_project('admin_id')
@@ -191,7 +192,7 @@ class RBACUtilsTest(base.TestCase):
             'twice. Make sure that you included a rbac_utils.switch_role '
             'method call inside the test.', str(e))
 
-    @mock.patch.object(rbac_utils.rbac_utils, '_clear_user_roles',
+    @mock.patch.object(rbac_utils.RbacUtils, '_clear_user_roles',
                        autospec=True, return_value=False)
     @mock.patch.object(rbac_utils, 'LOG', autospec=True)
     @mock.patch.object(rbac_utils, 'sys', autospec=True)
@@ -228,7 +229,7 @@ class RBACUtilsTest(base.TestCase):
             self.rbac_utils.switch_role(self.mock_test_obj, True)
             mock_log.error.assert_not_called()
 
-    @mock.patch.object(rbac_utils.rbac_utils, '_clear_user_roles',
+    @mock.patch.object(rbac_utils.RbacUtils, '_clear_user_roles',
                        autospec=True, return_value=False)
     def test_rbac_utils_switch_role_except_exception(self,
                                                      mock_clear_user_roles):

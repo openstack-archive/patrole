@@ -16,7 +16,7 @@ from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 
-from patrole_tempest_plugin.rbac_utils import rbac_utils
+from patrole_tempest_plugin import rbac_utils
 
 CONF = config.CONF
 
@@ -37,8 +37,7 @@ class BaseVolumeRbacTest(vol_base.BaseVolumeTest):
         super(BaseVolumeRbacTest, cls).setup_clients()
         cls.auth_provider = cls.os_primary.auth_provider
 
-        cls.rbac_utils = rbac_utils()
-        cls.rbac_utils.switch_role(cls, toggle_rbac_role=False)
+        cls.rbac_utils = rbac_utils.RbacUtils(cls)
 
         version_checker = {
             1: [cls.os_primary.volume_hosts_client,

@@ -14,7 +14,7 @@
 from tempest.api.image import base as image_base
 from tempest import config
 
-from patrole_tempest_plugin.rbac_utils import rbac_utils
+from patrole_tempest_plugin import rbac_utils
 
 CONF = config.CONF
 
@@ -34,8 +34,7 @@ class BaseV1ImageRbacTest(image_base.BaseV1ImageTest):
     def setup_clients(cls):
         super(BaseV1ImageRbacTest, cls).setup_clients()
         cls.auth_provider = cls.os_primary.auth_provider
-        cls.rbac_utils = rbac_utils()
-        cls.rbac_utils.switch_role(cls, toggle_rbac_role=False)
+        cls.rbac_utils = rbac_utils.RbacUtils(cls)
 
 
 class BaseV2ImageRbacTest(image_base.BaseV2ImageTest):
@@ -53,5 +52,4 @@ class BaseV2ImageRbacTest(image_base.BaseV2ImageTest):
     def setup_clients(cls):
         super(BaseV2ImageRbacTest, cls).setup_clients()
         cls.auth_provider = cls.os_primary.auth_provider
-        cls.rbac_utils = rbac_utils()
-        cls.rbac_utils.switch_role(cls, toggle_rbac_role=False)
+        cls.rbac_utils = rbac_utils.RbacUtils(cls)

@@ -16,7 +16,7 @@
 from tempest.api.network import base as network_base
 from tempest import config
 
-from patrole_tempest_plugin.rbac_utils import rbac_utils
+from patrole_tempest_plugin import rbac_utils
 
 CONF = config.CONF
 
@@ -36,5 +36,4 @@ class BaseNetworkRbacTest(network_base.BaseNetworkTest):
     def setup_clients(cls):
         super(BaseNetworkRbacTest, cls).setup_clients()
         cls.auth_provider = cls.os_primary.auth_provider
-        cls.rbac_utils = rbac_utils()
-        cls.rbac_utils.switch_role(cls, toggle_rbac_role=False)
+        cls.rbac_utils = rbac_utils.RbacUtils(cls)
