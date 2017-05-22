@@ -37,6 +37,8 @@ The following are Patrole's specific Commandments:
 - [P101] RBAC test filenames must end with "_rbac.py"; for example,
          test_servers_rbac.py, not test_servers.py
 - [P102] RBAC test class names must end in 'RbacTest'
+- [P103] ``self.client`` must not be used as a client alias; this allows for
+         code that is more maintainable and easier to read
 
 Role Switching
 --------------
