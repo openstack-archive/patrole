@@ -14,6 +14,5 @@
 
 # This script is executed inside pre_test_hook function in devstack gate.
 # Installs patrole tempest plugin manually.
-
 PATROLE_DIR=$BASE/new/patrole
 sudo pip install -e $PATROLE_DIR

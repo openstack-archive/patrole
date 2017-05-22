@@ -16,10 +16,6 @@
 # First argument ($1) expects 'rbac-role' as value for setting appropriate
 # tempest rbac option 'rbac_test_role'.
 
-# Install pip manually.
-PATROLE_DIR=$BASE/new/patrole
-sudo pip install -e $PATROLE_DIR
-
 # Allow tempest.conf to be modified by Jenkins.
 sudo chown -R jenkins:stack $BASE/new/tempest
 sudo chown -R jenkins:stack $BASE/data/tempest
