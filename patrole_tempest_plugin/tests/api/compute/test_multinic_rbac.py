@@ -22,14 +22,11 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 CONF = config.CONF
 
 
-class MultinicV210RbacTest(rbac_base.BaseV2ComputeRbacTest):
-
-    min_microversion = '2.10'
-    max_microversion = '2.36'
+class MultinicRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
     def skip_checks(cls):
-        super(MultinicV210RbacTest, cls).skip_checks()
+        super(MultinicRbacTest, cls).skip_checks()
         if not CONF.service_available.neutron:
             raise cls.skipException("Neutron is required")
         if not CONF.compute_feature_enabled.interface_attach:
@@ -39,11 +36,11 @@ class MultinicV210RbacTest(rbac_base.BaseV2ComputeRbacTest):
     def setup_credentials(cls):
         # This test class requires network and subnet
         cls.set_network_resources(network=True, subnet=True)
-        super(MultinicV210RbacTest, cls).setup_credentials()
+        super(MultinicRbacTest, cls).setup_credentials()
 
     @classmethod
     def resource_setup(cls):
-        super(MultinicV210RbacTest, cls).resource_setup()
+        super(MultinicRbacTest, cls).resource_setup()
         cls.server = cls.create_test_server(wait_until='ACTIVE')
 
     @rbac_rule_validation.action(

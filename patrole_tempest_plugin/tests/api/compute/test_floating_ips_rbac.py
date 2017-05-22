@@ -28,7 +28,6 @@ class FloatingIpsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     # Tests will fail with a 404 starting from microversion 2.36:
     # See the following link for details:
     # https://developer.openstack.org/api-ref/compute/#floating-ips-os-floating-ips-deprecated
-    min_microversion = '2.10'
     max_microversion = '2.35'
 
     @classmethod
