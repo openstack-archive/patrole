@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from tempest.common import waiters
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
@@ -40,8 +41,12 @@ class VolumeV235RbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         volume = self.volumes_extensions_client.create_volume(
             size=CONF.volume.volume_size)['volume']
-        self.addCleanup(self.volumes_extensions_client.delete_volume,
-                        volume['id'])
+        # Use the admin volumes client to wait, because waiting involves
+        # calling show API action which enforces a different policy.
+        waiters.wait_for_volume_resource_status(self.os_admin.volumes_client,
+                                                volume['id'], 'available')
+        # Use non-deprecated volumes_client for deletion.
+        self.addCleanup(self.volumes_client.delete_volume, volume['id'])
 
     @decorators.idempotent_id('69b3888c-dff2-47b0-9fa4-0672619c9054')
     @rbac_rule_validation.action(
