@@ -17,6 +17,7 @@ from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
+from tempest.lib import exceptions as lib_exc
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
@@ -24,7 +25,7 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 CONF = config.CONF
 
 
-class ImagesV235RbacTest(rbac_base.BaseV2ComputeRbacTest):
+class ImagesRbacTest(rbac_base.BaseV2ComputeRbacTest):
     """RBAC tests for the Nova images client.
 
     These APIs are proxy calls to the Image service. Consequently, no nova
@@ -34,31 +35,39 @@ class ImagesV235RbacTest(rbac_base.BaseV2ComputeRbacTest):
     """
 
     # These tests will fail with a 404 starting from microversion 2.36.
-    min_microversion = '2.10'
+    # See the following link for details:
+    # https://developer.openstack.org/api-ref/compute/#images-deprecated
     max_microversion = '2.35'
 
     @classmethod
     def skip_checks(cls):
-        super(ImagesV235RbacTest, cls).skip_checks()
+        super(ImagesRbacTest, cls).skip_checks()
         if not CONF.service_available.glance:
             skip_msg = ("%s skipped as glance is not available" % cls.__name__)
             raise cls.skipException(skip_msg)
 
     @classmethod
     def setup_clients(cls):
-        super(ImagesV235RbacTest, cls).setup_clients()
-        cls.glance_image_client = cls.os_primary.image_client_v2
+        super(ImagesRbacTest, cls).setup_clients()
+        if CONF.image_feature_enabled.api_v1:
+            cls.glance_image_client = cls.os_primary.image_client
+        elif CONF.image_feature_enabled.api_v2:
+            cls.glance_image_client = cls.os_primary.image_client_v2
+        else:
+            raise lib_exc.InvalidConfiguration(
+                'Either api_v1 or api_v2 must be True in '
+                '[image-feature-enabled].')
 
     @classmethod
     def resource_setup(cls):
-        super(ImagesV235RbacTest, cls).resource_setup()
+        super(ImagesRbacTest, cls).resource_setup()
         cls.image = cls.glance_image_client.create_image(
             name=data_utils.rand_name(cls.__name__ + '-image'))
 
     @classmethod
     def resource_cleanup(cls):
         cls.glance_image_client.delete_image(cls.image['id'])
-        super(ImagesV235RbacTest, cls).resource_cleanup()
+        super(ImagesRbacTest, cls).resource_cleanup()
 
     @decorators.idempotent_id('b861f302-b72b-4055-81db-c62ff30b136d')
     @rbac_rule_validation.action(
