@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Adds tests for compute snapshot APIs.
