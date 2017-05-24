@@ -116,7 +116,7 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
             else:
                 if not allowed:
                     LOG.error("Role %s was allowed to perform %s",
-                              (role, rule))
+                              role, rule)
                     raise rbac_exceptions.RbacOverPermission(
                         "OverPermission: Role %s was allowed to perform %s" %
                         (role, rule))
