@@ -44,6 +44,14 @@ class HypervisorRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.hypervisor_client.list_hypervisors()['hypervisors']
 
+    @decorators.idempotent_id('36b95c7d-1085-487a-a674-b7c1ca35f520')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-hypervisors")
+    def test_list_hypervisors_with_details(self):
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.hypervisor_client.list_hypervisors(detail=True)['hypervisors']
+
     @decorators.idempotent_id('8a7f6f9e-34a6-4480-8875-bba566c3a581')
     @rbac_rule_validation.action(
         service="nova",
