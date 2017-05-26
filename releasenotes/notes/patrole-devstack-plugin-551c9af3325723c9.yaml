@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Add Patrole DevStack plugin, allowing Patrole to be installed using
+    DevStack by adding "enable_plugin patrole" to "local" section of
+    local.conf.
