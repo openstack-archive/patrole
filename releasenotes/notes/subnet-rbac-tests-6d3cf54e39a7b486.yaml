@@ -1,0 +1,10 @@
+---
+features:
+  - |
+    Add RBAC tests for network subnet endpoints, providing coverage for the
+    following policy actions:
+
+      * create_subnet
+      * get_subnet
+      * update_subnet
+      * delete_subnet
