@@ -19,7 +19,6 @@ import testtools
 from tempest.common import waiters
 from tempest import config
 from tempest.lib.common.utils import data_utils
-from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 from tempest.lib import exceptions as lib_exc
 from tempest import test
@@ -36,11 +35,9 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
     def resource_setup(cls):
-        cls.set_validation_resources()
         super(ServerActionsRbacTest, cls).resource_setup()
         # Create test server
-        cls.server_id = cls.create_test_server(wait_until='ACTIVE',
-                                               validatable=True)['id']
+        cls.server_id = cls.create_test_server(wait_until='ACTIVE')['id']
         cls.flavor_ref = CONF.compute.flavor_ref
         cls.flavor_ref_alt = CONF.compute.flavor_ref_alt
         cls.image_ref = CONF.compute.image_ref
@@ -66,16 +63,13 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             waiters.wait_for_server_status(self.servers_client,
                                            self.server_id, 'ACTIVE')
         except lib_exc.NotFound:
-            # if the server was found to be deleted by a previous test,
+            # If the server was found to be deleted by a previous test,
             # a new one is built
-            server = self.create_test_server(
-                validatable=True,
-                wait_until='ACTIVE')
+            server = self.create_test_server(wait_until='ACTIVE')
             self.__class__.server_id = server['id']
         except Exception:
             # Rebuilding the server in case something happened during a test
-            self.__class__.server_id = self.rebuild_server(
-                self.server_id, validatable=True)
+            self.__class__.server_id = self.rebuild_server(self.server_id)
 
     @classmethod
     def resource_cleanup(cls):
@@ -95,15 +89,12 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                     waiters.wait_for_volume_resource_status(
                         cls.snapshots_extensions_client, snapshot['id'],
                         'available')
-                    test_utils.call_and_ignore_notfound_exc(
-                        cls.snapshots_extensions_client.delete_snapshot,
+                    cls.snapshots_extensions_client.delete_snapshot(
                         snapshot['id'])
 
             for snapshot in volume_snapshots:
                 if snapshot['volumeId'] == cls.volume_id:
-                    test_utils.call_and_ignore_notfound_exc(
-                        (cls.snapshots_extensions_client.
-                            wait_for_resource_deletion),
+                    cls.snapshots_extensions_client.wait_for_resource_deletion(
                         snapshot['id'])
 
         super(ServerActionsRbacTest, cls).resource_cleanup()
@@ -273,6 +264,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.servers_client.show_server(self.server_id)
 
+    @test.services('image')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:servers:create_image")
@@ -284,6 +276,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.create_image_from_server(self.server_id,
                                       wait_until='ACTIVE')
 
+    @test.services('image', 'volume')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:servers:create_image:allow_volume_backed")
@@ -297,6 +290,32 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                                       wait_until='ACTIVE')
 
 
+class ServerActionsV214RbacTest(rbac_base.BaseV2ComputeRbacTest):
+
+    min_microversion = '2.14'
+    max_microversion = 'latest'
+
+    @classmethod
+    def resource_setup(cls):
+        super(ServerActionsV214RbacTest, cls).resource_setup()
+        cls.server_id = cls.create_test_server(wait_until='ACTIVE')['id']
+
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-evacuate")
+    @decorators.idempotent_id('78ecef3c-faff-412a-83be-47651963eb21')
+    def test_evacuate_server(self):
+        fake_host_name = data_utils.rand_name(
+            self.__class__.__name__ + '-FakeHost')
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.assertRaisesRegex(lib_exc.NotFound,
+                               "Compute host %s not found." % fake_host_name,
+                               self.servers_client.evacuate_server,
+                               self.server_id,
+                               host=fake_host_name)
+
+
 class ServerActionsV216RbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     # This class has test case(s) that requires at least microversion 2.16.
@@ -306,33 +325,9 @@ class ServerActionsV216RbacTest(rbac_base.BaseV2ComputeRbacTest):
     max_microversion = 'latest'
 
     @classmethod
-    def setup_clients(cls):
-        super(ServerActionsV216RbacTest, cls).setup_clients()
-        cls.client = cls.servers_client
-
-    @classmethod
     def resource_setup(cls):
-        cls.set_validation_resources()
         super(ServerActionsV216RbacTest, cls).resource_setup()
-        cls.server_id = cls.create_test_server(wait_until='ACTIVE',
-                                               validatable=True)['id']
-
-    def setUp(self):
-        super(ServerActionsV216RbacTest, self).setUp()
-        try:
-            waiters.wait_for_server_status(self.servers_client,
-                                           self.server_id, 'ACTIVE')
-        except lib_exc.NotFound:
-            # if the server was found to be deleted by a previous test,
-            # a new one is built
-            server = self.create_test_server(
-                validatable=True,
-                wait_until='ACTIVE')
-            self.__class__.server_id = server['id']
-        except Exception:
-            # Rebuilding the server in case something happened during a test
-            self.__class__.server_id = self.rebuild_server(
-                self.server_id, validatable=True)
+        cls.server_id = cls.create_test_server(wait_until='ACTIVE')['id']
 
     @rbac_rule_validation.action(
         service="nova",
@@ -346,32 +341,3 @@ class ServerActionsV216RbacTest(rbac_base.BaseV2ComputeRbacTest):
             LOG.info("host_status attribute not returned when role doesn't "
                      "have permission to access it.")
             raise rbac_exceptions.RbacActionFailed
-
-
-class ServerActionsV214RbacTest(rbac_base.BaseV2ComputeRbacTest):
-
-    min_microversion = '2.14'
-    max_microversion = 'latest'
-
-    @classmethod
-    def setup_clients(cls):
-        super(ServerActionsV214RbacTest, cls).setup_clients()
-        cls.client = cls.servers_client
-
-    @classmethod
-    def resource_setup(cls):
-        cls.set_validation_resources()
-        super(ServerActionsV214RbacTest, cls).resource_setup()
-        cls.server_id = cls.create_test_server(wait_until='ACTIVE')['id']
-
-    @rbac_rule_validation.action(
-        service="nova",
-        rule="os_compute_api:os-evacuate")
-    @decorators.idempotent_id('78ecef3c-faff-412a-83be-47651963eb21')
-    def test_evacuate_server(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.assertRaisesRegex(lib_exc.NotFound,
-                               "Compute host fake-host not found.",
-                               self.servers_client.evacuate_server,
-                               self.server_id,
-                               host='fake-host')
