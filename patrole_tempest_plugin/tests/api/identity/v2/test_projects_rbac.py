@@ -112,8 +112,7 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         admin-scoped tenants, raise ``RbacActionFailed`` exception otherwise.
         """
         tenants_client = self.os_admin.tenants_client if \
-            CONF.identity.admin_role == CONF.rbac.rbac_test_role else \
-            self.os_primary.tenants_client
+            self.rbac_utils.is_admin else self.os_primary.tenants_client
         admin_tenant_id = self.os_admin.auth_provider.credentials.project_id
         non_admin_tenant_id = self.auth_provider.credentials.project_id
 
