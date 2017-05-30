@@ -13,7 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from six import moves
+import six
 
 from tempest import config
 from tempest.lib.common.utils import data_utils
@@ -77,7 +77,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV1ImageRbacTest):
                                  properties=properties)
         image_id = body['id']
         # Now try uploading an image file
-        image_file = moves.cStringIO(data_utils.random_bytes())
+        image_file = six.BytesIO(data_utils.random_bytes())
         self.client.update_image(image_id, data=image_file)
         # Toggle role and get created image
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
@@ -99,7 +99,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV1ImageRbacTest):
                                  properties=properties)
         image_id = body['id']
         # Now try uploading an image file
-        image_file = moves.cStringIO(data_utils.random_bytes())
+        image_file = six.BytesIO(data_utils.random_bytes())
         self.client.update_image(image_id, data=image_file)
         # Toggle role and get created image
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)

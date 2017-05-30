@@ -127,8 +127,9 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
         # We just need any host out of the hosts list to build the
         # availability_zone attribute. So, picking the first one is fine.
         # The first key of the dictionary specifies the host name.
-        host = hosts[0].keys()[0]
+        host = list(hosts[0].keys())[0]
         availability_zone = 'nova:' + host
+
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.create_test_server(wait_until='ACTIVE',
                                 availability_zone=availability_zone)

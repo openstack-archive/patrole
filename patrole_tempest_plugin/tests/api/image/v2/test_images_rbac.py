@@ -13,7 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from six import moves
+import six
 
 from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
@@ -38,7 +38,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         return image
 
     def _upload_image(self, image_id):
-        image_file = moves.cStringIO(data_utils.random_bytes())
+        image_file = six.BytesIO(data_utils.random_bytes())
         return self.client.store_image_file(image_id, image_file)
 
     @rbac_rule_validation.action(service="glance",
