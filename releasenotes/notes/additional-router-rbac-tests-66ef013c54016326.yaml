@@ -1,0 +1,11 @@
+---
+features:
+  - |
+    Add additional RBAC tests for network routers API, providing coverage for
+    the following policy actions:
+
+      * create_router:ha
+      * create_router:distributed
+      * get_router:distributed
+      * update_router:ha
+      * update_router:distributed
