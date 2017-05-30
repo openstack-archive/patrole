@@ -202,6 +202,16 @@ def no_rbac_test_suffix_in_test_class_name(physical_line, filename,
                 return 0, "RBAC test class names must end in 'RbacTest'"
 
 
+def no_client_alias_in_test_cases(filename, logical_line):
+    """Check that test cases don't use "self.client" to define a client.
+
+    P103
+    """
+    if "patrole_tempest_plugin/tests/api" in filename:
+        if "self.client" in logical_line or "cls.client" in logical_line:
+            return 0, "Do not use 'self.client' as a service client alias"
+
+
 def factory(register):
     register(import_no_clients_in_api_tests)
     register(no_setup_teardown_class_for_tests)
