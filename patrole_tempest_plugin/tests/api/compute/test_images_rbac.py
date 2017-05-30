@@ -178,3 +178,33 @@ class ImagesRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.compute_images_client.delete_image_metadata_item(self.image['id'],
                                                               key='foo')
+
+
+class ImageSizeRbacTest(rbac_base.BaseV2ComputeRbacTest):
+    """Tests the ``image_size`` compute policies.
+
+    NOTE(felipemonteiro): If Patrole is enhanced to test multiple policies
+    simultaneously, these policy actions can be combined with the related
+    tests from ``ImagesRbacTest`` above.
+    """
+
+    # These tests will fail with a 404 starting from microversion 2.36.
+    # See the following link for details:
+    # https://developer.openstack.org/api-ref/compute/#images-deprecated
+    max_microversion = '2.35'
+
+    @decorators.idempotent_id('fe34d2a6-5743-45bf-8f92-a1d703d7c7ab')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:image-size")
+    def test_list_images(self):
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.compute_images_client.list_images()
+
+    @decorators.idempotent_id('08342c7d-297d-42ee-b398-90fce2443792')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:image-size")
+    def test_list_images_with_details(self):
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.compute_images_client.list_images(detail=True)
