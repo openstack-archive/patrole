@@ -31,27 +31,15 @@ CONF = config.CONF
 
 class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
 
+    def setUp(self):
+        super(VolumesBackupsRbacTest, self).setUp()
+        self.volume = self.create_volume()
+
     @classmethod
     def skip_checks(cls):
         super(VolumesBackupsRbacTest, cls).skip_checks()
         if not CONF.volume_feature_enabled.backup:
             raise cls.skipException("Cinder backup feature disabled")
-
-    @classmethod
-    def resource_setup(cls):
-        super(VolumesBackupsRbacTest, cls).resource_setup()
-        cls.volume = cls.create_volume()
-
-    def _create_backup(self, volume_id):
-        backup_name = data_utils.rand_name(self.__class__.__name__ + 'backup')
-        backup = self.backups_client.create_backup(
-            volume_id=volume_id, name=backup_name)['backup']
-        self.addCleanup(
-            test_utils.call_and_ignore_notfound_exc,
-            self.backups_client.delete_backup, backup['id'])
-        waiters.wait_for_volume_resource_status(
-            self.backups_client, backup['id'], 'available')
-        return backup
 
     def _decode_url(self, backup_url):
         return json.loads(base64.decode_as_text(backup_url))
@@ -71,16 +59,14 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('6887ec94-0bcf-4ab7-b30f-3808a4b5a2a5')
     def test_volume_backup_create(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self._create_backup(volume_id=self.volume['id'])
+        self.create_backup(volume_id=self.volume['id'])
 
     @test.attr(type=["slow"])
     @rbac_rule_validation.action(service="cinder",
                                  rule="backup:get")
     @decorators.idempotent_id('abd92bdd-b0fb-4dc4-9cfc-de9e968f8c8a')
     def test_volume_backup_get(self):
-        # Create a temp backup
-        backup = self._create_backup(volume_id=self.volume['id'])
-        # Get a given backup
+        backup = self.create_backup(volume_id=self.volume['id'])
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.backups_client.show_backup(backup['id'])
 
@@ -96,9 +82,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
                                  rule="backup:restore")
     @decorators.idempotent_id('9c794bf9-2446-4f41-8fe0-80b71e757f9d')
     def test_volume_backup_restore(self):
-        # Create a temp backup
-        backup = self._create_backup(volume_id=self.volume['id'])
-        # Restore backup
+        backup = self.create_backup(volume_id=self.volume['id'])
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         restore = self.backups_client.restore_backup(backup['id'])['restore']
         waiters.wait_for_volume_resource_status(
@@ -109,11 +93,17 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
                                  rule="backup:delete")
     @decorators.idempotent_id('d5d0c6a2-413d-437e-a73f-4bf2b41a20ed')
     def test_volume_backup_delete(self):
-        # Create a temp backup
-        backup = self._create_backup(volume_id=self.volume['id'])
+        # Do not call the create_backup in Tempest's base volume class, because
+        # it doesn't use ``test_utils.call_and_ignore_notfound_exc`` for clean
+        # up.
+        backup = self.backups_client.create_backup(
+            volume_id=self.volume['id'])['backup']
+        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
+                        self.backups_client.delete_backup, backup['id'])
+
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        # Delete backup
         self.backups_client.delete_backup(backup['id'])
+        # Wait for deletion so error isn't thrown during clean up.
         self.backups_client.wait_for_resource_deletion(backup['id'])
 
     @test.attr(type=["slow"])
@@ -121,10 +111,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
                                  rule="backup:backup-export")
     @decorators.idempotent_id('e984ec8d-e8eb-485c-98bc-f1856020303c')
     def test_volume_backup_export(self):
-        # Create a temp backup
-        backup = self._create_backup(volume_id=self.volume['id'])
-
-        # Export Backup
+        backup = self.create_backup(volume_id=self.volume['id'])
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.backups_client.export_backup(backup['id'])['backup-record']
 
@@ -133,16 +120,13 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
                                  rule="backup:backup-import")
     @decorators.idempotent_id('1e70f039-4556-44cc-9cc1-edf2b7ed648b')
     def test_volume_backup_import(self):
-        # Create a temp backup
-        backup = self._create_backup(volume_id=self.volume['id'])
-        # Export a temp backup
+        backup = self.create_backup(volume_id=self.volume['id'])
         export_backup = self.backups_client.export_backup(
             backup['id'])['backup-record']
         new_id = data_utils.rand_uuid()
         new_url = self._modify_backup_url(
             export_backup['backup_url'], {'id': new_id})
 
-        # Import the temp backup
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         import_backup = self.backups_client.import_backup(
             backup_service=export_backup['backup_service'],
