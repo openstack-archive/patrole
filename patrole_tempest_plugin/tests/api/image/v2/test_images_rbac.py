@@ -184,6 +184,18 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._create_image(visibility='public')
 
+    @decorators.idempotent_id('0f2d8427-134a-4d3c-a102-5fcdf5443d09')
+    @rbac_rule_validation.action(service="glance",
+                                 rule="communitize_image")
+    def test_communitize_image(self):
+
+        """Communitize Image Test
+
+        RBAC test for the glance communitize_image policy
+        """
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self._create_image(visibility='community')
+
     @rbac_rule_validation.action(service="glance",
                                  rule="deactivate")
     @decorators.idempotent_id('b488458c-65df-11e6-9947-080027824017')
