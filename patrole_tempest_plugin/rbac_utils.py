@@ -162,3 +162,11 @@ class RbacUtils(object):
 
         self.admin_role_id = admin_role_id
         self.rbac_role_id = rbac_role_id
+
+    @property
+    def is_admin(self):
+        """Verifies whether the current test role equals the admin role.
+
+        :returns: True if ``rbac_test_role`` is the admin role.
+        """
+        return CONF.rbac.rbac_test_role == CONF.identity.admin_role
