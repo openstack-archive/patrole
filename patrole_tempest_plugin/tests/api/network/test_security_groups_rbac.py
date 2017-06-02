@@ -18,6 +18,7 @@ from oslo_log import log
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
+from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.network import rbac_base as base
@@ -26,6 +27,13 @@ LOG = log.getLogger(__name__)
 
 
 class SecGroupRbacTest(base.BaseNetworkRbacTest):
+
+    @classmethod
+    def skip_checks(cls):
+        super(SecGroupRbacTest, cls).skip_checks()
+        if not test.is_extension_enabled('security-group', 'network'):
+            msg = "security-group extension not enabled."
+            raise cls.skipException(msg)
 
     @classmethod
     def resource_setup(cls):
