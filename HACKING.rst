@@ -1,7 +1,7 @@
 Patrole Style Commandments
 ==========================
 
-- Step 1: Read the OpenStack Style Commandments: `<http://docs.openstack.org/developer/hacking/>`__
+- Step 1: Read the OpenStack Style Commandments: `<https://docs.openstack.org/developer/hacking/>`__
 - Step 2: Review Tempest's Style Commandments: `<https://docs.openstack.org/developer/tempest/HACKING.html>`__
 - Step 3: Read on
 
