@@ -11,9 +11,9 @@ This is critical to ensure security, especially in large deployments with
 custom roles.
 
 * Free software: Apache license
-* Documentation: http://docs.openstack.org/developer/patrole
-* Source: http://git.openstack.org/cgit/openstack/patrole
-* Bugs: http://bugs.launchpad.net/patrole
+* Documentation: https://docs.openstack.org/developer/patrole
+* Source: https://git.openstack.org/cgit/openstack/patrole
+* Bugs: https://bugs.launchpad.net/patrole
 
 Features
 ========
