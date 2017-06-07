@@ -1,0 +1,13 @@
+---
+features:
+  - |
+    Add additional port-related RBAC tests to ``test_ports_rbac`` in the
+    network module, providing coverage for the following policy actions:
+    * create_port:device_owner
+    * create_port:port_security_enabled
+    * create_port:binding:profile
+    * update_port:device_owner
+fixes:
+  - |
+    Add ``test.requires_ext`` above tests that require the ``binding``
+    extension.
