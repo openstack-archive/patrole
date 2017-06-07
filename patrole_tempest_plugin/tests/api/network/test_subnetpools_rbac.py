@@ -13,7 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from oslo_log import log
 from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
@@ -24,7 +23,6 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.network import rbac_base as base
 
 CONF = config.CONF
-LOG = log.getLogger(__name__)
 
 
 class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
@@ -36,14 +34,14 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
             msg = "subnet_allocation extension not enabled."
             raise cls.skipException(msg)
 
-    def _create_subnetpool(self, shared=None):
+    def _create_subnetpool(self, **kwargs):
         post_body = {'name': data_utils.rand_name(self.__class__.__name__),
                      'min_prefixlen': 24,
                      'max_prefixlen': 32,
                      'prefixes': [CONF.network.project_network_cidr]}
 
-        if shared is not None:
-            post_body['shared'] = shared
+        if kwargs:
+            post_body.update(kwargs)
 
         body = self.subnetpools_client.create_subnetpool(**post_body)
         subnetpool = body['subnetpool']
@@ -101,6 +99,28 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.subnetpools_client.update_subnetpool(subnetpool['id'],
                                                   min_prefixlen=24)
+
+    @decorators.idempotent_id('a16f4e5c-0675-415f-b636-00af00638693')
+    @rbac_rule_validation.action(service="neutron",
+                                 rule="update_subnetpool:is_default",
+                                 expected_error_code=404)
+    def test_update_subnetpool_is_default(self):
+        """Update default subnetpool.
+
+        RBAC test for the neutron update_subnetpool:is_default policy
+        """
+        subnetpools = self.subnetpools_client.list_subnetpools()['subnetpools']
+        default_pool = list(
+            filter(lambda p: p['is_default'] is True, subnetpools))
+        if default_pool:
+            default_pool = default_pool[0]
+        else:
+            default_pool = self._create_subnetpool(is_default=True)
+        original_desc = default_pool['description']
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.subnetpools_client.update_subnetpool(
+            default_pool['id'], description=original_desc, is_default=True)
 
     @rbac_rule_validation.action(service="neutron",
                                  rule="delete_subnetpool",

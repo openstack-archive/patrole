@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add RBAC test for updating the default subnetpool, providing coverage
+    for the policy action: "update_subnetpool:is_default".
