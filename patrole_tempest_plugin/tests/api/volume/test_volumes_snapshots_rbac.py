@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from tempest.common import waiters
 from tempest import config
 from tempest.lib import decorators
 
@@ -75,6 +76,9 @@ class VolumesSnapshotRbacTest(rbac_base.BaseVolumeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.snapshots_client.update_snapshot(
             self.snapshot['id'], **params)['snapshot']
+        waiters.wait_for_volume_resource_status(
+            self.os_admin.snapshots_client,
+            self.snapshot['id'], 'available')
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:get_all_snapshots")
@@ -95,6 +99,8 @@ class VolumesSnapshotRbacTest(rbac_base.BaseVolumeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # Delete the snapshot
         self.snapshots_client.delete_snapshot(temp_snapshot['id'])
+        self.os_admin.snapshots_client.wait_for_resource_deletion(
+            temp_snapshot['id'])
 
 
 class VolumesSnapshotV3RbacTest(VolumesSnapshotRbacTest):
