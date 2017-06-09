@@ -14,6 +14,7 @@
 #    under the License.
 
 from tempest.common import waiters
+from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
@@ -24,14 +25,18 @@ from tempest import config
 CONF = config.CONF
 
 
-class VolumeV235RbacTest(rbac_base.BaseV2ComputeRbacTest):
+class VolumeRbacTest(rbac_base.BaseV2ComputeRbacTest):
     """RBAC tests for the Nova Volume client."""
 
     # These tests will fail with a 404 starting from microversion 2.36.
     # For more information, see:
-    # https://developer.openstack.org/api-ref/compute/volume-extension-os-volumes-os-snapshots-deprecated
-    min_microversion = '2.10'
+    # https://developer.openstack.org/api-ref/compute/#volume-extension-os-volumes-os-snapshots-deprecated
     max_microversion = '2.35'
+
+    @classmethod
+    def resource_setup(cls):
+        super(VolumeRbacTest, cls).resource_setup()
+        cls.volume = cls.create_volume()
 
     @decorators.idempotent_id('2402013e-a624-43e3-9518-44a5d1dbb32d')
     @rbac_rule_validation.action(
@@ -61,9 +66,8 @@ class VolumeV235RbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-volumes")
     def test_show_volume(self):
-        volume = self.create_volume()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.volumes_extensions_client.show_volume(volume['id'])
+        self.volumes_extensions_client.show_volume(self.volume['id'])
 
     @decorators.idempotent_id('6e7870f2-1bb2-4b58-96f8-6782071ef327')
     @rbac_rule_validation.action(
@@ -73,3 +77,48 @@ class VolumeV235RbacTest(rbac_base.BaseV2ComputeRbacTest):
         volume = self.create_volume()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.volumes_extensions_client.delete_volume(volume['id'])
+
+    @decorators.idempotent_id('0c3eaa4f-69d6-4a13-9dda-19585f36b1c1')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-volumes")
+    def test_create_snapshot(self):
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        snapshot = self.snapshots_extensions_client.create_snapshot(
+            self.volume['id'])['snapshot']
+        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
+                        self.snapshots_extensions_client.delete_snapshot,
+                        snapshot['id'])
+
+    @decorators.idempotent_id('e944e816-416c-11e7-a919-92ebcb67fe33')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-volumes")
+    def test_list_snapshots(self):
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.snapshots_extensions_client.list_snapshots()
+
+    @decorators.idempotent_id('19c2e6bd-585b-472f-a8d7-71ea9299c655')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-volumes")
+    def test_show_snapshot(self):
+        snapshot = self.snapshots_extensions_client.create_snapshot(
+            self.volume['id'])['snapshot']
+        self.addCleanup(self.snapshots_extensions_client.delete_snapshot,
+                        snapshot['id'])
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.snapshots_extensions_client.show_snapshot(snapshot['id'])
+
+    @decorators.idempotent_id('f4f5635c-416c-11e7-a919-92ebcb67fe33')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-volumes")
+    def test_delete_snapshot(self):
+        snapshot = self.snapshots_extensions_client.create_snapshot(
+            self.volume['id'])['snapshot']
+        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
+                        self.snapshots_extensions_client.delete_snapshot,
+                        snapshot['id'])
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.snapshots_extensions_client.delete_snapshot(snapshot['id'])
