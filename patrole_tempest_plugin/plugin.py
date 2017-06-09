@@ -36,4 +36,4 @@ class PatroleTempestPlugin(plugins.TempestPlugin):
             project_config.RbacGroup)
 
     def get_opt_lists(self):
-        return []
+        return [(project_config.rbac_group.name, project_config.RbacGroup)]
