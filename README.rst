@@ -1,6 +1,15 @@
-========
-Overview
-========
+========================
+Team and repository tags
+========================
+
+.. image:: http://governance.openstack.org/badges/patrole.svg
+    :target: http://governance.openstack.org/reference/tags/index.html
+
+..
+
+=========================================
+Patrole - RBAC Integration Tempest Plugin
+=========================================
 
 Patrole is a tool for verifying that Role-Based Access Control is being
 correctly enforced.
