@@ -1,0 +1,14 @@
+---
+features:
+  - |
+    Implements RBAC tests for Tempest network agents_client, providing
+    coverage for the following policies:
+
+      * update_agent
+      * get_agent
+      * create_dhcp-network
+      * delete_dhcp-network
+      * get_dhcp-networks
+      * create_l3-router
+      * delete_l3-router
+      * get_l3-routers
