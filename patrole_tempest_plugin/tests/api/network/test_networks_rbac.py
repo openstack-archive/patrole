@@ -110,6 +110,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._create_network(shared=True)
 
+    @test.requires_ext(extension='external-net', service='network')
     @rbac_rule_validation.action(service="neutron",
                                  rule="create_network:router:external")
     @decorators.idempotent_id('51adf2a7-739c-41e0-8857-3b4c460cbd24')
@@ -122,6 +123,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._create_network(router_external=True)
 
+    @test.requires_ext(extension='provider', service='network')
     @rbac_rule_validation.action(service="neutron",
                                  rule="create_network:provider:network_type")
     @decorators.idempotent_id('3c42f7b8-b80c-44ef-8fa4-69ec4b1836bc')
@@ -134,6 +136,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._create_network(provider_network_type='vxlan')
 
+    @test.requires_ext(extension='provider', service='network')
     @rbac_rule_validation.action(
         service="neutron",
         rule="create_network:provider:segmentation_id")
@@ -176,6 +179,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         self._update_network(shared_network=True)
         self.addCleanup(self._update_network, shared_network=False)
 
+    @test.requires_ext(extension='external-net', service='network')
     @rbac_rule_validation.action(service="neutron",
                                  rule="update_network:router:external")
     @decorators.idempotent_id('34884c22-499b-4960-97f1-e2ed8522a9c9')
@@ -201,6 +205,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.networks_client.show_network(self.network['id'])
 
+    @test.requires_ext(extension='external-net', service='network')
     @rbac_rule_validation.action(service="neutron",
                                  rule="get_network:router:external")
     @decorators.idempotent_id('529e4814-22e9-413f-af48-8fefcd637344')
@@ -216,6 +221,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         self.networks_client.show_network(self.network['id'],
                                           **kwargs)
 
+    @test.requires_ext(extension='provider', service='network')
     @rbac_rule_validation.action(service="neutron",
                                  rule="get_network:provider:network_type")
     @decorators.idempotent_id('6521dd60-0950-458b-8491-09d3c84ac0f4')
@@ -234,6 +240,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         if len(retrieved_network) == 0:
             raise rbac_exceptions.RbacActionFailed
 
+    @test.requires_ext(extension='provider', service='network')
     @rbac_rule_validation.action(service="neutron",
                                  rule="get_network:provider:physical_network")
     @decorators.idempotent_id('c049f11a-240c-4a85-ad43-a4d3fd0a5e39')
@@ -252,6 +259,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         if len(retrieved_network) == 0:
             raise rbac_exceptions.RbacActionFailed
 
+    @test.requires_ext(extension='provider', service='network')
     @rbac_rule_validation.action(service="neutron",
                                  rule="get_network:provider:segmentation_id")
     @decorators.idempotent_id('38d9f085-6365-4f81-bac9-c53c294d727e')
