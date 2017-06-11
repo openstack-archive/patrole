@@ -69,7 +69,7 @@ specific rule and OpenStack service. This is done before test execution inside
 the ``rbac_rule_validation.action`` decorator. Then, inside the test, the API
 that does policy enforcement for the same rule is called. The outcome is
 compared against the result from oslo_policy and a pass or fail is determined
-as outlined above: :ref:`test-flows`.
+as outlined above: `Test Flows`_.
 
 .. note::
 
@@ -110,14 +110,15 @@ The workflow is as follows:
 #. After all of the logic above has executed inside the rbac decorator, the
    test is executed. The test then sets up test-level resources, if necessary,
    with **admin** credentials implicitly. This is accomplished through
-   ``rbac_utils.switch_role(toggle_rbac_role=False)``: ::
+   ``rbac_utils.switch_role(toggle_rbac_role=False)``, which is done as part of
+   client setup (inside the call to ``rbac_utils.RbacUtils``): ::
 
     @classmethod
     def setup_clients(cls):
         super(BaseV2ComputeRbacTest, cls).setup_clients()
-        cls.auth_provider = cls.os.auth_provider
-        cls.rbac_utils = rbac_utils()
-        cls.rbac_utils.switch_role(cls, toggle_rbac_role=False)
+        cls.auth_provider = cls.os_primary.auth_provider
+        cls.rbac_utils = rbac_utils.RbacUtils(cls)
+        ...
 
    This code has *already* executed when the test class is instantiated, because
    it is located in the base rbac test class. Whenever ``cls.rbac_utils.switch_role``
@@ -137,7 +138,7 @@ The workflow is as follows:
 
    Now the primary credential has the role specified by ``rbac_test_role``.
 
-#. The API endpoint in which  policy enforcement of "os_compute_api:servers:stop"
+#. The API endpoint in which policy enforcement of "os_compute_api:servers:stop"
    is performed can now be called.
 
    .. note:
