@@ -52,18 +52,24 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
                         self.servers_client.delete_server, server['id'])
         return server
 
-    def _attach_volume(self, server):
+    def _attach_volume(self, server, volume_id=None):
+        if volume_id is None:
+            volume_id = self.volume['id']
+
         self.servers_client.attach_volume(
-            server['id'], volumeId=self.volume['id'],
+            server['id'], volumeId=volume_id,
             device='/dev/%s' % CONF.compute.volume_device_name)
         waiters.wait_for_volume_resource_status(
-            self.volumes_client, self.volume['id'], 'in-use')
-        self.addCleanup(self._detach_volume)
+            self.volumes_client, volume_id, 'in-use')
+        self.addCleanup(self._detach_volume, volume_id)
 
-    def _detach_volume(self):
-        self.volumes_client.detach_volume(self.volume['id'])
+    def _detach_volume(self, volume_id=None):
+        if volume_id is None:
+            volume_id = self.volume['id']
+
+        self.volumes_client.detach_volume(volume_id)
         waiters.wait_for_volume_resource_status(
-            self.volumes_client, self.volume['id'], 'available')
+            self.volumes_client, volume_id, 'available')
 
     @test.services('compute')
     @rbac_rule_validation.action(service="cinder", rule="volume:attach")
@@ -186,19 +192,21 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
         service="cinder",
         rule="volume_extension:volume_admin_actions:force_detach")
     def test_force_detach_volume_from_instance(self):
+        volume = self.create_volume()
         server = self._create_server()
-        self._attach_volume(server)
+        self._attach_volume(server, volume['id'])
         attachment = self.volumes_client.show_volume(
-            self.volume['id'])['volume']['attachments'][0]
+            volume['id'])['volume']['attachments'][0]
 
         # Reset volume's status to error.
-        self.volumes_client.reset_volume_status(self.volume['id'],
-                                                status='error')
+        self.volumes_client.reset_volume_status(volume['id'], status='error')
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.volumes_client.force_detach_volume(
-            self.volume['id'], connector=None,
+            volume['id'], connector=None,
             attachment_id=attachment['attachment_id'])
+        waiters.wait_for_volume_resource_status(self.os_admin.volumes_client,
+                                                volume['id'], 'available')
 
 
 class VolumesActionsV3RbacTest(VolumesActionsRbacTest):
