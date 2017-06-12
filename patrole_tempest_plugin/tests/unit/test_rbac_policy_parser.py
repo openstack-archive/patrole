@@ -68,7 +68,7 @@ class RbacPolicyTest(base.TestCase):
                 {'name': 'neutron', 'links': 'link', 'enabled': True,
                  'type': 'networking', 'id': 'id',
                  'description': 'description'},
-                {'name': 'test', 'links': 'link', 'enabled': True,
+                {'name': 'test_service', 'links': 'link', 'enabled': True,
                  'type': 'unit_test', 'id': 'id',
                  'description': 'description'}
             ]
@@ -92,7 +92,7 @@ class RbacPolicyTest(base.TestCase):
         test_user_id = mock.sentinel.user_id
         self.mock_path.path.join.return_value = self.custom_policy_file
         parser = rbac_policy_parser.RbacPolicyParser(
-            test_tenant_id, test_user_id, "test")
+            test_tenant_id, test_user_id, "test_service")
 
         expected = {
             'policy_action_1': ['two', 'four', 'six', 'eight'],
@@ -115,7 +115,7 @@ class RbacPolicyTest(base.TestCase):
         test_user_id = mock.sentinel.user_id
         self.mock_path.path.join.return_value = self.admin_policy_file
         parser = rbac_policy_parser.RbacPolicyParser(
-            test_tenant_id, test_user_id, "test")
+            test_tenant_id, test_user_id, "test_service")
 
         role = 'admin'
         allowed_rules = [
@@ -136,7 +136,7 @@ class RbacPolicyTest(base.TestCase):
         test_user_id = mock.sentinel.user_id
         self.mock_path.path.join.return_value = self.admin_policy_file
         parser = rbac_policy_parser.RbacPolicyParser(
-            test_tenant_id, test_user_id, "test")
+            test_tenant_id, test_user_id, "test_service")
 
         role = 'Member'
         allowed_rules = [
@@ -158,7 +158,7 @@ class RbacPolicyTest(base.TestCase):
         test_user_id = mock.sentinel.user_id
         self.mock_path.path.join.return_value = self.alt_admin_policy_file
         parser = rbac_policy_parser.RbacPolicyParser(
-            test_tenant_id, test_user_id, "test")
+            test_tenant_id, test_user_id, "test_service")
 
         role = 'fake_admin'
         allowed_rules = ['non_admin_rule']
@@ -195,7 +195,7 @@ class RbacPolicyTest(base.TestCase):
         test_user_id = mock.sentinel.user_id
         self.mock_path.path.join.return_value = self.tenant_policy_file
         parser = rbac_policy_parser.RbacPolicyParser(
-            test_tenant_id, test_user_id, "test")
+            test_tenant_id, test_user_id, "test_service")
 
         # Check whether Member role can perform expected actions.
         allowed_rules = ['rule1', 'rule2', 'rule3', 'rule4']
@@ -254,7 +254,7 @@ class RbacPolicyTest(base.TestCase):
                           service)
 
         m_log.debug.assert_called_once_with(
-            "{0} is NOT a valid service.".format(str(service)))
+            '%s is NOT a valid service.', 'invalid_service')
 
     @mock.patch.object(rbac_policy_parser, 'LOG', autospec=True)
     def test_service_is_none_raises_exception(self, m_log):
@@ -268,8 +268,7 @@ class RbacPolicyTest(base.TestCase):
                           test_user_id,
                           service)
 
-        m_log.debug.assert_called_once_with(
-            "{0} is NOT a valid service.".format(str(service)))
+        m_log.debug.assert_called_once_with('%s is NOT a valid service.', None)
 
     @mock.patch.object(rbac_policy_parser, 'LOG', autospec=True)
     def test_invalid_policy_rule_throws_rbac_parsing_exception(self, m_log):
@@ -277,7 +276,7 @@ class RbacPolicyTest(base.TestCase):
         test_user_id = mock.sentinel.user_id
         self.mock_path.path.join.return_value = self.custom_policy_file
         parser = rbac_policy_parser.RbacPolicyParser(
-            test_tenant_id, test_user_id, "test")
+            test_tenant_id, test_user_id, "test_service")
 
         fake_rule = 'fake_rule'
         expected_message = "Policy action: {0} not found in policy file: {1}."\
@@ -293,8 +292,9 @@ class RbacPolicyTest(base.TestCase):
         test_tenant_id = mock.sentinel.tenant_id
         test_user_id = mock.sentinel.user_id
         self.mock_path.path.join.return_value = self.custom_policy_file
+
         parser = rbac_policy_parser.RbacPolicyParser(
-            test_tenant_id, test_user_id, "test")
+            test_tenant_id, test_user_id, "test_service")
         parser.rules = mock.MagicMock(
             **{'__getitem__.return_value.side_effect': Exception(
                mock.sentinel.error)})
@@ -329,7 +329,7 @@ class RbacPolicyTest(base.TestCase):
         test_user_id = mock.sentinel.user_id
         self.mock_path.path.join.return_value = self.tenant_policy_file
         parser = rbac_policy_parser.RbacPolicyParser(
-            test_tenant_id, test_user_id, "test")
+            test_tenant_id, test_user_id, "test_service")
 
         policy_data = parser._get_policy_data('fake_service')
 
@@ -373,7 +373,7 @@ class RbacPolicyTest(base.TestCase):
         test_user_id = mock.sentinel.user_id
         self.mock_path.path.join.return_value = self.tenant_policy_file
         parser = rbac_policy_parser.RbacPolicyParser(
-            test_tenant_id, test_user_id, "test")
+            test_tenant_id, test_user_id, "test_service")
 
         policy_data = parser._get_policy_data('fake_service')
 
@@ -413,10 +413,9 @@ class RbacPolicyTest(base.TestCase):
         self.assertIn(expected_error, str(e))
 
     @mock.patch.object(rbac_policy_parser, 'json', autospec=True)
-    @mock.patch.object(rbac_policy_parser, 'credentials', autospec=True)
     @mock.patch.object(rbac_policy_parser, 'stevedore', autospec=True)
     def test_get_policy_data_without_valid_policy(self, mock_stevedore,
-                                                  mock_credentials, mock_json):
+                                                  mock_json):
         self.mock_path.path.isfile.return_value = False
 
         test_policy_action = mock.Mock(check='rule:bar')
@@ -428,11 +427,6 @@ class RbacPolicyTest(base.TestCase):
         mock_stevedore.named.NamedExtensionManager\
             .return_value = [test_policy]
 
-        mock_credentials.AdminManager.return_value.identity_services_v3_client.\
-            list_services.return_value = {
-                'services': [{'name': 'test_service'}]
-            }
-
         mock_json.dumps.side_effect = ValueError
 
         e = self.assertRaises(rbac_exceptions.RbacParsingException,
@@ -441,7 +435,6 @@ class RbacPolicyTest(base.TestCase):
 
         expected_error = "Policy file for {0} service is invalid."\
                          .format("test_service")
-
         self.assertIn(expected_error, str(e))
 
         mock_stevedore.named.NamedExtensionManager.assert_called_once_with(
@@ -452,16 +445,9 @@ class RbacPolicyTest(base.TestCase):
             warn_on_missing_entrypoint=False)
 
     @mock.patch.object(rbac_policy_parser, 'json', autospec=True)
-    @mock.patch.object(rbac_policy_parser, 'credentials', autospec=True)
     @mock.patch.object(rbac_policy_parser, 'stevedore', autospec=True)
     def test_get_policy_data_from_file_not_json(self, mock_stevedore,
-                                                mock_credentials,
                                                 mock_json):
-
-        mock_credentials.AdminManager.return_value.identity_services_v3_client.\
-            list_services.return_value = {
-                'services': [{'name': 'test_service'}]
-            }
         mock_stevedore.named.NamedExtensionManager.return_value = None
         mock_json.loads.side_effect = ValueError
         self.mock_path.path.join.return_value = self.tenant_policy_file
