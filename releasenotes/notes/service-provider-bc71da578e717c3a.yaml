@@ -1,0 +1,4 @@
+---
+features:
+  - |
+    Adds test for Neutron's get_service_provider policy.
