@@ -35,10 +35,7 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(VolumesActionsRbacTest, cls).setup_clients()
-        if CONF.image_feature_enabled.api_v1:
-            cls.image_client = cls.os_primary.image_client
-        elif CONF.image_feature_enabled.api_v2:
-            cls.image_client = cls.os_primary.image_client_v2
+        cls.image_client = cls.os_primary.image_client_v2
 
     @classmethod
     def resource_setup(cls):
