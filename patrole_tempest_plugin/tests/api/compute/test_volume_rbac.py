@@ -38,6 +38,14 @@ class VolumeRbacTest(rbac_base.BaseV2ComputeRbacTest):
         super(VolumeRbacTest, cls).resource_setup()
         cls.volume = cls.create_volume()
 
+    def _delete_snapshot(self, snapshot_id):
+        waiters.wait_for_volume_resource_status(
+            self.os_admin.snapshots_extensions_client, snapshot_id,
+            'available')
+        self.snapshots_extensions_client.delete_snapshot(snapshot_id)
+        self.snapshots_extensions_client.wait_for_resource_deletion(
+            snapshot_id)
+
     @decorators.idempotent_id('2402013e-a624-43e3-9518-44a5d1dbb32d')
     @rbac_rule_validation.action(
         service="nova",
@@ -87,8 +95,7 @@ class VolumeRbacTest(rbac_base.BaseV2ComputeRbacTest):
         snapshot = self.snapshots_extensions_client.create_snapshot(
             self.volume['id'])['snapshot']
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.snapshots_extensions_client.delete_snapshot,
-                        snapshot['id'])
+                        self._delete_snapshot, snapshot['id'])
 
     @decorators.idempotent_id('e944e816-416c-11e7-a919-92ebcb67fe33')
     @rbac_rule_validation.action(
@@ -105,8 +112,8 @@ class VolumeRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_show_snapshot(self):
         snapshot = self.snapshots_extensions_client.create_snapshot(
             self.volume['id'])['snapshot']
-        self.addCleanup(self.snapshots_extensions_client.delete_snapshot,
-                        snapshot['id'])
+        self.addCleanup(self._delete_snapshot, snapshot['id'])
+
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.snapshots_extensions_client.show_snapshot(snapshot['id'])
 
@@ -118,7 +125,7 @@ class VolumeRbacTest(rbac_base.BaseV2ComputeRbacTest):
         snapshot = self.snapshots_extensions_client.create_snapshot(
             self.volume['id'])['snapshot']
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.snapshots_extensions_client.delete_snapshot,
-                        snapshot['id'])
+                        self._delete_snapshot, snapshot['id'])
+
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.snapshots_extensions_client.delete_snapshot(snapshot['id'])
+        self._delete_snapshot(snapshot['id'])
