@@ -100,6 +100,8 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
             volume_id=self.volume['id'])['backup']
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self.backups_client.delete_backup, backup['id'])
+        waiters.wait_for_volume_resource_status(self.os_admin.backups_client,
+                                                backup['id'], 'available')
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.backups_client.delete_backup(backup['id'])
