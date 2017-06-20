@@ -15,10 +15,7 @@
 
 import netaddr
 
-from oslo_log import log
-
 from tempest.common.utils import net_utils
-from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
@@ -26,9 +23,6 @@ from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.network import rbac_base as base
-
-CONF = config.CONF
-LOG = log.getLogger(__name__)
 
 
 class RouterRbacTest(base.BaseNetworkRbacTest):

@@ -13,18 +13,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import logging
-
-from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
-
-QUOTA_KEYS = ['gigabytes', 'snapshots', 'volumes']
-QUOTA_USAGE_KEYS = ['reserved', 'limit', 'in_use']
-CONF = config.CONF
-LOG = logging.getLogger(__name__)
 
 
 class VolumeQuotasRbacTest(rbac_base.BaseVolumeRbacTest):
