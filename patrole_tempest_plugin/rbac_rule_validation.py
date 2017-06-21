@@ -29,6 +29,8 @@ from patrole_tempest_plugin import rbac_policy_parser
 CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
+_SUPPORTED_ERROR_CODES = [403, 404]
+
 
 def action(service, rule='', admin_only=False, expected_error_code=403,
            extra_target_data=None):
@@ -47,15 +49,13 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
     :param service: A OpenStack service: for example, "nova" or "neutron".
     :param rule: A policy action defined in a policy.json file (or in code).
     :param admin_only: Skips over oslo.policy check because the policy action
-                       defined by `rule` is not enforced by the service's
-                       policy enforcement logic. For example, Keystone v2
-                       performs an admin check for most of its endpoints. If
-                       True, `rule` is effectively ignored.
+        defined by `rule` is not enforced by the service's  policy enforcement
+        logic. For example, Keystone v2 performs an admin check for most of its
+        endpoints. If True, `rule` is effectively ignored.
     :param expected_error_code: Overrides default value of 403 (Forbidden)
-                                with endpoint-specific error code. Currently
-                                only supports 403 and 404. Support for 404
-                                is needed because some services, like Neutron,
-                                intentionally throw a 404 for security reasons.
+        with endpoint-specific error code. Currently only supports 403 and 404.
+        Support for 404 is needed because some services, like Neutron,
+        intentionally throw a 404 for security reasons.
 
     :raises NotFound: if `service` is invalid or
                       if Tempest credentials cannot be found.
@@ -163,10 +163,29 @@ def _is_authorized(test_obj, service, rule_name, extra_target_data):
     return False
 
 
-def _get_exception_type(expected_error_code):
+def _get_exception_type(expected_error_code=403):
+    """Dynamically calculate the expected exception to be caught.
+
+    Dynamically calculate the expected exception to be caught by the test case.
+    Only `Forbidden` and `NotFound` exceptions are permitted. `NotFound` is
+    supported because Neutron, for security reasons, masks `Forbidden`
+    exceptions as `NotFound` exceptions.
+
+    :param expected_error_code: the integer representation of the expected
+        exception to be caught. Must be contained in `_SUPPORTED_ERROR_CODES`.
+    :returns: tuple of the exception type corresponding to
+        `expected_error_code` and a message explaining that a non-Forbidden
+        exception was expected, if applicable.
+    """
     expected_exception = None
     irregular_msg = None
-    supported_error_codes = [403, 404]
+
+    if not isinstance(expected_error_code, six.integer_types) \
+        or expected_error_code not in _SUPPORTED_ERROR_CODES:
+        msg = ("Please pass an expected error code. Currently "
+               "supported codes: {0}".format(_SUPPORTED_ERROR_CODES))
+        LOG.error(msg)
+        raise rbac_exceptions.RbacInvalidErrorCode(msg)
 
     if expected_error_code == 403:
         expected_exception = exceptions.Forbidden
@@ -175,11 +194,6 @@ def _get_exception_type(expected_error_code):
         irregular_msg = ("NotFound exception was caught for policy action "
                          "{0}. The service {1} throws a 404 instead of a 403, "
                          "which is irregular.")
-    else:
-        msg = ("Please pass an expected error code. Currently "
-               "supported codes: {0}".format(str(supported_error_codes)))
-        LOG.error(msg)
-        raise rbac_exceptions.RbacInvalidErrorCode()
 
     return expected_exception, irregular_msg
 
@@ -200,7 +214,7 @@ def _format_extra_target_data(test_obj, extra_target_data):
 
     :param test_obj: type BaseTestCase (tempest base test class)
     :param extra_target_data: dictionary with unresolved string literals that
-                              reference nested BaseTestCase attributes
+        reference nested BaseTestCase attributes
     :returns: dictionary with resolved BaseTestCase attributes
     """
     attr_value = test_obj
