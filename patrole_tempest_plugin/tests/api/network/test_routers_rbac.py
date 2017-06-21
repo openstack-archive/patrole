@@ -15,20 +15,15 @@
 
 import netaddr
 
-from oslo_log import log
-
 from tempest.common.utils import net_utils
-from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 from tempest import test
 
+from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.network import rbac_base as base
-
-CONF = config.CONF
-LOG = log.getLogger(__name__)
 
 
 class RouterRbacTest(base.BaseNetworkRbacTest):
@@ -42,14 +37,23 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
     @classmethod
     def resource_setup(cls):
         super(RouterRbacTest, cls).resource_setup()
-        post_body = {}
-        post_body['router:external'] = True
+        # Create a network with external gateway so that
+        # ``external_gateway_info`` policies can be validated.
+        post_body = {'router:external': True}
         cls.network = cls.create_network(**post_body)
         cls.subnet = cls.create_subnet(cls.network)
         cls.ip_range = netaddr.IPRange(
             cls.subnet['allocation_pools'][0]['start'],
             cls.subnet['allocation_pools'][0]['end'])
         cls.router = cls.create_router()
+
+    def _get_unused_ip_address(self):
+        unused_ip = net_utils.get_unused_ip_addresses(self.ports_client,
+                                                      self.subnets_client,
+                                                      self.network['id'],
+                                                      self.subnet['id'],
+                                                      1)
+        return unused_ip[0]
 
     @rbac_rule_validation.action(service="neutron",
                                  rule="create_router")
@@ -64,6 +68,35 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
         self.addCleanup(self.routers_client.delete_router,
                         router['router']['id'])
 
+    @decorators.idempotent_id('6139eb97-95c0-40d8-a109-99de11ab2e5e')
+    @test.requires_ext(extension='l3-ha', service='network')
+    @rbac_rule_validation.action(service="neutron",
+                                 rule="create_router:ha")
+    def test_create_high_availability_router(self):
+        """Create high-availability router
+
+        RBAC test for the neutron create_router:ha policy
+        """
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        router = self.routers_client.create_router(ha=True)
+        self.addCleanup(self.routers_client.delete_router,
+                        router['router']['id'])
+
+    @decorators.idempotent_id('c6254ca6-2728-412d-803d-d4aa3935e56d')
+    @test.requires_ext(extension='dvr', service='network')
+    @rbac_rule_validation.action(service="neutron",
+                                 rule="create_router:distributed")
+    def test_create_distributed_router(self):
+        """Create distributed router
+
+        RBAC test for the neutron create_router:distributed policy
+        """
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        router = self.routers_client.create_router(distributed=True)
+        self.addCleanup(self.routers_client.delete_router,
+                        router['router']['id'])
+
+    @test.requires_ext(extension='ext-gw-mode', service='network')
     @rbac_rule_validation.action(
         service="neutron",
         rule="create_router:external_gateway_info:enable_snat")
@@ -96,16 +129,11 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
         """
         name = data_utils.rand_name(self.__class__.__name__ + '-snat-router')
 
-        # Pick an unused IP address.
-        ip_list = net_utils.get_unused_ip_addresses(self.ports_client,
-                                                    self.subnets_client,
-                                                    self.network['id'],
-                                                    self.subnet['id'],
-                                                    1)
+        unused_ip = self._get_unused_ip_address()
         external_fixed_ips = {'subnet_id': self.subnet['id'],
-                              'ip_address': ip_list[0]}
+                              'ip_address': unused_ip}
         external_gateway_info = {'network_id': self.network['id'],
-                                 'enable_snat': False,
+                                 'enable_snat': False,  # Default is True.
                                  'external_fixed_ips': [external_fixed_ips]}
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
@@ -124,7 +152,29 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron get_router policy
         """
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.routers_client.show_router(self.router['id'])
+        # Prevent other policies from being enforced by using barebones fields.
+        self.routers_client.show_router(self.router['id'], fields=['id'])
+
+    @decorators.idempotent_id('3ed26ea2-b419-410c-b4b5-576c1edafa06')
+    @test.requires_ext(extension='dvr', service='network')
+    @rbac_rule_validation.action(service="neutron",
+                                 rule="get_router:distributed")
+    def test_show_distributed_router(self):
+        """Get distributed router
+
+        RBAC test for the neutron get_router:distributed policy
+        """
+        router = self.routers_client.create_router(distributed=True)['router']
+        self.addCleanup(self.routers_client.delete_router, router['id'])
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        retrieved_fields = self.routers_client.show_router(
+            router['id'], fields=['distributed'])['router']
+
+        # Rather than throwing a 403, the field is not present, so raise exc.
+        if 'distributed' not in retrieved_fields:
+            raise rbac_exceptions.RbacActionFailed(
+                '"distributed" parameter not present in response body')
 
     @rbac_rule_validation.action(
         service="neutron", rule="update_router")
@@ -134,11 +184,10 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron update_router policy
         """
-        new_name = data_utils.rand_name(self.__class__.__name__ +
-                                        '-new-router-name')
+        new_name = data_utils.rand_name(
+            self.__class__.__name__ + '-new-router-name')
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.routers_client.update_router(self.router['id'],
-                                          name=new_name)
+        self.routers_client.update_router(self.router['id'], name=new_name)
 
     @rbac_rule_validation.action(
         service="neutron", rule="update_router:external_gateway_info")
@@ -172,6 +221,7 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
             self.router['id'],
             external_gateway_info=None)
 
+    @test.requires_ext(extension='ext-gw-mode', service='network')
     @rbac_rule_validation.action(
         service="neutron",
         rule="update_router:external_gateway_info:enable_snat")
@@ -202,14 +252,9 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron
         update_router:external_gateway_info:external_fixed_ips policy
         """
-        # Pick an unused IP address.
-        ip_list = net_utils.get_unused_ip_addresses(self.ports_client,
-                                                    self.subnets_client,
-                                                    self.network['id'],
-                                                    self.subnet['id'],
-                                                    1)
+        unused_ip = self._get_unused_ip_address()
         external_fixed_ips = {'subnet_id': self.subnet['id'],
-                              'ip_address': ip_list[0]}
+                              'ip_address': unused_ip}
         external_gateway_info = {'network_id': self.network['id'],
                                  'external_fixed_ips': [external_fixed_ips]}
 
@@ -221,6 +266,34 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
             self.routers_client.update_router,
             self.router['id'],
             external_gateway_info=None)
+
+    @decorators.idempotent_id('ddc20731-dea1-4321-9abf-8772bf0b5977')
+    @test.requires_ext(extension='l3-ha', service='network')
+    @rbac_rule_validation.action(service="neutron",
+                                 rule="update_router:ha")
+    def test_update_high_availability_router(self):
+        """Update high-availability router
+
+        RBAC test for the neutron update_router:ha policy
+        """
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.routers_client.update_router(self.router['id'], ha=True)
+        self.addCleanup(self.routers_client.update_router, self.router['id'],
+                        ha=False)
+
+    @decorators.idempotent_id('e1932c19-8f73-41cd-b5d2-84c7ae5d530c')
+    @test.requires_ext(extension='dvr', service='network')
+    @rbac_rule_validation.action(service="neutron",
+                                 rule="update_router:distributed")
+    def test_update_distributed_router(self):
+        """Update distributed router
+
+        RBAC test for the neutron update_router:distributed policy
+        """
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.routers_client.update_router(self.router['id'], distributed=True)
+        self.addCleanup(self.routers_client.update_router, self.router['id'],
+                        distributed=False)
 
     @rbac_rule_validation.action(service="neutron",
                                  rule="delete_router",
