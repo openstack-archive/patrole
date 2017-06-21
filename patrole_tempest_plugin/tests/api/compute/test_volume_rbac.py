@@ -43,7 +43,7 @@ class VolumeRbacTest(rbac_base.BaseV2ComputeRbacTest):
             self.os_admin.snapshots_extensions_client, snapshot_id,
             'available')
         self.snapshots_extensions_client.delete_snapshot(snapshot_id)
-        self.snapshots_extensions_client.wait_for_resource_deletion(
+        self.os_admin.snapshots_extensions_client.wait_for_resource_deletion(
             snapshot_id)
 
     @decorators.idempotent_id('2402013e-a624-43e3-9518-44a5d1dbb32d')

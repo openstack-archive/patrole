@@ -54,7 +54,7 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
             server['id'], volumeId=volume_id,
             device='/dev/%s' % CONF.compute.volume_device_name)
         waiters.wait_for_volume_resource_status(
-            self.volumes_client, volume_id, 'in-use')
+            self.os_admin.volumes_client, volume_id, 'in-use')
         self.addCleanup(self._detach_volume, volume_id)
 
     def _detach_volume(self, volume_id=None):
@@ -63,7 +63,7 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
 
         self.volumes_client.detach_volume(volume_id)
         waiters.wait_for_volume_resource_status(
-            self.volumes_client, volume_id, 'available')
+            self.os_admin.volumes_client, volume_id, 'available')
 
     @test.services('compute')
     @rbac_rule_validation.action(service="cinder", rule="volume:attach")

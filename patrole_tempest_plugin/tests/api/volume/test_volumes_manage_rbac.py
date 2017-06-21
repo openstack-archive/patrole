@@ -59,7 +59,7 @@ class VolumesManageRbacTest(rbac_base.BaseVolumeRbacTest):
         new_volume_id = self.volume_manage_client.manage_volume(
             **new_volume_ref)['volume']['id']
 
-        waiters.wait_for_volume_resource_status(self.volumes_client,
+        waiters.wait_for_volume_resource_status(self.os_admin.volumes_client,
                                                 new_volume_id, 'available')
         self.addCleanup(self.delete_volume,
                         self.volumes_client, new_volume_id)

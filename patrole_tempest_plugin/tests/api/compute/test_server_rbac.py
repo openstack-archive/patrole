@@ -97,8 +97,8 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
             flavorRef=CONF.compute.flavor_ref,
             **device_mapping)['server']
 
-        waiters.wait_for_server_status(self.servers_client, server['id'],
-                                       'ACTIVE')
+        waiters.wait_for_server_status(
+            self.os_admin.servers_client, server['id'], 'ACTIVE')
 
         self.servers.append(server)
         return server
@@ -164,7 +164,8 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
         server = self.create_test_server(wait_until='ACTIVE')
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.servers_client.delete_server(server['id'])
-        waiters.wait_for_server_termination(self.servers_client, server['id'])
+        waiters.wait_for_server_termination(
+            self.os_admin.servers_client, server['id'])
 
     @rbac_rule_validation.action(
         service="nova",

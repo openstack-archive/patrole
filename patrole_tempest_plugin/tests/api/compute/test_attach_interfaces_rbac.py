@@ -60,8 +60,8 @@ class AttachInterfacesRbacTest(rbac_base.BaseV2ComputeRbacTest):
             'ACTIVE')
         self.addCleanup(
             test_utils.call_and_ignore_notfound_exc,
-            self.interfaces_client.delete_interface, self.server['id'],
-            interface['port_id'])
+            self.os_admin.interfaces_client.delete_interface,
+            self.server['id'], interface['port_id'])
         return interface
 
     @decorators.idempotent_id('ddf53cb6-4a0a-4e5a-91e3-6c32aaa3b9b6')
