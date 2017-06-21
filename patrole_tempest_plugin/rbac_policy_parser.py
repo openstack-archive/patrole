@@ -66,15 +66,8 @@ class RbacPolicyParser(object):
         if extra_target_data is None:
             extra_target_data = {}
 
-        # First check if the service is valid
-        service = service.lower().strip() if service else None
-        self.admin_mgr = credentials.AdminManager()
-        services = self.admin_mgr.identity_services_v3_client.\
-            list_services()['services']
-        service_names = [s['name'] for s in services]
-        if not service or not any(service in name for name in service_names):
-            LOG.debug(str(service) + " is NOT a valid service.")
-            raise rbac_exceptions.RbacInvalidService
+        # First check if the service is valid.
+        self.validate_service(service)
 
         # Use default path in /etc/<service_name/policy.json if no path
         # is provided.
@@ -89,6 +82,24 @@ class RbacPolicyParser(object):
         self.project_id = project_id
         self.user_id = user_id
         self.extra_target_data = extra_target_data
+
+    @classmethod
+    def validate_service(cls, service):
+        """Validate whether the service passed to ``init`` exists."""
+        service = service.lower().strip() if service else None
+
+        # Cache the list of available services in memory to avoid needlessly
+        # doing an API call every time.
+        if not hasattr(cls, 'available_services'):
+            admin_mgr = credentials.AdminManager()
+            services = admin_mgr.identity_services_v3_client.\
+                list_services()['services']
+            cls.available_services = [s['name'] for s in services]
+
+        if not service or service not in cls.available_services:
+            LOG.debug("%s is NOT a valid service.", service)
+            raise rbac_exceptions.RbacInvalidService(
+                "%s is NOT a valid service." % service)
 
     def allowed(self, rule_name, role):
         is_admin_context = self._is_admin_context(role)
