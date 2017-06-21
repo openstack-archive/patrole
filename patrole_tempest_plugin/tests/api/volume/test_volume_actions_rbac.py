@@ -29,13 +29,10 @@ CONF = config.CONF
 
 class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
 
-    # TODO(felipemonteiro): "volume_extension:volume_actions:upload_public"
-    # test can be created once volumes v3 client is created in Tempest.
-
     @classmethod
     def setup_clients(cls):
         super(VolumesActionsRbacTest, cls).setup_clients()
-        cls.image_client = cls.os_primary.image_client_v2
+        cls.admin_image_client = cls.os_admin.image_client_v2
 
     @classmethod
     def resource_setup(cls):
@@ -87,6 +84,7 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._detach_volume()
 
+    @test.attr(type=["slow"])
     @test.services('image')
     @rbac_rule_validation.action(
         service="cinder",
@@ -104,9 +102,10 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
             disk_format=CONF.volume.disk_format)['os-volume_upload_image']
         image_id = body["image_id"]
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.image_client.delete_image,
+                        self.admin_image_client.delete_image,
                         image_id)
-        waiters.wait_for_image_status(self.image_client, image_id, 'active')
+        waiters.wait_for_image_status(self.admin_image_client, image_id,
+                                      'active')
         waiters.wait_for_volume_resource_status(self.os_admin.volumes_client,
                                                 self.volume['id'], 'available')
 
@@ -208,6 +207,41 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
 
 class VolumesActionsV3RbacTest(VolumesActionsRbacTest):
     _api_version = 3
+
+
+class VolumesActionsV310RbacTest(rbac_base.BaseVolumeRbacTest):
+    _api_version = 3
+    min_microversion = '3.10'
+    max_microversion = 'latest'
+
+    @classmethod
+    def setup_clients(cls):
+        super(VolumesActionsV310RbacTest, cls).setup_clients()
+        cls.admin_image_client = cls.os_admin.image_client_v2
+
+    @test.attr(type=["slow"])
+    @test.services('image')
+    @rbac_rule_validation.action(
+        service="cinder",
+        rule="volume_extension:volume_actions:upload_public")
+    @decorators.idempotent_id('578a84dd-a6bd-4f97-a418-4a0c3c272c08')
+    def test_volume_upload_public(self):
+        # This also enforces "volume_extension:volume_actions:upload_image".
+        volume = self.create_volume()
+        image_name = data_utils.rand_name(self.__class__.__name__ + '-Image')
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        body = self.volumes_client.upload_volume(
+            volume['id'], image_name=image_name, visibility="public",
+            disk_format=CONF.volume.disk_format)['os-volume_upload_image']
+        image_id = body["image_id"]
+        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
+                        self.admin_image_client.delete_image,
+                        image_id)
+        waiters.wait_for_image_status(self.admin_image_client, image_id,
+                                      'active')
+        waiters.wait_for_volume_resource_status(self.os_admin.volumes_client,
+                                                volume['id'], 'available')
 
 
 class VolumesActionsV312RbacTest(rbac_base.BaseVolumeRbacTest):
