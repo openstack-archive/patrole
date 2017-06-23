@@ -13,13 +13,19 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import testtools
+
 from tempest.common import waiters
+from tempest import config
+from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
 from tempest.lib import exceptions as lib_exc
 from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
+
+CONF = config.CONF
 
 
 class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
@@ -88,6 +94,24 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.servers_client.reset_network(self.server_id)
 
+    @testtools.skipUnless(CONF.compute_feature_enabled.change_password,
+                          'Change password not available.')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-admin-password")
+    @decorators.idempotent_id('908a7d59-3a66-441c-94cf-38e57ed14956')
+    def test_change_server_password(self):
+        """Test change admin password, part of os-admin-password."""
+        original_password = self.servers_client.show_password(self.server_id)
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.servers_client.change_password(
+            self.server_id, adminPass=data_utils.rand_password())
+        self.addCleanup(self.servers_client.change_password, self.server_id,
+                        adminPass=original_password)
+        waiters.wait_for_server_status(
+            self.os_admin.servers_client, self.server_id, 'ACTIVE')
+
     @test.requires_ext(extension='os-deferred-delete', service='compute')
     @decorators.idempotent_id('189bfed4-1e6d-475c-bb8c-d57e60895391')
     @rbac_rule_validation.action(
@@ -98,6 +122,45 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # Force-deleting a server enforces os-deferred-delete.
         self.servers_client.force_delete_server(self.server_id)
+
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-lock-server:lock")
+    @decorators.idempotent_id('b81e10fb-1864-498f-8c1d-5175c6fec5fb')
+    def test_lock_server(self):
+        """Test lock server, part of os-lock-server."""
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.servers_client.lock_server(self.server_id)
+        self.addCleanup(self.servers_client.unlock_server, self.server_id)
+
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-lock-server:unlock")
+    @decorators.idempotent_id('d50ef8e8-4bce-11e7-b114-b2f933d5fe66')
+    def test_unlock_server(self):
+        """Test unlock server, part of os-lock-server."""
+        self.servers_client.lock_server(self.server_id)
+        self.addCleanup(self.servers_client.unlock_server, self.server_id)
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.servers_client.unlock_server(self.server_id)
+
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-lock-server:unlock:unlock_override")
+    @decorators.idempotent_id('40dfeef9-73ee-48a9-be19-a219875de457')
+    def test_unlock_server_override(self):
+        """Test force unlock server, part of os-lock-server.
+
+        In order to trigger the unlock:unlock_override policy instead
+        of the unlock policy, the server must be locked by a different
+        user than the one who is attempting to unlock it.
+        """
+        self.os_admin.servers_client.lock_server(self.server_id)
+        self.addCleanup(self.servers_client.unlock_server, self.server_id)
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.servers_client.unlock_server(self.server_id)
 
     @test.requires_ext(extension='os-rescue', service='compute')
     @rbac_rule_validation.action(
@@ -152,3 +215,34 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         """
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.servers_client.show_server(self.server_id)
+
+    @testtools.skipUnless(CONF.compute_feature_enabled.suspend,
+                          "Suspend compute feature is not available.")
+    @decorators.idempotent_id('b775930f-237c-431c-83ae-d33ed1b9700b')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-suspend-server:suspend")
+    def test_suspend_server(self):
+        """Test suspend server, part of os-suspend-server."""
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.servers_client.suspend_server(self.server_id)
+        self.addCleanup(self.servers_client.resume_server, self.server_id)
+        waiters.wait_for_server_status(
+            self.os_admin.servers_client, self.server_id, 'SUSPENDED')
+
+    @testtools.skipUnless(CONF.compute_feature_enabled.suspend,
+                          "Suspend compute feature is not available.")
+    @decorators.idempotent_id('4d90bd02-11f8-45b1-a8a1-534665584675')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-suspend-server:resume")
+    def test_resume_server(self):
+        """Test resume server, part of os-suspend-server."""
+        self.servers_client.suspend_server(self.server_id)
+        waiters.wait_for_server_status(self.servers_client, self.server_id,
+                                       'SUSPENDED')
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.servers_client.resume_server(self.server_id)
+        waiters.wait_for_server_status(
+            self.os_admin.servers_client, self.server_id, 'ACTIVE')
