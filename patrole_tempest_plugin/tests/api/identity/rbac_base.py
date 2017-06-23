@@ -230,6 +230,8 @@ class BaseIdentityV3RbacTest(BaseIdentityRbacTest):
         cls.domains_client = cls.os_primary.domains_client
         cls.domain_config_client = cls.os_primary.domain_config_client
         cls.endpoints_client = cls.os_primary.endpoints_v3_client
+        cls.endpoint_filter_client = cls.os_primary.endpoint_filter_client
+        cls.endpoint_groups_client = cls.os_primary.endpoint_groups_client
         cls.groups_client = cls.os_primary.groups_client
         cls.identity_client = cls.os_primary.identity_v3_client
         cls.projects_client = cls.os_primary.projects_client
