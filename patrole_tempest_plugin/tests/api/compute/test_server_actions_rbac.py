@@ -116,36 +116,36 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             flavorRef=CONF.compute.flavor_ref,
             **device_mapping)['server']
 
-        waiters.wait_for_server_status(self.servers_client, server['id'],
-                                       'ACTIVE')
+        waiters.wait_for_server_status(
+            self.os_admin.servers_client, server['id'], 'ACTIVE')
 
         self.servers.append(server)
         return server
 
     def _test_start_server(self):
         self.servers_client.start_server(self.server_id)
-        waiters.wait_for_server_status(self.servers_client, self.server_id,
-                                       'ACTIVE')
+        waiters.wait_for_server_status(
+            self.os_admin.servers_client, self.server_id, 'ACTIVE')
 
     def _test_stop_server(self):
         self.servers_client.stop_server(self.server_id)
-        waiters.wait_for_server_status(self.servers_client, self.server_id,
-                                       'SHUTOFF')
+        waiters.wait_for_server_status(
+            self.os_admin.servers_client, self.server_id, 'SHUTOFF')
 
     def _test_resize_server(self, flavor):
         self.servers_client.resize_server(self.server_id, flavor)
-        waiters.wait_for_server_status(self.servers_client, self.server_id,
-                                       'VERIFY_RESIZE')
+        waiters.wait_for_server_status(
+            self.os_admin.servers_client, self.server_id, 'VERIFY_RESIZE')
 
     def _test_revert_resize_server(self):
         self.servers_client.revert_resize_server(self.server_id)
-        waiters.wait_for_server_status(self.servers_client, self.server_id,
-                                       'ACTIVE')
+        waiters.wait_for_server_status(
+            self.os_admin.servers_client, self.server_id, 'ACTIVE')
 
     def _test_confirm_resize_server(self):
         self.servers_client.confirm_resize_server(self.server_id)
-        waiters.wait_for_server_status(self.servers_client, self.server_id,
-                                       'ACTIVE')
+        waiters.wait_for_server_status(
+            self.os_admin.servers_client, self.server_id, 'ACTIVE')
 
     @rbac_rule_validation.action(
         service="nova",
@@ -211,8 +211,8 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_rebuild_server(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.servers_client.rebuild_server(self.server_id, self.image_ref)
-        waiters.wait_for_server_status(self.servers_client, self.server_id,
-                                       'ACTIVE')
+        waiters.wait_for_server_status(
+            self.os_admin.servers_client, self.server_id, 'ACTIVE')
 
     @rbac_rule_validation.action(
         service="nova",
@@ -221,8 +221,8 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_reboot_server(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.servers_client.reboot_server(self.server_id, type='HARD')
-        waiters.wait_for_server_status(self.servers_client, self.server_id,
-                                       'ACTIVE')
+        waiters.wait_for_server_status(
+            self.os_admin.servers_client, self.server_id, 'ACTIVE')
 
     @rbac_rule_validation.action(
         service="nova",

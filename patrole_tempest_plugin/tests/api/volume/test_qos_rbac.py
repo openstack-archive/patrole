@@ -98,7 +98,7 @@ class VolumeQOSRbacTest(rbac_base.BaseVolumeRbacTest):
         keys = ['iops_bytes']
         self.qos_client.unset_qos_key(qos['id'], keys)
         operation = 'qos-key-unset'
-        waiters.wait_for_qos_operations(self.qos_client, qos['id'],
+        waiters.wait_for_qos_operations(self.os_admin.qos_client, qos['id'],
                                         operation, args=keys)
 
     @rbac_rule_validation.action(
@@ -143,7 +143,7 @@ class VolumeQOSRbacTest(rbac_base.BaseVolumeRbacTest):
         # disassociate a volume-type with qos-specs
         self.qos_client.disassociate_qos(qos['id'], vol_type)
         operation = 'disassociate'
-        waiters.wait_for_qos_operations(self.qos_client, qos['id'],
+        waiters.wait_for_qos_operations(self.os_admin.qos_client, qos['id'],
                                         operation, args=vol_type)
 
     @rbac_rule_validation.action(
@@ -161,5 +161,5 @@ class VolumeQOSRbacTest(rbac_base.BaseVolumeRbacTest):
         # disassociate all volume-types from qos-specs
         self.qos_client.disassociate_all_qos(qos['id'])
         operation = 'disassociate-all'
-        waiters.wait_for_qos_operations(self.qos_client, qos['id'],
+        waiters.wait_for_qos_operations(self.os_admin.qos_client, qos['id'],
                                         operation)

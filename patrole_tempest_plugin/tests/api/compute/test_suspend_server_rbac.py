@@ -68,8 +68,9 @@ class SuspendServerRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.servers_client.suspend_server(self.server['id'])
         waiters.wait_for_server_status(self.servers_client, self.server['id'],
                                        'SUSPENDED')
+
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.servers_client.resume_server(self.server['id'])
-        waiters.wait_for_server_status(self.servers_client,
+        waiters.wait_for_server_status(self.os_admin.servers_client,
                                        self.server['id'],
                                        'ACTIVE')

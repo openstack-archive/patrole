@@ -86,7 +86,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         restore = self.backups_client.restore_backup(backup['id'])['restore']
         waiters.wait_for_volume_resource_status(
-            self.backups_client, restore['backup_id'], 'available')
+            self.os_admin.backups_client, restore['backup_id'], 'available')
 
     @test.attr(type=["slow"])
     @rbac_rule_validation.action(service="cinder",

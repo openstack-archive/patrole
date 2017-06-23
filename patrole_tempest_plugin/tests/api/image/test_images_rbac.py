@@ -27,7 +27,8 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
     @classmethod
     def setup_clients(cls):
         super(BasicOperationsImagesRbacTest, cls).setup_clients()
-        cls.client = cls.os_primary.image_client_v2
+        cls.image_client = cls.os_primary.image_client_v2
+        cls.admin_image_client = cls.os_admin.image_client_v2
 
     def _create_image(self, **kwargs):
         image_name = data_utils.rand_name(self.__class__.__name__ + '-Image')
@@ -39,7 +40,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
 
     def _upload_image(self, image_id):
         image_file = six.BytesIO(data_utils.random_bytes())
-        return self.client.store_image_file(image_id, image_file)
+        return self.image_client.store_image_file(image_id, image_file)
 
     @rbac_rule_validation.action(service="glance",
                                  rule="add_image")
@@ -80,7 +81,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         self._upload_image(image['id'])
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.show_image_file(image['id'])
+        self.image_client.show_image_file(image['id'])
 
     @rbac_rule_validation.action(service="glance",
                                  rule="delete_image")
@@ -94,8 +95,8 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         image = self._create_image()
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.delete_image(image['id'])
-        self.client.wait_for_resource_deletion(image['id'])
+        self.image_client.delete_image(image['id'])
+        self.admin_image_client.wait_for_resource_deletion(image['id'])
 
     @rbac_rule_validation.action(service="glance",
                                  rule="get_image")
@@ -109,7 +110,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         image = self._create_image()
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.show_image(image['id'])
+        self.image_client.show_image(image['id'])
 
     @rbac_rule_validation.action(service="glance",
                                  rule="get_images")
@@ -121,7 +122,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         RBAC test for the glance list_images endpoint
         """
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.list_images()['images']
+        self.image_client.list_images()['images']
 
     @rbac_rule_validation.action(service="glance",
                                  rule="modify_image")
@@ -137,7 +138,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         updated_image_name = data_utils.rand_name(
             self.__class__.__name__ + '-image')
-        self.client.update_image(image['id'], [
+        self.image_client.update_image(image['id'], [
             dict(replace='/name', value=updated_image_name)])
 
     @decorators.idempotent_id('244050d9-1b9a-446a-b3c5-f26f3ba8eb75')
@@ -152,7 +153,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         image = self._create_image()
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.add_image_tag(
+        self.image_client.add_image_tag(
             image['id'],
             data_utils.rand_name(self.__class__.__name__ + '-tag'))
 
@@ -167,10 +168,10 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         """
         image = self._create_image()
         tag_name = data_utils.rand_name(self.__class__.__name__ + '-tag')
-        self.client.add_image_tag(image['id'], tag_name)
+        self.image_client.add_image_tag(image['id'], tag_name)
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.delete_image_tag(image['id'], tag_name)
+        self.image_client.delete_image_tag(image['id'], tag_name)
 
     @rbac_rule_validation.action(service="glance",
                                  rule="publicize_image")
@@ -209,7 +210,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         self._upload_image(image['id'])
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.deactivate_image(image['id'])
+        self.image_client.deactivate_image(image['id'])
 
     @rbac_rule_validation.action(service="glance",
                                  rule="reactivate")
@@ -224,4 +225,4 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         self._upload_image(image['id'])
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.reactivate_image(image['id'])
+        self.image_client.reactivate_image(image['id'])

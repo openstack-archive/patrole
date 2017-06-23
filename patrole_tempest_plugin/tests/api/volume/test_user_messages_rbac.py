@@ -33,6 +33,7 @@ class MessagesV3RbacTest(rbac_base.BaseVolumeRbacTest):
     def setup_clients(cls):
         super(MessagesV3RbacTest, cls).setup_clients()
         cls.messages_client = cls.os_primary.volume_v3_messages_client
+        cls.admin_messages_client = cls.os_admin.volume_v3_messages_client
 
     def _create_user_message(self):
         """Trigger a 'no valid host' situation to generate a message."""
@@ -90,4 +91,4 @@ class MessagesV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.messages_client.delete_message(message_id)
-        self.messages_client.wait_for_resource_deletion(message_id)
+        self.admin_messages_client.wait_for_resource_deletion(message_id)
