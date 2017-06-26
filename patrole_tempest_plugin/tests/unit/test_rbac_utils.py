@@ -72,7 +72,7 @@ class RBACUtilsTest(base.TestCase):
         self.addCleanup(mock.patch.stopall)
 
     def _mock_list_user_roles_on_project(self, return_value):
-        self.mock_test_obj.admin_manager = mock.Mock(
+        self.mock_test_obj.os_admin = mock.Mock(
             **{'roles_client.list_user_roles_on_project.'
                'return_value': {'roles': [{'id': return_value}]}})
 
