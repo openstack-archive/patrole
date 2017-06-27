@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add additional RBAC tests to ``VolumesBackupsRbacTest``, providing coverage
+    for "volume_extension:backup_admin_actions:reset_status".

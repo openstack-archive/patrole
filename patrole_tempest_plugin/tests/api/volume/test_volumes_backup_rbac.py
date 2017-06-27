@@ -57,7 +57,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
     @rbac_rule_validation.action(service="cinder",
                                  rule="backup:create")
     @decorators.idempotent_id('6887ec94-0bcf-4ab7-b30f-3808a4b5a2a5')
-    def test_volume_backup_create(self):
+    def test_create_backup(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.create_backup(volume_id=self.volume['id'])
 
@@ -65,7 +65,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
     @rbac_rule_validation.action(service="cinder",
                                  rule="backup:get")
     @decorators.idempotent_id('abd92bdd-b0fb-4dc4-9cfc-de9e968f8c8a')
-    def test_volume_backup_get(self):
+    def test_show_backup(self):
         backup = self.create_backup(volume_id=self.volume['id'])
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.backups_client.show_backup(backup['id'])
@@ -73,15 +73,36 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
     @rbac_rule_validation.action(service="cinder",
                                  rule="backup:get_all")
     @decorators.idempotent_id('4d18f0f0-7e01-4007-b622-dedc859b22f6')
-    def test_volume_backup_list(self):
+    def test_list_backups(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.backups_client.list_backups()
+
+    @decorators.idempotent_id('dbd69865-876f-4835-b70e-7341153fb162')
+    @rbac_rule_validation.action(service="cinder",
+                                 rule="backup:get_all")
+    def test_list_backups_with_details(self):
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.backups_client.list_backups(detail=True)
+
+    @decorators.idempotent_id('50f43bde-205e-438e-9a05-5eac07fc3d63')
+    @rbac_rule_validation.action(
+        service="cinder",
+        rule="volume_extension:backup_admin_actions:reset_status")
+    def test_reset_backup_status(self):
+        volume = self.create_volume()
+        backup = self.create_backup(volume_id=volume['id'])
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.backups_client.reset_backup_status(backup_id=backup['id'],
+                                                status='error')
+        waiters.wait_for_volume_resource_status(self.os_admin.backups_client,
+                                                backup['id'], 'error')
 
     @test.attr(type=["slow"])
     @rbac_rule_validation.action(service="cinder",
                                  rule="backup:restore")
     @decorators.idempotent_id('9c794bf9-2446-4f41-8fe0-80b71e757f9d')
-    def test_volume_backup_restore(self):
+    def test_restore_backup(self):
         backup = self.create_backup(volume_id=self.volume['id'])
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         restore = self.backups_client.restore_backup(backup['id'])['restore']
@@ -92,7 +113,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
     @rbac_rule_validation.action(service="cinder",
                                  rule="backup:delete")
     @decorators.idempotent_id('d5d0c6a2-413d-437e-a73f-4bf2b41a20ed')
-    def test_volume_backup_delete(self):
+    def test_delete_backup(self):
         # Do not call the create_backup in Tempest's base volume class, because
         # it doesn't use ``test_utils.call_and_ignore_notfound_exc`` for clean
         # up.
@@ -112,7 +133,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
     @rbac_rule_validation.action(service="cinder",
                                  rule="backup:backup-export")
     @decorators.idempotent_id('e984ec8d-e8eb-485c-98bc-f1856020303c')
-    def test_volume_backup_export(self):
+    def test_export_backup(self):
         backup = self.create_backup(volume_id=self.volume['id'])
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.backups_client.export_backup(backup['id'])['backup-record']
@@ -121,7 +142,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
     @rbac_rule_validation.action(service="cinder",
                                  rule="backup:backup-import")
     @decorators.idempotent_id('1e70f039-4556-44cc-9cc1-edf2b7ed648b')
-    def test_volume_backup_import(self):
+    def test_import_backup(self):
         backup = self.create_backup(volume_id=self.volume['id'])
         export_backup = self.backups_client.export_backup(
             backup['id'])['backup-record']
