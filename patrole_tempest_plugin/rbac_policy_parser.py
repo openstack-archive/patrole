@@ -25,12 +25,13 @@ import stevedore
 from tempest.common import credentials_factory as credentials
 
 from patrole_tempest_plugin import rbac_exceptions
+from patrole_tempest_plugin.rbac_utils import RbacAuthority
 
 CONF = cfg.CONF
 LOG = logging.getLogger(__name__)
 
 
-class RbacPolicyParser(object):
+class RbacPolicyParser(RbacAuthority):
     """A class for parsing policy rules into lists of allowed roles.
 
     RBAC testing requires that each rule in a policy file be broken up into
