@@ -33,7 +33,7 @@ class QuotaSetsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def skip_checks(cls):
         super(QuotaSetsRbacTest, cls).skip_checks()
         if not test.is_extension_enabled('os-quota-sets', 'compute'):
-            msg = "%s skipped as quotas extension not enabled."\
+            msg = "%s skipped as os-quota-sets extension not enabled."\
                   % cls.__name__
             raise cls.skipException(msg)
 
