@@ -155,10 +155,13 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:retype")
     def test_volume_retype(self):
-        volume = self.create_volume()
         vol_type = self.create_volume_type()['name']
+        volume = self.create_volume()
+
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.volumes_client.retype_volume(volume['id'], new_type=vol_type)
+        waiters.wait_for_volume_retype(
+            self.os_admin.volumes_client, volume['id'], vol_type)
 
     @rbac_rule_validation.action(
         service="cinder",

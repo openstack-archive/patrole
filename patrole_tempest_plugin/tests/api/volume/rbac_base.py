@@ -47,6 +47,8 @@ class BaseVolumeRbacTest(vol_base.BaseVolumeTest):
         }
         cls.volume_hosts_client, cls.volume_types_client = \
             version_checker[cls._api_version]
+        cls.groups_client = cls.os_primary.groups_v3_client
+        cls.group_types_client = cls.os_primary.group_types_v3_client
 
     @classmethod
     def resource_setup(cls):
@@ -56,6 +58,8 @@ class BaseVolumeRbacTest(vol_base.BaseVolumeTest):
     @classmethod
     def resource_cleanup(cls):
         super(BaseVolumeRbacTest, cls).resource_cleanup()
+        # Allow volumes to be cleared first, so only clear volume types
+        # after super's resource_cleanup.
         cls.clear_volume_types()
 
     @classmethod
@@ -64,15 +68,33 @@ class BaseVolumeRbacTest(vol_base.BaseVolumeTest):
         name = name or data_utils.rand_name(cls.__name__ + '-volume-type')
         volume_type = cls.volume_types_client.create_volume_type(
             name=name, **kwargs)['volume_type']
-        cls.volume_types.append(volume_type['id'])
+        cls.volume_types.append(volume_type)
         return volume_type
+
+    def create_group_type(self, name=None, ignore_notfound=False, **kwargs):
+        """Create a test group-type"""
+        name = name or data_utils.rand_name(
+            self.__class__.__name__ + '-group-type')
+        group_type = self.group_types_client.create_group_type(
+            name=name, **kwargs)['group_type']
+
+        if ignore_notfound:
+            self.addCleanup(test_utils.call_and_ignore_notfound_exc,
+                            self.group_types_client.delete_group_type,
+                            group_type['id'])
+        else:
+            self.addCleanup(self.group_types_client.delete_group_type,
+                            group_type['id'])
+
+        return group_type
 
     @classmethod
     def clear_volume_types(cls):
         for vol_type in cls.volume_types:
             test_utils.call_and_ignore_notfound_exc(
-                cls.volume_types_client.delete_volume_type, vol_type)
+                cls.volume_types_client.delete_volume_type, vol_type['id'])
 
         for vol_type in cls.volume_types:
             test_utils.call_and_ignore_notfound_exc(
-                cls.volume_types_client.wait_for_resource_deletion, vol_type)
+                cls.volume_types_client.wait_for_resource_deletion,
+                vol_type['id'])
