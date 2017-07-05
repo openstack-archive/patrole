@@ -21,33 +21,61 @@ rbac_group = cfg.OptGroup(name='rbac',
 RbacGroup = [
     cfg.StrOpt('rbac_test_role',
                default='admin',
-               help="The current RBAC role against which to run"
-                    " Patrole tests."),
+               help="""The current RBAC role against which to run Patrole
+tests."""),
     cfg.BoolOpt('enable_rbac',
                 default=True,
                 help="Enables RBAC tests."),
     cfg.BoolOpt('strict_policy_check',
                 default=False,
-                help="If true, throws RbacParsingException for"
-                     " policies which don't exist. If false, "
-                     "throws skipException."),
+                help="""If true, throws RbacParsingException for policies which
+don't exist or are not included in the service's policy file. If false, throws
+skipException."""),
     # TODO(rb560u): There needs to be support for reading these JSON files from
-    # other hosts. It may be possible to leverage the v3 identity policy API
+    # other hosts. It may be possible to leverage the v3 identity policy API.
+    cfg.ListOpt('custom_policy_files',
+                default=['/etc/%s/policy.json'],
+                help="""List of the paths to search for policy files. Each
+policy path assumes that the service name is included in the path once. Also
+assumes Patrole is on the same host as the policy files. The paths should be
+ordered by precedence, with high-priority paths before low-priority paths. The
+first path that is found to contain the service's policy file will be used.
+"""),
     cfg.StrOpt('cinder_policy_file',
                default='/etc/cinder/policy.json',
-               help="Location of the neutron policy file."),
+               help="""Location of the Cinder policy file. Assumed to be on
+the same host as Patrole.""",
+               deprecated_for_removal=True,
+               deprecated_reason="It is better to use `custom_policy_files` "
+                                 "which supports any OpenStack service."),
     cfg.StrOpt('glance_policy_file',
                default='/etc/glance/policy.json',
-               help="Location of the glance policy file."),
+               help="""Location of the Glance policy file. Assumed to be on
+the same host as Patrole.""",
+               deprecated_for_removal=True,
+               deprecated_reason="It is better to use `custom_policy_files` "
+                                 "which supports any OpenStack service."),
     cfg.StrOpt('keystone_policy_file',
                default='/etc/keystone/policy.json',
-               help="Location of the keystone policy file."),
+               help="""Location of the custom Keystone policy file. Assumed to
+be on the same host as Patrole.""",
+               deprecated_for_removal=True,
+               deprecated_reason="It is better to use `custom_policy_files` "
+                                 "which supports any OpenStack service."),
     cfg.StrOpt('neutron_policy_file',
                default='/etc/neutron/policy.json',
-               help="Location of the neutron policy file."),
+               help="""Location of the Neutron policy file. Assumed to be on
+the same host as Patrole.""",
+               deprecated_for_removal=True,
+               deprecated_reason="It is better to use `custom_policy_files` "
+                                 "which supports any OpenStack service."),
     cfg.StrOpt('nova_policy_file',
                default='/etc/nova/policy.json',
-               help="Location of the nova policy file."),
+               help="""Location of the custom Nova policy file. Assumed to be
+on the same host as Patrole.""",
+               deprecated_for_removal=True,
+               deprecated_reason="It is better to use `custom_policy_files` "
+                                 "which supports any OpenStack service."),
     cfg.BoolOpt('test_custom_requirements',
                 default=False,
                 help="""

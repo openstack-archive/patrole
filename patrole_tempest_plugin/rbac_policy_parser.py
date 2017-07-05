@@ -58,26 +58,27 @@ class RbacPolicyParser(RbacAuthority):
         the custom policy file over the default policy implementation is
         prioritized.
 
-        :param project_id: type uuid
-        :param user_id: type uuid
-        :param service: type string
-        :param path: type string
+        :param uuid project_id: project_id of object performing API call
+        :param uuid user_id: user_id of object performing API call
+        :param string service: service of the policy file
+        :param dict extra_target_data: dictionary containing additional object
+            data needed by oslo.policy to validate generic checks
         """
 
         if extra_target_data is None:
             extra_target_data = {}
 
-        # First check if the service is valid.
         self.validate_service(service)
 
-        # Use default path in /etc/<service_name/policy.json if no path
-        # is provided.
-        path = getattr(CONF.rbac, '%s_policy_file' % str(service), None)
-        if not path:
-            LOG.info("No config option found for %s,"
-                     " using default path", str(service))
-            path = os.path.join('/etc', service, 'policy.json')
-        self.path = path
+        # Prioritize dynamically searching for policy files over relying on
+        # deprecated service-specific policy file locations.
+        if CONF.rbac.custom_policy_files:
+            self.discover_policy_files()
+            self.path = self.policy_files.get(service)
+        else:
+            self.path = getattr(CONF.rbac, '%s_policy_file' % str(service),
+                                None)
+
         self.rules = policy.Rules.load(self._get_policy_data(service),
                                        'default')
         self.project_id = project_id
@@ -86,7 +87,7 @@ class RbacPolicyParser(RbacAuthority):
 
     @classmethod
     def validate_service(cls, service):
-        """Validate whether the service passed to ``init`` exists."""
+        """Validate whether the service passed to ``__init__`` exists."""
         service = service.lower().strip() if service else None
 
         # Cache the list of available services in memory to avoid needlessly
@@ -102,6 +103,19 @@ class RbacPolicyParser(RbacAuthority):
             raise rbac_exceptions.RbacInvalidService(
                 "%s is NOT a valid service." % service)
 
+    @classmethod
+    def discover_policy_files(cls):
+        # Dynamically discover the policy file for each service in
+        # ``cls.available_services``. Pick the first ``candidate_path`` found
+        # out of the potential paths in ``CONF.rbac.custom_policy_files``.
+        if not hasattr(cls, 'policy_files'):
+            cls.policy_files = {}
+            for service in cls.available_services:
+                for candidate_path in CONF.rbac.custom_policy_files:
+                    if os.path.isfile(candidate_path % service):
+                        cls.policy_files.setdefault(service,
+                                                    candidate_path % service)
+
     def allowed(self, rule_name, role):
         is_admin_context = self._is_admin_context(role)
         is_allowed = self._allowed(
@@ -115,8 +129,8 @@ class RbacPolicyParser(RbacAuthority):
         mgr_policy_data = {}
         policy_data = {}
 
-        # Check whether policy file exists.
-        if os.path.isfile(self.path):
+        # Check whether policy file exists and attempt to read it.
+        if self.path and os.path.isfile(self.path):
             try:
                 with open(self.path, 'r') as policy_file:
                     file_policy_data = policy_file.read()
@@ -158,8 +172,11 @@ class RbacPolicyParser(RbacAuthority):
         elif mgr_policy_data:
             policy_data = mgr_policy_data
         else:
-            error_message = 'Policy file for {0} service neither found in '\
-                            'code nor at {1}.'.format(service, self.path)
+            error_message = (
+                'Policy file for {0} service neither found in code nor at {1}.'
+                .format(service, [loc % service for loc in
+                                  CONF.rbac.custom_policy_files])
+            )
             raise rbac_exceptions.RbacParsingException(error_message)
 
         try:
