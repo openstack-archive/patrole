@@ -68,7 +68,8 @@ class IdentityTrustV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         service="keystone",
         rule="identity:create_trust",
         extra_target_data={
-            "trust.trustor_user_id": "os.auth_provider.credentials.user_id"
+            "trust.trustor_user_id":
+            "os_primary.auth_provider.credentials.user_id"
         })
     def test_create_trust(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
