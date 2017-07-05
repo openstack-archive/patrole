@@ -130,6 +130,20 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
 
 
 def _is_authorized(test_obj, service, rule_name, extra_target_data):
+    """Validates whether current RBAC role has permission to do policy action.
+
+    :param test_obj: type BaseTestCase (tempest base test class)
+    :param service: the OpenStack service that enforces ``rule_name``
+    :param rule_name: the name of the policy action
+    :param extra_target_data: dictionary with unresolved string literals that
+        reference nested BaseTestCase attributes
+    :returns: True if the current RBAC role can perform the policy action else
+        False
+    :raises RbacParsingException: if ``CONF.rbac.strict_policy_check`` is
+        enabled and the ``rule_name`` does not exist in the system
+    :raises skipException: if ``CONF.rbac.strict_policy_check`` is
+        disabled and the ``rule_name`` does not exist in the system
+    """
     try:
         project_id = test_obj.auth_provider.credentials.project_id
         user_id = test_obj.auth_provider.credentials.user_id
@@ -215,7 +229,8 @@ def _format_extra_target_data(test_obj, extra_target_data):
     :param test_obj: type BaseTestCase (tempest base test class)
     :param extra_target_data: dictionary with unresolved string literals that
         reference nested BaseTestCase attributes
-    :returns: dictionary with resolved BaseTestCase attributes
+    :returns: dictionary containing additional object data needed by
+        oslo.policy to validate generic checks
     """
     attr_value = test_obj
     formatted_target_data = {}
