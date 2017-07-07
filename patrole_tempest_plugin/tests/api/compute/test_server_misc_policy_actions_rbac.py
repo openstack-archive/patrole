@@ -18,6 +18,7 @@ import testtools
 from tempest.common import waiters
 from tempest import config
 from tempest.lib.common.utils import data_utils
+from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 from tempest.lib import exceptions as lib_exc
 from tempest import test
@@ -246,3 +247,128 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.servers_client.resume_server(self.server_id)
         waiters.wait_for_server_status(
             self.os_admin.servers_client, self.server_id, 'ACTIVE')
+
+
+class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
+    """Test multiple policy actions that require a server to be created.
+
+    Only applies to:
+      * policy "families" that require server creation
+      * small policy "families" -- i.e. containing one to three policies
+      * tests that require network resources
+    """
+
+    @classmethod
+    def skip_checks(cls):
+        super(MiscPolicyActionsNetworkRbacTest, cls).skip_checks()
+        # All tests below require Neutron availability.
+        if not CONF.service_available.neutron:
+            raise cls.skipException(
+                '%s skipped as Neutron is required' % cls.__name__)
+
+    @classmethod
+    def setup_credentials(cls):
+        cls.prepare_instance_network()
+        super(MiscPolicyActionsNetworkRbacTest, cls).setup_credentials()
+
+    @classmethod
+    def resource_setup(cls):
+        super(MiscPolicyActionsNetworkRbacTest, cls).resource_setup()
+        cls.server = cls.create_test_server(wait_until='ACTIVE')
+
+    def _attach_interface_to_server(self):
+        interface = self.interfaces_client.create_interface(
+            self.server['id'])['interfaceAttachment']
+        waiters.wait_for_interface_status(
+            self.os_admin.interfaces_client, self.server['id'],
+            interface['port_id'], 'ACTIVE')
+        self.addCleanup(
+            test_utils.call_and_ignore_notfound_exc,
+            self.interfaces_client.delete_interface,
+            self.server['id'], interface['port_id'])
+        return interface
+
+    @testtools.skipUnless(CONF.compute_feature_enabled.interface_attach,
+                          "Interface attachment is not available.")
+    @test.requires_ext(extension='os-attach-interfaces', service='compute')
+    @decorators.idempotent_id('ddf53cb6-4a0a-4e5a-91e3-6c32aaa3b9b6')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-attach-interfaces")
+    def test_list_interfaces(self):
+        """Test list interfaces, part of os-attach-interfaces."""
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.interfaces_client.list_interfaces(
+            self.server['id'])['interfaceAttachments']
+
+    @testtools.skipUnless(CONF.compute_feature_enabled.interface_attach,
+                          "Interface attachment is not available.")
+    @test.requires_ext(extension='os-attach-interfaces', service='compute')
+    @decorators.idempotent_id('d2d3a24d-4738-4bce-a287-36d664746cde')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-attach-interfaces:create")
+    def test_create_interface(self):
+        """Test create interface, part of os-attach-interfaces."""
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self._attach_interface_to_server()
+
+    @testtools.skipUnless(CONF.compute_feature_enabled.interface_attach,
+                          "Interface attachment is not available.")
+    @test.requires_ext(extension='os-attach-interfaces', service='compute')
+    @decorators.idempotent_id('55b05692-ed44-4608-a84c-cd4219c82799')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-attach-interfaces:delete")
+    def test_delete_interface(self):
+        """Test delete interface, part of os-attach-interfaces."""
+        interface = self._attach_interface_to_server()
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.interfaces_client.delete_interface(self.server['id'],
+                                                interface['port_id'])
+
+    @decorators.idempotent_id('6886d360-0d86-4760-b1a3-882d81fbebcc')
+    @test.requires_ext(extension='os-ips', service='compute')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:ips:index")
+    def test_list_addresses(self):
+        """Test list server addresses, part of ips policy family."""
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.servers_client.list_addresses(self.server['id'])['addresses']
+
+    @decorators.idempotent_id('fa43e7e5-0db9-48eb-9c6b-c11eb766b8e4')
+    @test.requires_ext(extension='os-ips', service='compute')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:ips:show")
+    def test_list_addresses_by_network(self):
+        """Test list server addresses by network, part of ips policy family."""
+        addresses = self.servers_client.list_addresses(self.server['id'])[
+            'addresses']
+        address = next(iter(addresses))
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.servers_client.list_addresses_by_network(
+            self.server['id'], address)[address]
+
+    @testtools.skipUnless(CONF.compute_feature_enabled.interface_attach,
+                          "Interface attachment is not available.")
+    @test.requires_ext(extension='os-multinic', service='compute')
+    @rbac_rule_validation.action(
+        service="nova", rule="os_compute_api:os-multinic")
+    @decorators.idempotent_id('bd3e2c74-130a-40f0-8085-124d93fe67da')
+    def test_add_fixed_ip(self):
+        """Test add fixed ip to server network, part of os-multinic."""
+        interfaces = (self.interfaces_client.list_interfaces(self.server['id'])
+                      ['interfaceAttachments'])
+        if interfaces:
+            network_id = interfaces[0]['net_id']
+        else:
+            network_id = self.interfaces_client.create_interface(
+                self.server['id'])['interfaceAttachment']['net_id']
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.servers_client.add_fixed_ip(self.server['id'],
+                                         networkId=network_id)
