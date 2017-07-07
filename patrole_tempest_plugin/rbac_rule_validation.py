@@ -25,6 +25,7 @@ from tempest import test
 
 from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_policy_parser
+from patrole_tempest_plugin import requirements_authority
 
 CONF = config.CONF
 LOG = logging.getLogger(__name__)
@@ -39,6 +40,9 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
     A decorator which allows for positive and negative RBAC testing. Given
     an OpenStack service and a policy action enforced by that service, an
     oslo.policy lookup is performed by calling `authority.get_permission`.
+    Alternatively, the RBAC tests can run against a YAML file that defines
+    policy requirements.
+
     The following cases are possible:
 
     * If `allowed` is True and the test passes, this is a success.
@@ -155,12 +159,17 @@ def _is_authorized(test_obj, service, rule_name, extra_target_data):
 
     try:
         role = CONF.rbac.rbac_test_role
-        formatted_target_data = _format_extra_target_data(
-            test_obj, extra_target_data)
-        policy_parser = rbac_policy_parser.RbacPolicyParser(
-            project_id, user_id, service,
-            extra_target_data=formatted_target_data)
-        is_allowed = policy_parser.allowed(rule_name, role)
+        # Test RBAC against custom requirements. Otherwise use oslo.policy
+        if CONF.rbac.test_custom_requirements:
+            authority = requirements_authority.RequirementsAuthority(
+                CONF.rbac.custom_requirements_file, service)
+        else:
+            formatted_target_data = _format_extra_target_data(
+                test_obj, extra_target_data)
+            authority = rbac_policy_parser.RbacPolicyParser(
+                project_id, user_id, service,
+                extra_target_data=formatted_target_data)
+        is_allowed = authority.allowed(rule_name, role)
 
         if is_allowed:
             LOG.debug("[Action]: %s, [Role]: %s is allowed!", rule_name,

@@ -13,6 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import abc
+import six
 import sys
 import time
 
@@ -170,3 +172,13 @@ class RbacUtils(object):
         :returns: True if ``rbac_test_role`` is the admin role.
         """
         return CONF.rbac.rbac_test_role == CONF.identity.admin_role
+
+
+@six.add_metaclass(abc.ABCMeta)
+class RbacAuthority(object):
+    # TODO(rb560u): Add documentation explaining what this class is for
+
+    @abc.abstractmethod
+    def allowed(self, rule_name, role):
+        """Determine whether the role should be able to perform the API"""
+        return
