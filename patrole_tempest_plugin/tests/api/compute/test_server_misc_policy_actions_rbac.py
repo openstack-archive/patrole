@@ -210,11 +210,33 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_show_server_usage(self):
         """Test show server usage, part of os-server-usage.
 
-        TODO(felipemonteiro): Once multiple policy test is supported, this
+        TODO(felipemonteiro): Once multiple policy testing is supported, this
         test can be combined with the generic test for showing a server.
         """
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.servers_client.show_server(self.server_id)
+
+    @test.requires_ext(extension='os-simple-tenant-usage', service='compute')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-simple-tenant-usage:list")
+    @decorators.idempotent_id('2aef094f-0452-4df6-a66a-0ec22a92b16e')
+    def test_list_simple_tenant_usages(self):
+        """Test list tenant usages, part of os-simple-tenant-usage."""
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.tenant_usages_client.list_tenant_usages()
+
+    @test.requires_ext(extension='os-simple-tenant-usage', service='compute')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-simple-tenant-usage:show")
+    @decorators.idempotent_id('fe7eacda-15c4-4bf7-93ef-1091c4546a9d')
+    def test_show_simple_tenant_usage(self):
+        """Test show tenant usage, part of os-simple-tenant-usage."""
+        tenant_id = self.auth_provider.credentials.tenant_id
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.tenant_usages_client.show_tenant_usage(tenant_id=tenant_id)
 
     @testtools.skipUnless(CONF.compute_feature_enabled.suspend,
                           "Suspend compute feature is not available.")
