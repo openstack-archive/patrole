@@ -30,7 +30,7 @@ class BaseV2ComputeRbacTest(compute_base.BaseV2ComputeTest):
         super(BaseV2ComputeRbacTest, cls).skip_checks()
         if not CONF.rbac.enable_rbac:
             raise cls.skipException(
-                '%s skipped as RBAC flag not enabled' % cls.__name__)
+                '%s skipped as RBAC testing not enabled' % cls.__name__)
 
     @classmethod
     def setup_clients(cls):
