@@ -29,7 +29,7 @@ class VolumeQuotasRbacTest(rbac_base.BaseVolumeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(VolumeQuotasRbacTest, cls).setup_clients()
-        cls.quotas_client = cls.os_primary.volume_quotas_client
+        cls.quotas_client = cls.os_primary.volume_quotas_v2_client
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume_extension:quotas:show")

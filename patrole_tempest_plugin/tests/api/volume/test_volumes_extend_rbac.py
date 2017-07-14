@@ -26,6 +26,11 @@ CONF = config.CONF
 class VolumesExtendRbacTest(rbac_base.BaseVolumeRbacTest):
 
     @classmethod
+    def setup_clients(cls):
+        super(VolumesExtendRbacTest, cls).setup_clients()
+        cls.admin_volumes_client = cls.os_admin.volumes_client_latest
+
+    @classmethod
     def resource_setup(cls):
         super(VolumesExtendRbacTest, cls).resource_setup()
         # Create a test shared volume for tests
@@ -40,7 +45,7 @@ class VolumesExtendRbacTest(rbac_base.BaseVolumeRbacTest):
         self.volumes_client.extend_volume(self.volume['id'],
                                           new_size=extend_size)
         waiters.wait_for_volume_resource_status(
-            self.os_admin.volumes_client, self.volume['id'], 'available')
+            self.admin_volumes_client, self.volume['id'], 'available')
 
 
 class VolumesExtendV3RbacTest(VolumesExtendRbacTest):

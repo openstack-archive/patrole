@@ -32,6 +32,11 @@ class VolumesSnapshotRbacTest(rbac_base.BaseVolumeRbacTest):
             raise cls.skipException("Cinder volume snapshots are disabled")
 
     @classmethod
+    def setup_clients(cls):
+        super(VolumesSnapshotRbacTest, cls).setup_clients()
+        cls.admin_snapshots_client = cls.os_admin.snapshots_v2_client
+
+    @classmethod
     def resource_setup(cls):
         super(VolumesSnapshotRbacTest, cls).resource_setup()
         # Create a test shared volume for tests
@@ -77,8 +82,7 @@ class VolumesSnapshotRbacTest(rbac_base.BaseVolumeRbacTest):
         self.snapshots_client.update_snapshot(
             self.snapshot['id'], **params)['snapshot']
         waiters.wait_for_volume_resource_status(
-            self.os_admin.snapshots_client,
-            self.snapshot['id'], 'available')
+            self.admin_snapshots_client, self.snapshot['id'], 'available')
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:get_all_snapshots")
@@ -99,7 +103,7 @@ class VolumesSnapshotRbacTest(rbac_base.BaseVolumeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # Delete the snapshot
         self.snapshots_client.delete_snapshot(temp_snapshot['id'])
-        self.os_admin.snapshots_client.wait_for_resource_deletion(
+        self.admin_snapshots_client.wait_for_resource_deletion(
             temp_snapshot['id'])
 
 

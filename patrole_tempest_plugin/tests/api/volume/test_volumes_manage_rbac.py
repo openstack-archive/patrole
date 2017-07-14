@@ -42,6 +42,7 @@ class VolumesManageRbacTest(rbac_base.BaseVolumeRbacTest):
     def setup_clients(cls):
         super(VolumesManageRbacTest, cls).setup_clients()
         cls.volume_manage_client = cls.os_primary.volume_manage_v2_client
+        cls.admin_volumes_client = cls.os_admin.volumes_client_latest
 
     def _manage_volume(self, org_volume):
         # Manage volume
@@ -59,14 +60,14 @@ class VolumesManageRbacTest(rbac_base.BaseVolumeRbacTest):
         new_volume_id = self.volume_manage_client.manage_volume(
             **new_volume_ref)['volume']['id']
 
-        waiters.wait_for_volume_resource_status(self.os_admin.volumes_client,
+        waiters.wait_for_volume_resource_status(self.admin_volumes_client,
                                                 new_volume_id, 'available')
         self.addCleanup(self.delete_volume,
                         self.volumes_client, new_volume_id)
 
     def _unmanage_volume(self, volume):
         self.volumes_client.unmanage_volume(volume['id'])
-        self.volumes_client.wait_for_resource_deletion(volume['id'])
+        self.admin_volumes_client.wait_for_resource_deletion(volume['id'])
 
     @rbac_rule_validation.action(
         service="cinder",

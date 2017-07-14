@@ -23,13 +23,11 @@ from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 class VolumesTransfersRbacTest(rbac_base.BaseVolumeRbacTest):
 
-    credentials = ['primary', 'admin']
-
     @classmethod
     def setup_clients(cls):
         super(VolumesTransfersRbacTest, cls).setup_clients()
         cls.transfers_client = cls.os_primary.volume_transfers_v2_client
-        cls.adm_volumes_client = cls.os_admin.volumes_v2_client
+        cls.admin_volumes_client = cls.os_admin.volumes_client_latest
 
     @classmethod
     def resource_setup(cls):
@@ -43,7 +41,7 @@ class VolumesTransfersRbacTest(rbac_base.BaseVolumeRbacTest):
         test_utils.call_and_ignore_notfound_exc(
             self.transfers_client.delete_volume_transfer, transfer['id'])
         waiters.wait_for_volume_resource_status(
-            self.adm_volumes_client, self.volume['id'], 'available')
+            self.admin_volumes_client, self.volume['id'], 'available')
 
     def _create_transfer(self):
         transfer = self.transfers_client.create_volume_transfer(

@@ -34,6 +34,11 @@ class VolumeRbacTest(rbac_base.BaseV2ComputeRbacTest):
     max_microversion = '2.35'
 
     @classmethod
+    def setup_clients(cls):
+        super(VolumeRbacTest, cls).setup_clients()
+        cls.admin_volumes_client = cls.os_admin.volumes_client_latest
+
+    @classmethod
     def resource_setup(cls):
         super(VolumeRbacTest, cls).resource_setup()
         cls.volume = cls.create_volume()
@@ -56,7 +61,7 @@ class VolumeRbacTest(rbac_base.BaseV2ComputeRbacTest):
             size=CONF.volume.volume_size)['volume']
         # Use the admin volumes client to wait, because waiting involves
         # calling show API action which enforces a different policy.
-        waiters.wait_for_volume_resource_status(self.os_admin.volumes_client,
+        waiters.wait_for_volume_resource_status(self.admin_volumes_client,
                                                 volume['id'], 'available')
         # Use non-deprecated volumes_client for deletion.
         self.addCleanup(self.volumes_client.delete_volume, volume['id'])

@@ -33,6 +33,7 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
     def setup_clients(cls):
         super(VolumesActionsRbacTest, cls).setup_clients()
         cls.admin_image_client = cls.os_admin.image_client_v2
+        cls.admin_volumes_client = cls.os_admin.volumes_client_latest
 
     @classmethod
     def resource_setup(cls):
@@ -54,7 +55,7 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
             server['id'], volumeId=volume_id,
             device='/dev/%s' % CONF.compute.volume_device_name)
         waiters.wait_for_volume_resource_status(
-            self.os_admin.volumes_client, volume_id, 'in-use')
+            self.admin_volumes_client, volume_id, 'in-use')
         self.addCleanup(self._detach_volume, volume_id)
 
     def _detach_volume(self, volume_id=None):
@@ -63,7 +64,7 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
 
         self.volumes_client.detach_volume(volume_id)
         waiters.wait_for_volume_resource_status(
-            self.os_admin.volumes_client, volume_id, 'available')
+            self.admin_volumes_client, volume_id, 'available')
 
     @test.services('compute')
     @rbac_rule_validation.action(service="cinder", rule="volume:attach")
@@ -106,7 +107,7 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
                         image_id)
         waiters.wait_for_image_status(self.admin_image_client, image_id,
                                       'active')
-        waiters.wait_for_volume_resource_status(self.os_admin.volumes_client,
+        waiters.wait_for_volume_resource_status(self.admin_volumes_client,
                                                 self.volume['id'], 'available')
 
     @rbac_rule_validation.action(service="cinder",
@@ -161,7 +162,7 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.volumes_client.retype_volume(volume['id'], new_type=vol_type)
         waiters.wait_for_volume_retype(
-            self.os_admin.volumes_client, volume['id'], vol_type)
+            self.admin_volumes_client, volume['id'], vol_type)
 
     @rbac_rule_validation.action(
         service="cinder",
@@ -204,7 +205,7 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
         self.volumes_client.force_detach_volume(
             volume['id'], connector=None,
             attachment_id=attachment['attachment_id'])
-        waiters.wait_for_volume_resource_status(self.os_admin.volumes_client,
+        waiters.wait_for_volume_resource_status(self.admin_volumes_client,
                                                 volume['id'], 'available')
 
 
@@ -221,6 +222,7 @@ class VolumesActionsV310RbacTest(rbac_base.BaseVolumeRbacTest):
     def setup_clients(cls):
         super(VolumesActionsV310RbacTest, cls).setup_clients()
         cls.admin_image_client = cls.os_admin.image_client_v2
+        cls.admin_volumes_client = cls.os_admin.volumes_client_latest
 
     @test.attr(type=["slow"])
     @test.services('image')
@@ -243,7 +245,7 @@ class VolumesActionsV310RbacTest(rbac_base.BaseVolumeRbacTest):
                         image_id)
         waiters.wait_for_image_status(self.admin_image_client, image_id,
                                       'active')
-        waiters.wait_for_volume_resource_status(self.os_admin.volumes_client,
+        waiters.wait_for_volume_resource_status(self.admin_volumes_client,
                                                 volume['id'], 'available')
 
 

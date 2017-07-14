@@ -30,7 +30,7 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(ServerVolumeAttachmentRbacTest, cls).setup_clients()
-        cls.volumes_client = cls.os_primary.volumes_client
+        cls.volumes_client = cls.os_primary.volumes_client_latest
 
     @classmethod
     def skip_checks(cls):
@@ -68,6 +68,7 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('997df9c2-6e54-47b6-ab74-e4fdb500f385')
     def test_show_volume_attachment(self):
         attachment = self.attach_volume(self.server, self.volume)
+
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.servers_client.show_volume_attachment(
             self.server['id'], attachment['id'])
@@ -80,6 +81,7 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_update_volume_attachment(self):
         attachment = self.attach_volume(self.server, self.volume)
         alt_volume = self.create_volume()
+
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.servers_client.update_attached_volume(
             self.server['id'], attachment['id'], volumeId=alt_volume['id'])
@@ -102,6 +104,7 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('12b03e90-d087-46af-9c4d-507d021c4984')
     def test_delete_volume_attachment(self):
         self.attach_volume(self.server, self.volume)
+
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.servers_client.detach_volume(self.server['id'], self.volume['id'])
         waiters.wait_for_volume_resource_status(self.volumes_client,

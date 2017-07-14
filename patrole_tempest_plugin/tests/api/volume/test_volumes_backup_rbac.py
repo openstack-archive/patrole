@@ -41,6 +41,11 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
         if not CONF.volume_feature_enabled.backup:
             raise cls.skipException("Cinder backup feature disabled")
 
+    @classmethod
+    def setup_clients(cls):
+        super(VolumesBackupsRbacTest, cls).setup_clients()
+        cls.admin_backups_client = cls.os_admin.backups_v2_client
+
     def _decode_url(self, backup_url):
         return json.loads(base64.decode_as_text(backup_url))
 
@@ -95,7 +100,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.backups_client.reset_backup_status(backup_id=backup['id'],
                                                 status='error')
-        waiters.wait_for_volume_resource_status(self.os_admin.backups_client,
+        waiters.wait_for_volume_resource_status(self.admin_backups_client,
                                                 backup['id'], 'error')
 
     @test.attr(type=["slow"])
@@ -104,10 +109,11 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('9c794bf9-2446-4f41-8fe0-80b71e757f9d')
     def test_restore_backup(self):
         backup = self.create_backup(volume_id=self.volume['id'])
+
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         restore = self.backups_client.restore_backup(backup['id'])['restore']
         waiters.wait_for_volume_resource_status(
-            self.os_admin.backups_client, restore['backup_id'], 'available')
+            self.admin_backups_client, restore['backup_id'], 'available')
 
     @test.attr(type=["slow"])
     @rbac_rule_validation.action(service="cinder",
@@ -121,7 +127,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
             volume_id=self.volume['id'])['backup']
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self.backups_client.delete_backup, backup['id'])
-        waiters.wait_for_volume_resource_status(self.os_admin.backups_client,
+        waiters.wait_for_volume_resource_status(self.admin_backups_client,
                                                 backup['id'], 'available')
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
