@@ -23,6 +23,7 @@ from tempest.lib import decorators
 from tempest.lib import exceptions as lib_exc
 from tempest import test
 
+from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
@@ -112,6 +113,33 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                         adminPass=original_password)
         waiters.wait_for_server_status(
             self.os_admin.servers_client, self.server_id, 'ACTIVE')
+
+    @test.requires_ext(extension='os-config-drive', service='compute')
+    @decorators.idempotent_id('2c82e819-382d-4d6f-87f0-a45954cbbc64')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-config-drive")
+    def test_list_servers_with_details_config_drive(self):
+        """Test list servers with config_drive property in response body."""
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        body = self.servers_client.list_servers(detail=True)['servers']
+        # If the first server contains "config_drive", then all the others do.
+        if 'config_drive' not in body[0]:
+            raise rbac_exceptions.RbacActionFailed(
+                '"config_drive" attribute not found in response body.')
+
+    @test.requires_ext(extension='os-config-drive', service='compute')
+    @decorators.idempotent_id('55c62ef7-b72b-4970-acc6-05b0a4316e5d')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-config-drive")
+    def test_show_server_config_drive(self):
+        """Test show server with config_drive property in response body."""
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        body = self.servers_client.show_server(self.server_id)['server']
+        if 'config_drive' not in body:
+            raise rbac_exceptions.RbacActionFailed(
+                '"config_drive" attribute not found in response body.')
 
     @test.requires_ext(extension='os-deferred-delete', service='compute')
     @decorators.idempotent_id('189bfed4-1e6d-475c-bb8c-d57e60895391')

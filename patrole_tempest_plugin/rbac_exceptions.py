@@ -16,25 +16,25 @@
 from tempest.lib import exceptions
 
 
-class RbacActionFailed (exceptions.ClientRestClientException):
+class RbacActionFailed(exceptions.ClientRestClientException):
     message = "Rbac action failed"
 
 
-class RbacResourceSetupFailed (exceptions.TempestException):
+class RbacResourceSetupFailed(exceptions.TempestException):
     message = "Rbac resource setup failed"
 
 
-class RbacOverPermission (exceptions.TempestException):
+class RbacOverPermission(exceptions.TempestException):
     message = "Action performed that should not be permitted"
 
 
-class RbacInvalidService (exceptions.TempestException):
+class RbacInvalidService(exceptions.TempestException):
     message = "Attempted to test an invalid service"
 
 
-class RbacParsingException (exceptions.TempestException):
+class RbacParsingException(exceptions.TempestException):
     message = "Attempted to test an invalid policy file or action"
 
 
-class RbacInvalidErrorCode (exceptions.TempestException):
+class RbacInvalidErrorCode(exceptions.TempestException):
     message = "Unsupported error code passed in test"
