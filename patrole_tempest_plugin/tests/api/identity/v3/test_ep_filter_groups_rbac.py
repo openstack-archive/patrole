@@ -73,7 +73,7 @@ class EndpointFilterGroupsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     @decorators.idempotent_id('5c16368d-1485-4c28-9803-db3fa3510623')
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:check_endpoint_group")
+                                 rule="identity:get_endpoint_group")
     def test_check_endpoint_group(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.endpoint_groups_client.check_endpoint_group(
