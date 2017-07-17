@@ -422,3 +422,24 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.servers_client.add_fixed_ip(self.server['id'],
                                          networkId=network_id)
+
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-virtual-interfaces")
+    @decorators.idempotent_id('fc719ae3-0f73-4689-8378-1b841f0f2818')
+    def test_list_virtual_interfaces(self):
+        """Test list virtual interfaces, part of os-virtual-interfaces.
+
+        If Neutron is available, then call the API and expect it to fail
+        with a 400 BadRequest (policy enforcement is done before that happens).
+
+        For more information, see:
+        https://developer.openstack.org/api-ref/compute/#servers-virtual-interfaces-servers-os-virtual-interfaces-deprecated
+        """
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        if CONF.service_available.neutron:
+            msg = "Listing virtual interfaces is not supported by this cloud."
+            with self.assertRaisesRegex(lib_exc.BadRequest, msg):
+                self.servers_client.list_virtual_interfaces(self.server['id'])
+        else:
+            self.servers_client.list_virtual_interfaces(self.server['id'])
