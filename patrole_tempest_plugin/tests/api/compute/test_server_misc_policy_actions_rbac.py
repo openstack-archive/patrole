@@ -49,21 +49,30 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @classmethod
     def resource_setup(cls):
         super(MiscPolicyActionsRbacTest, cls).resource_setup()
-        cls.server_id = cls.create_test_server(wait_until='ACTIVE')['id']
+        cls.server = cls.create_test_server(wait_until='ACTIVE')
 
     def setUp(self):
         super(MiscPolicyActionsRbacTest, self).setUp()
         try:
             waiters.wait_for_server_status(self.servers_client,
-                                           self.server_id, 'ACTIVE')
+                                           self.server['id'], 'ACTIVE')
         except lib_exc.NotFound:
             # If the server was found to be deleted by a previous test,
             # a new one is built
-            server = self.create_test_server(wait_until='ACTIVE')
-            self.__class__.server_id = server['id']
+            self.__class__.server = self.create_test_server(
+                wait_until='ACTIVE')
         except Exception:
             # Rebuilding the server in case something happened during a test
-            self.__class__.server_id = self.rebuild_server(self.server_id)
+            self.__class__.server = self._rebuild_server(self.server['id'])
+
+    def _rebuild_server(self, server_id):
+        # Destroy an existing server and creates a new one.
+        if server_id:
+            self.delete_server(server_id)
+
+        self.password = data_utils.rand_password()
+        return self.create_test_server(
+            wait_until='ACTIVE', adminPass=self.password)
 
     @test.requires_ext(extension='os-admin-actions', service='compute')
     @rbac_rule_validation.action(
@@ -73,8 +82,8 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_reset_server_state(self):
         """Test reset server state, part of os-admin-actions."""
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.reset_state(self.server_id, state='error')
-        self.addCleanup(self.servers_client.reset_state, self.server_id,
+        self.servers_client.reset_state(self.server['id'], state='error')
+        self.addCleanup(self.servers_client.reset_state, self.server['id'],
                         state='active')
 
     @test.requires_ext(extension='os-admin-actions', service='compute')
@@ -85,7 +94,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_inject_network_info(self):
         """Test inject network info, part of os-admin-actions."""
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.inject_network_info(self.server_id)
+        self.servers_client.inject_network_info(self.server['id'])
 
     @decorators.attr(type=['slow'])
     @test.requires_ext(extension='os-admin-actions', service='compute')
@@ -96,7 +105,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_reset_network(self):
         """Test reset network, part of os-admin-actions."""
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.reset_network(self.server_id)
+        self.servers_client.reset_network(self.server['id'])
 
     @testtools.skipUnless(CONF.compute_feature_enabled.change_password,
                           'Change password not available.')
@@ -106,15 +115,16 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('908a7d59-3a66-441c-94cf-38e57ed14956')
     def test_change_server_password(self):
         """Test change admin password, part of os-admin-password."""
-        original_password = self.servers_client.show_password(self.server_id)
+        original_password = self.servers_client.show_password(
+            self.server['id'])
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.servers_client.change_password(
-            self.server_id, adminPass=data_utils.rand_password())
-        self.addCleanup(self.servers_client.change_password, self.server_id,
+            self.server['id'], adminPass=data_utils.rand_password())
+        self.addCleanup(self.servers_client.change_password, self.server['id'],
                         adminPass=original_password)
         waiters.wait_for_server_status(
-            self.os_admin.servers_client, self.server_id, 'ACTIVE')
+            self.os_admin.servers_client, self.server['id'], 'ACTIVE')
 
     @test.requires_ext(extension='os-config-drive', service='compute')
     @decorators.idempotent_id('2c82e819-382d-4d6f-87f0-a45954cbbc64')
@@ -138,7 +148,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_show_server_config_drive(self):
         """Test show server with config_drive property in response body."""
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        body = self.servers_client.show_server(self.server_id)['server']
+        body = self.servers_client.show_server(self.server['id'])['server']
         if 'config_drive' not in body:
             raise rbac_exceptions.RbacActionFailed(
                 '"config_drive" attribute not found in response body.')
@@ -152,7 +162,44 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         """Test force delete server, part of os-deferred-delete."""
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # Force-deleting a server enforces os-deferred-delete.
-        self.servers_client.force_delete_server(self.server_id)
+        self.servers_client.force_delete_server(self.server['id'])
+
+    @test.requires_ext(extension='os-instance-actions', service='compute')
+    @decorators.idempotent_id('9d1b131d-407e-4fa3-8eef-eb2c4526f1da')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-instance-actions")
+    def test_list_instance_actions(self):
+        """Test list instance actions, part of os-instance-actions."""
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.servers_client.list_instance_actions(self.server['id'])
+
+    @test.requires_ext(extension='os-instance-actions', service='compute')
+    @decorators.idempotent_id('eb04c439-4215-4029-9ccb-5b3c041bfc25')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-instance-actions:events")
+    def test_show_instance_action(self):
+        """Test show instance action, part of os-instance-actions.
+
+        Expect "events" details to be included in the response body.
+        """
+        # NOTE: "os_compute_api:os-instance-actions" is also enforced.
+        request_id = self.server.response['x-compute-request-id']
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        instance_action = self.servers_client.show_instance_action(
+            self.server['id'], request_id)['instanceAction']
+
+        if 'events' not in instance_action:
+            raise rbac_exceptions.RbacActionFailed(
+                '"%s" attribute not found in response body.' % 'events')
+        # Microversion 2.51+ returns 'events' always, but not 'traceback'. If
+        # 'traceback' is also present then policy enforcement passed.
+        if 'traceback' not in instance_action['events'][0]:
+            raise rbac_exceptions.RbacActionFailed(
+                '"%s" attribute not found in response body.'
+                % 'events.traceback')
 
     @rbac_rule_validation.action(
         service="nova",
@@ -161,8 +208,8 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_lock_server(self):
         """Test lock server, part of os-lock-server."""
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.lock_server(self.server_id)
-        self.addCleanup(self.servers_client.unlock_server, self.server_id)
+        self.servers_client.lock_server(self.server['id'])
+        self.addCleanup(self.servers_client.unlock_server, self.server['id'])
 
     @rbac_rule_validation.action(
         service="nova",
@@ -170,11 +217,11 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('d50ef8e8-4bce-11e7-b114-b2f933d5fe66')
     def test_unlock_server(self):
         """Test unlock server, part of os-lock-server."""
-        self.servers_client.lock_server(self.server_id)
-        self.addCleanup(self.servers_client.unlock_server, self.server_id)
+        self.servers_client.lock_server(self.server['id'])
+        self.addCleanup(self.servers_client.unlock_server, self.server['id'])
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.unlock_server(self.server_id)
+        self.servers_client.unlock_server(self.server['id'])
 
     @rbac_rule_validation.action(
         service="nova",
@@ -187,11 +234,11 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         of the unlock policy, the server must be locked by a different
         user than the one who is attempting to unlock it.
         """
-        self.os_admin.servers_client.lock_server(self.server_id)
-        self.addCleanup(self.servers_client.unlock_server, self.server_id)
+        self.os_admin.servers_client.lock_server(self.server['id'])
+        self.addCleanup(self.servers_client.unlock_server, self.server['id'])
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.unlock_server(self.server_id)
+        self.servers_client.unlock_server(self.server['id'])
 
     @test.requires_ext(extension='os-rescue', service='compute')
     @rbac_rule_validation.action(
@@ -201,7 +248,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_rescue_server(self):
         """Test rescue server, part of os-rescue."""
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.rescue_server(self.server_id)
+        self.servers_client.rescue_server(self.server['id'])
 
     @test.requires_ext(extension='os-server-diagnostics', service='compute')
     @rbac_rule_validation.action(
@@ -211,7 +258,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_show_server_diagnostics(self):
         """Test show server diagnostics, part of os-server-diagnostics."""
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.show_server_diagnostics(self.server_id)
+        self.servers_client.show_server_diagnostics(self.server['id'])
 
     @test.requires_ext(extension='os-server-password', service='compute')
     @decorators.idempotent_id('aaf43f78-c178-4581-ac18-14afd3f1f6ba')
@@ -221,7 +268,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_delete_server_password(self):
         """Test delete server password, part of os-server-password."""
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.delete_password(self.server_id)
+        self.servers_client.delete_password(self.server['id'])
 
     @test.requires_ext(extension='os-server-password', service='compute')
     @rbac_rule_validation.action(
@@ -231,7 +278,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_get_server_password(self):
         """Test show server password, part of os-server-password."""
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.show_password(self.server_id)
+        self.servers_client.show_password(self.server['id'])
 
     @test.requires_ext(extension='OS-SRV-USG', service='compute')
     @rbac_rule_validation.action(
@@ -245,7 +292,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         test can be combined with the generic test for showing a server.
         """
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.show_server(self.server_id)
+        self.servers_client.show_server(self.server['id'])
 
     @test.requires_ext(extension='os-simple-tenant-usage', service='compute')
     @rbac_rule_validation.action(
@@ -278,10 +325,10 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_suspend_server(self):
         """Test suspend server, part of os-suspend-server."""
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.suspend_server(self.server_id)
-        self.addCleanup(self.servers_client.resume_server, self.server_id)
+        self.servers_client.suspend_server(self.server['id'])
+        self.addCleanup(self.servers_client.resume_server, self.server['id'])
         waiters.wait_for_server_status(
-            self.os_admin.servers_client, self.server_id, 'SUSPENDED')
+            self.os_admin.servers_client, self.server['id'], 'SUSPENDED')
 
     @testtools.skipUnless(CONF.compute_feature_enabled.suspend,
                           "Suspend compute feature is not available.")
@@ -291,14 +338,14 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-suspend-server:resume")
     def test_resume_server(self):
         """Test resume server, part of os-suspend-server."""
-        self.servers_client.suspend_server(self.server_id)
-        waiters.wait_for_server_status(self.servers_client, self.server_id,
+        self.servers_client.suspend_server(self.server['id'])
+        waiters.wait_for_server_status(self.servers_client, self.server['id'],
                                        'SUSPENDED')
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.resume_server(self.server_id)
+        self.servers_client.resume_server(self.server['id'])
         waiters.wait_for_server_status(
-            self.os_admin.servers_client, self.server_id, 'ACTIVE')
+            self.os_admin.servers_client, self.server['id'], 'ACTIVE')
 
 
 class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
