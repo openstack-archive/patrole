@@ -16,7 +16,6 @@
 from tempest import config
 from tempest.lib import decorators
 from tempest.lib import exceptions as lib_exc
-from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.identity import rbac_base
@@ -77,7 +76,7 @@ class IdentityTrustV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                               trustee_user_id=self.trustee_user_id)
 
     @decorators.idempotent_id('bd72d22a-6e11-4840-bd93-17b382e7f0e0')
-    @test.attr(type=['negative'])
+    @decorators.attr(type=['negative'])
     @rbac_rule_validation.action(
         service="keystone",
         rule="identity:create_trust",

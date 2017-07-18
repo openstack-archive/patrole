@@ -21,7 +21,6 @@ from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
-from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
@@ -58,7 +57,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
         backup.update(changes)
         return self._encode_backup(backup)
 
-    @test.attr(type=["slow"])
+    @decorators.attr(type='slow')
     @rbac_rule_validation.action(service="cinder",
                                  rule="backup:create")
     @decorators.idempotent_id('6887ec94-0bcf-4ab7-b30f-3808a4b5a2a5')
@@ -66,7 +65,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.create_backup(volume_id=self.volume['id'])
 
-    @test.attr(type=["slow"])
+    @decorators.attr(type='slow')
     @rbac_rule_validation.action(service="cinder",
                                  rule="backup:get")
     @decorators.idempotent_id('abd92bdd-b0fb-4dc4-9cfc-de9e968f8c8a')
@@ -103,7 +102,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
         waiters.wait_for_volume_resource_status(self.admin_backups_client,
                                                 backup['id'], 'error')
 
-    @test.attr(type=["slow"])
+    @decorators.attr(type='slow')
     @rbac_rule_validation.action(service="cinder",
                                  rule="backup:restore")
     @decorators.idempotent_id('9c794bf9-2446-4f41-8fe0-80b71e757f9d')
@@ -115,7 +114,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
         waiters.wait_for_volume_resource_status(
             self.admin_backups_client, restore['backup_id'], 'available')
 
-    @test.attr(type=["slow"])
+    @decorators.attr(type='slow')
     @rbac_rule_validation.action(service="cinder",
                                  rule="backup:delete")
     @decorators.idempotent_id('d5d0c6a2-413d-437e-a73f-4bf2b41a20ed')
@@ -135,7 +134,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
         # Wait for deletion so error isn't thrown during clean up.
         self.backups_client.wait_for_resource_deletion(backup['id'])
 
-    @test.attr(type=["slow"])
+    @decorators.attr(type='slow')
     @rbac_rule_validation.action(service="cinder",
                                  rule="backup:backup-export")
     @decorators.idempotent_id('e984ec8d-e8eb-485c-98bc-f1856020303c')
@@ -144,7 +143,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.backups_client.export_backup(backup['id'])['backup-record']
 
-    @test.attr(type=["slow"])
+    @decorators.attr(type='slow')
     @rbac_rule_validation.action(service="cinder",
                                  rule="backup:backup-import")
     @decorators.idempotent_id('1e70f039-4556-44cc-9cc1-edf2b7ed648b')

@@ -85,7 +85,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.servers_client.inject_network_info(self.server_id)
 
-    @test.attr(type=['slow'])
+    @decorators.attr(type=['slow'])
     @test.requires_ext(extension='os-admin-actions', service='compute')
     @rbac_rule_validation.action(
         service="nova",
