@@ -108,16 +108,17 @@ class RBACRuleValidationTest(base.TestCase):
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
     @mock.patch.object(rbac_rv, 'rbac_policy_parser', autospec=True)
-    def test_rule_validation_rbac_action_failed_positive(self, mock_policy,
-                                                         mock_log):
-        """Test RbacActionFailed error is thrown without permission passes.
+    def test_rule_validation_rbac_malformed_response_positive(self,
+                                                              mock_policy,
+                                                              mock_log):
+        """Test RbacMalformedResponse error is thrown without permission passes.
 
-        Positive test case: if RbacActionFailed is thrown and the user is not
-        allowed to perform the action, then this is a success.
+        Positive test case: if RbacMalformedResponse is thrown and the user is
+        not allowed to perform the action, then this is a success.
         """
         decorator = rbac_rv.action(mock.sentinel.service, mock.sentinel.action)
         mock_function = mock.Mock()
-        mock_function.side_effect = rbac_exceptions.RbacActionFailed
+        mock_function.side_effect = rbac_exceptions.RbacMalformedResponse
         wrapper = decorator(mock_function)
 
         mock_policy.RbacPolicyParser.return_value.allowed.return_value = False
@@ -130,16 +131,65 @@ class RBACRuleValidationTest(base.TestCase):
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
     @mock.patch.object(rbac_rv, 'rbac_policy_parser', autospec=True)
-    def test_rule_validation_rbac_action_failed_negative(self, mock_policy,
-                                                         mock_log):
-        """Test RbacActionFailed error is thrown with permission fails.
+    def test_rule_validation_rbac_malformed_response_negative(self,
+                                                              mock_policy,
+                                                              mock_log):
+        """Test RbacMalformedResponse error is thrown with permission fails.
 
-        Negative test case: if RbacActionFailed is thrown and the user is
+        Negative test case: if RbacMalformedResponse is thrown and the user is
         allowed to perform the action, then this is an expected failure.
         """
         decorator = rbac_rv.action(mock.sentinel.service, mock.sentinel.action)
         mock_function = mock.Mock()
-        mock_function.side_effect = rbac_exceptions.RbacActionFailed
+        mock_function.side_effect = rbac_exceptions.RbacMalformedResponse
+        wrapper = decorator(mock_function)
+
+        mock_policy.RbacPolicyParser.return_value.allowed.return_value = True
+
+        e = self.assertRaises(exceptions.Forbidden, wrapper, self.mock_args)
+        self.assertIn(
+            "Role Member was not allowed to perform sentinel.action.",
+            e.__str__())
+
+        mock_log.error.assert_called_once_with("Role Member was not allowed to"
+                                               " perform sentinel.action.")
+
+    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
+    @mock.patch.object(rbac_rv, 'rbac_policy_parser', autospec=True)
+    def test_rule_validation_rbac_conflicting_policies_positive(self,
+                                                                mock_policy,
+                                                                mock_log):
+        """Test RbacConflictingPolicies error is thrown without permission passes.
+
+        Positive test case: if RbacConflictingPolicies is thrown and the user
+        is not allowed to perform the action, then this is a success.
+        """
+        decorator = rbac_rv.action(mock.sentinel.service, mock.sentinel.action)
+        mock_function = mock.Mock()
+        mock_function.side_effect = rbac_exceptions.RbacConflictingPolicies
+        wrapper = decorator(mock_function)
+
+        mock_policy.RbacPolicyParser.return_value.allowed.return_value = False
+
+        result = wrapper(self.mock_args)
+
+        self.assertIsNone(result)
+        mock_log.error.assert_not_called()
+        mock_log.warning.assert_not_called()
+
+    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
+    @mock.patch.object(rbac_rv, 'rbac_policy_parser', autospec=True)
+    def test_rule_validation_rbac_conflicting_policies_negative(self,
+                                                                mock_policy,
+                                                                mock_log):
+        """Test RbacConflictingPolicies error is thrown with permission fails.
+
+        Negative test case: if RbacConflictingPolicies is thrown and the user
+        is allowed to perform the action, then this is an expected failure.
+        """
+        decorator = rbac_rv.action(mock.sentinel.service, mock.sentinel.action)
+        mock_function = mock.Mock()
+        mock_function.side_effect = rbac_exceptions.RbacConflictingPolicies
         wrapper = decorator(mock_function)
 
         mock_policy.RbacPolicyParser.return_value.allowed.return_value = True

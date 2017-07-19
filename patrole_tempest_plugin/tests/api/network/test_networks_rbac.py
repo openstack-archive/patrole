@@ -238,7 +238,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
             self.network['id'], **kwargs)['network']
 
         if len(retrieved_network) == 0:
-            raise rbac_exceptions.RbacActionFailed
+            raise rbac_exceptions.RbacMalformedResponse(True)
 
     @test.requires_ext(extension='provider', service='network')
     @rbac_rule_validation.action(service="neutron",
@@ -257,7 +257,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
             self.network['id'], **kwargs)['network']
 
         if len(retrieved_network) == 0:
-            raise rbac_exceptions.RbacActionFailed
+            raise rbac_exceptions.RbacMalformedResponse(empty=True)
 
     @test.requires_ext(extension='provider', service='network')
     @rbac_rule_validation.action(service="neutron",
@@ -276,7 +276,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
             self.network['id'], **kwargs)['network']
 
         if len(retrieved_network) == 0:
-            raise rbac_exceptions.RbacActionFailed
+            raise rbac_exceptions.RbacMalformedResponse(empty=True)
 
         key = retrieved_network.get('provider:segmentation_id', "NotFound")
         self.assertNotEqual(key, "NotFound")

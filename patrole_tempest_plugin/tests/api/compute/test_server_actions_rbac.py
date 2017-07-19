@@ -340,6 +340,5 @@ class ServerActionsV216RbacTest(rbac_base.BaseV2ComputeRbacTest):
         server = self.servers_client.show_server(self.server_id)['server']
 
         if 'host_status' not in server:
-            LOG.info("host_status attribute not returned when role doesn't "
-                     "have permission to access it.")
-            raise rbac_exceptions.RbacActionFailed
+            raise rbac_exceptions.RbacMalformedResponse(
+                attribute='host_status')

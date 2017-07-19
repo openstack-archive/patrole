@@ -121,10 +121,8 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         tenant_ids = [t['id'] for t in tenants]
         if admin_tenant_id not in tenant_ids:
-            raise rbac_exceptions.RbacActionFailed(
-                "The admin tenant id was not returned by the call to "
-                "``list_tenants``.")
+            raise rbac_exceptions.RbacMalformedResponse(
+                attribute="admin tenant id")
         if non_admin_tenant_id in tenant_ids:
-            raise rbac_exceptions.RbacActionFailed(
-                "The non-admin tenant id was returned by the call to "
-                "``list_tenants``.")
+            raise rbac_exceptions.RbacMalformedResponse(
+                extra_attr=True)
