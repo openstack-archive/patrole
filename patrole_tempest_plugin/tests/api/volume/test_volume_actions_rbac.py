@@ -29,6 +29,8 @@ CONF = config.CONF
 
 class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
 
+    credentials = ['primary', 'admin']
+
     @classmethod
     def setup_clients(cls):
         super(VolumesActionsRbacTest, cls).setup_clients()
@@ -217,6 +219,8 @@ class VolumesActionsV310RbacTest(rbac_base.BaseVolumeRbacTest):
     _api_version = 3
     min_microversion = '3.10'
     max_microversion = 'latest'
+
+    credentials = ['primary', 'admin']
 
     @classmethod
     def setup_clients(cls):

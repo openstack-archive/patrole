@@ -25,7 +25,7 @@ CONF = config.CONF
 
 class IdentityTrustV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
-    credentials = ['primary', 'admin', 'alt']
+    credentials = ['primary', 'alt']
 
     @classmethod
     def skip_checks(cls):
@@ -41,15 +41,15 @@ class IdentityTrustV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         # user_id:%(trust.trustor_user_id)s will thereby evaluate to
         # "primary user's user_id:primary user's user_id" which evaluates to
         # true.
-        cls.trustor_user_id = cls.auth_provider.credentials.user_id
-        cls.trustor_project_id = cls.auth_provider.credentials.project_id
+        cls.trustor_user_id = cls.os_primary.credentials.user_id
+        cls.trustor_project_id = cls.os_primary.credentials.project_id
         cls.trustee_user_id = cls.setup_test_user()['id']
 
         # The "unauthorized_user_id" does not have permissions to create a
         # trust because the user_id in "user_id:%(trust.trustor_user_id)s" (the
         # policy rule for creating a trust) corresponds to the primary user_id
         # not the alt user_id.
-        cls.unauthorized_user_id = cls.os_alt.auth_provider.credentials.user_id
+        cls.unauthorized_user_id = cls.os_alt.credentials.user_id
 
         # A role is guaranteed to exist (namely the admin role), because
         # "trustor_user_id" and "trustor_project_id" are the primary tempest
@@ -67,8 +67,7 @@ class IdentityTrustV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         service="keystone",
         rule="identity:create_trust",
         extra_target_data={
-            "trust.trustor_user_id":
-            "os_primary.auth_provider.credentials.user_id"
+            "trust.trustor_user_id": "os_primary.credentials.user_id"
         })
     def test_create_trust(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
@@ -81,7 +80,7 @@ class IdentityTrustV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         service="keystone",
         rule="identity:create_trust",
         extra_target_data={
-            "trust.trustor_user_id": "os_alt.auth_provider.credentials.user_id"
+            "trust.trustor_user_id": "os_alt.credentials.user_id"
         })
     def test_create_trust_negative(self):
         # Explicit negative test for identity:create_trust policy action.

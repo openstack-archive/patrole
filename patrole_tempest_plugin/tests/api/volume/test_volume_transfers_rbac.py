@@ -23,6 +23,8 @@ from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 class VolumesTransfersRbacTest(rbac_base.BaseVolumeRbacTest):
 
+    credentials = ['primary', 'admin']
+
     @classmethod
     def setup_clients(cls):
         super(VolumesTransfersRbacTest, cls).setup_clients()

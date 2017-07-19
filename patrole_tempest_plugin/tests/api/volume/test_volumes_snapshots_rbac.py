@@ -25,6 +25,8 @@ CONF = config.CONF
 
 class VolumesSnapshotRbacTest(rbac_base.BaseVolumeRbacTest):
 
+    credentials = ['primary', 'admin']
+
     @classmethod
     def skip_checks(cls):
         super(VolumesSnapshotRbacTest, cls).skip_checks()

@@ -33,6 +33,8 @@ LOG = log.getLogger(__name__)
 
 class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
 
+    credentials = ['primary', 'admin']
+
     @classmethod
     def setup_clients(cls):
         super(ComputeServersRbacTest, cls).setup_clients()

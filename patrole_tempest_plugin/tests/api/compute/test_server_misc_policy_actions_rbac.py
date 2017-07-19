@@ -44,6 +44,8 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
       * small policy "families" -- i.e. containing one to three policies
     """
 
+    credentials = ['primary', 'admin']
+
     @classmethod
     def resource_setup(cls):
         super(MiscPolicyActionsRbacTest, cls).resource_setup()
@@ -262,7 +264,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('fe7eacda-15c4-4bf7-93ef-1091c4546a9d')
     def test_show_simple_tenant_usage(self):
         """Test show tenant usage, part of os-simple-tenant-usage."""
-        tenant_id = self.auth_provider.credentials.tenant_id
+        tenant_id = self.os_primary.credentials.tenant_id
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.tenant_usages_client.show_tenant_usage(tenant_id=tenant_id)
@@ -307,6 +309,8 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
       * small policy "families" -- i.e. containing one to three policies
       * tests that require network resources
     """
+
+    credentials = ['primary', 'admin']
 
     @classmethod
     def skip_checks(cls):

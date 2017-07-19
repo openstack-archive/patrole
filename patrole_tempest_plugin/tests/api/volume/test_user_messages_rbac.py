@@ -29,6 +29,8 @@ class MessagesV3RbacTest(rbac_base.BaseVolumeRbacTest):
     min_microversion = '3.3'
     max_microversion = 'latest'
 
+    credentials = ['primary', 'admin']
+
     @classmethod
     def setup_clients(cls):
         super(MessagesV3RbacTest, cls).setup_clients()

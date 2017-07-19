@@ -26,7 +26,7 @@ CONF = config.CONF
 
 class IdentityTokenV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
-    credentials = ['primary', 'admin', 'alt']
+    credentials = ['primary', 'alt']
 
     @classmethod
     def skip_checks(cls):

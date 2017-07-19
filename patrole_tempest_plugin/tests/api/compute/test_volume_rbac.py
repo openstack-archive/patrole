@@ -33,6 +33,8 @@ class VolumeRbacTest(rbac_base.BaseV2ComputeRbacTest):
     # https://developer.openstack.org/api-ref/compute/#volume-extension-os-volumes-os-snapshots-deprecated
     max_microversion = '2.35'
 
+    credentials = ['primary', 'admin']
+
     @classmethod
     def setup_clients(cls):
         super(VolumeRbacTest, cls).setup_clients()
