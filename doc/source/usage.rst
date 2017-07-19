@@ -1,4 +1,4 @@
-..
+.. _patrole-usage:
 
 ========
 Usage
