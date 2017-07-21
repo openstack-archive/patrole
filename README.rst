@@ -5,7 +5,6 @@ Team and repository tags
 .. image:: http://governance.openstack.org/badges/patrole.svg
     :target: http://governance.openstack.org/reference/tags/index.html
 
-=========================================
 Patrole - RBAC Integration Tempest Plugin
 =========================================
 
@@ -44,8 +43,7 @@ each other: if both results match, then the test passes; else it fails.
 * Bugs: https://bugs.launchpad.net/patrole
 
 Quickstart
-==========
-
+----------
 Tempest is a prerequisite for running Patrole. If you do not have Tempest
 installed, please reference the official Tempest documentation for guidance.
 
@@ -82,7 +80,7 @@ It is also possible to run Patrole using tox::
     tox -eall-plugin -- patrole_tempest_plugin.tests.api
 
 Release Versioning
-==================
+------------------
 `Patrole Release Notes <https://docs.openstack.org/releasenotes/patrole/>`_
 shows which changes have been released for each version.
 
