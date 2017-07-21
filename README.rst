@@ -39,7 +39,7 @@ specific role and OpenStack service. The output from ``oslo.policy`` (the
 expected result) and the actual result from test execution are compared to
 each other: if both results match, then the test passes; else it fails.
 
-* Documentation: https://docs.openstack.org/developer/patrole
+* Documentation: https://docs.openstack.org/patrole/latest/
 * Bugs: https://bugs.launchpad.net/patrole
 
 Quickstart
