@@ -13,6 +13,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import datetime
+
+from six.moves.urllib import parse as urllib
+
 from tempest.lib import decorators
 from tempest import test
 
@@ -20,8 +24,7 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 
-class InstanceUsagesAuditLogRbacTest(
-        rbac_base.BaseV2ComputeRbacTest):
+class InstanceUsagesAuditLogRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
     def skip_checks(cls):
@@ -38,3 +41,14 @@ class InstanceUsagesAuditLogRbacTest(
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.instance_usages_audit_log_client.list_instance_usage_audit_logs()
         ["instance_usage_audit_logs"]
+
+    @decorators.idempotent_id('ded8bfbd-5d90-4a58-aee0-d31231bf3c9b')
+    @rbac_rule_validation.action(
+        service="nova", rule="os_compute_api:os-instance-usage-audit-log")
+    def test_show_instance_usage_audit_log(self):
+        now = datetime.datetime.now()
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.instance_usages_audit_log_client.show_instance_usage_audit_log(
+            urllib.quote(now.strftime("%Y-%m-%d %H:%M:%S")))[
+                "instance_usage_audit_log"]
