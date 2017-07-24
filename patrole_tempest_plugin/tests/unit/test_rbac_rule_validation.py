@@ -30,11 +30,11 @@ class RBACRuleValidationTest(base.TestCase):
     def setUp(self):
         super(RBACRuleValidationTest, self).setUp()
         self.mock_args = mock.Mock(spec=test.BaseTestCase)
-        self.mock_args.auth_provider = mock.Mock()
+        self.mock_args.os_primary = mock.Mock()
         self.mock_args.rbac_utils = mock.Mock()
-        self.mock_args.auth_provider.credentials.project_id = \
+        self.mock_args.os_primary.credentials.project_id = \
             mock.sentinel.project_id
-        self.mock_args.auth_provider.credentials.user_id = \
+        self.mock_args.os_primary.credentials.user_id = \
             mock.sentinel.user_id
 
         CONF.set_override('rbac_test_role', 'Member', group='rbac')

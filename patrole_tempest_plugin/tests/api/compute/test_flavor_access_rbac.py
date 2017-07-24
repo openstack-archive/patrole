@@ -40,7 +40,7 @@ class FlavorAccessRbacTest(rbac_base.BaseV2ComputeRbacTest):
         super(FlavorAccessRbacTest, cls).resource_setup()
         cls.flavor_id = cls._create_flavor(is_public=False)['id']
         cls.public_flavor_id = CONF.compute.flavor_ref
-        cls.tenant_id = cls.auth_provider.credentials.tenant_id
+        cls.tenant_id = cls.os_primary.credentials.tenant_id
 
     @decorators.idempotent_id('a2bd3740-765d-4c95-ac98-9e027378c75e')
     @rbac_rule_validation.action(

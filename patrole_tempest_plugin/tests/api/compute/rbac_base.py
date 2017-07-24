@@ -23,8 +23,6 @@ CONF = config.CONF
 
 class BaseV2ComputeRbacTest(compute_base.BaseV2ComputeTest):
 
-    credentials = ['admin', 'primary']
-
     @classmethod
     def skip_checks(cls):
         super(BaseV2ComputeRbacTest, cls).skip_checks()
@@ -35,7 +33,6 @@ class BaseV2ComputeRbacTest(compute_base.BaseV2ComputeTest):
     @classmethod
     def setup_clients(cls):
         super(BaseV2ComputeRbacTest, cls).setup_clients()
-        cls.auth_provider = cls.os_primary.auth_provider
         cls.rbac_utils = rbac_utils.RbacUtils(cls)
 
         cls.hosts_client = cls.os_primary.hosts_client

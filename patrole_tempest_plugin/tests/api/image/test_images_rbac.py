@@ -24,6 +24,8 @@ from patrole_tempest_plugin.tests.api.image import rbac_base
 
 class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
 
+    credentials = ['primary', 'admin']
+
     @classmethod
     def setup_clients(cls):
         super(BasicOperationsImagesRbacTest, cls).setup_clients()

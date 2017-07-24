@@ -36,7 +36,7 @@ class VolumeTypesAccessRbacTest(rbac_base.BaseVolumeRbacTest):
         super(VolumeTypesAccessRbacTest, cls).resource_setup()
         cls.vol_type = cls.create_volume_type(
             **{'os-volume-type-access:is_public': False})
-        cls.project_id = cls.auth_provider.credentials.project_id
+        cls.project_id = cls.os_primary.credentials.project_id
 
     def _add_type_access(self, ignore_not_found=False):
         self.volume_types_client.add_type_access(

@@ -30,6 +30,8 @@ class MigrateServerV225RbacTest(base.BaseV2ComputeRbacTest):
     max_microversion = 'latest'
     block_migration = 'auto'
 
+    credentials = ['primary', 'admin']
+
     @classmethod
     def skip_checks(cls):
         super(MigrateServerV225RbacTest, cls).skip_checks()

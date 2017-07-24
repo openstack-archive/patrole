@@ -30,6 +30,8 @@ CONF = config.CONF
 
 class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
 
+    credentials = ['primary', 'admin']
+
     def setUp(self):
         super(VolumesBackupsRbacTest, self).setUp()
         self.volume = self.create_volume()

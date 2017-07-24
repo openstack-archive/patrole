@@ -23,8 +23,6 @@ CONF = config.CONF
 
 class BaseNetworkRbacTest(network_base.BaseNetworkTest):
 
-    credentials = ['admin', 'primary']
-
     @classmethod
     def skip_checks(cls):
         super(BaseNetworkRbacTest, cls).skip_checks()
@@ -35,5 +33,4 @@ class BaseNetworkRbacTest(network_base.BaseNetworkTest):
     @classmethod
     def setup_clients(cls):
         super(BaseNetworkRbacTest, cls).setup_clients()
-        cls.auth_provider = cls.os_primary.auth_provider
         cls.rbac_utils = rbac_utils.RbacUtils(cls)

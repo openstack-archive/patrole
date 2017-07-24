@@ -34,8 +34,8 @@ class IdentityOAuthTokensV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         # credentials before switching roles. Populate role_ids with admin
         # role id.
         cls.role_ids = [cls.get_role_by_name(CONF.identity.admin_role)['id']]
-        cls.project_id = cls.auth_provider.credentials.project_id
-        cls.user_id = cls.auth_provider.credentials.user_id
+        cls.project_id = cls.os_primary.credentials.project_id
+        cls.user_id = cls.os_primary.credentials.user_id
 
     def _create_consumer(self):
         description = data_utils.rand_name(

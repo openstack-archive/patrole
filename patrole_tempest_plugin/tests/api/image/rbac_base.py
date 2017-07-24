@@ -21,8 +21,6 @@ CONF = config.CONF
 
 class BaseV1ImageRbacTest(image_base.BaseV1ImageTest):
 
-    credentials = ['admin', 'primary']
-
     @classmethod
     def skip_checks(cls):
         super(BaseV1ImageRbacTest, cls).skip_checks()
@@ -33,13 +31,10 @@ class BaseV1ImageRbacTest(image_base.BaseV1ImageTest):
     @classmethod
     def setup_clients(cls):
         super(BaseV1ImageRbacTest, cls).setup_clients()
-        cls.auth_provider = cls.os_primary.auth_provider
         cls.rbac_utils = rbac_utils.RbacUtils(cls)
 
 
 class BaseV2ImageRbacTest(image_base.BaseV2ImageTest):
-
-    credentials = ['admin', 'primary']
 
     @classmethod
     def skip_checks(cls):
@@ -51,5 +46,4 @@ class BaseV2ImageRbacTest(image_base.BaseV2ImageTest):
     @classmethod
     def setup_clients(cls):
         super(BaseV2ImageRbacTest, cls).setup_clients()
-        cls.auth_provider = cls.os_primary.auth_provider
         cls.rbac_utils = rbac_utils.RbacUtils(cls)

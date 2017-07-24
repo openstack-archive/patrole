@@ -33,6 +33,8 @@ LOG = log.getLogger(__name__)
 
 class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
+    credentials = ['primary', 'admin']
+
     @classmethod
     def resource_setup(cls):
         super(ServerActionsRbacTest, cls).resource_setup()

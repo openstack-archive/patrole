@@ -44,13 +44,14 @@ class RBACUtilsTest(base.TestCase):
         super(RBACUtilsTest, self).setUp()
 
         self.mock_test_obj = mock.Mock(spec=lib_base.BaseTestCase)
-        self.mock_test_obj.auth_provider = mock.Mock(
+        self.mock_test_obj.os_primary = mock.Mock(
             **{'credentials.user_id': mock.sentinel.user_id,
                'credentials.tenant_id': mock.sentinel.project_id})
-        self.mock_test_obj.os_admin = mock.Mock(
-            **{'roles_v3_client.list_roles.return_value': self.available_roles}
+        self.mock_test_obj.get_client_manager = mock.Mock(
+            **{'return_value.roles_v3_client.list_roles.return_value':
+                self.available_roles}
         )
-        self.mock_test_obj.get_identity_version = mock.Mock(return_value=3)
+        self.mock_test_obj.get_identity_version = mock.Mock(return_value='v3')
 
         with mock.patch.object(rbac_utils.RbacUtils, '_validate_switch_role'):
             self.rbac_utils = rbac_utils.RbacUtils(self.mock_test_obj)
@@ -62,9 +63,9 @@ class RBACUtilsTest(base.TestCase):
         CONF.set_override('auth_version', 'v3', group='identity')
         CONF.set_override('rbac_test_role', 'Member', group='rbac')
 
-        roles_client = self.mock_test_obj.os_admin.roles_v3_client
+        roles_client = self.mock_test_obj.get_client_manager().roles_v3_client
         roles_client.create_user_role_on_project.reset_mock()
-        self.mock_test_obj.auth_provider.reset_mock()
+        self.mock_test_obj.os_primary.reset_mock()
 
         self.addCleanup(CONF.clear_override, 'rbac_test_role', group='rbac')
         self.addCleanup(CONF.clear_override, 'admin_role', group='identity')
@@ -79,11 +80,10 @@ class RBACUtilsTest(base.TestCase):
     @mock.patch.object(rbac_utils.RbacUtils, '_clear_user_roles',
                        autospec=True, return_value=False)
     def test_initialization_with_missing_admin_role(self, _):
-        self.mock_test_obj.os_admin = mock.Mock(
-            **{'roles_v3_client.list_roles.return_value':
-               {'roles': [{'name': 'Member', 'id': 'member_id'}]}})
         self.rbac_utils.admin_role_id = None
         self.rbac_utils.rbac_role_id = None
+        CONF.set_override('admin_role', None, group='identity')
+
         e = self.assertRaises(rbac_exceptions.RbacResourceSetupFailed,
                               self.rbac_utils.switch_role, self.mock_test_obj,
                               True)
@@ -93,11 +93,10 @@ class RBACUtilsTest(base.TestCase):
     @mock.patch.object(rbac_utils.RbacUtils, '_clear_user_roles',
                        autospec=True, return_value=False)
     def test_initialization_with_missing_rbac_role(self, _):
-        self.mock_test_obj.os_admin = mock.Mock(
-            **{'roles_v3_client.list_roles.return_value':
-               {'roles': [{'name': 'admin', 'id': 'admin_id'}]}})
         self.rbac_utils.admin_role_id = None
         self.rbac_utils.rbac_role_id = None
+        CONF.set_override('rbac_test_role', None, group='rbac')
+
         e = self.assertRaises(rbac_exceptions.RbacResourceSetupFailed,
                               self.rbac_utils.switch_role, self.mock_test_obj,
                               True)
@@ -105,7 +104,7 @@ class RBACUtilsTest(base.TestCase):
                       "system.", e.__str__())
 
     def test_clear_user_roles(self):
-        roles_client = self.mock_test_obj.os_admin.roles_v3_client
+        roles_client = self.mock_test_obj.get_client_manager().roles_v3_client
         roles_client.list_user_roles_on_project.return_value = {
             'roles': [{'id': 'admin_id'}, {'id': 'member_id'}]
         }
@@ -133,14 +132,16 @@ class RBACUtilsTest(base.TestCase):
     def test_rbac_utils_switch_role_to_admin_role(self, mock_time, _):
         self.rbac_utils.prev_switch_role = True
         self._mock_list_user_roles_on_project('admin_id')
-        roles_client = self.mock_test_obj.os_admin.roles_v3_client
+        roles_client = self.mock_test_obj.get_client_manager().roles_v3_client
 
         self.rbac_utils.switch_role(self.mock_test_obj, False)
 
         roles_client.create_user_role_on_project.assert_called_once_with(
             mock.sentinel.project_id, mock.sentinel.user_id, 'admin_id')
-        self.mock_test_obj.auth_provider.clear_auth.assert_called_once_with()
-        self.mock_test_obj.auth_provider.set_auth.assert_called_once_with()
+        self.mock_test_obj.os_primary.auth_provider.clear_auth\
+            .assert_called_once_with()
+        self.mock_test_obj.os_primary.auth_provider.set_auth\
+            .assert_called_once_with()
         mock_time.sleep.assert_called_once_with(1)
 
     @mock.patch.object(rbac_utils.RbacUtils, '_clear_user_roles',
@@ -148,14 +149,16 @@ class RBACUtilsTest(base.TestCase):
     @mock.patch.object(rbac_utils, 'time', autospec=True)
     def test_rbac_utils_switch_role_to_rbac_role(self, mock_time, _):
         self._mock_list_user_roles_on_project('member_id')
-        roles_client = self.mock_test_obj.os_admin.roles_v3_client
+        roles_client = self.mock_test_obj.get_client_manager().roles_v3_client
 
         self.rbac_utils.switch_role(self.mock_test_obj, True)
 
         roles_client.create_user_role_on_project.assert_called_once_with(
             mock.sentinel.project_id, mock.sentinel.user_id, 'member_id')
-        self.mock_test_obj.auth_provider.clear_auth.assert_called_once_with()
-        self.mock_test_obj.auth_provider.set_auth.assert_called_once_with()
+        self.mock_test_obj.os_primary.auth_provider.clear_auth\
+            .assert_called_once_with()
+        self.mock_test_obj.os_primary.auth_provider.set_auth\
+            .assert_called_once_with()
         mock_time.sleep.assert_called_once_with(1)
 
     def test_RBAC_utils_switch_roles_without_boolean_value(self):
@@ -233,7 +236,7 @@ class RBACUtilsTest(base.TestCase):
                        autospec=True, return_value=False)
     def test_rbac_utils_switch_role_except_exception(self,
                                                      mock_clear_user_roles):
-        roles_client = self.mock_test_obj.os_admin.roles_v3_client
+        roles_client = self.mock_test_obj.get_client_manager().roles_v3_client
         roles_client.create_user_role_on_project.side_effect =\
             lib_exc.NotFound
 

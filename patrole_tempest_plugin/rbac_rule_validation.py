@@ -149,11 +149,11 @@ def _is_authorized(test_obj, service, rule_name, extra_target_data):
         disabled and the ``rule_name`` does not exist in the system
     """
     try:
-        project_id = test_obj.auth_provider.credentials.project_id
-        user_id = test_obj.auth_provider.credentials.user_id
+        project_id = test_obj.os_primary.credentials.project_id
+        user_id = test_obj.os_primary.credentials.user_id
     except AttributeError as e:
-        msg = ("{0}: project_id/user_id not found in "
-               "cls.auth_provider.credentials".format(e))
+        msg = ("{0}: project_id or user_id not found in os_primary.credentials"
+               .format(e))
         LOG.error(msg)
         raise rbac_exceptions.RbacResourceSetupFailed(msg)
 

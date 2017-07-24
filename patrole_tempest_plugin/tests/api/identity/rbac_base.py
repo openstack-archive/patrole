@@ -26,26 +26,23 @@ CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
 
-class BaseIdentityRbacTest(base.BaseIdentityTest):
-
-    credentials = ['admin', 'primary']
+class BaseIdentityV2RbacTest(base.BaseIdentityV2Test):
 
     @classmethod
     def skip_checks(cls):
-        super(BaseIdentityRbacTest, cls).skip_checks()
+        super(BaseIdentityV2RbacTest, cls).skip_checks()
         if not CONF.rbac.enable_rbac:
             raise cls.skipException(
                 "%s skipped as RBAC testing not enabled" % cls.__name__)
 
     @classmethod
     def setup_clients(cls):
-        super(BaseIdentityRbacTest, cls).setup_clients()
-        cls.auth_provider = cls.os_primary.auth_provider
+        super(BaseIdentityV2RbacTest, cls).setup_clients()
         cls.rbac_utils = rbac_utils.RbacUtils(cls)
 
     @classmethod
     def resource_setup(cls):
-        super(BaseIdentityRbacTest, cls).resource_setup()
+        super(BaseIdentityV2RbacTest, cls).resource_setup()
         cls.endpoints = []
         cls.roles = []
         cls.services = []
@@ -69,7 +66,7 @@ class BaseIdentityRbacTest(base.BaseIdentityTest):
             test_utils.call_and_ignore_notfound_exc(
                 cls.users_client.delete_user, user['id'])
 
-        super(BaseIdentityRbacTest, cls).resource_cleanup()
+        super(BaseIdentityV2RbacTest, cls).resource_cleanup()
 
     @classmethod
     def setup_test_endpoint(cls, service=None):
@@ -150,7 +147,7 @@ class BaseIdentityRbacTest(base.BaseIdentityTest):
         return user
 
 
-class BaseIdentityV2AdminRbacTest(BaseIdentityRbacTest):
+class BaseIdentityV2AdminRbacTest(BaseIdentityV2RbacTest):
     """Base test class for the Identity v2 admin API.
 
     Keystone's v2 API is split into two APIs: an admin and non-admin API. RBAC
@@ -159,8 +156,6 @@ class BaseIdentityV2AdminRbacTest(BaseIdentityRbacTest):
     request object has ``context_is_admin``. For more details, see the
     implementation of ``assert_admin`` in ``keystone.common.wsgi``.
     """
-
-    identity_version = 'v2'
 
     @classmethod
     def skip_checks(cls):
@@ -218,7 +213,7 @@ class BaseIdentityV2AdminRbacTest(BaseIdentityRbacTest):
         return token_id
 
 
-class BaseIdentityV3RbacTest(BaseIdentityRbacTest):
+class BaseIdentityV3RbacTest(BaseIdentityV2RbacTest):
 
     identity_version = 'v3'
 

@@ -23,10 +23,12 @@ from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 
 class VolumeQOSRbacTest(rbac_base.BaseVolumeRbacTest):
+
+    credentials = ['primary', 'admin']
+
     @classmethod
     def setup_clients(cls):
         super(VolumeQOSRbacTest, cls).setup_clients()
-        cls.auth_provider = cls.os_primary.auth_provider
         cls.qos_client = cls.os_primary.volume_qos_v2_client
         cls.admin_qos_client = cls.os_admin.volume_qos_v2_client
 

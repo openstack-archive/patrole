@@ -25,6 +25,8 @@ CONF = config.CONF
 
 class VolumesExtendRbacTest(rbac_base.BaseVolumeRbacTest):
 
+    credentials = ['primary', 'admin']
+
     @classmethod
     def setup_clients(cls):
         super(VolumesExtendRbacTest, cls).setup_clients()

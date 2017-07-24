@@ -25,7 +25,7 @@ class IdentityUserV3AdminRbacTest(rbac_base.BaseIdentityV3RbacTest):
     @classmethod
     def resource_setup(cls):
         super(IdentityUserV3AdminRbacTest, cls).resource_setup()
-        cls.default_user_id = cls.auth_provider.credentials.user_id
+        cls.default_user_id = cls.os_primary.credentials.user_id
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:create_user")

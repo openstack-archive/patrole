@@ -21,7 +21,7 @@ from patrole_tempest_plugin.tests.api.image import rbac_base as base
 
 class ImagesMemberRbacTest(base.BaseV2ImageRbacTest):
 
-    credentials = ['admin', 'primary', 'alt']
+    credentials = ['primary', 'alt']
 
     @classmethod
     def resource_setup(cls):

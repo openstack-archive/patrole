@@ -20,6 +20,7 @@ import time
 
 from oslo_log import log as logging
 import oslo_utils.uuidutils as uuid_utils
+import testtools
 
 from tempest.common import credentials_factory as credentials
 from tempest import config
@@ -31,8 +32,38 @@ LOG = logging.getLogger(__name__)
 
 
 class RbacUtils(object):
+    """Utility class responsible for switching os_primary role.
+
+    This class is responsible for overriding the value of the primary Tempest
+    credential's role (i.e. "os_primary" role). By doing so, it is possible to
+    seamlessly swap between admin credentials, needed for setup and clean up,
+    and primary credentials, needed to perform the API call which does
+    policy enforcement. The primary credentials always cycle between roles
+    defined by ``CONF.identity.admin_role`` and `CONF.rbac.rbac_test_role``.
+    """
 
     def __init__(self, test_obj):
+        """Constructor for ``RbacUtils``.
+
+        :param test_obj: A Tempest test instance.
+        :type test_obj: tempest.lib.base.BaseTestCase or
+            tempest.test.BaseTestCase
+        """
+        # Since we are going to instantiate a client manager with
+        # admin credentials, first check if admin is available.
+        if not credentials.is_admin_available(
+                identity_version=test_obj.get_identity_version()):
+            msg = "Missing Identity Admin API credentials in configuration."
+            raise testtools.TestCase.skipException(msg)
+
+        # Intialize the admin roles_client to perform role switching.
+        admin_creds = test_obj.get_client_manager(credential_type='admin')
+        if test_obj.get_identity_version() == 'v3':
+            admin_roles_client = admin_creds.roles_v3_client
+        else:
+            admin_roles_client = admin_creds.roles_client
+
+        self.admin_roles_client = admin_roles_client
         self.switch_role(test_obj, toggle_rbac_role=False)
 
     # References the last value of `toggle_rbac_role` that was passed to
@@ -45,20 +76,11 @@ class RbacUtils(object):
     rbac_role_id = None
 
     def switch_role(self, test_obj, toggle_rbac_role=False):
-        self.user_id = test_obj.auth_provider.credentials.user_id
-        self.project_id = test_obj.auth_provider.credentials.tenant_id
-        self.token = test_obj.auth_provider.get_token()
-        self.identity_version = test_obj.get_identity_version()
+        self.user_id = test_obj.os_primary.credentials.user_id
+        self.project_id = test_obj.os_primary.credentials.tenant_id
+        self.token = test_obj.os_primary.auth_provider.get_token()
 
-        if not credentials.is_admin_available(
-                identity_version=self.identity_version):
-            msg = "Missing Identity Admin API credentials in configuration."
-            raise rbac_exceptions.RbacResourceSetupFailed(msg)
-
-        self.roles_client = test_obj.os_admin.roles_v3_client
-
-        LOG.debug('Switching role to: %s', toggle_rbac_role)
-
+        LOG.debug('Switching role to: %s.', toggle_rbac_role)
         try:
             if not self.admin_role_id or not self.rbac_role_id:
                 self._get_roles()
@@ -79,25 +101,25 @@ class RbacUtils(object):
             # Reset auth again to verify the password restore does work.
             # Clear auth restores the original credentials and deletes
             # cached auth data.
-            test_obj.auth_provider.clear_auth()
+            test_obj.os_primary.auth_provider.clear_auth()
             # Fernet tokens are not subsecond aware and Keystone should only be
             # precise to the second. Sleep to ensure we are passing the second
             # boundary before attempting to authenticate. If token is of type
             # uuid, then do not sleep.
             if not uuid_utils.is_uuid_like(self.token):
                 time.sleep(1)
-            test_obj.auth_provider.set_auth()
+            test_obj.os_primary.auth_provider.set_auth()
 
     def _add_role_to_user(self, role_id):
         role_already_present = self._clear_user_roles(role_id)
         if role_already_present:
             return
 
-        self.roles_client.create_user_role_on_project(
+        self.admin_roles_client.create_user_role_on_project(
             self.project_id, self.user_id, role_id)
 
     def _clear_user_roles(self, role_id):
-        roles = self.roles_client.list_user_roles_on_project(
+        roles = self.admin_roles_client.list_user_roles_on_project(
             self.project_id, self.user_id)['roles']
 
         # If the user already has the role that is required, return early.
@@ -106,7 +128,7 @@ class RbacUtils(object):
             return True
 
         for role in roles:
-            self.roles_client.delete_role_from_user_on_project(
+            self.admin_roles_client.delete_role_from_user_on_project(
                 self.project_id, self.user_id, role['id'])
 
         return False
@@ -147,7 +169,7 @@ class RbacUtils(object):
             self.switch_role_history[key] = toggle_rbac_role
 
     def _get_roles(self):
-        available_roles = self.roles_client.list_roles()
+        available_roles = self.admin_roles_client.list_roles()
         admin_role_id = rbac_role_id = None
 
         for role in available_roles['roles']:

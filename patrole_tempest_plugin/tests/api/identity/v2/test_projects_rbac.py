@@ -113,8 +113,8 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         """
         tenants_client = self.os_admin.tenants_client if \
             self.rbac_utils.is_admin else self.os_primary.tenants_client
-        admin_tenant_id = self.os_admin.auth_provider.credentials.project_id
-        non_admin_tenant_id = self.auth_provider.credentials.project_id
+        admin_tenant_id = self.os_admin.credentials.project_id
+        non_admin_tenant_id = self.os_primary.credentials.project_id
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         tenants = tenants_client.list_tenants()['tenants']
