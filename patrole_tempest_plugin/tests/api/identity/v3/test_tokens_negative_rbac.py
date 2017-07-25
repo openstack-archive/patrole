@@ -16,7 +16,6 @@
 from tempest import config
 from tempest.lib import decorators
 from tempest.lib import exceptions as lib_exc
-from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.identity import rbac_base
@@ -43,7 +42,7 @@ class IdentityTokenV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
             self.os_alt.auth_provider.credentials.password)
 
     @decorators.idempotent_id('c83c8f1a-79cb-4dc4-b55f-c7d2bfd98b1e')
-    @test.attr(type=['negative'])
+    @decorators.attr(type=['negative'])
     @rbac_rule_validation.action(
         service="keystone",
         rule="identity:validate_token",
@@ -62,7 +61,7 @@ class IdentityTokenV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         raise e
 
     @decorators.idempotent_id('2786a55d-a818-433a-af7a-41ebf72ab4da')
-    @test.attr(type=['negative'])
+    @decorators.attr(type=['negative'])
     @rbac_rule_validation.action(
         service="keystone",
         rule="identity:revoke_token",
@@ -81,7 +80,7 @@ class IdentityTokenV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         raise e
 
     @decorators.idempotent_id('1ea02ac0-9a96-44bd-bdc3-4dae3c10cc2e')
-    @test.attr(type=['negative'])
+    @decorators.attr(type=['negative'])
     @rbac_rule_validation.action(
         service="keystone",
         rule="identity:check_token",
