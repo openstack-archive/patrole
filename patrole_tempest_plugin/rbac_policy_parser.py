@@ -17,17 +17,17 @@ import copy
 import json
 import os
 
-from oslo_config import cfg
 from oslo_log import log as logging
 from oslo_policy import policy
 import stevedore
 
 from tempest.common import credentials_factory as credentials
+from tempest import config
 
 from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin.rbac_utils import RbacAuthority
 
-CONF = cfg.CONF
+CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
 
@@ -94,8 +94,10 @@ class RbacPolicyParser(RbacAuthority):
         # doing an API call every time.
         if not hasattr(cls, 'available_services'):
             admin_mgr = credentials.AdminManager()
-            services = admin_mgr.identity_services_v3_client.\
-                list_services()['services']
+            services_client = (admin_mgr.identity_services_v3_client
+                               if CONF.identity_feature_enabled.api_v3
+                               else admin_mgr.identity_services_client)
+            services = services_client.list_services()['services']
             cls.available_services = [s['name'] for s in services]
 
         if not service or service not in cls.available_services:

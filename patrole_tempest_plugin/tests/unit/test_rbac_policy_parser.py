@@ -40,10 +40,12 @@ class RbacPolicyTest(base.TestCase):
 
     def setUp(self):
         super(RbacPolicyTest, self).setUp()
-        self.mock_admin_mgr = self.patchobject(
-            rbac_policy_parser, 'credentials')
-        self.mock_admin_mgr.AdminManager().identity_services_v3_client.\
-            list_services.return_value = self.services
+
+        m_creds = self.patchobject(rbac_policy_parser, 'credentials')
+        m_creds.AdminManager().identity_services_client.list_services.\
+            return_value = self.services
+        m_creds.AdminManager().identity_services_v3_client.list_services.\
+            return_value = self.services
 
         current_directory = os.path.dirname(os.path.realpath(__file__))
         self.custom_policy_file = os.path.join(current_directory,
@@ -70,6 +72,13 @@ class RbacPolicyTest(base.TestCase):
         for attr in ('available_services', 'policy_files'):
             if attr in dir(rbac_policy_parser.RbacPolicyParser):
                 delattr(rbac_policy_parser.RbacPolicyParser, attr)
+
+        # TODO(fm577c): Use fixture for setting/clearing CONF.
+        CONF.set_override('api_v3', True, group='identity-feature-enabled')
+        self.addCleanup(CONF.clear_override, 'api_v2',
+                        group='identity-feature-enabled')
+        self.addCleanup(CONF.clear_override, 'api_v3',
+                        group='identity-feature-enabled')
 
     def _get_fake_policy_rule(self, name, rule):
         fake_rule = mock.Mock(check=rule)
@@ -449,13 +458,15 @@ class RbacPolicyTest(base.TestCase):
     @mock.patch.object(rbac_policy_parser, 'policy', autospec=True)
     @mock.patch.object(rbac_policy_parser.RbacPolicyParser, '_get_policy_data',
                        autospec=True)
+    @mock.patch.object(rbac_policy_parser, 'credentials', autospec=True)
     @mock.patch.object(rbac_policy_parser, 'os', autospec=True)
-    def test_discover_policy_files_with_many_invalid_one_valid(self, m_os, *a):
+    def test_discover_policy_files_with_many_invalid_one_valid(self, m_os,
+                                                               m_creds, *args):
         # Only the 3rd path is valid.
         m_os.path.isfile.side_effect = [False, False, True, False]
 
         # Ensure the outer for loop runs only once in `discover_policy_files`.
-        self.mock_admin_mgr.AdminManager().identity_services_v3_client.\
+        m_creds.AdminManager().identity_services_v3_client.\
             list_services.return_value = {
                 'services': [{'name': 'test_service'}]}
 
@@ -490,3 +501,94 @@ class RbacPolicyTest(base.TestCase):
         self.assertNotIn(
             'test_service',
             rbac_policy_parser.RbacPolicyParser.policy_files.keys())
+
+    def _test_validate_service(self, v2_services, v3_services,
+                               expected_failure=False, expected_services=None):
+        with mock.patch.object(rbac_policy_parser, 'credentials') as m_creds:
+            m_creds.AdminManager().identity_services_client.list_services.\
+                return_value = v2_services
+            m_creds.AdminManager().identity_services_v3_client.list_services.\
+                return_value = v3_services
+
+        test_tenant_id = mock.sentinel.tenant_id
+        test_user_id = mock.sentinel.user_id
+
+        mock_os = self.patchobject(rbac_policy_parser, 'os')
+        mock_os.path.join.return_value = self.admin_policy_file
+
+        if not expected_services:
+            expected_services = [s['name'] for s in self.services['services']]
+
+        # Guarantee a blank slate for this test.
+        if hasattr(rbac_policy_parser.RbacPolicyParser, 'available_services'):
+            delattr(rbac_policy_parser.RbacPolicyParser,
+                    'available_services')
+
+        if expected_failure:
+            policy_parser = None
+
+            expected_exception = 'invalid_service is NOT a valid service'
+            with self.assertRaisesRegex(rbac_exceptions.RbacInvalidService,
+                                        expected_exception):
+                rbac_policy_parser.RbacPolicyParser(
+                    test_tenant_id, test_user_id, "INVALID_SERVICE")
+        else:
+            policy_parser = rbac_policy_parser.RbacPolicyParser(
+                test_tenant_id, test_user_id, "tenant_rbac_policy")
+
+        # Check that the attribute is available at object and class levels.
+        # If initialization failed, only check at class level.
+        if policy_parser:
+            self.assertTrue(hasattr(policy_parser, 'available_services'))
+            self.assertEqual(expected_services,
+                             policy_parser.available_services)
+        self.assertTrue(hasattr(rbac_policy_parser.RbacPolicyParser,
+                                'available_services'))
+        self.assertEqual(
+            expected_services,
+            rbac_policy_parser.RbacPolicyParser.available_services)
+
+    def test_validate_service(self):
+        """Positive test case to ensure ``validate_service`` works.
+
+        There are 3 possibilities:
+            1) Identity v3 API enabled.
+            2) Identity v2 API enabled.
+            3) Both are enabled.
+        """
+        CONF.set_override('api_v2', True, group='identity-feature-enabled')
+        CONF.set_override('api_v3', False, group='identity-feature-enabled')
+        self._test_validate_service(self.services, [], False)
+
+        CONF.set_override('api_v2', False, group='identity-feature-enabled')
+        CONF.set_override('api_v3', True, group='identity-feature-enabled')
+        self._test_validate_service([], self.services, False)
+
+        CONF.set_override('api_v2', True, group='identity-feature-enabled')
+        CONF.set_override('api_v3', True, group='identity-feature-enabled')
+        self._test_validate_service(self.services, self.services, False)
+
+    def test_validate_service_except_invalid_service(self):
+        """Negative test case to ensure ``validate_service`` works.
+
+        There are 4 possibilities:
+            1) Identity v3 API enabled.
+            2) Identity v2 API enabled.
+            3) Both are enabled.
+            4) Neither are enabled.
+        """
+        CONF.set_override('api_v2', True, group='identity-feature-enabled')
+        CONF.set_override('api_v3', False, group='identity-feature-enabled')
+        self._test_validate_service(self.services, [], True)
+
+        CONF.set_override('api_v2', False, group='identity-feature-enabled')
+        CONF.set_override('api_v3', True, group='identity-feature-enabled')
+        self._test_validate_service([], self.services, True)
+
+        CONF.set_override('api_v2', True, group='identity-feature-enabled')
+        CONF.set_override('api_v3', True, group='identity-feature-enabled')
+        self._test_validate_service(self.services, self.services, True)
+
+        CONF.set_override('api_v2', False, group='identity-feature-enabled')
+        CONF.set_override('api_v3', False, group='identity-feature-enabled')
+        self._test_validate_service([], [], True, [])
