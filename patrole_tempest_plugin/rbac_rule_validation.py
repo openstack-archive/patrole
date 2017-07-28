@@ -143,6 +143,9 @@ def _is_authorized(test_obj, service, rule_name, extra_target_data):
         reference nested BaseTestCase attributes
     :returns: True if the current RBAC role can perform the policy action else
         False
+
+    :raises RbacResourceSetupFailed: if project_id or user_id are missing from
+        the Tempest test object's `auth_provider`
     :raises RbacParsingException: if ``CONF.rbac.strict_policy_check`` is
         enabled and the ``rule_name`` does not exist in the system
     :raises skipException: if ``CONF.rbac.strict_policy_check`` is

@@ -76,6 +76,15 @@ class RbacUtils(object):
     rbac_role_id = None
 
     def switch_role(self, test_obj, toggle_rbac_role=False):
+        """Switch the role used by `os_primary` Tempest credentials.
+
+        Switch the role used by `os_primary` credentials to:
+          * admin if `toggle_rbac_role` is False
+          * `CONF.rbac.rbac_test_role` if `toggle_rbac_role` is True
+
+        :param test_obj: test object of type tempest.lib.base.BaseTestCase
+        :param toggle_rbac_role: role to switch `os_primary` Tempest creds to
+        """
         self.user_id = test_obj.os_primary.credentials.user_id
         self.project_id = test_obj.os_primary.credentials.tenant_id
         self.token = test_obj.os_primary.auth_provider.get_token()
@@ -92,20 +101,16 @@ class RbacUtils(object):
             else:
                 self._add_role_to_user(self.admin_role_id)
         except Exception as exp:
-            LOG.error(exp)
+            LOG.exception(exp)
             raise
         finally:
-            # NOTE(felipemonteiro): These two comments below are copied from
-            # tempest.api.identity.v2/v3.test_users.
-            #
-            # Reset auth again to verify the password restore does work.
-            # Clear auth restores the original credentials and deletes
-            # cached auth data.
             test_obj.os_primary.auth_provider.clear_auth()
-            # Fernet tokens are not subsecond aware and Keystone should only be
-            # precise to the second. Sleep to ensure we are passing the second
-            # boundary before attempting to authenticate. If token is of type
-            # uuid, then do not sleep.
+            # Fernet tokens are not subsecond aware so sleep to ensure we are
+            # passing the second boundary before attempting to authenticate.
+            #
+            # FIXME(felipemonteiro): Rather than skipping sleep if the token
+            # is not uuid, this should instead be skipped if the token is not
+            # Fernet.
             if not uuid_utils.is_uuid_like(self.token):
                 time.sleep(1)
             test_obj.os_primary.auth_provider.set_auth()
@@ -140,6 +145,9 @@ class RbacUtils(object):
             * `switch_role` is not called with a boolean value
             * `switch_role` is never called in a test file, except in tearDown
             * `switch_role` is called with the same boolean value twice
+
+        If a `skipException` is thrown then this is a legitimate reason why
+        `switch_role` is not called.
         """
         if not isinstance(toggle_rbac_role, bool):
             raise rbac_exceptions.RbacResourceSetupFailed(
