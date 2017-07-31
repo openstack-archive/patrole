@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add RBAC tests for APIs that enforce
+    "os_compute_api:os-extended-availability-zone".
