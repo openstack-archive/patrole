@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Added tests to test_agents_rbac.py for PUT and
+    DELETE endpoints.

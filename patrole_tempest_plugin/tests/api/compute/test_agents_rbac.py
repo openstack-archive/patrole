@@ -13,6 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from tempest.lib.common.utils import data_utils
+from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 from tempest import test
 
@@ -28,6 +30,16 @@ class AgentsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         if not test.is_extension_enabled('os-agents', 'compute'):
             raise cls.skipException(
                 '%s skipped as os-agents not enabled' % cls.__name__)
+
+    def _param_helper(self, **kwargs):
+        rand_key = 'architecture'
+        if rand_key in kwargs:
+            # NOTE: The rand_name is for avoiding agent conflicts.
+            # If you try to create an agent with the same hypervisor,
+            # os and architecture as an existing agent, Nova will return
+            # an HTTPConflict or HTTPServerError.
+            kwargs[rand_key] = data_utils.rand_name(kwargs[rand_key])
+        return kwargs
 
     @rbac_rule_validation.action(
         service="nova", rule="os_compute_api:os-agents")
@@ -48,3 +60,41 @@ class AgentsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         body = self.agents_client.create_agent(**params)['agent']
         self.addCleanup(self.agents_client.delete_agent,
                         body['agent_id'])
+
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-agents")
+    @decorators.idempotent_id('b22f2681-9ffb-439b-b240-dae503e41020')
+    def test_update_agent(self):
+        params = self._param_helper(
+            hypervisor='common', os='linux',
+            architecture='x86_64', version='7.0',
+            url='xxx://xxxx/xxx/xxx',
+            md5hash='add6bb58e139be103324d04d82d8f545')
+        body = self.agents_client.create_agent(**params)['agent']
+        self.addCleanup(self.agents_client.delete_agent,
+                        body['agent_id'])
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        update_params = self._param_helper(
+            version='8.0',
+            url='xxx://xxxx/xxx/xxx2',
+            md5hash='add6bb58e139be103324d04d82d8f547')
+        self.agents_client.update_agent(body['agent_id'], **update_params)
+
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-agents")
+    @decorators.idempotent_id('c5042af8-0682-43b0-abc4-bf33349e23dd')
+    def test_delete_agent(self):
+        params = self._param_helper(
+            hypervisor='common', os='linux',
+            architecture='x86_64', version='7.0',
+            url='xxx://xxxx/xxx/xxx',
+            md5hash='add6bb58e139be103324d04d82d8f545')
+        body = self.agents_client.create_agent(**params)['agent']
+        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
+                        self.agents_client.delete_agent,
+                        body['agent_id'])
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.agents_client.delete_agent(body['agent_id'])
