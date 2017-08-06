@@ -39,7 +39,7 @@ class RbacUtils(object):
     seamlessly swap between admin credentials, needed for setup and clean up,
     and primary credentials, needed to perform the API call which does
     policy enforcement. The primary credentials always cycle between roles
-    defined by ``[identity] admin_role`` and ``[rbac] rbac_test_role``.
+    defined by ``CONF.identity.admin_role`` and `CONF.patrole.rbac_test_role``.
     """
 
     def __init__(self, test_obj):
@@ -78,14 +78,10 @@ class RbacUtils(object):
 
         Switch the role used by `os_primary` credentials to:
           * admin if `toggle_rbac_role` is False
-          * `[rbac] rbac_test_role` if `toggle_rbac_role` is True
+          * `CONF.patrole.rbac_test_role` if `toggle_rbac_role` is True
 
-        :param test_obj: An instance of `tempest.test.BaseTestCase`.
-        :param toggle_rbac_role: Role to switch `os_primary` Tempest creds to.
-        :returns: None.
-        :raises RbacResourceSetupFailed: If admin or test roles are missing. Or
-            if `toggle_rbac_role` is not a boolean value or role validation
-            fails.
+        :param test_obj: test object of type tempest.lib.base.BaseTestCase
+        :param toggle_rbac_role: role to switch `os_primary` Tempest creds to
         """
         self.user_id = test_obj.os_primary.credentials.user_id
         self.project_id = test_obj.os_primary.credentials.tenant_id
@@ -127,14 +123,14 @@ class RbacUtils(object):
         admin_role_id = rbac_role_id = None
 
         for role in available_roles['roles']:
-            if role['name'] == CONF.rbac.rbac_test_role:
+            if role['name'] == CONF.patrole.rbac_test_role:
                 rbac_role_id = role['id']
             if role['name'] == CONF.identity.admin_role:
                 admin_role_id = role['id']
 
         if not all([admin_role_id, rbac_role_id]):
-            msg = ("Roles defined by `[rbac] rbac_test_role` and `[identity] "
-                   "admin_role` must be defined in the system.")
+            msg = ("Roles defined by `[patrole] rbac_test_role` and "
+                   "`[identity] admin_role` must be defined in the system.")
             raise rbac_exceptions.RbacResourceSetupFailed(msg)
 
         self.admin_role_id = admin_role_id
@@ -201,13 +197,32 @@ class RbacUtils(object):
         else:
             self.switch_role_history[key] = toggle_rbac_role
 
+    def _get_roles(self):
+        available_roles = self.admin_roles_client.list_roles()
+        admin_role_id = rbac_role_id = None
+
+        for role in available_roles['roles']:
+            if role['name'] == CONF.patrole.rbac_test_role:
+                rbac_role_id = role['id']
+            if role['name'] == CONF.identity.admin_role:
+                admin_role_id = role['id']
+
+        if not admin_role_id or not rbac_role_id:
+            msg = "Role with name 'admin' does not exist in the system."\
+                if not admin_role_id else "Role defined by rbac_test_role "\
+                "does not exist in the system."
+            raise rbac_exceptions.RbacResourceSetupFailed(msg)
+
+        self.admin_role_id = admin_role_id
+        self.rbac_role_id = rbac_role_id
+
 
 def is_admin():
     """Verifies whether the current test role equals the admin role.
 
     :returns: True if ``rbac_test_role`` is the admin role.
     """
-    return CONF.rbac.rbac_test_role == CONF.identity.admin_role
+    return CONF.patrole.rbac_test_role == CONF.identity.admin_role
 
 
 @six.add_metaclass(abc.ABCMeta)

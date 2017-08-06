@@ -1,0 +1,6 @@
+---
+deprecations:
+  - |
+    The ``[rbac]`` configuration group has been deprecated and will be removed
+    in the next release. Use ``[patrole]`` group instead, which has the exact
+    same options.

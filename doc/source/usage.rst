@@ -30,7 +30,7 @@ To execute patrole tests for a specific module, run::
 To change the role that the patrole tests are being run as, edit
 ``rbac_test_role`` in the ``rbac`` section of tempest.conf: ::
 
-    [rbac]
+    [patrole]
     rbac_test_role = Member
     ...
 

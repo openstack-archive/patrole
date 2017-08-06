@@ -64,9 +64,9 @@ class RbacPolicyTest(base.TestCase):
             current_directory, 'resources', '%s.json')
 
         CONF.set_override(
-            'custom_policy_files', [self.conf_policy_path], group='rbac')
+            'custom_policy_files', [self.conf_policy_path], group='patrole')
         self.addCleanup(CONF.clear_override, 'custom_policy_files',
-                        group='rbac')
+                        group='patrole')
 
         # Guarantee a blank slate for each test.
         for attr in ('available_services', 'policy_files'):
@@ -393,7 +393,7 @@ class RbacPolicyTest(base.TestCase):
             'Policy file for {0} service neither found in code '\
             'nor at {1}.'.format(
                 'test_service',
-                [CONF.rbac.custom_policy_files[0] % 'test_service'])
+                [CONF.patrole.custom_policy_files[0] % 'test_service'])
 
         self.assertIn(expected_error, str(e))
 
@@ -439,7 +439,7 @@ class RbacPolicyTest(base.TestCase):
 
         expected_error = (
             'Policy file for {0} service neither found in code nor at {1}.'
-            .format('tenant_rbac_policy', [CONF.rbac.custom_policy_files[0]
+            .format('tenant_rbac_policy', [CONF.patrole.custom_policy_files[0]
                                            % 'tenant_rbac_policy']))
         self.assertIn(expected_error, str(e))
 
@@ -473,7 +473,7 @@ class RbacPolicyTest(base.TestCase):
         # The expected policy will be 'baz/test_service'.
         CONF.set_override(
             'custom_policy_files', ['foo/%s', 'bar/%s', 'baz/%s'],
-            group='rbac')
+            group='patrole')
 
         policy_parser = rbac_policy_parser.RbacPolicyParser(
             None, None, 'test_service')

@@ -35,7 +35,7 @@ class RBACUtilsTest(base.TestCase):
     def test_switch_role_with_missing_admin_role(self):
         self.rbac_utils.set_roles('member')
         error_re = (
-            'Roles defined by `\[rbac\] rbac_test_role` and `\[identity\] '
+            'Roles defined by `\[patrole\] rbac_test_role` and `\[identity\] '
             'admin_role` must be defined in the system.')
         self.assertRaisesRegex(rbac_exceptions.RbacResourceSetupFailed,
                                error_re, self.rbac_utils.switch_role)
@@ -43,7 +43,7 @@ class RBACUtilsTest(base.TestCase):
     def test_switch_role_with_missing_rbac_role(self):
         self.rbac_utils.set_roles('admin')
         error_re = (
-            'Roles defined by `\[rbac\] rbac_test_role` and `\[identity\] '
+            'Roles defined by `\[patrole\] rbac_test_role` and `\[identity\] '
             'admin_role` must be defined in the system.')
         self.assertRaisesRegex(rbac_exceptions.RbacResourceSetupFailed,
                                error_re, self.rbac_utils.switch_role)

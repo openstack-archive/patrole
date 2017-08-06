@@ -61,7 +61,7 @@ class RbacUtilsFixture(fixtures.Fixture):
     def setUp(self):
         super(RbacUtilsFixture, self).setUp()
 
-        self.useFixture(ConfPatcher(rbac_test_role='member', group='rbac'))
+        self.useFixture(ConfPatcher(rbac_test_role='member', group='patrole'))
         self.useFixture(ConfPatcher(
             admin_role='admin', auth_version='v3', group='identity'))
 

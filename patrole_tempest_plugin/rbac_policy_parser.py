@@ -72,11 +72,11 @@ class RbacPolicyParser(RbacAuthority):
 
         # Prioritize dynamically searching for policy files over relying on
         # deprecated service-specific policy file locations.
-        if CONF.rbac.custom_policy_files:
+        if CONF.patrole.custom_policy_files:
             self.discover_policy_files()
             self.path = self.policy_files.get(service)
         else:
-            self.path = getattr(CONF.rbac, '%s_policy_file' % str(service),
+            self.path = getattr(CONF.patrole, '%s_policy_file' % str(service),
                                 None)
 
         self.rules = policy.Rules.load(self._get_policy_data(service),
@@ -110,11 +110,11 @@ class RbacPolicyParser(RbacAuthority):
     def discover_policy_files(cls):
         # Dynamically discover the policy file for each service in
         # ``cls.available_services``. Pick the first ``candidate_path`` found
-        # out of the potential paths in ``CONF.rbac.custom_policy_files``.
+        # out of the potential paths in ``CONF.patrole.custom_policy_files``.
         if not hasattr(cls, 'policy_files'):
             cls.policy_files = {}
             for service in cls.available_services:
-                for candidate_path in CONF.rbac.custom_policy_files:
+                for candidate_path in CONF.patrole.custom_policy_files:
                     if os.path.isfile(candidate_path % service):
                         cls.policy_files.setdefault(service,
                                                     candidate_path % service)
@@ -178,7 +178,7 @@ class RbacPolicyParser(RbacAuthority):
             error_message = (
                 'Policy file for {0} service neither found in code nor at {1}.'
                 .format(service, [loc % service for loc in
-                                  CONF.rbac.custom_policy_files])
+                                  CONF.patrole.custom_policy_files])
             )
             raise rbac_exceptions.RbacParsingException(error_message)
 

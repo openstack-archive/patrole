@@ -7,7 +7,7 @@ The following is a sample Patrole configuration for adaptation and use.
 
 .. code-block:: ini
 
-    [rbac]
+    [patrole]
 
     # The role that you want the RBAC tests to use for RBAC testing
     # This needs to be edited to run the test as a different role.

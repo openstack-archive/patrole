@@ -30,10 +30,17 @@ class PatroleTempestPlugin(plugins.TempestPlugin):
         return full_test_dir, base_path
 
     def register_opts(self, conf):
+        # TODO(fmontei): Remove ``rbac_group`` in a future release as it is
+        # currently deprecated.
         config.register_opt_group(
             conf,
             project_config.rbac_group,
-            project_config.RbacGroup)
+            project_config.PatroleGroup)
+        config.register_opt_group(
+            conf,
+            project_config.patrole_group,
+            project_config.PatroleGroup)
 
     def get_opt_lists(self):
-        return [(project_config.rbac_group.name, project_config.RbacGroup)]
+        return [(project_config.patrole_group.name,
+                 project_config.PatroleGroup)]

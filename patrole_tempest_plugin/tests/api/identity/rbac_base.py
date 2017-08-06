@@ -31,7 +31,7 @@ class BaseIdentityV2RbacTest(base.BaseIdentityV2Test):
     @classmethod
     def skip_checks(cls):
         super(BaseIdentityV2RbacTest, cls).skip_checks()
-        if not CONF.rbac.enable_rbac:
+        if not CONF.patrole.enable_rbac:
             raise cls.skipException(
                 "%s skipped as RBAC testing not enabled" % cls.__name__)
 

@@ -5,7 +5,7 @@ Patrole Configuration Guide
 
 Patrole can be customized by updating Tempest's ``tempest.conf`` configuration
 file. All Patrole-specific configuration options should be included under
-the ``rbac`` group.
+the ``patrole`` group.
 
 RBAC Test Role
 --------------

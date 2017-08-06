@@ -72,7 +72,7 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
         extra_target_data = {}
 
     def decorator(func):
-        role = CONF.rbac.rbac_test_role
+        role = CONF.patrole.rbac_test_role
 
         def wrapper(*args, **kwargs):
             if args and isinstance(args[0], test.BaseTestCase):
@@ -149,9 +149,9 @@ def _is_authorized(test_obj, service, rule_name, extra_target_data):
 
     :raises RbacResourceSetupFailed: if project_id or user_id are missing from
         the Tempest test object's `auth_provider`
-    :raises RbacParsingException: if ``CONF.rbac.strict_policy_check`` is
+    :raises RbacParsingException: if ``CONF.patrole.strict_policy_check`` is
         enabled and the ``rule_name`` does not exist in the system
-    :raises skipException: if ``CONF.rbac.strict_policy_check`` is
+    :raises skipException: if ``CONF.patrole.strict_policy_check`` is
         disabled and the ``rule_name`` does not exist in the system
     """
     try:
@@ -164,11 +164,11 @@ def _is_authorized(test_obj, service, rule_name, extra_target_data):
         raise rbac_exceptions.RbacResourceSetupFailed(msg)
 
     try:
-        role = CONF.rbac.rbac_test_role
+        role = CONF.patrole.rbac_test_role
         # Test RBAC against custom requirements. Otherwise use oslo.policy
-        if CONF.rbac.test_custom_requirements:
+        if CONF.patrole.test_custom_requirements:
             authority = requirements_authority.RequirementsAuthority(
-                CONF.rbac.custom_requirements_file, service)
+                CONF.patrole.custom_requirements_file, service)
         else:
             formatted_target_data = _format_extra_target_data(
                 test_obj, extra_target_data)
@@ -185,7 +185,7 @@ def _is_authorized(test_obj, service, rule_name, extra_target_data):
                       rule_name, role)
         return is_allowed
     except rbac_exceptions.RbacParsingException as e:
-        if CONF.rbac.strict_policy_check:
+        if CONF.patrole.strict_policy_check:
             raise e
         else:
             raise testtools.TestCase.skipException(str(e))

@@ -14,16 +14,23 @@
 # under the License.
 
 """
-test_patrole
-----------------------------------
-
 Tests for `patrole` module.
 """
 
+from tempest import config
+
 from patrole_tempest_plugin.tests.unit import base
+
+CONF = config.CONF
 
 
 class TestPatrole(base.TestCase):
 
-    def test_something(self):
-        pass
+    def test_rbac_group_backwards_compatability(self):
+        """Validate that the deprecated group [rbac] is available and has the
+        same options and option values as [patrole] group, which is current.
+        """
+        self.assertTrue(hasattr(CONF, 'patrole'))
+        self.assertTrue(hasattr(CONF, 'rbac'))
+        # Validate that both groups are identical.
+        self.assertEqual(CONF.patrole.items(), CONF.rbac.items())
