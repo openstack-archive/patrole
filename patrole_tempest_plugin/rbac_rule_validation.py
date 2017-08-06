@@ -25,6 +25,7 @@ from tempest import test
 
 from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_policy_parser
+from patrole_tempest_plugin import rbac_utils
 from patrole_tempest_plugin import requirements_authority
 
 CONF = config.CONF
@@ -85,7 +86,7 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
                 LOG.info("As admin_only is True, only admin role should be "
                          "allowed to perform the API. Skipping oslo.policy "
                          "check for policy action {0}.".format(rule))
-                allowed = test_obj.rbac_utils.is_admin
+                allowed = rbac_utils.is_admin()
             else:
                 allowed = _is_authorized(test_obj, service, rule,
                                          extra_target_data)
