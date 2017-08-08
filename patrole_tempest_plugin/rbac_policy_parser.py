@@ -20,7 +20,7 @@ import os
 from oslo_log import log as logging
 from oslo_policy import policy
 import stevedore
-
+from tempest import clients
 from tempest.common import credentials_factory as credentials
 from tempest import config
 
@@ -93,7 +93,8 @@ class RbacPolicyParser(RbacAuthority):
         # Cache the list of available services in memory to avoid needlessly
         # doing an API call every time.
         if not hasattr(cls, 'available_services'):
-            admin_mgr = credentials.AdminManager()
+            admin_mgr = clients.Manager(
+                credentials.get_configured_admin_credentials())
             services_client = (admin_mgr.identity_services_v3_client
                                if CONF.identity_feature_enabled.api_v3
                                else admin_mgr.identity_services_client)
