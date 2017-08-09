@@ -36,7 +36,7 @@ The following is a sample Patrole configuration for adaptation and use.
     # are.
     test_custom_requirements = False
 
-    File path of the yaml file that defines your RBAC requirements. This
+    # File path of the yaml file that defines your RBAC requirements. This
     # file must be located on the same host that Patrole runs on. The yaml
     # file should be written as follows:
     custom_requirements_file = patrole/requirements.txt
