@@ -31,14 +31,13 @@ VI_HEADER_RE = re.compile(r"^#\s+vim?:.+")
 RAND_NAME_HYPHEN_RE = re.compile(r".*rand_name\(.+[\-\_][\"\']\)")
 MUTABLE_DEFAULT_ARGS = re.compile(r"^\s*def .+\((.+=\{\}|.+=\[\])")
 TESTTOOLS_SKIP_DECORATOR = re.compile(r'\s*@testtools\.skip\((.*)\)')
-TEST_METHOD = re.compile(r"^    def test_.+")
 CLASS = re.compile(r"^class .+")
 RBAC_CLASS_NAME_RE = re.compile(r'class .+RbacTest')
 RULE_VALIDATION_DECORATOR = re.compile(
-    r'\s*@.*rbac_rule_validation.action\((.*)\)')
+    r'\s*@rbac_rule_validation.action\(.*')
 IDEMPOTENT_ID_DECORATOR = re.compile(r'\s*@decorators\.idempotent_id\((.*)\)')
 
-previous_decorator = None
+have_rbac_decorator = False
 
 
 def import_no_clients_in_api_tests(physical_line, filename):
@@ -144,8 +143,7 @@ def use_rand_uuid_instead_of_uuid4(logical_line, filename):
     yield (0, msg)
 
 
-def no_rbac_rule_validation_decorator(physical_line, filename,
-                                      previous_logical):
+def no_rbac_rule_validation_decorator(physical_line, filename):
     """Check that each test has the ``rbac_rule_validation.action`` decorator.
 
     Checks whether the test function has "@rbac_rule_validation.action"
@@ -157,22 +155,24 @@ def no_rbac_rule_validation_decorator(physical_line, filename,
 
     P100
     """
-    global previous_decorator
+    global have_rbac_decorator
 
-    if "patrole_tempest_plugin/tests/api" in filename:
+    if ("patrole_tempest_plugin/tests/api" in filename or
+            "patrole_tempest_plugin/tests/scenario" in filename):
 
-        if IDEMPOTENT_ID_DECORATOR.match(physical_line):
-            previous_decorator = previous_logical
+        if RULE_VALIDATION_DECORATOR.match(physical_line):
+            have_rbac_decorator = True
             return
 
-        if TEST_METHOD.match(physical_line):
-            if not RULE_VALIDATION_DECORATOR.match(previous_logical) and \
-                not RULE_VALIDATION_DECORATOR.match(previous_decorator):
-                    return (0, "Must use rbac_rule_validation.action "
-                               "decorator for API and scenario tests")
+        if TEST_DEFINITION.match(physical_line):
+            if not have_rbac_decorator:
+                return (0, "Must use rbac_rule_validation.action "
+                           "decorator for API and scenario tests")
+
+            have_rbac_decorator = False
 
 
-def no_rbac_suffix_in_test_filename(physical_line, filename, previous_logical):
+def no_rbac_suffix_in_test_filename(filename):
     """Check that RBAC filenames end with "_rbac" suffix.
 
     P101
@@ -186,8 +186,7 @@ def no_rbac_suffix_in_test_filename(physical_line, filename, previous_logical):
             return 0, "RBAC test filenames must end in _rbac suffix"
 
 
-def no_rbac_test_suffix_in_test_class_name(physical_line, filename,
-                                           previous_logical):
+def no_rbac_test_suffix_in_test_class_name(physical_line, filename):
     """Check that RBAC class names end with "RbacTest"
 
     P102
@@ -202,7 +201,7 @@ def no_rbac_test_suffix_in_test_class_name(physical_line, filename,
                 return 0, "RBAC test class names must end in 'RbacTest'"
 
 
-def no_client_alias_in_test_cases(filename, logical_line):
+def no_client_alias_in_test_cases(logical_line, filename):
     """Check that test cases don't use "self.client" to define a client.
 
     P103

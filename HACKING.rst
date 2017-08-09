@@ -32,8 +32,7 @@ for more information:
 The following are Patrole's specific Commandments:
 
 - [P100] The ``rbac_rule_validation.action`` decorator must be applied to
-         an RBAC test (the check fails if the decorator is not one of the
-         two decorators directly above the function declaration)
+         an RBAC test
 - [P101] RBAC test filenames must end with "_rbac.py"; for example,
          test_servers_rbac.py, not test_servers.py
 - [P102] RBAC test class names must end in 'RbacTest'
