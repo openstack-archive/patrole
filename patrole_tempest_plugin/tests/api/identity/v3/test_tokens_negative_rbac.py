@@ -18,6 +18,7 @@ from tempest.lib import decorators
 from tempest.lib import exceptions as lib_exc
 
 from patrole_tempest_plugin import rbac_rule_validation
+from patrole_tempest_plugin import rbac_utils
 from patrole_tempest_plugin.tests.api.identity import rbac_base
 
 CONF = config.CONF
@@ -31,8 +32,8 @@ class IdentityTokenV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     def skip_checks(cls):
         super(IdentityTokenV3RbacTest, cls).skip_checks()
         # In case of admin, the positive testcase would be used, hence
-        # skipping negative testcase
-        if CONF.rbac.rbac_test_role == CONF.identity.admin_role:
+        # skipping negative testcase.
+        if rbac_utils.is_admin():
             raise cls.skipException(
                 "Skipped as admin role doesn't require negative testing")
 

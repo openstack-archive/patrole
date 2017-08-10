@@ -18,6 +18,7 @@ from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
+from patrole_tempest_plugin import rbac_utils
 from patrole_tempest_plugin.tests.api.identity import rbac_base
 
 CONF = config.CONF
@@ -112,7 +113,7 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         admin-scoped tenants, raise ``RbacActionFailed`` exception otherwise.
         """
         tenants_client = self.os_admin.tenants_client if \
-            self.rbac_utils.is_admin else self.os_primary.tenants_client
+            rbac_utils.is_admin() else self.os_primary.tenants_client
         admin_tenant_id = self.os_admin.credentials.project_id
         non_admin_tenant_id = self.os_primary.credentials.project_id
 
