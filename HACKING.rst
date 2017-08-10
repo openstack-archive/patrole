@@ -1,15 +1,15 @@
 Patrole Style Commandments
 ==========================
 
-- Step 1: Read the OpenStack Style Commandments: `<https://docs.openstack.org/developer/hacking/>`__
-- Step 2: Review Tempest's Style Commandments: `<https://docs.openstack.org/developer/tempest/HACKING.html>`__
+- Step 1: Read the OpenStack Style Commandments: `<https://docs.openstack.org/hacking/latest/>`__
+- Step 2: Review Tempest's Style Commandments: `<https://docs.openstack.org/tempest/latest/HACKING.html>`__
 - Step 3: Read on
 
 Patrole Specific Commandments
 ------------------------------
 
 Patrole borrows the following commandments from Tempest; refer to
-`Tempest's Commandments <https://docs.openstack.org/developer/tempest/HACKING.html>`__
+`Tempest's Commandments <https://docs.openstack.org/tempest/latest/HACKING.html>`__
 for more information:
 
 .. note::
