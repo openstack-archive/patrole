@@ -40,11 +40,11 @@ class RbacPolicyTest(base.TestCase):
 
     def setUp(self):
         super(RbacPolicyTest, self).setUp()
-
-        m_creds = self.patchobject(rbac_policy_parser, 'credentials')
-        m_creds.AdminManager().identity_services_client.list_services.\
+        self.patchobject(rbac_policy_parser, 'credentials')
+        m_creds = self.patchobject(rbac_policy_parser, 'clients')
+        m_creds.Manager().identity_services_client.list_services.\
             return_value = self.services
-        m_creds.AdminManager().identity_services_v3_client.list_services.\
+        m_creds.Manager().identity_services_v3_client.list_services.\
             return_value = self.services
 
         current_directory = os.path.dirname(os.path.realpath(__file__))
@@ -458,7 +458,7 @@ class RbacPolicyTest(base.TestCase):
     @mock.patch.object(rbac_policy_parser, 'policy', autospec=True)
     @mock.patch.object(rbac_policy_parser.RbacPolicyParser, '_get_policy_data',
                        autospec=True)
-    @mock.patch.object(rbac_policy_parser, 'credentials', autospec=True)
+    @mock.patch.object(rbac_policy_parser, 'clients', autospec=True)
     @mock.patch.object(rbac_policy_parser, 'os', autospec=True)
     def test_discover_policy_files_with_many_invalid_one_valid(self, m_os,
                                                                m_creds, *args):
@@ -466,7 +466,7 @@ class RbacPolicyTest(base.TestCase):
         m_os.path.isfile.side_effect = [False, False, True, False]
 
         # Ensure the outer for loop runs only once in `discover_policy_files`.
-        m_creds.AdminManager().identity_services_v3_client.\
+        m_creds.Manager().identity_services_v3_client.\
             list_services.return_value = {
                 'services': [{'name': 'test_service'}]}
 
@@ -504,10 +504,10 @@ class RbacPolicyTest(base.TestCase):
 
     def _test_validate_service(self, v2_services, v3_services,
                                expected_failure=False, expected_services=None):
-        with mock.patch.object(rbac_policy_parser, 'credentials') as m_creds:
-            m_creds.AdminManager().identity_services_client.list_services.\
+        with mock.patch.object(rbac_policy_parser, 'clients') as m_creds:
+            m_creds.Manager().identity_services_client.list_services.\
                 return_value = v2_services
-            m_creds.AdminManager().identity_services_v3_client.list_services.\
+            m_creds.Manager().identity_services_v3_client.list_services.\
                 return_value = v3_services
 
         test_tenant_id = mock.sentinel.tenant_id
