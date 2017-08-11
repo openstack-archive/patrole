@@ -206,9 +206,19 @@ class RbacUtils(object):
 
 @six.add_metaclass(abc.ABCMeta)
 class RbacAuthority(object):
-    # TODO(rb560u): Add documentation explaining what this class is for
+    """Class for validating whether a given role can perform a policy action.
+
+    Any class that extends ``RbacAuthority`` provides the logic for determining
+    whether a role has permissions to execute a policy action.
+    """
 
     @abc.abstractmethod
-    def allowed(self, rule_name, role):
-        """Determine whether the role should be able to perform the API"""
-        return
+    def allowed(self, rule, role):
+        """Determine whether the role should be able to perform the API.
+
+        :param rule: The name of the policy enforced by the API.
+        :param role: The role used to determine whether ``rule`` can be
+            executed.
+        :returns: True if the ``role`` has permissions to execute
+            ``rule``, else False.
+        """
