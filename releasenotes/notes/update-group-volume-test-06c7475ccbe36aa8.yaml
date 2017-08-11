@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add test for updating a volume group, providing coverage for group:update
+    policy action.
