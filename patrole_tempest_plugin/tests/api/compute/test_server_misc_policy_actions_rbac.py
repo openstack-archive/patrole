@@ -200,6 +200,40 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             raise rbac_exceptions.RbacMalformedResponse(
                 attribute='events.traceback')
 
+    @decorators.idempotent_id('82053c27-3134-4003-9b55-bc9fafdb0e3b')
+    @test.requires_ext(extension='OS-EXT-STS', service='compute')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-extended-status")
+    def test_list_servers_extended_status(self):
+        """Test list servers with extended properties in response body."""
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        body = self.servers_client.list_servers(detail=True)['servers']
+
+        expected_attrs = ('OS-EXT-STS:task_state', 'OS-EXT-STS:vm_state',
+                          'OS-EXT-STS:power_state')
+        for attr in expected_attrs:
+            if attr not in body[0]:
+                raise rbac_exceptions.RbacMalformedResponse(
+                    attribute=attr)
+
+    @decorators.idempotent_id('7d2620a5-eea1-4a8b-96ea-86ad77a73fc8')
+    @test.requires_ext(extension='OS-EXT-STS', service='compute')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-extended-status")
+    def test_show_server_extended_status(self):
+        """Test show server with extended properties in response body."""
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        body = self.servers_client.show_server(self.server['id'])['server']
+
+        expected_attrs = ('OS-EXT-STS:task_state', 'OS-EXT-STS:vm_state',
+                          'OS-EXT-STS:power_state')
+        for attr in expected_attrs:
+            if attr not in body:
+                raise rbac_exceptions.RbacMalformedResponse(
+                    attribute=attr)
+
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-lock-server:lock")
