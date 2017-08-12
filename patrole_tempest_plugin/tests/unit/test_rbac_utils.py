@@ -34,17 +34,19 @@ class RBACUtilsTest(base.TestCase):
 
     def test_switch_role_with_missing_admin_role(self):
         self.rbac_utils.set_roles('member')
-        e = self.assertRaises(rbac_exceptions.RbacResourceSetupFailed,
-                              self.rbac_utils.switch_role, True)
-        self.assertIn("Role with name 'admin' does not exist in the system.",
-                      e.__str__())
+        error_re = (
+            'Roles defined by `\[rbac\] rbac_test_role` and `\[identity\] '
+            'admin_role` must be defined in the system.')
+        self.assertRaisesRegex(rbac_exceptions.RbacResourceSetupFailed,
+                               error_re, self.rbac_utils.switch_role)
 
     def test_switch_role_with_missing_rbac_role(self):
         self.rbac_utils.set_roles('admin')
-        e = self.assertRaises(rbac_exceptions.RbacResourceSetupFailed,
-                              self.rbac_utils.switch_role, True)
-        self.assertIn("Role defined by rbac_test_role does not exist in the "
-                      "system.", e.__str__())
+        error_re = (
+            'Roles defined by `\[rbac\] rbac_test_role` and `\[identity\] '
+            'admin_role` must be defined in the system.')
+        self.assertRaisesRegex(rbac_exceptions.RbacResourceSetupFailed,
+                               error_re, self.rbac_utils.switch_role)
 
     def test_switch_role_to_admin_role(self):
         self.rbac_utils.switch_role()
@@ -60,6 +62,16 @@ class RBACUtilsTest(base.TestCase):
         mock_test_obj.os_primary.auth_provider.set_auth\
             .assert_called_once_with()
         mock_time.sleep.assert_called_once_with(1)
+
+    def test_switch_role_to_admin_role_avoids_role_switch(self):
+        self.rbac_utils.set_roles(['admin', 'member'], 'admin')
+        self.rbac_utils.switch_role()
+
+        roles_client = self.rbac_utils.roles_v3_client
+        mock_time = self.rbac_utils.mock_time
+
+        roles_client.create_user_role_on_project.assert_not_called()
+        mock_time.sleep.assert_not_called()
 
     def test_switch_role_to_member_role(self):
         self.rbac_utils.switch_role(True)
@@ -79,6 +91,19 @@ class RBACUtilsTest(base.TestCase):
         mock_test_obj.os_primary.auth_provider.set_auth.assert_has_calls(
             [mock.call()] * 2)
         mock_time.sleep.assert_has_calls([mock.call(1)] * 2)
+
+    def test_switch_role_to_member_role_avoids_role_switch(self):
+        self.rbac_utils.set_roles(['admin', 'member'], 'member')
+        self.rbac_utils.switch_role(True)
+
+        roles_client = self.rbac_utils.roles_v3_client
+        mock_time = self.rbac_utils.mock_time
+
+        roles_client.create_user_role_on_project.assert_has_calls([
+            mock.call(self.rbac_utils.PROJECT_ID, self.rbac_utils.USER_ID,
+                      'admin_id')
+        ])
+        mock_time.sleep.assert_called_once_with(1)
 
     def test_switch_role_to_member_role_then_admin_role(self):
         self.rbac_utils.switch_role(True, False)
@@ -137,19 +162,22 @@ class RBACUtilsTest(base.TestCase):
         self.assertIn(expected_error_message, str(e))
 
     def test_clear_user_roles(self):
-        self.rbac_utils.switch_role(True)
+        # NOTE(felipemonteiro): Set the user's roles on the project to
+        # include 'random' to coerce a role switch, or else it will be
+        # skipped.
+        self.rbac_utils.set_roles(['admin', 'member'], ['member', 'random'])
+        self.rbac_utils.switch_role()
 
         roles_client = self.rbac_utils.roles_v3_client
 
-        roles_client.list_user_roles_on_project.assert_has_calls([
-            mock.call(self.rbac_utils.PROJECT_ID, self.rbac_utils.USER_ID)
-        ] * 2)
+        roles_client.list_user_roles_on_project.assert_called_once_with(
+            self.rbac_utils.PROJECT_ID, self.rbac_utils.USER_ID)
         roles_client.delete_role_from_user_on_project.\
             assert_has_calls([
                 mock.call(mock.sentinel.project_id, mock.sentinel.user_id,
-                          'admin_id'),
+                          'member_id'),
                 mock.call(mock.sentinel.project_id, mock.sentinel.user_id,
-                          'member_id')] * 2)
+                          'random_id')])
 
     @mock.patch.object(rbac_utils, 'LOG', autospec=True)
     @mock.patch.object(rbac_utils, 'sys', autospec=True)

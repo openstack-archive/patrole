@@ -19,7 +19,7 @@ import sys
 import time
 
 from oslo_log import log as logging
-import oslo_utils.uuidutils as uuid_utils
+from oslo_utils import excutils
 import testtools
 
 from tempest.common import credentials_factory as credentials
@@ -39,15 +39,13 @@ class RbacUtils(object):
     seamlessly swap between admin credentials, needed for setup and clean up,
     and primary credentials, needed to perform the API call which does
     policy enforcement. The primary credentials always cycle between roles
-    defined by ``CONF.identity.admin_role`` and `CONF.rbac.rbac_test_role``.
+    defined by ``[identity] admin_role`` and ``[rbac] rbac_test_role``.
     """
 
     def __init__(self, test_obj):
         """Constructor for ``RbacUtils``.
 
-        :param test_obj: A Tempest test instance.
-        :type test_obj: tempest.lib.base.BaseTestCase or
-            tempest.test.BaseTestCase
+        :param test_obj: An instance of `tempest.test.BaseTestCase`.
         """
         # Since we are going to instantiate a client manager with
         # admin credentials, first check if admin is available.
@@ -80,56 +78,83 @@ class RbacUtils(object):
 
         Switch the role used by `os_primary` credentials to:
           * admin if `toggle_rbac_role` is False
-          * `CONF.rbac.rbac_test_role` if `toggle_rbac_role` is True
+          * `[rbac] rbac_test_role` if `toggle_rbac_role` is True
 
-        :param test_obj: test object of type tempest.lib.base.BaseTestCase
-        :param toggle_rbac_role: role to switch `os_primary` Tempest creds to
+        :param test_obj: An instance of `tempest.test.BaseTestCase`.
+        :param toggle_rbac_role: Role to switch `os_primary` Tempest creds to.
+        :returns: None.
+        :raises RbacResourceSetupFailed: If admin or test roles are missing. Or
+            if `toggle_rbac_role` is not a boolean value or role validation
+            fails.
         """
         self.user_id = test_obj.os_primary.credentials.user_id
         self.project_id = test_obj.os_primary.credentials.tenant_id
         self.token = test_obj.os_primary.auth_provider.get_token()
 
         LOG.debug('Switching role to: %s.', toggle_rbac_role)
+        role_already_present = False
+
         try:
-            if not self.admin_role_id or not self.rbac_role_id:
-                self._get_roles()
+            if not all([self.admin_role_id, self.rbac_role_id]):
+                self._get_roles_by_name()
 
             self._validate_switch_role(test_obj, toggle_rbac_role)
 
-            if toggle_rbac_role:
-                self._add_role_to_user(self.rbac_role_id)
-            else:
-                self._add_role_to_user(self.admin_role_id)
+            target_role = (
+                self.rbac_role_id if toggle_rbac_role else self.admin_role_id)
+            role_already_present = self._list_and_clear_user_roles_on_project(
+                target_role)
+
+            # Do not switch roles if `target_role` already exists.
+            if not role_already_present:
+                self._create_user_role_on_project(target_role)
         except Exception as exp:
-            LOG.exception(exp)
-            raise
+            with excutils.save_and_reraise_exception():
+                LOG.exception(exp)
         finally:
             test_obj.os_primary.auth_provider.clear_auth()
             # Fernet tokens are not subsecond aware so sleep to ensure we are
             # passing the second boundary before attempting to authenticate.
-            #
-            # FIXME(felipemonteiro): Rather than skipping sleep if the token
-            # is not uuid, this should instead be skipped if the token is not
-            # Fernet.
-            if not uuid_utils.is_uuid_like(self.token):
+            # Only sleep if a token revocation occurred as a result of role
+            # switching. This will optimize test runtime in the case where
+            # ``[identity] admin_role`` == ``[rbac] rbac_test_role``.
+            if not role_already_present:
                 time.sleep(1)
             test_obj.os_primary.auth_provider.set_auth()
 
-    def _add_role_to_user(self, role_id):
-        role_already_present = self._clear_user_roles(role_id)
-        if role_already_present:
-            return
+    def _get_roles_by_name(self):
+        available_roles = self.admin_roles_client.list_roles()
+        admin_role_id = rbac_role_id = None
 
+        for role in available_roles['roles']:
+            if role['name'] == CONF.rbac.rbac_test_role:
+                rbac_role_id = role['id']
+            if role['name'] == CONF.identity.admin_role:
+                admin_role_id = role['id']
+
+        if not all([admin_role_id, rbac_role_id]):
+            msg = ("Roles defined by `[rbac] rbac_test_role` and `[identity] "
+                   "admin_role` must be defined in the system.")
+            raise rbac_exceptions.RbacResourceSetupFailed(msg)
+
+        self.admin_role_id = admin_role_id
+        self.rbac_role_id = rbac_role_id
+
+    def _create_user_role_on_project(self, role_id):
         self.admin_roles_client.create_user_role_on_project(
             self.project_id, self.user_id, role_id)
 
-    def _clear_user_roles(self, role_id):
+    def _list_and_clear_user_roles_on_project(self, role_id):
         roles = self.admin_roles_client.list_user_roles_on_project(
             self.project_id, self.user_id)['roles']
-
-        # If the user already has the role that is required, return early.
         role_ids = [role['id'] for role in roles]
-        if role_ids == [role_id]:
+
+        # NOTE(felipemonteiro): We do not use ``role_id in role_ids`` here to
+        # avoid over-permission errors: if the current list of roles on the
+        # project includes "admin" and "Member", and we are switching to the
+        # "Member" role, then we must delete the "admin" role. Thus, we only
+        # return early if the user's roles on the project are an exact match.
+        if [role_id] == role_ids:
             return True
 
         for role in roles:
@@ -139,11 +164,11 @@ class RbacUtils(object):
         return False
 
     def _validate_switch_role(self, test_obj, toggle_rbac_role):
-        """Validates that the rbac role passed to `switch_role` is legal.
+        """Validates that the test role passed to `switch_role` is legal.
 
         Throws an error for the following improper usages of `switch_role`:
             * `switch_role` is not called with a boolean value
-            * `switch_role` is never called in a test file, except in tearDown
+            * `switch_role` is never called inside a test, except in tearDown
             * `switch_role` is called with the same boolean value twice
 
         If a `skipException` is thrown then this is a legitimate reason why
@@ -151,7 +176,7 @@ class RbacUtils(object):
         """
         if not isinstance(toggle_rbac_role, bool):
             raise rbac_exceptions.RbacResourceSetupFailed(
-                'toggle_rbac_role must be a boolean value.')
+                '`toggle_rbac_role` must be a boolean value.')
 
         # The unique key is the combination of module path plus class name.
         class_name = test_obj.__name__ if isinstance(test_obj, type) else \
@@ -175,25 +200,6 @@ class RbacUtils(object):
                 raise rbac_exceptions.RbacResourceSetupFailed(error_message)
         else:
             self.switch_role_history[key] = toggle_rbac_role
-
-    def _get_roles(self):
-        available_roles = self.admin_roles_client.list_roles()
-        admin_role_id = rbac_role_id = None
-
-        for role in available_roles['roles']:
-            if role['name'] == CONF.rbac.rbac_test_role:
-                rbac_role_id = role['id']
-            if role['name'] == CONF.identity.admin_role:
-                admin_role_id = role['id']
-
-        if not admin_role_id or not rbac_role_id:
-            msg = "Role with name 'admin' does not exist in the system."\
-                if not admin_role_id else "Role defined by rbac_test_role "\
-                "does not exist in the system."
-            raise rbac_exceptions.RbacResourceSetupFailed(msg)
-
-        self.admin_role_id = admin_role_id
-        self.rbac_role_id = rbac_role_id
 
 
 def is_admin():
