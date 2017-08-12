@@ -173,8 +173,8 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
 
         # Rather than throwing a 403, the field is not present, so raise exc.
         if 'distributed' not in retrieved_fields:
-            raise rbac_exceptions.RbacActionFailed(
-                '"distributed" parameter not present in response body')
+            raise rbac_exceptions.RbacMalformedResponse(
+                attribute='distributed')
 
     @rbac_rule_validation.action(
         service="neutron", rule="update_router")

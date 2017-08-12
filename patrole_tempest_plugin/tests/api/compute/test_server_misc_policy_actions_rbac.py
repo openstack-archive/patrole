@@ -137,8 +137,8 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         body = self.servers_client.list_servers(detail=True)['servers']
         # If the first server contains "config_drive", then all the others do.
         if 'config_drive' not in body[0]:
-            raise rbac_exceptions.RbacActionFailed(
-                '"config_drive" attribute not found in response body.')
+            raise rbac_exceptions.RbacMalformedResponse(
+                attribute='config_drive')
 
     @test.requires_ext(extension='os-config-drive', service='compute')
     @decorators.idempotent_id('55c62ef7-b72b-4970-acc6-05b0a4316e5d')
@@ -150,8 +150,8 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         body = self.servers_client.show_server(self.server['id'])['server']
         if 'config_drive' not in body:
-            raise rbac_exceptions.RbacActionFailed(
-                '"config_drive" attribute not found in response body.')
+            raise rbac_exceptions.RbacMalformedResponse(
+                attribute="config_drive")
 
     @test.requires_ext(extension='os-deferred-delete', service='compute')
     @decorators.idempotent_id('189bfed4-1e6d-475c-bb8c-d57e60895391')
@@ -192,14 +192,13 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             self.server['id'], request_id)['instanceAction']
 
         if 'events' not in instance_action:
-            raise rbac_exceptions.RbacActionFailed(
-                '"%s" attribute not found in response body.' % 'events')
+            raise rbac_exceptions.RbacMalformedResponse(
+                attribute='events')
         # Microversion 2.51+ returns 'events' always, but not 'traceback'. If
         # 'traceback' is also present then policy enforcement passed.
         if 'traceback' not in instance_action['events'][0]:
-            raise rbac_exceptions.RbacActionFailed(
-                '"%s" attribute not found in response body.'
-                % 'events.traceback')
+            raise rbac_exceptions.RbacMalformedResponse(
+                attribute='events.traceback')
 
     @rbac_rule_validation.action(
         service="nova",

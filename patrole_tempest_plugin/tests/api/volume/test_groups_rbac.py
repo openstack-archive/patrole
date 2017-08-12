@@ -128,9 +128,8 @@ class GroupTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
         group_type = self.create_group_type(ignore_notfound=True)
 
         if 'group_specs' not in group_type:
-            raise rbac_exceptions.RbacActionFailed(
-                'Policy %s does not return %s in response body.' %
-                ('group:access_group_types_specs', 'group_specs'))
+            raise rbac_exceptions.RbacMalformedResponse(
+                attribute='group_specs')
 
     @decorators.idempotent_id('f77f8156-4fc9-4f02-be15-8930f748e10c')
     @rbac_rule_validation.action(

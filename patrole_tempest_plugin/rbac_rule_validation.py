@@ -101,7 +101,9 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
                 LOG.error(msg)
                 raise exceptions.NotFound(
                     "%s RbacInvalidService was: %s" % (msg, e))
-            except (expected_exception, rbac_exceptions.RbacActionFailed) as e:
+            except (expected_exception,
+                    rbac_exceptions.RbacConflictingPolicies,
+                    rbac_exceptions.RbacMalformedResponse) as e:
                 if irregular_msg:
                     LOG.warning(irregular_msg.format(rule, service))
                 if allowed:

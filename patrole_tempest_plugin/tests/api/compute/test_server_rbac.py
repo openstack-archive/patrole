@@ -184,7 +184,7 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
             # Some other policy may have blocked it.
             LOG.info("ServerFault exception caught. Some other policy "
                      "blocked updating of server")
-            raise rbac_exceptions.RbacActionFailed(e)
+            raise rbac_exceptions.RbacConflictingPolicies(e)
 
 
 class SecurtiyGroupsRbacTest(base.BaseV2ComputeRbacTest):
