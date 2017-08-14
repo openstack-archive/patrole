@@ -90,6 +90,18 @@ class GroupsV3RbacTest(rbac_base.BaseVolumeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.groups_client.list_groups(detail=True)['groups']
 
+    @decorators.idempotent_id('f499fc48-df83-4917-bf8d-783ebf6f080b')
+    @rbac_rule_validation.action(
+        service="cinder",
+        rule="group:update")
+    def test_update_group(self):
+        group = self._create_group(group_type=self.group_type_id,
+                                   volume_types=[self.volume_type_id])
+        updated_name = data_utils.rand_name(self.__class__.__name__ + '-Group')
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.groups_client.update_group(group['id'], name=updated_name)
+
     @decorators.idempotent_id('66fda391-5774-42a9-a018-80b34e57ab76')
     @rbac_rule_validation.action(
         service="cinder",
