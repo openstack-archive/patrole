@@ -1,0 +1,28 @@
+---
+features:
+  - |
+    Added in a new logging feature which logs the result of each Patrole test
+
+    The format of the new log output is:
+
+      "[Service]: %s, [Test]: %s, [Rule]: %s, [Expected]: %s, [Actual]: %s"
+
+      where each "%s" is a string that contains:
+
+      * [Service] - The openstack service being tested (Nova, Neutron, etc)
+      * [Test] - The name of the test function being invoked (eg: test_list_aggregate_rbac)
+      * [Rule] - The name of the rule the Patrole test is testing (eg: os_compute_api:os-aggregates)
+      * [Expected] - The expected outcome (one of Allowed/Denied)
+      * [Actual] - The actual outcome from the Patrole test (one of Allowed/Denied/Error)
+
+    This logging feature has two config variables:
+
+      These variables are part of a new config group ``patrole_log``
+
+      * enable_reporting:
+          This enables or disables the enhanced rbac reporting
+      * report_log_name:
+          This variable specifies the name of the log file to write
+      * report_log_path:
+          This variable specifies the path (relative or absolute)
+          of the log file to write

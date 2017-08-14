@@ -147,3 +147,23 @@ rbac_group = cfg.OptGroup(name='rbac',
                           help="This group is deprecated and will be removed "
                                "in the next release. Use the [patrole] group "
                                "instead.")
+
+patrole_log_group = cfg.OptGroup(
+    name='patrole_log', title='Patrole Logging Options')
+
+PatroleLogGroup = [
+    cfg.BoolOpt('enable_reporting',
+                default=False,
+                help="Enables reporting on RBAC expected and actual test "
+                     "results for each Patrole test"),
+    cfg.StrOpt('report_log_name',
+               default='patrole.log',
+               help="Name of file where output from 'enable_reporting' is "
+                    "logged. Note that this file is recreated on each "
+                    "invocation of patrole"),
+    cfg.StrOpt('report_log_path',
+               default='.',
+               help="Path (relative or absolute) where the output from "
+                    "'enable_reporting' is logged. This is combined with"
+                    "report_log_name to generate the full path."),
+]

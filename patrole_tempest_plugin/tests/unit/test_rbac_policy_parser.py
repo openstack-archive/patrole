@@ -81,7 +81,7 @@ class RbacPolicyTest(base.TestCase):
                         group='identity-feature-enabled')
 
     def _get_fake_policy_rule(self, name, rule):
-        fake_rule = mock.Mock(check=rule)
+        fake_rule = mock.Mock(check=rule, __name__='foo')
         fake_rule.name = name
         return fake_rule
 
@@ -291,6 +291,7 @@ class RbacPolicyTest(base.TestCase):
         parser = rbac_policy_parser.RbacPolicyParser(
             test_tenant_id, test_user_id, "custom_rbac_policy")
         parser.rules = mock.MagicMock(
+            __name__='foo',
             **{'__getitem__.return_value.side_effect': Exception(
                mock.sentinel.error)})
 
@@ -314,7 +315,7 @@ class RbacPolicyTest(base.TestCase):
                                        'rule:code_rule_3'),
         ]
 
-        mock_manager = mock.Mock(obj=fake_policy_rules)
+        mock_manager = mock.Mock(obj=fake_policy_rules, __name__='foo')
         mock_manager.configure_mock(name='fake_service')
         mock_stevedore.named.NamedExtensionManager.return_value = [
             mock_manager
@@ -355,7 +356,7 @@ class RbacPolicyTest(base.TestCase):
                                        'rule:code_rule_3'),
         ]
 
-        mock_manager = mock.Mock(obj=fake_policy_rules)
+        mock_manager = mock.Mock(obj=fake_policy_rules, __name__='foo')
         mock_manager.configure_mock(name='fake_service')
         mock_stevedore.named.NamedExtensionManager.return_value = [
             mock_manager
@@ -401,10 +402,10 @@ class RbacPolicyTest(base.TestCase):
     @mock.patch.object(rbac_policy_parser, 'stevedore', autospec=True)
     def test_get_policy_data_without_valid_policy(self, mock_stevedore,
                                                   mock_json):
-        test_policy_action = mock.Mock(check='rule:bar')
+        test_policy_action = mock.Mock(check='rule:bar', __name__='foo')
         test_policy_action.configure_mock(name='foo')
 
-        test_policy = mock.Mock(obj=[test_policy_action])
+        test_policy = mock.Mock(obj=[test_policy_action], __name__='foo')
         test_policy.configure_mock(name='test_service')
 
         mock_stevedore.named.NamedExtensionManager\

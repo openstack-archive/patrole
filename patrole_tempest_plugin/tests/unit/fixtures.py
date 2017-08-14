@@ -73,7 +73,7 @@ class RbacUtilsFixture(fixtures.Fixture):
             'os_primary.credentials.project_id': self.PROJECT_ID,
             'get_identity_version.return_value': 'v3'
         }
-        self.mock_test_obj = mock.Mock(**test_obj_kwargs)
+        self.mock_test_obj = mock.Mock(__name__='foo', **test_obj_kwargs)
 
         # Mock out functionality that can't be used by unit tests.
         self.mock_time = mock.patch.object(rbac_utils, 'time').start()

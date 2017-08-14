@@ -46,7 +46,7 @@ Correct role switching is vital to correct RBAC testing within Patrole. If a
 test does not call ``rbac_utils.switch_role`` with ``toggle_rbac_role=True``
 within the RBAC test, then the test is *not* a valid RBAC test: The API
 endpoint under test will be performed with admin credentials, which is always
-wrong unless ``CONF.rbac_test_role`` is admin.
+wrong unless ``CONF.patrole.rbac_test_role`` is admin.
 
 .. note::
 

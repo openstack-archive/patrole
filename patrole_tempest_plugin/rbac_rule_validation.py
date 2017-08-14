@@ -33,6 +33,8 @@ LOG = logging.getLogger(__name__)
 
 _SUPPORTED_ERROR_CODES = [403, 404]
 
+RBACLOG = logging.getLogger('rbac_reporting')
+
 
 def action(service, rule='', admin_only=False, expected_error_code=403,
            extra_target_data=None):
@@ -118,7 +120,7 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
     if extra_target_data is None:
         extra_target_data = {}
 
-    def decorator(func):
+    def decorator(test_func):
         role = CONF.patrole.rbac_test_role
 
         def wrapper(*args, **kwargs):
@@ -129,28 +131,26 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
                     '`rbac_rule_validation` decorator can only be applied to '
                     'an instance of `tempest.test.BaseTestCase`.')
 
-            if admin_only:
-                LOG.info("As admin_only is True, only admin role should be "
-                         "allowed to perform the API. Skipping oslo.policy "
-                         "check for policy action {0}.".format(rule))
-                allowed = rbac_utils.is_admin()
-            else:
-                allowed = _is_authorized(test_obj, service, rule,
-                                         extra_target_data)
+            allowed = _is_authorized(test_obj, service, rule,
+                                     extra_target_data, admin_only)
 
             expected_exception, irregular_msg = _get_exception_type(
                 expected_error_code)
 
+            test_status = 'Allowed'
+
             try:
-                func(*args, **kwargs)
+                test_func(*args, **kwargs)
             except rbac_exceptions.RbacInvalidService as e:
                 msg = ("%s is not a valid service." % service)
+                test_status = ('Error, %s' % (msg))
                 LOG.error(msg)
                 raise exceptions.NotFound(
                     "%s RbacInvalidService was: %s" % (msg, e))
             except (expected_exception,
                     rbac_exceptions.RbacConflictingPolicies,
                     rbac_exceptions.RbacMalformedResponse) as e:
+                test_status = 'Denied'
                 if irregular_msg:
                     LOG.warning(irregular_msg.format(rule, service))
                 if allowed:
@@ -162,9 +162,10 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
             except Exception as e:
                 exc_info = sys.exc_info()
                 error_details = exc_info[1].__str__()
-                msg = ("%s An unexpected exception has occurred: Expected "
-                       "exception was %s, which was not thrown."
-                       % (error_details, expected_exception.__name__))
+                msg = ("An unexpected exception has occurred during test: %s, "
+                       "Exception was: %s"
+                       % (test_func.__name__, error_details))
+                test_status = ('Error, %s' % (error_details))
                 LOG.error(msg)
                 six.reraise(exc_info[0], exc_info[0](msg), exc_info[2])
             else:
@@ -177,13 +178,20 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
             finally:
                 test_obj.rbac_utils.switch_role(test_obj,
                                                 toggle_rbac_role=False)
+                if CONF.patrole_log.enable_reporting:
+                    RBACLOG.info(
+                        "[Service]: %s, [Test]: %s, [Rule]: %s, "
+                        "[Expected]: %s, [Actual]: %s",
+                        service, test_func.__name__, rule,
+                        "Allowed" if allowed else "Denied",
+                        test_status)
 
         _wrapper = testtools.testcase.attr(role)(wrapper)
         return _wrapper
     return decorator
 
 
-def _is_authorized(test_obj, service, rule, extra_target_data):
+def _is_authorized(test_obj, service, rule, extra_target_data, admin_only):
     """Validates whether current RBAC role has permission to do policy action.
 
     :param test_obj: An instance or subclass of `tempest.base.BaseTestCase`.
@@ -195,8 +203,15 @@ def _is_authorized(test_obj, service, rule, extra_target_data):
         `tempest.base.BaseTestCase` attributes. Used by `oslo.policy` for
         performing matching against attributes that are sent along with the API
         calls.
+    :param admin_only: Skips over `oslo.policy` check because the policy action
+        defined by `rule` is not enforced by the service's policy
+        enforcement engine. For example, Keystone v2 performs an admin check
+        for most of its endpoints. If True, `rule` is effectively
+        ignored.
+
     :returns: True if the current RBAC role can perform the policy action,
         else False.
+
     :raises RbacResourceSetupFailed: If `project_id` or `user_id` are missing
         from the `auth_provider` attribute in `test_obj`.
     :raises RbacParsingException: if ``[patrole] strict_policy_check`` is True
@@ -204,6 +219,13 @@ def _is_authorized(test_obj, service, rule, extra_target_data):
     :raises skipException: If ``[patrole] strict_policy_check`` is False and
         the ``rule`` does not exist in the system.
     """
+
+    if admin_only:
+        LOG.info("As admin_only is True, only admin role should be "
+                 "allowed to perform the API. Skipping oslo.policy "
+                 "check for policy action {0}.".format(rule))
+        return rbac_utils.is_admin()
+
     try:
         project_id = test_obj.os_primary.credentials.project_id
         user_id = test_obj.os_primary.credentials.user_id
@@ -260,7 +282,7 @@ def _get_exception_type(expected_error_code=403):
     irregular_msg = None
 
     if not isinstance(expected_error_code, six.integer_types) \
-        or expected_error_code not in _SUPPORTED_ERROR_CODES:
+            or expected_error_code not in _SUPPORTED_ERROR_CODES:
         msg = ("Please pass an expected error code. Currently "
                "supported codes: {0}".format(_SUPPORTED_ERROR_CODES))
         LOG.error(msg)
