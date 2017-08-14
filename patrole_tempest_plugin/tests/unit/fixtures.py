@@ -53,14 +53,10 @@ class ConfPatcher(fixtures.Fixture):
 
 
 class RbacUtilsFixture(fixtures.Fixture):
-    """Fixture for RbacUtils class."""
+    """Fixture for `RbacUtils` class."""
 
     USER_ID = mock.sentinel.user_id
     PROJECT_ID = mock.sentinel.project_id
-
-    def __init__(self, **kwargs):
-        super(RbacUtilsFixture, self).__init__()
-        self.available_roles = None
 
     def setUp(self):
         super(RbacUtilsFixture, self).setUp()
@@ -81,29 +77,54 @@ class RbacUtilsFixture(fixtures.Fixture):
         self.roles_v3_client = (
             self.mock_test_obj.get_client_manager.return_value.roles_v3_client)
 
+        self.set_roles(['admin', 'member'], [])
+
     def switch_role(self, *role_toggles):
         """Instantiate `rbac_utils.RbacUtils` and call `switch_role`.
 
         Create an instance of `rbac_utils.RbacUtils` and call `switch_role`
         for each boolean value in `role_toggles`. The number of calls to
-        `switch_role` is always 1 + len(role_toggles) because the
+        `switch_role` is always 1 + len(`role_toggles`) because the
         `rbac_utils.RbacUtils` constructor automatically calls `switch_role`.
 
         :param role_toggles: the list of boolean values iterated over and
             passed to `switch_role`.
         """
-        if not self.available_roles:
-            self.set_roles('admin', 'member')
-
         self.fake_rbac_utils = rbac_utils.RbacUtils(self.mock_test_obj)
+
         for role_toggle in role_toggles:
             self.fake_rbac_utils.switch_role(self.mock_test_obj, role_toggle)
+            # NOTE(felipemonteiro): Simulate that a role switch has occurred
+            # by updating the user's current role to the new role. This means
+            # that all API actions involved during a role switch -- listing,
+            # deleting and adding roles -- are executed, making it easier to
+            # assert that mock calls were called as expected.
+            new_role = 'member' if role_toggle else 'admin'
+            self.set_roles(['admin', 'member'], [new_role])
 
-    def set_roles(self, *roles):
-        """Set the list of available roles in the system to `roles`."""
-        self.available_roles = {
+    def set_roles(self, roles, roles_on_project=None):
+        """Set the list of available roles in the system.
+
+        :param roles: List of roles returned by ``list_roles``.
+        :param roles_on_project: List of roles returned by
+            ``list_user_roles_on_project``.
+        :returns: None.
+        """
+        if not roles_on_project:
+            roles_on_project = []
+        if not isinstance(roles, list):
+            roles = [roles]
+        if not isinstance(roles_on_project, list):
+            roles_on_project = [roles_on_project]
+
+        available_roles = {
             'roles': [{'name': role, 'id': '%s_id' % role} for role in roles]
         }
-        self.roles_v3_client.list_user_roles_on_project.return_value =\
-            self.available_roles
-        self.roles_v3_client.list_roles.return_value = self.available_roles
+        available_project_roles = {
+            'roles': [{'name': role, 'id': '%s_id' % role}
+                      for role in roles_on_project]
+        }
+
+        self.roles_v3_client.list_roles.return_value = available_roles
+        self.roles_v3_client.list_user_roles_on_project.return_value = (
+            available_project_roles)
