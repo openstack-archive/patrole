@@ -2,8 +2,8 @@
 Team and repository tags
 ========================
 
-.. image:: http://governance.openstack.org/badges/patrole.svg
-    :target: http://governance.openstack.org/reference/tags/index.html
+.. image:: https://governance.openstack.org/tc/badges/patrole.svg
+    :target: https://governance.openstack.org/tc/reference/tags/index.html
 
 Patrole - RBAC Integration Tempest Plugin
 =========================================
