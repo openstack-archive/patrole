@@ -36,36 +36,83 @@ _SUPPORTED_ERROR_CODES = [403, 404]
 
 def action(service, rule='', admin_only=False, expected_error_code=403,
            extra_target_data=None):
-    """A decorator which does a policy check and matches it against test run.
+    """A decorator for verifying policy enforcement.
 
-    A decorator which allows for positive and negative RBAC testing. Given
-    an OpenStack service and a policy action enforced by that service, an
-    oslo.policy lookup is performed by calling `authority.get_permission`.
-    Alternatively, the RBAC tests can run against a YAML file that defines
-    policy requirements.
+    A decorator which allows for positive and negative RBAC testing. Given:
 
-    The following cases are possible:
+        * an OpenStack service,
+        * a policy action (``rule``) enforced by that service, and
+        * the test role defined by ``[patrole] rbac_test_role``
 
-    * If `allowed` is True and the test passes, this is a success.
-    * If `allowed` is True and the test fails, this is a failure.
-    * If `allowed` is False and the test passes, this is a failure.
-    * If `allowed` is False and the test fails, this is a success.
+    determines whether the test role has sufficient permissions to perform an
+    API call that enforces the ``rule``.
 
-    :param service: A OpenStack service: for example, "nova" or "neutron".
-    :param rule: A policy action defined in a policy.json file (or in code).
-    :param admin_only: Skips over oslo.policy check because the policy action
-        defined by `rule` is not enforced by the service's  policy enforcement
-        logic. For example, Keystone v2 performs an admin check for most of its
-        endpoints. If True, `rule` is effectively ignored.
+    This decorator should only be applied to an instance or subclass of
+        `tempest.base.BaseTestCase`.
+
+    The result from ``_is_authorized`` is used to determine the *expected*
+    test result. The *actual* test result is determined by running the
+    Tempest test this decorator applies to.
+
+    Below are the following possibilities from comparing the *expected* and
+    *actual* results:
+
+    1) If *expected* is True and the test passes (*actual*), this is a success.
+    2) If *expected* is True and the test fails (*actual*), this results in a
+       `Forbidden` exception failure.
+    3) If *expected* is False and the test passes (*actual*), this results in
+       an `OverPermission` exception failure.
+    4) If *expected* is False and the test fails (*actual*), this is a success.
+
+    As such, negative and positive testing can be applied using this decorator.
+
+    :param service: A OpenStack service. Examples: "nova" or "neutron".
+    :param rule: A policy action defined in a policy.json file (or in
+        code).
+
+        .. note::
+
+            Patrole currently only supports custom JSON policy files.
+
+    :param admin_only: Skips over `oslo.policy` check because the policy action
+        defined by `rule` is not enforced by the service's policy
+        enforcement engine. For example, Keystone v2 performs an admin check
+        for most of its endpoints. If True, `rule` is effectively
+        ignored.
     :param expected_error_code: Overrides default value of 403 (Forbidden)
         with endpoint-specific error code. Currently only supports 403 and 404.
         Support for 404 is needed because some services, like Neutron,
         intentionally throw a 404 for security reasons.
 
-    :raises NotFound: if `service` is invalid or
-                      if Tempest credentials cannot be found.
-    :raises Forbidden: for bullet (2) above.
-    :raises RbacOverPermission: for bullet (3) above.
+        .. warning::
+
+            A 404 should not be provided *unless* the endpoint masks a
+            `Forbidden` exception as a `Not Found` exception.
+
+    :param extra_target_data: Dictionary, keyed with `oslo.policy` generic
+        check names, whose values are string literals that reference nested
+        `tempest.base.BaseTestCase` attributes. Used by `oslo.policy` for
+        performing matching against attributes that are sent along with the API
+        calls. Example::
+
+            extra_target_data={
+                "target.token.user_id":
+                "os_alt.auth_provider.credentials.user_id"
+            })
+
+    :raises NotFound: If `service` is invalid or if Tempest credentials cannot
+        be found.
+    :raises Forbidden: For item (2) above.
+    :raises RbacOverPermission: For item (3) above.
+
+    Examples::
+
+        @rbac_rule_validation.action(
+            service="nova", rule="os_compute_api:os-agents")
+        def test_list_agents_rbac(self):
+            # The call to ``switch_role`` is mandatory.
+            self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+            self.agents_client.list_agents()
     """
 
     if extra_target_data is None:
@@ -136,23 +183,26 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
     return decorator
 
 
-def _is_authorized(test_obj, service, rule_name, extra_target_data):
+def _is_authorized(test_obj, service, rule, extra_target_data):
     """Validates whether current RBAC role has permission to do policy action.
 
-    :param test_obj: type BaseTestCase (tempest base test class)
-    :param service: the OpenStack service that enforces ``rule_name``
-    :param rule_name: the name of the policy action
-    :param extra_target_data: dictionary with unresolved string literals that
-        reference nested BaseTestCase attributes
-    :returns: True if the current RBAC role can perform the policy action else
-        False
-
-    :raises RbacResourceSetupFailed: if project_id or user_id are missing from
-        the Tempest test object's `auth_provider`
-    :raises RbacParsingException: if ``CONF.patrole.strict_policy_check`` is
-        enabled and the ``rule_name`` does not exist in the system
-    :raises skipException: if ``CONF.patrole.strict_policy_check`` is
-        disabled and the ``rule_name`` does not exist in the system
+    :param test_obj: An instance or subclass of `tempest.base.BaseTestCase`.
+    :param service: The OpenStack service that enforces ``rule``.
+    :param rule: The name of the policy action. Examples include
+        "identity:create_user" or "os_compute_api:os-agents".
+    :param extra_target_data: Dictionary, keyed with `oslo.policy` generic
+        check names, whose values are string literals that reference nested
+        `tempest.base.BaseTestCase` attributes. Used by `oslo.policy` for
+        performing matching against attributes that are sent along with the API
+        calls.
+    :returns: True if the current RBAC role can perform the policy action,
+        else False.
+    :raises RbacResourceSetupFailed: If `project_id` or `user_id` are missing
+        from the `auth_provider` attribute in `test_obj`.
+    :raises RbacParsingException: if ``[patrole] strict_policy_check`` is True
+        and the ``rule`` does not exist in the system.
+    :raises skipException: If ``[patrole] strict_policy_check`` is False and
+        the ``rule`` does not exist in the system.
     """
     try:
         project_id = test_obj.os_primary.credentials.project_id
@@ -175,14 +225,14 @@ def _is_authorized(test_obj, service, rule_name, extra_target_data):
             authority = rbac_policy_parser.RbacPolicyParser(
                 project_id, user_id, service,
                 extra_target_data=formatted_target_data)
-        is_allowed = authority.allowed(rule_name, role)
+        is_allowed = authority.allowed(rule, role)
 
         if is_allowed:
-            LOG.debug("[Action]: %s, [Role]: %s is allowed!", rule_name,
+            LOG.debug("[Action]: %s, [Role]: %s is allowed!", rule,
                       role)
         else:
             LOG.debug("[Action]: %s, [Role]: %s is NOT allowed!",
-                      rule_name, role)
+                      rule, role)
         return is_allowed
     except rbac_exceptions.RbacParsingException as e:
         if CONF.patrole.strict_policy_check:
@@ -231,21 +281,24 @@ def _format_extra_target_data(test_obj, extra_target_data):
     """Formats the "extra_target_data" dictionary with correct test data.
 
     Before being formatted, "extra_target_data" is a dictionary that maps a
-    policy string like "trust.trustor_user_id" to a nested list of BaseTestCase
-    attributes. For example, the attribute list in:
+    policy string like "trust.trustor_user_id" to a nested list of
+    `tempest.base.BaseTestCase` attributes. For example, the attribute list in:
 
         "trust.trustor_user_id": "os.auth_provider.credentials.user_id"
 
-    is parsed by iteratively calling `getattr` until the value of "user_id"
+    is parsed by iteratively calling ``getattr`` until the value of "user_id"
     is resolved. The resulting dictionary returns:
 
-        "trust.trustor_user_id": "the user_id of the `primary` credential"
+        "trust.trustor_user_id": "the user_id of the `os_primary` credential"
 
-    :param test_obj: type BaseTestCase (tempest base test class)
-    :param extra_target_data: dictionary with unresolved string literals that
-        reference nested BaseTestCase attributes
-    :returns: dictionary containing additional object data needed by
-        oslo.policy to validate generic checks
+    :param test_obj: An instance or subclass of `tempest.base.BaseTestCase`.
+    :param extra_target_data: Dictionary, keyed with `oslo.policy` generic
+        check names, whose values are string literals that reference nested
+        `tempest.base.BaseTestCase` attributes. Used by `oslo.policy` for
+        performing matching against attributes that are sent along with the API
+        calls.
+    :returns: Dictionary containing additional object data needed by
+        `oslo.policy` to validate generic checks.
     """
     attr_value = test_obj
     formatted_target_data = {}
