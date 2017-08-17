@@ -19,6 +19,8 @@ from __future__ import absolute_import
 import fixtures
 import mock
 
+from tempest import clients
+from tempest.common import credentials_factory as credentials
 from tempest import config
 
 from patrole_tempest_plugin import rbac_utils
@@ -72,10 +74,13 @@ class RbacUtilsFixture(fixtures.Fixture):
             'get_identity_version.return_value': 'v3'
         }
         self.mock_test_obj = mock.Mock(**test_obj_kwargs)
-        self.mock_time = mock.patch.object(rbac_utils, 'time').start()
 
-        self.roles_v3_client = (
-            self.mock_test_obj.get_client_manager.return_value.roles_v3_client)
+        # Mock out functionality that can't be used by unit tests.
+        self.mock_time = mock.patch.object(rbac_utils, 'time').start()
+        mock.patch.object(
+            credentials, 'get_configured_admin_credentials').start()
+        mock_admin_mgr = mock.patch.object(clients, 'Manager').start()
+        self.roles_v3_client = mock_admin_mgr.return_value.roles_v3_client
 
         self.set_roles(['admin', 'member'], [])
 

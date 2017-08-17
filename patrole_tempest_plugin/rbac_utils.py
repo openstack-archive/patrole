@@ -20,8 +20,8 @@ import time
 
 from oslo_log import log as logging
 from oslo_utils import excutils
-import testtools
 
+from tempest import clients
 from tempest.common import credentials_factory as credentials
 from tempest import config
 
@@ -47,19 +47,13 @@ class RbacUtils(object):
 
         :param test_obj: An instance of `tempest.test.BaseTestCase`.
         """
-        # Since we are going to instantiate a client manager with
-        # admin credentials, first check if admin is available.
-        if not credentials.is_admin_available(
-                identity_version=test_obj.get_identity_version()):
-            msg = "Missing Identity Admin API credentials in configuration."
-            raise testtools.TestCase.skipException(msg)
-
         # Intialize the admin roles_client to perform role switching.
-        admin_creds = test_obj.get_client_manager(credential_type='admin')
+        admin_mgr = clients.Manager(
+            credentials.get_configured_admin_credentials())
         if test_obj.get_identity_version() == 'v3':
-            admin_roles_client = admin_creds.roles_v3_client
+            admin_roles_client = admin_mgr.roles_v3_client
         else:
-            admin_roles_client = admin_creds.roles_client
+            admin_roles_client = admin_mgr.roles_client
 
         self.admin_roles_client = admin_roles_client
         self.switch_role(test_obj, toggle_rbac_role=False)
