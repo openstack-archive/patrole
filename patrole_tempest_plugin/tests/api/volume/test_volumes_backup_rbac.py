@@ -90,6 +90,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.backups_client.list_backups(detail=True)
 
+    @decorators.attr(type='slow')
     @decorators.idempotent_id('50f43bde-205e-438e-9a05-5eac07fc3d63')
     @rbac_rule_validation.action(
         service="cinder",

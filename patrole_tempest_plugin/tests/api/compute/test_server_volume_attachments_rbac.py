@@ -97,6 +97,7 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
                         self.servers_client.detach_volume,
                         self.server['id'], alt_volume['id'])
 
+    @decorators.attr(type='slow')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-volumes-attachments:delete")
