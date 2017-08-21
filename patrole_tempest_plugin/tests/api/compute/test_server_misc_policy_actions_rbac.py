@@ -135,10 +135,11 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         """Test list servers with config_drive property in response body."""
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         body = self.servers_client.list_servers(detail=True)['servers']
+        expected_attr = 'config_drive'
         # If the first server contains "config_drive", then all the others do.
-        if 'config_drive' not in body[0]:
+        if expected_attr not in body[0]:
             raise rbac_exceptions.RbacMalformedResponse(
-                attribute='config_drive')
+                attribute=expected_attr)
 
     @test.requires_ext(extension='os-config-drive', service='compute')
     @decorators.idempotent_id('55c62ef7-b72b-4970-acc6-05b0a4316e5d')
@@ -148,10 +149,12 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_show_server_config_drive(self):
         """Test show server with config_drive property in response body."""
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+
         body = self.servers_client.show_server(self.server['id'])['server']
-        if 'config_drive' not in body:
+        expected_attr = 'config_drive'
+        if expected_attr not in body:
             raise rbac_exceptions.RbacMalformedResponse(
-                attribute="config_drive")
+                attribute=expected_attr)
 
     @test.requires_ext(extension='os-deferred-delete', service='compute')
     @decorators.idempotent_id('189bfed4-1e6d-475c-bb8c-d57e60895391')
@@ -233,6 +236,37 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             if attr not in body:
                 raise rbac_exceptions.RbacMalformedResponse(
                     attribute=attr)
+
+    @decorators.idempotent_id('d873740a-7b10-40a9-943d-7cc18115370e')
+    @test.requires_ext(extension='OS-EXT-AZ', service='compute')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-extended-availability-zone")
+    def test_list_servers_with_details_extended_availability_zone(self):
+        """Test list servers OS-EXT-AZ:availability_zone attr in resp body."""
+        expected_attr = 'OS-EXT-AZ:availability_zone'
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        body = self.servers_client.list_servers(detail=True)['servers']
+        # If the first server contains `expected_attr`, then all the others do.
+        if expected_attr not in body[0]:
+            raise rbac_exceptions.RbacMalformedResponse(
+                attribute=expected_attr)
+
+    @decorators.idempotent_id('727e5360-770a-4b9c-8015-513a40216635')
+    @test.requires_ext(extension='OS-EXT-AZ', service='compute')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-extended-availability-zone")
+    def test_show_server_extended_availability_zone(self):
+        """Test show server OS-EXT-AZ:availability_zone attr in resp body."""
+        expected_attr = 'OS-EXT-AZ:availability_zone'
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        body = self.servers_client.show_server(self.server['id'])['server']
+        if expected_attr not in body:
+            raise rbac_exceptions.RbacMalformedResponse(
+                attribute=expected_attr)
 
     @rbac_rule_validation.action(
         service="nova",
