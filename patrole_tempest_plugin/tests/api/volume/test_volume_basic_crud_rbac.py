@@ -20,11 +20,11 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 
-class VolumesV2BasicCrudRbacTest(rbac_base.BaseVolumeRbacTest):
+class VolumesBasicCrudRbacTest(rbac_base.BaseVolumeRbacTest):
 
     @classmethod
     def resource_setup(cls):
-        super(VolumesV2BasicCrudRbacTest, cls).resource_setup()
+        super(VolumesBasicCrudRbacTest, cls).resource_setup()
         cls.volume = cls.create_volume()
 
     @rbac_rule_validation.action(service="cinder",
@@ -72,5 +72,5 @@ class VolumesV2BasicCrudRbacTest(rbac_base.BaseVolumeRbacTest):
         self.volumes_client.list_volumes(detail=True)
 
 
-class VolumesV3BasicCrudRbacTest(VolumesV2BasicCrudRbacTest):
+class VolumesBasicCrudV3RbacTest(VolumesBasicCrudRbacTest):
     _api_version = 3

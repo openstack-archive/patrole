@@ -146,3 +146,7 @@ class VolumeQOSRbacTest(rbac_base.BaseVolumeRbacTest):
         self.qos_client.disassociate_all_qos(qos['id'])
         waiters.wait_for_qos_operations(self.admin_qos_client, qos['id'],
                                         'disassociate-all')
+
+
+class VolumeQOSV3RbacTest(VolumeQOSRbacTest):
+    _api_version = 3

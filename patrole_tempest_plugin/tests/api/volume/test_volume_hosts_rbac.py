@@ -27,3 +27,19 @@ class VolumeHostsRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_list_hosts(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.volume_hosts_client.list_hosts()
+
+    @decorators.idempotent_id('9ddf321e-788f-4787-b8cc-dfa59e264143')
+    @rbac_rule_validation.action(service="cinder",
+                                 rule="volume_extension:hosts")
+    def test_show_host(self):
+        hosts = self.volume_hosts_client.list_hosts()['hosts']
+        host_names = [host['host_name'] for host in hosts]
+        self.assertNotEmpty(host_names, "No available volume host was found, "
+                                        "all hosts found were: %s" % hosts)
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.volume_hosts_client.show_host(host_names[0])
+
+
+class VolumeHostsV3RbacTest(VolumeHostsRbacTest):
+    _api_version = 3
