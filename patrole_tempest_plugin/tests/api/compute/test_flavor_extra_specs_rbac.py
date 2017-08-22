@@ -34,7 +34,7 @@ class FlavorExtraSpecsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @classmethod
     def resource_setup(cls):
         super(FlavorExtraSpecsRbacTest, cls).resource_setup()
-        cls.flavor = cls._create_flavor()
+        cls.flavor = cls.create_flavor()
 
     @classmethod
     def resource_cleanup(cls):
