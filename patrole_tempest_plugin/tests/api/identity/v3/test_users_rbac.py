@@ -20,11 +20,11 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.identity import rbac_base
 
 
-class IdentityUserV3AdminRbacTest(rbac_base.BaseIdentityV3RbacTest):
+class IdentityUserV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     @classmethod
     def resource_setup(cls):
-        super(IdentityUserV3AdminRbacTest, cls).resource_setup()
+        super(IdentityUserV3RbacTest, cls).resource_setup()
         cls.default_user_id = cls.os_primary.credentials.user_id
 
     @rbac_rule_validation.action(service="keystone",
@@ -69,19 +69,6 @@ class IdentityUserV3AdminRbacTest(rbac_base.BaseIdentityV3RbacTest):
     def test_show_own_user(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.users_client.show_user(self.default_user_id)
-
-    @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:change_password")
-    @decorators.idempotent_id('0f148510-63bf-11e6-4522-080044d0d90a')
-    def test_change_password(self):
-        original_password = data_utils.rand_password()
-        user = self.setup_test_user(password=original_password)
-
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.users_client.update_user_password(
-            user['id'],
-            original_password=original_password,
-            password=data_utils.rand_password())
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:list_groups_for_user")
