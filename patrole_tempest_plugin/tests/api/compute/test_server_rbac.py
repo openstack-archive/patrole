@@ -186,9 +186,15 @@ class SecurtiyGroupsRbacTest(base.BaseV2ComputeRbacTest):
     def skip_checks(cls):
         super(SecurtiyGroupsRbacTest, cls).skip_checks()
         # All the tests below require the network service.
-        if not test.get_service_list()['network']:
-            raise cls.skipException(
-                'Skipped because the network service is not available')
+        # NOTE(gmann) Currently 'network' service is always True in
+        # test.get_service_list() So below check is not much of use.
+        # Commenting the below check as Tempest is moving the get_service_list
+        # from test.py to utils.
+        # If we want to check 'network' service availability, then
+        # get_service_list can be used from new location.
+        # if not test.get_service_list()['network']:
+        #    raise cls.skipException(
+        #        'Skipped because the network service is not available')
 
     @classmethod
     def resource_setup(cls):
