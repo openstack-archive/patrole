@@ -70,10 +70,10 @@ class RBACHackingTestCase(base.TestCase):
 
     def test_service_tags_not_in_module_path(self):
         self.assertTrue(checks.service_tags_not_in_module_path(
-            "@test.services('volume')",
+            "@utils.services('volume')",
             "./patrole_tempest_plugin/tests/api/volume/fake_test_rbac.py"))
         self.assertFalse(checks.service_tags_not_in_module_path(
-            "@test.services('image')",
+            "@utils.services('image')",
             "./patrole_tempest_plugin/tests/api/volume/fake_test_rbac.py"))
 
     def test_no_hyphen_at_end_of_rand_name(self):
@@ -138,7 +138,7 @@ class RBACHackingTestCase(base.TestCase):
         other_decorators = [
             "@decorators.idempotent_id(123)",
             "@decorators.attr(type=['slow'])",
-            "@test.requires_ext(extension='ext', service='svc')"
+            "@utils.requires_ext(extension='ext', service='svc')"
         ]
 
         if with_other_decorators:

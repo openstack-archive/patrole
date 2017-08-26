@@ -15,13 +15,13 @@
 
 import testtools
 
+from tempest.common import utils
 from tempest.common import waiters
 from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 from tempest.lib import exceptions as lib_exc
-from tempest import test
 
 from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
@@ -76,7 +76,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         return self.create_test_server(
             wait_until='ACTIVE', adminPass=self.password)
 
-    @test.requires_ext(extension='os-admin-actions', service='compute')
+    @utils.requires_ext(extension='os-admin-actions', service='compute')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-admin-actions:reset_state")
@@ -88,7 +88,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.addCleanup(self.servers_client.reset_state, self.server['id'],
                         state='active')
 
-    @test.requires_ext(extension='os-admin-actions', service='compute')
+    @utils.requires_ext(extension='os-admin-actions', service='compute')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-admin-actions:inject_network_info")
@@ -98,7 +98,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.servers_client.inject_network_info(self.server['id'])
 
-    @test.requires_ext(extension='os-admin-actions', service='compute')
+    @utils.requires_ext(extension='os-admin-actions', service='compute')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-admin-actions:reset_network")
@@ -127,7 +127,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         waiters.wait_for_server_status(
             self.os_admin.servers_client, self.server['id'], 'ACTIVE')
 
-    @test.requires_ext(extension='os-config-drive', service='compute')
+    @utils.requires_ext(extension='os-config-drive', service='compute')
     @decorators.idempotent_id('2c82e819-382d-4d6f-87f0-a45954cbbc64')
     @rbac_rule_validation.action(
         service="nova",
@@ -142,7 +142,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             raise rbac_exceptions.RbacMalformedResponse(
                 attribute=expected_attr)
 
-    @test.requires_ext(extension='os-config-drive', service='compute')
+    @utils.requires_ext(extension='os-config-drive', service='compute')
     @decorators.idempotent_id('55c62ef7-b72b-4970-acc6-05b0a4316e5d')
     @rbac_rule_validation.action(
         service="nova",
@@ -157,7 +157,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             raise rbac_exceptions.RbacMalformedResponse(
                 attribute=expected_attr)
 
-    @test.requires_ext(extension='os-deferred-delete', service='compute')
+    @utils.requires_ext(extension='os-deferred-delete', service='compute')
     @decorators.idempotent_id('189bfed4-1e6d-475c-bb8c-d57e60895391')
     @rbac_rule_validation.action(
         service="nova",
@@ -169,7 +169,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.servers_client.force_delete_server(self.server['id'])
 
     @decorators.idempotent_id('d873740a-7b10-40a9-943d-7cc18115370e')
-    @test.requires_ext(extension='OS-EXT-AZ', service='compute')
+    @utils.requires_ext(extension='OS-EXT-AZ', service='compute')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-extended-availability-zone")
@@ -185,7 +185,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                 attribute=expected_attr)
 
     @decorators.idempotent_id('727e5360-770a-4b9c-8015-513a40216635')
-    @test.requires_ext(extension='OS-EXT-AZ', service='compute')
+    @utils.requires_ext(extension='OS-EXT-AZ', service='compute')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-extended-availability-zone")
@@ -200,7 +200,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                 attribute=expected_attr)
 
     @decorators.idempotent_id('4aa5d93e-4887-468a-8eb4-b6eca0ca6437')
-    @test.requires_ext(extension='OS-EXT-SRV-ATTR', service='compute')
+    @utils.requires_ext(extension='OS-EXT-SRV-ATTR', service='compute')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-extended-server-attributes")
@@ -222,7 +222,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                     attribute=whole_attr)
 
     @decorators.idempotent_id('2ed7aee2-94b2-4a9f-ae63-a51b7f94fe30')
-    @test.requires_ext(extension='OS-EXT-SRV-ATTR', service='compute')
+    @utils.requires_ext(extension='OS-EXT-SRV-ATTR', service='compute')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-extended-server-attributes")
@@ -244,7 +244,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                     attribute=whole_attr)
 
     @decorators.idempotent_id('82053c27-3134-4003-9b55-bc9fafdb0e3b')
-    @test.requires_ext(extension='OS-EXT-STS', service='compute')
+    @utils.requires_ext(extension='OS-EXT-STS', service='compute')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-extended-status")
@@ -261,7 +261,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                     attribute=attr)
 
     @decorators.idempotent_id('7d2620a5-eea1-4a8b-96ea-86ad77a73fc8')
-    @test.requires_ext(extension='OS-EXT-STS', service='compute')
+    @utils.requires_ext(extension='OS-EXT-STS', service='compute')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-extended-status")
@@ -278,7 +278,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                     attribute=attr)
 
     @decorators.idempotent_id('21e39cbe-6c32-48fc-80dd-3e1fece6053f')
-    @test.requires_ext(extension='os-extended-volumes', service='compute')
+    @utils.requires_ext(extension='os-extended-volumes', service='compute')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-extended-volumes")
@@ -295,7 +295,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                 attribute=expected_attr)
 
     @decorators.idempotent_id('7f163708-0d25-4138-8512-dfdd72a92989')
-    @test.requires_ext(extension='os-extended-volumes', service='compute')
+    @utils.requires_ext(extension='os-extended-volumes', service='compute')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-extended-volumes")
@@ -311,7 +311,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             raise rbac_exceptions.RbacMalformedResponse(
                 attribute=expected_attr)
 
-    @test.requires_ext(extension='os-instance-actions', service='compute')
+    @utils.requires_ext(extension='os-instance-actions', service='compute')
     @decorators.idempotent_id('9d1b131d-407e-4fa3-8eef-eb2c4526f1da')
     @rbac_rule_validation.action(
         service="nova",
@@ -321,7 +321,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.servers_client.list_instance_actions(self.server['id'])
 
-    @test.requires_ext(extension='os-instance-actions', service='compute')
+    @utils.requires_ext(extension='os-instance-actions', service='compute')
     @decorators.idempotent_id('eb04c439-4215-4029-9ccb-5b3c041bfc25')
     @rbac_rule_validation.action(
         service="nova",
@@ -409,7 +409,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.servers_client.unlock_server(self.server['id'])
 
-    @test.requires_ext(extension='os-rescue', service='compute')
+    @utils.requires_ext(extension='os-rescue', service='compute')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-rescue")
@@ -419,7 +419,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.servers_client.rescue_server(self.server['id'])
 
-    @test.requires_ext(extension='os-server-diagnostics', service='compute')
+    @utils.requires_ext(extension='os-server-diagnostics', service='compute')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-server-diagnostics")
@@ -429,7 +429,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.servers_client.show_server_diagnostics(self.server['id'])
 
-    @test.requires_ext(extension='os-server-password', service='compute')
+    @utils.requires_ext(extension='os-server-password', service='compute')
     @decorators.idempotent_id('aaf43f78-c178-4581-ac18-14afd3f1f6ba')
     @rbac_rule_validation.action(
         service="nova",
@@ -439,7 +439,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.servers_client.delete_password(self.server['id'])
 
-    @test.requires_ext(extension='os-server-password', service='compute')
+    @utils.requires_ext(extension='os-server-password', service='compute')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-server-password")
@@ -449,7 +449,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.servers_client.show_password(self.server['id'])
 
-    @test.requires_ext(extension='OS-SRV-USG', service='compute')
+    @utils.requires_ext(extension='OS-SRV-USG', service='compute')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-server-usage")
@@ -463,7 +463,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.servers_client.show_server(self.server['id'])
 
-    @test.requires_ext(extension='os-simple-tenant-usage', service='compute')
+    @utils.requires_ext(extension='os-simple-tenant-usage', service='compute')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-simple-tenant-usage:list")
@@ -473,7 +473,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.tenant_usages_client.list_tenant_usages()
 
-    @test.requires_ext(extension='os-simple-tenant-usage', service='compute')
+    @utils.requires_ext(extension='os-simple-tenant-usage', service='compute')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-simple-tenant-usage:show")
@@ -560,7 +560,7 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @testtools.skipUnless(CONF.compute_feature_enabled.interface_attach,
                           "Interface attachment is not available.")
-    @test.requires_ext(extension='os-attach-interfaces', service='compute')
+    @utils.requires_ext(extension='os-attach-interfaces', service='compute')
     @decorators.idempotent_id('ddf53cb6-4a0a-4e5a-91e3-6c32aaa3b9b6')
     @rbac_rule_validation.action(
         service="nova",
@@ -573,7 +573,7 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @testtools.skipUnless(CONF.compute_feature_enabled.interface_attach,
                           "Interface attachment is not available.")
-    @test.requires_ext(extension='os-attach-interfaces', service='compute')
+    @utils.requires_ext(extension='os-attach-interfaces', service='compute')
     @decorators.idempotent_id('d2d3a24d-4738-4bce-a287-36d664746cde')
     @rbac_rule_validation.action(
         service="nova",
@@ -585,7 +585,7 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @testtools.skipUnless(CONF.compute_feature_enabled.interface_attach,
                           "Interface attachment is not available.")
-    @test.requires_ext(extension='os-attach-interfaces', service='compute')
+    @utils.requires_ext(extension='os-attach-interfaces', service='compute')
     @decorators.idempotent_id('55b05692-ed44-4608-a84c-cd4219c82799')
     @rbac_rule_validation.action(
         service="nova",
@@ -599,7 +599,7 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
                                                 interface['port_id'])
 
     @decorators.idempotent_id('6886d360-0d86-4760-b1a3-882d81fbebcc')
-    @test.requires_ext(extension='os-ips', service='compute')
+    @utils.requires_ext(extension='os-ips', service='compute')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:ips:index")
@@ -609,7 +609,7 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.servers_client.list_addresses(self.server['id'])['addresses']
 
     @decorators.idempotent_id('fa43e7e5-0db9-48eb-9c6b-c11eb766b8e4')
-    @test.requires_ext(extension='os-ips', service='compute')
+    @utils.requires_ext(extension='os-ips', service='compute')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:ips:show")
@@ -625,7 +625,7 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @testtools.skipUnless(CONF.compute_feature_enabled.interface_attach,
                           "Interface attachment is not available.")
-    @test.requires_ext(extension='os-multinic', service='compute')
+    @utils.requires_ext(extension='os-multinic', service='compute')
     @rbac_rule_validation.action(
         service="nova", rule="os_compute_api:os-multinic")
     @decorators.idempotent_id('bd3e2c74-130a-40f0-8085-124d93fe67da')

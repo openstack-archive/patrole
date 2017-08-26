@@ -15,8 +15,8 @@
 
 from oslo_config import cfg
 
+from tempest.common import utils
 from tempest.lib import decorators
-from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
@@ -40,7 +40,7 @@ class TenantNetworksRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @classmethod
     def skip_checks(cls):
         super(TenantNetworksRbacTest, cls).skip_checks()
-        if not test.is_extension_enabled('os-tenant-networks', 'compute'):
+        if not utils.is_extension_enabled('os-tenant-networks', 'compute'):
             msg = "os-tenant-networks extension not enabled."
             raise cls.skipException(msg)
         if not CONF.service_available.neutron:

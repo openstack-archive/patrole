@@ -12,8 +12,9 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+
+from tempest.common import utils
 from tempest.lib import decorators
-from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
@@ -24,7 +25,7 @@ class EncryptionTypesRbacTest(rbac_base.BaseVolumeRbacTest):
     @classmethod
     def skip_checks(cls):
         super(EncryptionTypesRbacTest, cls).skip_checks()
-        if not test.is_extension_enabled('encryption', 'volume'):
+        if not utils.is_extension_enabled('encryption', 'volume'):
             msg = "%s skipped as encryption not enabled." % cls.__name__
             raise cls.skipException(msg)
 

@@ -13,16 +13,15 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from oslo_config import cfg
-
+from tempest.common import utils
+from tempest import config
 from tempest.lib import decorators
-from tempest import test
 
 from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
-CONF = cfg.CONF
+CONF = config.CONF
 
 
 class FlavorRxtxRbacTest(rbac_base.BaseV2ComputeRbacTest):
@@ -30,7 +29,7 @@ class FlavorRxtxRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @classmethod
     def skip_checks(cls):
         super(FlavorRxtxRbacTest, cls).skip_checks()
-        if not test.is_extension_enabled('os-flavor-rxtx', 'compute'):
+        if not utils.is_extension_enabled('os-flavor-rxtx', 'compute'):
             msg = "os-flavor-rxtx extension not enabled."
             raise cls.skipException(msg)
 
@@ -40,7 +39,6 @@ class FlavorRxtxRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-flavor-rxtx")
     def test_list_flavors_details_rxtx(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        # Enforces os_compute_api:os-flavor-rxtx
         result = self.flavors_client.list_flavors(detail=True)['flavors']
         if 'rxtx_factor' not in result[0]:
             raise rbac_exceptions.RbacMalformedResponse(
@@ -52,9 +50,8 @@ class FlavorRxtxRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-flavor-rxtx")
     def test_get_flavor_rxtx(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        # Enforces os_compute_api:os-flavor-rxtx
-        result =\
-            self.flavors_client.show_flavor(CONF.compute.flavor_ref)['flavor']
+        result = self.flavors_client.show_flavor(
+            CONF.compute.flavor_ref)['flavor']
         if 'rxtx_factor' not in result:
             raise rbac_exceptions.RbacMalformedResponse(
                 attribute='rxtx_factor')

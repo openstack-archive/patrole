@@ -16,11 +16,11 @@
 
 import netaddr
 
+from tempest.common import utils
 from tempest.common.utils import net_utils
 from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
-from tempest import test
 
 from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
@@ -79,7 +79,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.create_port(self.network, port_security_enabled=True)
 
-    @test.requires_ext(extension='binding', service='network')
+    @utils.requires_ext(extension='binding', service='network')
     @rbac_rule_validation.action(service="neutron",
                                  rule="create_port:binding:host_id")
     @decorators.idempotent_id('a54bd6b8-a7eb-4101-bfe8-093930b0d660')
@@ -91,7 +91,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.create_port(**post_body)
 
-    @test.requires_ext(extension='binding', service='network')
+    @utils.requires_ext(extension='binding', service='network')
     @rbac_rule_validation.action(service="neutron",
                                  rule="create_port:binding:profile")
     @decorators.idempotent_id('98fa38ab-c2ed-46a0-99f0-59f18cbd257a')
@@ -154,7 +154,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.ports_client.show_port(self.port['id'])
 
-    @test.requires_ext(extension='binding', service='network')
+    @utils.requires_ext(extension='binding', service='network')
     @rbac_rule_validation.action(service="neutron",
                                  rule="get_port:binding:vif_type")
     @decorators.idempotent_id('125aff0b-8fed-4f8e-8410-338616594b06')
@@ -173,7 +173,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
             raise rbac_exceptions.RbacMalformedResponse(
                 attribute='binding:vif_type')
 
-    @test.requires_ext(extension='binding', service='network')
+    @utils.requires_ext(extension='binding', service='network')
     @rbac_rule_validation.action(service="neutron",
                                  rule="get_port:binding:vif_details")
     @decorators.idempotent_id('e42bfd77-fcce-45ee-9728-3424300f0d6f')
@@ -192,7 +192,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
             raise rbac_exceptions.RbacMalformedResponse(
                 attribute='binding:vif_details')
 
-    @test.requires_ext(extension='binding', service='network')
+    @utils.requires_ext(extension='binding', service='network')
     @rbac_rule_validation.action(service="neutron",
                                  rule="get_port:binding:host_id")
     @decorators.idempotent_id('8e61bcdc-6f81-443c-833e-44410266551e')
@@ -213,7 +213,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
             raise rbac_exceptions.RbacMalformedResponse(
                 attribute='binding:host_id')
 
-    @test.requires_ext(extension='binding', service='network')
+    @utils.requires_ext(extension='binding', service='network')
     @rbac_rule_validation.action(service="neutron",
                                  rule="get_port:binding:profile")
     @decorators.idempotent_id('d497cea9-c4ad-42e0-acc9-8d257d6b01fc')
@@ -290,7 +290,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.ports_client.update_port(self.port['id'], security_groups=[])
 
-    @test.requires_ext(extension='binding', service='network')
+    @utils.requires_ext(extension='binding', service='network')
     @rbac_rule_validation.action(service="neutron",
                                  rule="update_port:binding:host_id")
     @decorators.idempotent_id('24206a72-0d90-4712-918c-5c9a1ebef64d')
@@ -306,7 +306,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.ports_client.update_port(**updated_body)
 
-    @test.requires_ext(extension='binding', service='network')
+    @utils.requires_ext(extension='binding', service='network')
     @rbac_rule_validation.action(service="neutron",
                                  rule="update_port:binding:profile")
     @decorators.idempotent_id('990ea8d1-9257-4f71-a3bf-d6d0914625c5')

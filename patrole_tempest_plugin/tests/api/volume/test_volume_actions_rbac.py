@@ -14,12 +14,12 @@
 #    under the License.
 
 from tempest.common import compute
+from tempest.common import utils
 from tempest.common import waiters
 from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
-from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
@@ -68,7 +68,7 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
         waiters.wait_for_volume_resource_status(
             self.admin_volumes_client, volume_id, 'available')
 
-    @test.services('compute')
+    @utils.services('compute')
     @rbac_rule_validation.action(service="cinder", rule="volume:attach")
     @decorators.idempotent_id('f97b10e4-2eed-4f8b-8632-71c02cb9fe42')
     def test_attach_volume_to_instance(self):
@@ -76,7 +76,7 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._attach_volume(server)
 
-    @test.services('compute')
+    @utils.services('compute')
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(service="cinder", rule="volume:detach")
     @decorators.idempotent_id('5a042f6a-688b-42e6-a02e-fe5c47b89b07')
@@ -88,7 +88,7 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
         self._detach_volume()
 
     @decorators.attr(type=["slow"])
-    @test.services('image')
+    @utils.services('image')
     @rbac_rule_validation.action(
         service="cinder",
         rule="volume_extension:volume_actions:upload_image")
@@ -189,7 +189,7 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
         self.volumes_client.wait_for_resource_deletion(volume['id'])
 
     @decorators.idempotent_id('48bd302b-950a-4830-840c-3158246ecdcc')
-    @test.services('compute')
+    @utils.services('compute')
     @rbac_rule_validation.action(
         service="cinder",
         rule="volume_extension:volume_admin_actions:force_detach")
@@ -229,7 +229,7 @@ class VolumesActionsV310RbacTest(rbac_base.BaseVolumeRbacTest):
         cls.admin_volumes_client = cls.os_admin.volumes_client_latest
 
     @decorators.attr(type=["slow"])
-    @test.services('image')
+    @utils.services('image')
     @rbac_rule_validation.action(
         service="cinder",
         rule="volume_extension:volume_actions:upload_public")

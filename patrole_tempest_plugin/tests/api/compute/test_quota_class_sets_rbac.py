@@ -14,9 +14,9 @@
 #    under the License.
 
 from tempest.common import tempest_fixtures as fixtures
+from tempest.common import utils
 from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
-from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
@@ -33,7 +33,7 @@ class QuotaClassesRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @classmethod
     def skip_checks(cls):
         super(QuotaClassesRbacTest, cls).skip_checks()
-        if not test.is_extension_enabled('os-quota-class-sets', 'compute'):
+        if not utils.is_extension_enabled('os-quota-class-sets', 'compute'):
             msg = "%s skipped as os-quota-class-sets extension not enabled."\
                   % cls.__name__
             raise cls.skipException(msg)
