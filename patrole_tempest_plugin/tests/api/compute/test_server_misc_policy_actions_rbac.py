@@ -42,6 +42,8 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     Only applies to:
       * policy "families" that require server creation
       * small policy "families" -- i.e. containing one to three policies
+
+    Tests are ordered by policy name.
     """
 
     credentials = ['primary', 'admin']
@@ -167,41 +169,36 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         # Force-deleting a server enforces os-deferred-delete.
         self.servers_client.force_delete_server(self.server['id'])
 
-    @test.requires_ext(extension='os-instance-actions', service='compute')
-    @decorators.idempotent_id('9d1b131d-407e-4fa3-8eef-eb2c4526f1da')
+    @decorators.idempotent_id('d873740a-7b10-40a9-943d-7cc18115370e')
+    @test.requires_ext(extension='OS-EXT-AZ', service='compute')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-instance-actions")
-    def test_list_instance_actions(self):
-        """Test list instance actions, part of os-instance-actions."""
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.list_instance_actions(self.server['id'])
+        rule="os_compute_api:os-extended-availability-zone")
+    def test_list_servers_with_details_extended_availability_zone(self):
+        """Test list servers OS-EXT-AZ:availability_zone attr in resp body."""
+        expected_attr = 'OS-EXT-AZ:availability_zone'
 
-    @test.requires_ext(extension='os-instance-actions', service='compute')
-    @decorators.idempotent_id('eb04c439-4215-4029-9ccb-5b3c041bfc25')
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        body = self.servers_client.list_servers(detail=True)['servers']
+        # If the first server contains `expected_attr`, then all the others do.
+        if expected_attr not in body[0]:
+            raise rbac_exceptions.RbacMalformedResponse(
+                attribute=expected_attr)
+
+    @decorators.idempotent_id('727e5360-770a-4b9c-8015-513a40216635')
+    @test.requires_ext(extension='OS-EXT-AZ', service='compute')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-instance-actions:events")
-    def test_show_instance_action(self):
-        """Test show instance action, part of os-instance-actions.
-
-        Expect "events" details to be included in the response body.
-        """
-        # NOTE: "os_compute_api:os-instance-actions" is also enforced.
-        request_id = self.server.response['x-compute-request-id']
+        rule="os_compute_api:os-extended-availability-zone")
+    def test_show_server_extended_availability_zone(self):
+        """Test show server OS-EXT-AZ:availability_zone attr in resp body."""
+        expected_attr = 'OS-EXT-AZ:availability_zone'
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        instance_action = self.servers_client.show_instance_action(
-            self.server['id'], request_id)['instanceAction']
-
-        if 'events' not in instance_action:
+        body = self.servers_client.show_server(self.server['id'])['server']
+        if expected_attr not in body:
             raise rbac_exceptions.RbacMalformedResponse(
-                attribute='events')
-        # Microversion 2.51+ returns 'events' always, but not 'traceback'. If
-        # 'traceback' is also present then policy enforcement passed.
-        if 'traceback' not in instance_action['events'][0]:
-            raise rbac_exceptions.RbacMalformedResponse(
-                attribute='events.traceback')
+                attribute=expected_attr)
 
     @decorators.idempotent_id('82053c27-3134-4003-9b55-bc9fafdb0e3b')
     @test.requires_ext(extension='OS-EXT-STS', service='compute')
@@ -237,36 +234,75 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                 raise rbac_exceptions.RbacMalformedResponse(
                     attribute=attr)
 
-    @decorators.idempotent_id('d873740a-7b10-40a9-943d-7cc18115370e')
-    @test.requires_ext(extension='OS-EXT-AZ', service='compute')
+    @decorators.idempotent_id('21e39cbe-6c32-48fc-80dd-3e1fece6053f')
+    @test.requires_ext(extension='os-extended-volumes', service='compute')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-extended-availability-zone")
-    def test_list_servers_with_details_extended_availability_zone(self):
-        """Test list servers OS-EXT-AZ:availability_zone attr in resp body."""
-        expected_attr = 'OS-EXT-AZ:availability_zone'
+        rule="os_compute_api:os-extended-volumes")
+    def test_list_servers_with_details_extended_volumes(self):
+        """Test list servers os-extended-volumes:volumes_attached attr in resp
+        body.
+        """
+        expected_attr = 'os-extended-volumes:volumes_attached'
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         body = self.servers_client.list_servers(detail=True)['servers']
-        # If the first server contains `expected_attr`, then all the others do.
         if expected_attr not in body[0]:
             raise rbac_exceptions.RbacMalformedResponse(
                 attribute=expected_attr)
 
-    @decorators.idempotent_id('727e5360-770a-4b9c-8015-513a40216635')
-    @test.requires_ext(extension='OS-EXT-AZ', service='compute')
+    @decorators.idempotent_id('7f163708-0d25-4138-8512-dfdd72a92989')
+    @test.requires_ext(extension='os-extended-volumes', service='compute')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-extended-availability-zone")
-    def test_show_server_extended_availability_zone(self):
-        """Test show server OS-EXT-AZ:availability_zone attr in resp body."""
-        expected_attr = 'OS-EXT-AZ:availability_zone'
+        rule="os_compute_api:os-extended-volumes")
+    def test_show_server_extended_volumes(self):
+        """Test show server os-extended-volumes:volumes_attached attr in resp
+        body.
+        """
+        expected_attr = 'os-extended-volumes:volumes_attached'
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         body = self.servers_client.show_server(self.server['id'])['server']
         if expected_attr not in body:
             raise rbac_exceptions.RbacMalformedResponse(
                 attribute=expected_attr)
+
+    @test.requires_ext(extension='os-instance-actions', service='compute')
+    @decorators.idempotent_id('9d1b131d-407e-4fa3-8eef-eb2c4526f1da')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-instance-actions")
+    def test_list_instance_actions(self):
+        """Test list instance actions, part of os-instance-actions."""
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.servers_client.list_instance_actions(self.server['id'])
+
+    @test.requires_ext(extension='os-instance-actions', service='compute')
+    @decorators.idempotent_id('eb04c439-4215-4029-9ccb-5b3c041bfc25')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-instance-actions:events")
+    def test_show_instance_action(self):
+        """Test show instance action, part of os-instance-actions.
+
+        Expect "events" details to be included in the response body.
+        """
+        # NOTE: "os_compute_api:os-instance-actions" is also enforced.
+        request_id = self.server.response['x-compute-request-id']
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        instance_action = self.servers_client.show_instance_action(
+            self.server['id'], request_id)['instanceAction']
+
+        if 'events' not in instance_action:
+            raise rbac_exceptions.RbacMalformedResponse(
+                attribute='events')
+        # Microversion 2.51+ returns 'events' always, but not 'traceback'. If
+        # 'traceback' is also present then policy enforcement passed.
+        if 'traceback' not in instance_action['events'][0]:
+            raise rbac_exceptions.RbacMalformedResponse(
+                attribute='events.traceback')
 
     @rbac_rule_validation.action(
         service="nova",
