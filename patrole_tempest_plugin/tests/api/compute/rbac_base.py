@@ -53,9 +53,12 @@ class BaseV2ComputeRbacTest(compute_base.BaseV2ComputeTest):
         for flavor in cls.flavors:
             test_utils.call_and_ignore_notfound_exc(
                 cls.flavors_client.delete_flavor, flavor['id'])
+        for flavor in cls.flavors:
+            test_utils.call_and_ignore_notfound_exc(
+                cls.flavors_client.wait_for_resource_deletion, flavor['id'])
 
     @classmethod
-    def _create_flavor(cls, **kwargs):
+    def create_flavor(cls, **kwargs):
         flavor_kwargs = {
             "name": data_utils.rand_name(cls.__name__ + '-flavor'),
             "ram": data_utils.rand_int_id(1, 10),

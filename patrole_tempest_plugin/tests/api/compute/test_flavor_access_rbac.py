@@ -38,7 +38,7 @@ class FlavorAccessRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @classmethod
     def resource_setup(cls):
         super(FlavorAccessRbacTest, cls).resource_setup()
-        cls.flavor_id = cls._create_flavor(is_public=False)['id']
+        cls.flavor_id = cls.create_flavor(is_public=False)['id']
         cls.public_flavor_id = CONF.compute.flavor_ref
         cls.tenant_id = cls.os_primary.credentials.tenant_id
 
