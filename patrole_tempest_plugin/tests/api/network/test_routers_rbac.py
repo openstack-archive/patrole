@@ -296,8 +296,7 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
                         distributed=False)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="delete_router",
-                                 expected_error_code=404)
+                                 rule="delete_router")
     @decorators.idempotent_id('c0634dd5-0467-48f7-a4ae-1014d8edb2a7')
     def test_delete_router(self):
         """Delete Router
@@ -309,10 +308,9 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
         self.routers_client.delete_router(router['id'])
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="add_router_interface",
-                                 expected_error_code=404)
+                                 rule="add_router_interface")
     @decorators.idempotent_id('a0627778-d68d-4913-881b-e345360cca19')
-    def test_add_router_interfaces(self):
+    def test_add_router_interface(self):
         """Add Router Interface
 
         RBAC test for the neutron add_router_interface policy
@@ -331,10 +329,9 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
             subnet_id=subnet['id'])
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="remove_router_interface",
-                                 expected_error_code=404)
+                                 rule="remove_router_interface")
     @decorators.idempotent_id('ff2593a4-2bff-4c27-97d3-dd3702b27dfb')
-    def test_remove_router_interfaces(self):
+    def test_remove_router_interface(self):
         """Remove Router Interface
 
         RBAC test for the neutron remove_router_interface policy
