@@ -20,9 +20,17 @@ Developer's Guide
 =================
 
 .. toctree::
+   :maxdepth: 1
+
+   HACKING
+
+Framework
+---------
+
+.. toctree::
    :maxdepth: 2
 
-   contributing
+   rbac_validation
 
 Indices and tables
 ==================
