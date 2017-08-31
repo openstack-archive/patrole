@@ -18,6 +18,7 @@ import testtools
 
 from tempest.common import waiters
 from tempest import config
+from tempest.lib.common import api_version_utils
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
@@ -234,6 +235,45 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             test_utils.call_and_ignore_notfound_exc,
             self.compute_images_client.delete_image, image['id'])
 
+    @decorators.idempotent_id('9fdd4630-731c-4f7c-bce5-69fa3792c52a')
+    @testtools.skipUnless(CONF.compute_feature_enabled.snapshot,
+                          'Snapshotting not available, backup not possible.')
+    @test.services('image')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-create-backup")
+    def test_create_backup(self):
+        # Prioritize glance v2 over v1 for deleting/waiting for image status.
+        if CONF.image_feature_enabled.api_v2:
+            glance_admin_client = self.os_admin.image_client_v2
+        elif CONF.image_feature_enabled.api_v1:
+            glance_admin_client = self.os_admin.image_client
+        else:
+            raise lib_exc.InvalidConfiguration(
+                'Either api_v1 or api_v2 must be True in '
+                '[image-feature-enabled].')
+
+        backup_name = data_utils.rand_name(self.__class__.__name__ + '-Backup')
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        resp = self.servers_client.create_backup(
+            self.server_id, backup_type='daily', rotation=1,
+            name=backup_name).response
+
+        # Prior to microversion 2.45, image ID must be parsed from location
+        # header. With microversion 2.45+, image_id is returned.
+        if api_version_utils.compare_version_header_to_response(
+                "OpenStack-API-Version", "2.45", resp, "lt"):
+            image_id = resp['image_id']
+        else:
+            image_id = data_utils.parse_image_id(resp['location'])
+
+        # Use admin credentials to wait since waiting involves show, which is
+        # a different policy.
+        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
+                        glance_admin_client.delete_image, image_id)
+        waiters.wait_for_image_status(glance_admin_client, image_id, 'active')
+
 
 class ServerActionsV214RbacTest(rbac_base.BaseV2ComputeRbacTest):
 
@@ -251,8 +291,11 @@ class ServerActionsV214RbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('78ecef3c-faff-412a-83be-47651963eb21')
     def test_evacuate_server(self):
         fake_host_name = data_utils.rand_name(
-            self.__class__.__name__ + '-FakeHost')
+            self.__class__.__name__ + '-fake-host')
 
+        # NOTE(felipemonteiro): Because evacuating a server is a risky action
+        # to test in the gates, a 404 is coerced using a fake host. However,
+        # the policy check is done before the 404 is thrown.
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.assertRaisesRegex(lib_exc.NotFound,
                                "Compute host %s not found." % fake_host_name,
