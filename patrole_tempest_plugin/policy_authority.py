@@ -31,7 +31,7 @@ CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
 
-class RbacPolicyParser(RbacAuthority):
+class PolicyAuthority(RbacAuthority):
     """A class for parsing policy rules into lists of allowed roles.
 
     RBAC testing requires that each rule in a policy file be broken up into

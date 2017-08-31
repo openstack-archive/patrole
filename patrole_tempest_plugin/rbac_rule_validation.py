@@ -23,8 +23,8 @@ from tempest import config
 from tempest.lib import exceptions
 from tempest import test
 
+from patrole_tempest_plugin import policy_authority
 from patrole_tempest_plugin import rbac_exceptions
-from patrole_tempest_plugin import rbac_policy_parser
 from patrole_tempest_plugin import rbac_utils
 from patrole_tempest_plugin import requirements_authority
 
@@ -237,14 +237,14 @@ def _is_authorized(test_obj, service, rule, extra_target_data, admin_only):
 
     try:
         role = CONF.patrole.rbac_test_role
-        # Test RBAC against custom requirements. Otherwise use oslo.policy
+        # Test RBAC against custom requirements. Otherwise use oslo.policy.
         if CONF.patrole.test_custom_requirements:
             authority = requirements_authority.RequirementsAuthority(
                 CONF.patrole.custom_requirements_file, service)
         else:
             formatted_target_data = _format_extra_target_data(
                 test_obj, extra_target_data)
-            authority = rbac_policy_parser.RbacPolicyParser(
+            authority = policy_authority.PolicyAuthority(
                 project_id, user_id, service,
                 extra_target_data=formatted_target_data)
         is_allowed = authority.allowed(rule, role)
