@@ -38,7 +38,7 @@ RBACLOG = logging.getLogger('rbac_reporting')
 
 def action(service, rule='', admin_only=False, expected_error_code=403,
            extra_target_data=None):
-    """A decorator for verifying policy enforcement.
+    """A decorator for verifying OpenStack policy enforcement.
 
     A decorator which allows for positive and negative RBAC testing. Given:
 
@@ -50,7 +50,7 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
     API call that enforces the ``rule``.
 
     This decorator should only be applied to an instance or subclass of
-        `tempest.base.BaseTestCase`.
+        ``tempest.test.BaseTestCase``.
 
     The result from ``_is_authorized`` is used to determine the *expected*
     test result. The *actual* test result is determined by running the
@@ -68,7 +68,7 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
 
     As such, negative and positive testing can be applied using this decorator.
 
-    :param service: A OpenStack service. Examples: "nova" or "neutron".
+    :param service: An OpenStack service. Examples: "nova" or "neutron".
     :param rule: A policy action defined in a policy.json file (or in
         code).
 
@@ -76,11 +76,10 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
 
             Patrole currently only supports custom JSON policy files.
 
-    :param admin_only: Skips over `oslo.policy` check because the policy action
-        defined by `rule` is not enforced by the service's policy
+    :param admin_only: Skips over ``oslo.policy`` check because the policy
+        action defined by ``rule`` is not enforced by the service's policy
         enforcement engine. For example, Keystone v2 performs an admin check
-        for most of its endpoints. If True, `rule` is effectively
-        ignored.
+        for most of its endpoints. If True, ``rule`` is effectively ignored.
     :param expected_error_code: Overrides default value of 403 (Forbidden)
         with endpoint-specific error code. Currently only supports 403 and 404.
         Support for 404 is needed because some services, like Neutron,
@@ -89,11 +88,11 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
         .. warning::
 
             A 404 should not be provided *unless* the endpoint masks a
-            `Forbidden` exception as a `Not Found` exception.
+            ``Forbidden`` exception as a ``NotFound`` exception.
 
-    :param extra_target_data: Dictionary, keyed with `oslo.policy` generic
+    :param extra_target_data: Dictionary, keyed with ``oslo.policy`` generic
         check names, whose values are string literals that reference nested
-        `tempest.base.BaseTestCase` attributes. Used by `oslo.policy` for
+        ``tempest.test.BaseTestCase`` attributes. Used by ``oslo.policy`` for
         performing matching against attributes that are sent along with the API
         calls. Example::
 
@@ -102,8 +101,7 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
                 "os_alt.auth_provider.credentials.user_id"
             })
 
-    :raises NotFound: If `service` is invalid or if Tempest credentials cannot
-        be found.
+    :raises NotFound: If ``service`` is invalid.
     :raises Forbidden: For item (2) above.
     :raises RbacOverPermission: For item (3) above.
 
@@ -112,7 +110,7 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
         @rbac_rule_validation.action(
             service="nova", rule="os_compute_api:os-agents")
         def test_list_agents_rbac(self):
-            # The call to ``switch_role`` is mandatory.
+            # The call to `switch_role` is mandatory.
             self.rbac_utils.switch_role(self, toggle_rbac_role=True)
             self.agents_client.list_agents()
     """
@@ -194,20 +192,19 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
 def _is_authorized(test_obj, service, rule, extra_target_data, admin_only):
     """Validates whether current RBAC role has permission to do policy action.
 
-    :param test_obj: An instance or subclass of `tempest.base.BaseTestCase`.
+    :param test_obj: An instance or subclass of ``tempest.test.BaseTestCase``.
     :param service: The OpenStack service that enforces ``rule``.
     :param rule: The name of the policy action. Examples include
         "identity:create_user" or "os_compute_api:os-agents".
-    :param extra_target_data: Dictionary, keyed with `oslo.policy` generic
+    :param extra_target_data: Dictionary, keyed with ``oslo.policy`` generic
         check names, whose values are string literals that reference nested
-        `tempest.base.BaseTestCase` attributes. Used by `oslo.policy` for
+        ``tempest.test.BaseTestCase`` attributes. Used by ``oslo.policy`` for
         performing matching against attributes that are sent along with the API
         calls.
-    :param admin_only: Skips over `oslo.policy` check because the policy action
-        defined by `rule` is not enforced by the service's policy
+    :param admin_only: Skips over ``oslo.policy`` check because the policy
+        action defined by ``rule`` is not enforced by the service's policy
         enforcement engine. For example, Keystone v2 performs an admin check
-        for most of its endpoints. If True, `rule` is effectively
-        ignored.
+        for most of its endpoints. If True, ``rule`` is effectively ignored.
 
     :returns: True if the current RBAC role can perform the policy action,
         else False.
@@ -268,14 +265,15 @@ def _get_exception_type(expected_error_code=403):
     """Dynamically calculate the expected exception to be caught.
 
     Dynamically calculate the expected exception to be caught by the test case.
-    Only `Forbidden` and `NotFound` exceptions are permitted. `NotFound` is
-    supported because Neutron, for security reasons, masks `Forbidden`
-    exceptions as `NotFound` exceptions.
+    Only ``Forbidden`` and ``NotFound`` exceptions are permitted. ``NotFound``
+    is supported because Neutron, for security reasons, masks ``Forbidden``
+    exceptions as ``NotFound`` exceptions.
 
     :param expected_error_code: the integer representation of the expected
-        exception to be caught. Must be contained in `_SUPPORTED_ERROR_CODES`.
+        exception to be caught. Must be contained in
+        ``_SUPPORTED_ERROR_CODES``.
     :returns: tuple of the exception type corresponding to
-        `expected_error_code` and a message explaining that a non-Forbidden
+        ``expected_error_code`` and a message explaining that a non-Forbidden
         exception was expected, if applicable.
     """
     expected_exception = None
@@ -304,7 +302,8 @@ def _format_extra_target_data(test_obj, extra_target_data):
 
     Before being formatted, "extra_target_data" is a dictionary that maps a
     policy string like "trust.trustor_user_id" to a nested list of
-    `tempest.base.BaseTestCase` attributes. For example, the attribute list in:
+    ``tempest.test.BaseTestCase`` attributes. For example, the attribute list
+    in:
 
         "trust.trustor_user_id": "os.auth_provider.credentials.user_id"
 
@@ -313,14 +312,14 @@ def _format_extra_target_data(test_obj, extra_target_data):
 
         "trust.trustor_user_id": "the user_id of the `os_primary` credential"
 
-    :param test_obj: An instance or subclass of `tempest.base.BaseTestCase`.
-    :param extra_target_data: Dictionary, keyed with `oslo.policy` generic
+    :param test_obj: An instance or subclass of ``tempest.test.BaseTestCase``.
+    :param extra_target_data: Dictionary, keyed with ``oslo.policy`` generic
         check names, whose values are string literals that reference nested
-        `tempest.base.BaseTestCase` attributes. Used by `oslo.policy` for
+        ``tempest.test.BaseTestCase`` attributes. Used by ``oslo.policy`` for
         performing matching against attributes that are sent along with the API
         calls.
     :returns: Dictionary containing additional object data needed by
-        `oslo.policy` to validate generic checks.
+        ``oslo.policy`` to validate generic checks.
     """
     attr_value = test_obj
     formatted_target_data = {}
