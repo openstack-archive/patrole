@@ -162,7 +162,7 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
             except Exception as e:
                 exc_info = sys.exc_info()
                 error_details = exc_info[1].__str__()
-                msg = ("An unexpected exception has occurred during test: %s, "
+                msg = ("An unexpected exception has occurred during test: %s. "
                        "Exception was: %s"
                        % (test_func.__name__, error_details))
                 test_status = ('Error, %s' % (error_details))
