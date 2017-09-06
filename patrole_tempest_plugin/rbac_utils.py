@@ -191,25 +191,6 @@ class RbacUtils(object):
         else:
             self.switch_role_history[key] = toggle_rbac_role
 
-    def _get_roles(self):
-        available_roles = self.admin_roles_client.list_roles()
-        admin_role_id = rbac_role_id = None
-
-        for role in available_roles['roles']:
-            if role['name'] == CONF.patrole.rbac_test_role:
-                rbac_role_id = role['id']
-            if role['name'] == CONF.identity.admin_role:
-                admin_role_id = role['id']
-
-        if not admin_role_id or not rbac_role_id:
-            msg = "Role with name 'admin' does not exist in the system."\
-                if not admin_role_id else "Role defined by rbac_test_role "\
-                "does not exist in the system."
-            raise rbac_exceptions.RbacResourceSetupFailed(msg)
-
-        self.admin_role_id = admin_role_id
-        self.rbac_role_id = rbac_role_id
-
 
 def is_admin():
     """Verifies whether the current test role equals the admin role.
