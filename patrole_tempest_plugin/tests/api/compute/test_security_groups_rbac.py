@@ -61,7 +61,6 @@ class SecurtiyGroupsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.servers_client.list_security_groups_by_server(self.server['id'])
 
-    @decorators.attr(type=["slow"])
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-security-groups")
@@ -75,7 +74,6 @@ class SecurtiyGroupsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                         self.servers_client.remove_security_group,
                         self.server['id'], name=sg_name)
 
-    @decorators.attr(type=["slow"])
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-security-groups")
