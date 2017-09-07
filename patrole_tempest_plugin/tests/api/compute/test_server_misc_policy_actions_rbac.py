@@ -305,6 +305,29 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
+        rule="os_compute_api:os-keypairs")
+    @decorators.idempotent_id('81e6fa34-c06b-42ca-b195-82bf8699b940')
+    def test_show_server_keypair(self):
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        result =\
+            self.servers_client.show_server(self.server['id'])['server']
+        if 'key_name' not in result:
+            raise rbac_exceptions.RbacMalformedResponse(
+                attribute='key_name')
+
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-keypairs")
+    @decorators.idempotent_id('41ca4280-ec59-4b80-a9b1-6bc6366faf39')
+    def test_list_servers_keypairs(self):
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        result = self.servers_client.list_servers(detail=True)['servers']
+        if 'key_name' not in result[0]:
+            raise rbac_exceptions.RbacMalformedResponse(
+                attribute='key_name')
+
+    @rbac_rule_validation.action(
+        service="nova",
         rule="os_compute_api:os-lock-server:lock")
     @decorators.idempotent_id('b81e10fb-1864-498f-8c1d-5175c6fec5fb')
     def test_lock_server(self):
