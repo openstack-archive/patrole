@@ -37,7 +37,7 @@ class ImageResourceTypesRbacTest(rbac_base.BaseV2ImageRbacTest):
         test_utils.call_and_ignore_notfound_exc(
             cls.namespaces_client.delete_namespace,
             cls.namespace_name)
-        super(ImageResourceTypesRbacTest, cls).resource_setup()
+        super(ImageResourceTypesRbacTest, cls).resource_cleanup()
 
     @rbac_rule_validation.action(service="glance",
                                  rule="list_metadef_resource_types")

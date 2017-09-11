@@ -102,8 +102,7 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
 
     @decorators.idempotent_id('a16f4e5c-0675-415f-b636-00af00638693')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="update_subnetpool:is_default",
-                                 expected_error_code=404)
+                                 rule="update_subnetpool:is_default")
     def test_update_subnetpool_is_default(self):
         """Update default subnetpool.
 
@@ -123,8 +122,7 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
             default_pool['id'], description=original_desc, is_default=True)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="delete_subnetpool",
-                                 expected_error_code=404)
+                                 rule="delete_subnetpool")
     @decorators.idempotent_id('50f5944e-43e5-457b-ab50-fb48a73f0d3e')
     def test_delete_subnetpool(self):
         """Delete subnetpool.
