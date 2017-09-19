@@ -18,10 +18,12 @@ from __future__ import absolute_import
 
 import fixtures
 import mock
+import time
 
 from tempest import clients
 from tempest.common import credentials_factory as credentials
 from tempest import config
+from tempest import test
 
 from patrole_tempest_plugin import rbac_utils
 
@@ -73,13 +75,19 @@ class RbacUtilsFixture(fixtures.Fixture):
             'os_primary.credentials.project_id': self.PROJECT_ID,
             'get_identity_version.return_value': 'v3'
         }
-        self.mock_test_obj = mock.Mock(__name__='foo', **test_obj_kwargs)
+        self.mock_test_obj = mock.Mock(
+            __name__='patrole_unit_test', spec=test.BaseTestCase,
+            os_primary=mock.Mock(), **test_obj_kwargs)
 
-        # Mock out functionality that can't be used by unit tests.
-        self.mock_time = mock.patch.object(rbac_utils, 'time').start()
-        mock.patch.object(
-            credentials, 'get_configured_admin_credentials').start()
-        mock_admin_mgr = mock.patch.object(clients, 'Manager').start()
+        # Mock out functionality that can't be used by unit tests. Mocking out
+        # time.sleep is a test optimization.
+        self.mock_time = mock.patch.object(
+            rbac_utils, 'time', __name__='mock_time', spec=time).start()
+        mock.patch.object(credentials, 'get_configured_admin_credentials',
+                          spec=object).start()
+        mock_admin_mgr = mock.patch.object(
+            clients, 'Manager', spec=clients.Manager,
+            roles_v3_client=mock.Mock(), roles_client=mock.Mock()).start()
         self.roles_v3_client = mock_admin_mgr.return_value.roles_v3_client
 
         self.set_roles(['admin', 'member'], [])

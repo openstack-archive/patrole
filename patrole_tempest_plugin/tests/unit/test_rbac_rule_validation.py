@@ -42,9 +42,9 @@ class RBACRuleValidationTest(base.TestCase):
 
         self.useFixture(
             fixtures.ConfPatcher(rbac_test_role='Member', group='patrole'))
-
-        # Mock the RBAC log so that it is not written to for any unit tests.
-        mock.patch.object(rbac_rv.RBACLOG, 'info').start()
+        # Disable patrole log for unit tests.
+        self.useFixture(
+            fixtures.ConfPatcher(enable_reporting=False, group='patrole_log'))
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
     @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)

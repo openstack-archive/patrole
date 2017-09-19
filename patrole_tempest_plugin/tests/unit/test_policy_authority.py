@@ -499,7 +499,8 @@ class PolicyAuthorityTest(base.TestCase):
 
     def _test_validate_service(self, v2_services, v3_services,
                                expected_failure=False, expected_services=None):
-        with mock.patch.object(policy_authority, 'clients') as m_creds:
+        with mock.patch.object(
+            policy_authority, 'clients', autospec=True) as m_creds:
             m_creds.Manager().identity_services_client.list_services.\
                 return_value = v2_services
             m_creds.Manager().identity_services_v3_client.list_services.\
