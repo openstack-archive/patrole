@@ -32,37 +32,72 @@ LOG = logging.getLogger(__name__)
 
 
 class PolicyAuthority(RbacAuthority):
-    """A class for parsing policy rules into lists of allowed roles.
-
-    RBAC testing requires that each rule in a policy file be broken up into
-    the roles that constitute it. This class automates that process.
-
-    The list of roles per rule can be reverse-engineered by checking, for
-    each role, whether a given rule is allowed using oslo policy.
-    """
+    """A class that uses ``oslo.policy`` for validating RBAC."""
 
     def __init__(self, project_id, user_id, service, extra_target_data=None):
-        """Initialization of Rbac Policy Parser.
+        """Initialization of Policy Authority class.
 
-        Parses a policy file to create a dictionary, mapping policy actions to
-        roles. If a policy file does not exist, checks whether the policy file
-        is registered as a namespace under oslo.policy.policies. Nova, for
-        example, doesn't use a policy.json file by default; its policy is
-        implemented in code and registered as 'nova' under
-        oslo.policy.policies.
+        Validates whether a test role can perform a policy action by querying
+        ``oslo.policy`` with necessary test data.
 
-        If the policy file is not found in either place, raises an exception.
+        If a policy file does not exist, checks whether the policy file is
+        registered as a namespace under "oslo.policy.policies". Nova, for
+        example, doesn't use a policy file by default; its policies are
+        implemented in code and registered as "nova" under
+        "oslo.policy.policies".
 
-        Additionally, if the policy file exists in both code and as a
-        policy.json (for example, by creating a custom nova policy.json file),
-        the custom policy file over the default policy implementation is
-        prioritized.
+        If the policy file is not found in either code or in a policy file,
+        then an exception is raised.
+
+        Additionally, if a custom policy file exists along with the default
+        policy in code implementation, the custom policy is prioritized.
 
         :param uuid project_id: project_id of object performing API call
         :param uuid user_id: user_id of object performing API call
         :param string service: service of the policy file
         :param dict extra_target_data: dictionary containing additional object
             data needed by oslo.policy to validate generic checks
+
+        Example:
+
+        .. code-block:: python
+
+            # Below is the default policy implementation in code, defined in
+            # a service like Nova.
+            test_policies = [
+                policy.DocumentedRuleDefault(
+                    'service:test_rule',
+                    base.RULE_ADMIN_OR_OWNER,
+                    "This is a description for a test policy",
+                    [
+                        {
+                            'method': 'POST',
+                            'path': '/path/to/test/resource'
+                        }
+                    ]),
+                    'service:another_test_rule',
+                    base.RULE_ADMIN_OR_OWNER,
+                    "This is a description for another test policy",
+                    [
+                        {
+                            'method': 'GET',
+                            'path': '/path/to/test/resource'
+                        }
+                    ]),
+            ]
+
+        .. code-block:: yaml
+
+            # Below is the custom override of the default policy in a YAML
+            # policy file. Note that the default rule is "rule:admin_or_owner"
+            # and the custom rule is "rule:admin_api". The `PolicyAuthority`
+            # class will use the "rule:admin_api" definition for this policy
+            # action.
+            "service:test_rule" : "rule:admin_api"
+
+            # Note below that no override is provided for
+            # "service:another_test_rule", which means that the default policy
+            # rule is used: "rule:admin_or_owner".
         """
 
         if extra_target_data is None:
@@ -108,9 +143,10 @@ class PolicyAuthority(RbacAuthority):
 
     @classmethod
     def discover_policy_files(cls):
-        # Dynamically discover the policy file for each service in
-        # ``cls.available_services``. Pick the first ``candidate_path`` found
-        # out of the potential paths in ``CONF.patrole.custom_policy_files``.
+        """Dynamically discover the policy file for each service in
+        ``cls.available_services``. Pick the first candidate path found
+        out of the potential paths in ``[patrole] custom_policy_files``.
+        """
         if not hasattr(cls, 'policy_files'):
             cls.policy_files = {}
             for service in cls.available_services:
@@ -120,6 +156,11 @@ class PolicyAuthority(RbacAuthority):
                                                     candidate_path % service)
 
     def allowed(self, rule_name, role):
+        """Checks if a given rule in a policy is allowed with given role.
+
+        :param string rule_name: Rule to be checked using ``oslo.policy``.
+        :param bool is_admin: Whether admin context is used.
+        """
         is_admin_context = self._is_admin_context(role)
         is_allowed = self._allowed(
             access=self._get_access_token(role),
@@ -220,13 +261,11 @@ class PolicyAuthority(RbacAuthority):
         return access_token
 
     def _allowed(self, access, apply_rule, is_admin=False):
-        """Checks if a given rule in a policy is allowed with given access.
+        """Checks if a given rule in a policy is allowed with given ``access``.
 
-        Adapted from oslo_policy.shell.
-
-        :param access: type dict: dictionary from ``_get_access_token``
-        :param apply_rule: type string: rule to be checked
-        :param is_admin: type bool: whether admin context is used
+        :param dict access: Dictionary from ``_get_access_token``.
+        :param string apply_rule: Rule to be checked using ``oslo.policy``.
+        :param bool is_admin: Whether admin context is used.
         """
         access_data = copy.copy(access['token'])
         access_data['roles'] = [role['name'] for role in access_data['roles']]

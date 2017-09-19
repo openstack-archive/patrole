@@ -7,7 +7,7 @@ RBAC Testing Validation
 Overview
 --------
 
-RBAC Testing Validation is broken up into 3 stages:
+RBAC testing validation is broken up into 3 stages:
 
   1. "Expected" stage. Determine whether the test should be able to succeed
      or fail based on the test role defined by ``[patrole] rbac_test_role``)
@@ -41,10 +41,19 @@ is initiated.
 
 .. automodule:: patrole_tempest_plugin.rbac_rule_validation
    :members:
+   :private-members:
 
 ---------------------------
 The Policy Authority Module
 ---------------------------
+
+Module called by the "RBAC Rule Validation Module" to verify whether the test
+role is allowed to execute a policy action by querying ``oslo.policy`` with
+required test data. The result is used by the "RBAC Rule Validation Module" as
+the `expected` result.
+
+This module is only called for calculating the `expected` result if
+``[patrole] test_custom_requirements`` is ``False``.
 
 Using the Policy Authority Module, policy verification is performed by:
 
