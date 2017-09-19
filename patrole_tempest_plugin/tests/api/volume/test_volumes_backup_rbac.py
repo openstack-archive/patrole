@@ -22,6 +22,7 @@ from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
+from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
@@ -31,10 +32,6 @@ CONF = config.CONF
 class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
 
     credentials = ['primary', 'admin']
-
-    def setUp(self):
-        super(VolumesBackupsRbacTest, self).setUp()
-        self.volume = self.create_volume()
 
     @classmethod
     def skip_checks(cls):
@@ -46,6 +43,11 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
     def setup_clients(cls):
         super(VolumesBackupsRbacTest, cls).setup_clients()
         cls.admin_backups_client = cls.os_admin.backups_v2_client
+
+    @classmethod
+    def resource_setup(cls):
+        super(VolumesBackupsRbacTest, cls).resource_setup()
+        cls.volume = cls.create_volume()
 
     def _decode_url(self, backup_url):
         return json.loads(base64.decode_as_text(backup_url))
@@ -73,6 +75,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('abd92bdd-b0fb-4dc4-9cfc-de9e968f8c8a')
     def test_show_backup(self):
         backup = self.create_backup(volume_id=self.volume['id'])
+
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.backups_client.show_backup(backup['id'])
 
@@ -96,8 +99,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
         service="cinder",
         rule="volume_extension:backup_admin_actions:reset_status")
     def test_reset_backup_status(self):
-        volume = self.create_volume()
-        backup = self.create_backup(volume_id=volume['id'])
+        backup = self.create_backup(volume_id=self.volume['id'])
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.backups_client.reset_backup_status(backup_id=backup['id'],
@@ -135,7 +137,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.backups_client.delete_backup(backup['id'])
         # Wait for deletion so error isn't thrown during clean up.
-        self.backups_client.wait_for_resource_deletion(backup['id'])
+        self.admin_backups_client.wait_for_resource_deletion(backup['id'])
 
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(service="cinder",
@@ -143,6 +145,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('e984ec8d-e8eb-485c-98bc-f1856020303c')
     def test_export_backup(self):
         backup = self.create_backup(volume_id=self.volume['id'])
+
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.backups_client.export_backup(backup['id'])['backup-record']
 
@@ -167,3 +170,34 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
 
 class VolumesBackupsV3RbacTest(VolumesBackupsRbacTest):
     _api_version = 3
+
+
+class VolumesBackupsV318RbacTest(rbac_base.BaseVolumeRbacTest):
+    _api_version = 3
+    # The minimum microversion for showing 'os-backup-project-attr:project_id'
+    # is 3.18.
+    min_microversion = '3.18'
+    max_microversion = 'latest'
+
+    @classmethod
+    def skip_checks(cls):
+        super(VolumesBackupsV318RbacTest, cls).skip_checks()
+        if not CONF.volume_feature_enabled.backup:
+            raise cls.skipException("Cinder backup feature disabled")
+
+    @decorators.idempotent_id('69801485-d5be-4e75-bbb4-168d50b5a8c2')
+    @rbac_rule_validation.action(service="cinder",
+                                 rule="backup:backup_project_attribute")
+    def test_show_backup_project_attribute(self):
+        volume = self.create_volume()
+        backup = self.create_backup(volume_id=volume['id'])
+        expected_attr = 'os-backup-project-attr:project_id'
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        body = self.backups_client.show_backup(backup['id'])['backup']
+
+        # Show backup API attempts to inject the attribute below into the
+        # response body but only if policy enforcement succeeds.
+        if expected_attr not in body:
+            raise rbac_exceptions.RbacMalformedResponse(
+                attribute=expected_attr)
