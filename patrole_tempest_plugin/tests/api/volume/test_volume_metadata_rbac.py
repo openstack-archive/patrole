@@ -103,3 +103,7 @@ class VolumeMetadataRbacTest(rbac_base.BaseVolumeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.volumes_client.update_volume_image_metadata(
             self.volume['id'], image_id=self.image_id)
+
+
+class VolumeMetadataV3RbacTest(VolumeMetadataRbacTest):
+    _api_version = 3
