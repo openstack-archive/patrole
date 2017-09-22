@@ -18,6 +18,7 @@ from oslo_log import log
 from tempest.common import waiters
 from tempest import config
 from tempest.lib.common.utils import data_utils
+from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 from tempest.lib import exceptions
 from tempest import test
@@ -98,8 +99,16 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # Use image_id='' to avoid using the default image in tempest.conf.
-        self.create_test_server(name=server_name, image_id='',
-                                **device_mapping)
+        server = self.create_test_server(name=server_name, image_id='',
+                                         **device_mapping)
+        # Delete the server and wait for the volume to become available to
+        # avoid clean up errors.
+        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
+                        waiters.wait_for_volume_resource_status,
+                        self.volumes_client, volume_id, 'available')
+        self.addCleanup(waiters.wait_for_server_termination,
+                        self.servers_client, server['id'])
+        self.addCleanup(self.delete_server, server['id'])
 
     @test.services('network')
     @rbac_rule_validation.action(

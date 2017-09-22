@@ -19,6 +19,7 @@ import testtools
 from tempest.common import waiters
 from tempest import config
 from tempest.lib.common.utils import data_utils
+from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 from tempest.lib import exceptions as lib_exc
 from tempest import test
@@ -38,26 +39,10 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @classmethod
     def resource_setup(cls):
         super(ServerActionsRbacTest, cls).resource_setup()
-        # Create test server
         cls.server_id = cls.create_test_server(wait_until='ACTIVE')['id']
         cls.flavor_ref = CONF.compute.flavor_ref
         cls.flavor_ref_alt = CONF.compute.flavor_ref_alt
         cls.image_ref = CONF.compute.image_ref
-
-        # Create a volume
-        volume_name = data_utils.rand_name(cls.__name__ + '-volume')
-        name_field = 'name'
-        if not CONF.volume_feature_enabled.api_v2:
-            name_field = 'display_name'
-
-        params = {name_field: volume_name,
-                  'imageRef': CONF.compute.image_ref,
-                  'size': CONF.volume.volume_size}
-        volume = cls.volumes_client.create_volume(**params)['volume']
-        waiters.wait_for_volume_resource_status(cls.volumes_client,
-                                                volume['id'], 'available')
-        cls.volumes.append(volume)
-        cls.volume_id = volume['id']
 
     def setUp(self):
         super(ServerActionsRbacTest, self).setUp()
@@ -72,57 +57,6 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         except Exception:
             # Rebuilding the server in case something happened during a test
             self.__class__.server_id = self.rebuild_server(self.server_id)
-
-    @classmethod
-    def resource_cleanup(cls):
-        # If a test case creates an image from a server that is created with
-        # a volume, a volume snapshot will automatically be created by default.
-        # We need to delete the volume snapshot.
-        try:
-            body = cls.snapshots_extensions_client.list_snapshots()
-            volume_snapshots = body['snapshots']
-        except Exception:
-            LOG.info("Cannot retrieve snapshots for cleanup.")
-        else:
-            for snapshot in volume_snapshots:
-                if snapshot['volumeId'] == cls.volume_id:
-                    # Wait for snapshot status to become 'available' before
-                    # deletion
-                    waiters.wait_for_volume_resource_status(
-                        cls.snapshots_extensions_client, snapshot['id'],
-                        'available')
-                    cls.snapshots_extensions_client.delete_snapshot(
-                        snapshot['id'])
-
-            for snapshot in volume_snapshots:
-                if snapshot['volumeId'] == cls.volume_id:
-                    cls.snapshots_extensions_client.wait_for_resource_deletion(
-                        snapshot['id'])
-
-        super(ServerActionsRbacTest, cls).resource_cleanup()
-
-    def _create_test_server_with_volume(self, volume_id):
-        # Create a server with the volume created earlier
-        server_name = data_utils.rand_name(self.__class__.__name__ + "-server")
-        bd_map_v2 = [{'uuid': volume_id,
-                      'source_type': 'volume',
-                      'destination_type': 'volume',
-                      'boot_index': 0,
-                      'delete_on_termination': True}]
-        device_mapping = {'block_device_mapping_v2': bd_map_v2}
-
-        # Since the server is booted from volume, the imageRef does not need
-        # to be specified.
-        server = self.servers_client.create_server(
-            name=server_name, imageRef='',
-            flavorRef=CONF.compute.flavor_ref,
-            **device_mapping)['server']
-
-        waiters.wait_for_server_status(
-            self.os_admin.servers_client, server['id'], 'ACTIVE')
-
-        self.servers.append(server)
-        return server
 
     def _test_start_server(self):
         self.servers_client.start_server(self.server_id)
@@ -275,21 +209,30 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
 
         # This function will also call show image
-        self.create_image_from_server(self.server_id,
-                                      wait_until='ACTIVE')
+        self.create_image_from_server(self.server_id, wait_until='ACTIVE')
 
     @test.services('image', 'volume')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:servers:create_image:allow_volume_backed")
     @decorators.idempotent_id('8b869f73-49b3-4cc4-a0ce-ef64f8e1d6f9')
-    def test_create_image_volume_backed(self):
-        server = self._create_test_server_with_volume(self.volume_id)
+    def test_create_image_from_volume_backed_server(self):
+        # volume_backed=True creates a volume and create server will be
+        # requested with 'block_device_mapping_v2' with necessary values for
+        # this test.
+        server = self.create_test_server(volume_backed=True,
+                                         wait_until='ACTIVE')
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
 
-        # This function will also call show image
-        self.create_image_from_server(server['id'],
-                                      wait_until='ACTIVE')
+        # This function will also call show image.
+        image = self.create_image_from_server(server['id'],
+                                              wait_until='ACTIVE',
+                                              wait_for_server=False)
+        self.addCleanup(self.compute_images_client.wait_for_resource_deletion,
+                        image['id'])
+        self.addCleanup(
+            test_utils.call_and_ignore_notfound_exc,
+            self.compute_images_client.delete_image, image['id'])
 
 
 class ServerActionsV214RbacTest(rbac_base.BaseV2ComputeRbacTest):
