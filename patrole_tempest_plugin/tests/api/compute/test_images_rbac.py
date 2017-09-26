@@ -63,11 +63,11 @@ class ImagesRbacTest(rbac_base.BaseV2ComputeRbacTest):
         super(ImagesRbacTest, cls).resource_setup()
         cls.image = cls.glance_image_client.create_image(
             name=data_utils.rand_name(cls.__name__ + '-image'))
-
-    @classmethod
-    def resource_cleanup(cls):
-        cls.glance_image_client.delete_image(cls.image['id'])
-        super(ImagesRbacTest, cls).resource_cleanup()
+        cls.addClassResourceCleanup(
+            cls.glance_image_client.wait_for_resource_deletion,
+            cls.image['id'])
+        cls.addClassResourceCleanup(
+            cls.glance_image_client.delete_image, cls.image['id'])
 
     @decorators.idempotent_id('b861f302-b72b-4055-81db-c62ff30b136d')
     @rbac_rule_validation.action(
