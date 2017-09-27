@@ -13,7 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from oslo_log import log
 import testtools
 
 from tempest.common import waiters
@@ -30,7 +29,6 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 CONF = config.CONF
-LOG = log.getLogger(__name__)
 
 
 class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
@@ -59,27 +57,17 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             # Rebuilding the server in case something happened during a test
             self.__class__.server_id = self.rebuild_server(self.server_id)
 
-    def _test_start_server(self):
-        self.servers_client.start_server(self.server_id)
-        waiters.wait_for_server_status(
-            self.os_admin.servers_client, self.server_id, 'ACTIVE')
-
-    def _test_stop_server(self):
+    def _stop_server(self):
         self.servers_client.stop_server(self.server_id)
         waiters.wait_for_server_status(
             self.os_admin.servers_client, self.server_id, 'SHUTOFF')
 
-    def _test_resize_server(self, flavor):
+    def _resize_server(self, flavor):
         self.servers_client.resize_server(self.server_id, flavor)
         waiters.wait_for_server_status(
             self.os_admin.servers_client, self.server_id, 'VERIFY_RESIZE')
 
-    def _test_revert_resize_server(self):
-        self.servers_client.revert_resize_server(self.server_id)
-        waiters.wait_for_server_status(
-            self.os_admin.servers_client, self.server_id, 'ACTIVE')
-
-    def _test_confirm_resize_server(self):
+    def _confirm_resize_server(self):
         self.servers_client.confirm_resize_server(self.server_id)
         waiters.wait_for_server_status(
             self.os_admin.servers_client, self.server_id, 'ACTIVE')
@@ -90,7 +78,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('ab4a17d2-166f-4a6d-9944-f17baa576cf2')
     def test_stop_server(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self._test_stop_server()
+        self._stop_server()
 
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(
@@ -98,9 +86,12 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:servers:start")
     @decorators.idempotent_id('8876bfa9-4d10-406e-a335-a57e451abb12')
     def test_start_server(self):
-        self._test_stop_server()
+        self._stop_server()
+
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self._test_start_server()
+        self.servers_client.start_server(self.server_id)
+        waiters.wait_for_server_status(
+            self.os_admin.servers_client, self.server_id, 'ACTIVE')
 
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(
@@ -111,7 +102,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                           'Resize is not available.')
     def test_resize_server(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self._test_resize_server(self.flavor_ref_alt)
+        self._resize_server(self.flavor_ref_alt)
 
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(
@@ -121,9 +112,12 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @testtools.skipUnless(CONF.compute_feature_enabled.resize,
                           'Resize is not available.')
     def test_revert_resize_server(self):
-        self._test_resize_server(self.flavor_ref_alt)
+        self._resize_server(self.flavor_ref_alt)
+
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self._test_revert_resize_server()
+        self.servers_client.revert_resize_server(self.server_id)
+        waiters.wait_for_server_status(
+            self.os_admin.servers_client, self.server_id, 'ACTIVE')
 
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(
@@ -133,13 +127,12 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @testtools.skipUnless(CONF.compute_feature_enabled.resize,
                           'Resize is not available.')
     def test_confirm_resize_server(self):
-        self._test_resize_server(self.flavor_ref_alt)
+        self._resize_server(self.flavor_ref_alt)
+        self.addCleanup(self._confirm_resize_server)
+        self.addCleanup(self._resize_server, self.flavor_ref)
+
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.addCleanup(
-            lambda: (self._test_resize_server(self.flavor_ref),
-                     self._test_confirm_resize_server())
-        )
-        self._test_confirm_resize_server()
+        self._confirm_resize_server()
 
     @rbac_rule_validation.action(
         service="nova",
