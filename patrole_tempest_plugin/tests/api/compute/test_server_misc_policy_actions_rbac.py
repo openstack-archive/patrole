@@ -199,6 +199,50 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             raise rbac_exceptions.RbacMalformedResponse(
                 attribute=expected_attr)
 
+    @decorators.idempotent_id('4aa5d93e-4887-468a-8eb4-b6eca0ca6437')
+    @test.requires_ext(extension='OS-EXT-SRV-ATTR', service='compute')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-extended-server-attributes")
+    def test_list_servers_extended_server_attributes(self):
+        """Test list servers with details, with extended server attributes in
+        response body.
+        """
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        body = self.servers_client.list_servers(detail=True)['servers']
+
+        # NOTE(felipemonteiro): The attributes included below should be
+        # returned by all microversions. We don't include tests for other
+        # microversions since Tempest schema validation takes care of that in
+        # `show_server` call above. (Attributes there are *optional*.)
+        for attr in ('host', 'instance_name'):
+            whole_attr = 'OS-EXT-SRV-ATTR:%s' % attr
+            if whole_attr not in body[0]:
+                raise rbac_exceptions.RbacMalformedResponse(
+                    attribute=whole_attr)
+
+    @decorators.idempotent_id('2ed7aee2-94b2-4a9f-ae63-a51b7f94fe30')
+    @test.requires_ext(extension='OS-EXT-SRV-ATTR', service='compute')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-extended-server-attributes")
+    def test_show_server_extended_server_attributes(self):
+        """Test show server with extended server attributes in response
+        body.
+        """
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        body = self.servers_client.show_server(self.server['id'])['server']
+
+        # NOTE(felipemonteiro): The attributes included below should be
+        # returned by all microversions. We don't include tests for other
+        # microversions since Tempest schema validation takes care of that in
+        # `show_server` call above. (Attributes there are *optional*.)
+        for attr in ('host', 'instance_name'):
+            whole_attr = 'OS-EXT-SRV-ATTR:%s' % attr
+            if whole_attr not in body:
+                raise rbac_exceptions.RbacMalformedResponse(
+                    attribute=whole_attr)
+
     @decorators.idempotent_id('82053c27-3134-4003-9b55-bc9fafdb0e3b')
     @test.requires_ext(extension='OS-EXT-STS', service='compute')
     @rbac_rule_validation.action(
