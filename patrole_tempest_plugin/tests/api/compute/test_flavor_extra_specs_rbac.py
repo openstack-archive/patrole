@@ -36,12 +36,6 @@ class FlavorExtraSpecsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         super(FlavorExtraSpecsRbacTest, cls).resource_setup()
         cls.flavor = cls.create_flavor()
 
-    @classmethod
-    def resource_cleanup(cls):
-        cls.flavors_client.delete_flavor(cls.flavor['id'])
-        cls.flavors_client.wait_for_resource_deletion(cls.flavor['id'])
-        super(FlavorExtraSpecsRbacTest, cls).resource_cleanup()
-
     def _set_flavor_extra_spec(self):
         rand_key = data_utils.rand_name(self.__class__.__name__ + '-key')
         rand_val = data_utils.rand_name(self.__class__.__name__ + '-val')

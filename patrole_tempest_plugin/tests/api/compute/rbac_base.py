@@ -39,25 +39,6 @@ class BaseV2ComputeRbacTest(compute_base.BaseV2ComputeTest):
         cls.tenant_usages_client = cls.os_primary.tenant_usages_client
 
     @classmethod
-    def resource_setup(cls):
-        super(BaseV2ComputeRbacTest, cls).resource_setup()
-        cls.flavors = []
-
-    @classmethod
-    def resource_cleanup(cls):
-        cls.clear_flavors()
-        super(BaseV2ComputeRbacTest, cls).resource_cleanup()
-
-    @classmethod
-    def clear_flavors(cls):
-        for flavor in cls.flavors:
-            test_utils.call_and_ignore_notfound_exc(
-                cls.flavors_client.delete_flavor, flavor['id'])
-        for flavor in cls.flavors:
-            test_utils.call_and_ignore_notfound_exc(
-                cls.flavors_client.wait_for_resource_deletion, flavor['id'])
-
-    @classmethod
     def create_flavor(cls, **kwargs):
         flavor_kwargs = {
             "name": data_utils.rand_name(cls.__name__ + '-flavor'),
@@ -69,5 +50,9 @@ class BaseV2ComputeRbacTest(compute_base.BaseV2ComputeTest):
         if kwargs:
             flavor_kwargs.update(kwargs)
         flavor = cls.flavors_client.create_flavor(**flavor_kwargs)['flavor']
-        cls.flavors.append(flavor)
+        cls.addClassResourceCleanup(
+            cls.flavors_client.wait_for_resource_deletion, flavor['id'])
+        cls.addClassResourceCleanup(
+            test_utils.call_and_ignore_notfound_exc,
+            cls.flavors_client.delete_flavor, flavor['id'])
         return flavor

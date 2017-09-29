@@ -51,12 +51,8 @@ class QuotaClassesRbacTest(rbac_base.BaseV2ComputeRbacTest):
         project_name = data_utils.rand_name(cls.__name__ + '-Project')
         cls.project_id = cls.identity_projects_client.create_project(
             project_name)['project']['id']
-
-    @classmethod
-    def resource_cleanup(cls):
-        cls.identity_projects_client.delete_project(
-            cls.project_id)
-        super(QuotaClassesRbacTest, cls).resource_cleanup()
+        cls.addClassResourceCleanup(
+            cls.identity_projects_client.delete_project, cls.project_id)
 
     @decorators.idempotent_id('c10198ed-9df2-440e-a49b-367dadc6de94')
     @rbac_rule_validation.action(
