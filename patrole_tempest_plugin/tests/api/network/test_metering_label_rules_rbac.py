@@ -44,15 +44,11 @@ class MeteringLabelRulesRbacTest(base.BaseNetworkRbacTest):
     @classmethod
     def resource_setup(cls):
         super(MeteringLabelRulesRbacTest, cls).resource_setup()
-
         body = cls.metering_labels_client.create_metering_label(
             name=data_utils.rand_name(cls.__name__))
         cls.label = body['metering_label']
-
-    @classmethod
-    def resource_cleanup(cls):
-        cls.metering_labels_client.delete_metering_label(cls.label['id'])
-        super(MeteringLabelRulesRbacTest, cls).resource_cleanup()
+        cls.addClassResourceCleanup(
+            cls.metering_labels_client.delete_metering_label, cls.label['id'])
 
     def _create_metering_label_rule(self, label):
         body = self.metering_label_rules_client.create_metering_label_rule(

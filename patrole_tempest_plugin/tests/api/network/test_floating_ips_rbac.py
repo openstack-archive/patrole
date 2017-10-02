@@ -30,24 +30,21 @@ class FloatingIpsRbacTest(base.BaseNetworkRbacTest):
     @classmethod
     def resource_setup(cls):
         super(FloatingIpsRbacTest, cls).resource_setup()
-
-        # Create an external network for floating ip creation
+        # Create an external network for floating ip creation.
         cls.fip_extnet = cls.create_network(**{'router:external': True})
+        # Update router:external attribute to False for proper subnet resource
+        # cleanup by base class.
         cls.fip_extnet_id = cls.fip_extnet['id']
+        cls.addClassResourceCleanup(
+            test_utils.call_and_ignore_notfound_exc,
+            cls.networks_client.update_network, cls.fip_extnet_id,
+            **{'router:external': False})
 
         # Create a subnet for the external network
         cls.cidr = netaddr.IPNetwork(CONF.network.project_network_cidr)
         cls.create_subnet(cls.fip_extnet,
                           cidr=cls.cidr,
                           mask_bits=24)
-
-    @classmethod
-    def resource_cleanup(cls):
-        # Update router:external attribute to False for proper subnet resource
-        # cleanup by base class
-        cls.networks_client.update_network(cls.fip_extnet_id,
-                                           **{'router:external': False})
-        super(FloatingIpsRbacTest, cls).resource_cleanup()
 
     def _create_floatingip(self, floating_ip_address=None):
         if floating_ip_address is not None:
