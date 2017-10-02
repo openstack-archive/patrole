@@ -39,11 +39,9 @@ class NamespaceTagsRbacTest(base.BaseV2ImageRbacTest):
         cls.namespace = cls.namespaces_client.create_namespace(
             namespace=data_utils.rand_name(
                 cls.__name__ + '-namespace'))['namespace']
-
-    @classmethod
-    def resource_cleanup(cls):
-        cls.namespaces_client.delete_namespace(cls.namespace)
-        super(NamespaceTagsRbacTest, cls).resource_cleanup()
+        cls.addClassResourceCleanup(
+            cls.namespaces_client.delete_namespace,
+            cls.namespace)
 
     def _create_namespace_tag(self, multiple=False):
         tag_count = 2 if multiple else 1
