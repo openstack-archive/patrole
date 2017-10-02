@@ -41,24 +41,17 @@ class BaseVolumeRbacTest(vol_base.BaseVolumeTest):
         cls.group_types_client = cls.os_primary.group_types_v3_client
 
     @classmethod
-    def resource_setup(cls):
-        super(BaseVolumeRbacTest, cls).resource_setup()
-        cls.volume_types = []
-
-    @classmethod
-    def resource_cleanup(cls):
-        super(BaseVolumeRbacTest, cls).resource_cleanup()
-        # Allow volumes to be cleared first, so only clear volume types
-        # after super's resource_cleanup.
-        cls.clear_volume_types()
-
-    @classmethod
     def create_volume_type(cls, name=None, **kwargs):
         """Create a test volume-type"""
         name = name or data_utils.rand_name(cls.__name__ + '-volume-type')
         volume_type = cls.volume_types_client.create_volume_type(
             name=name, **kwargs)['volume_type']
-        cls.volume_types.append(volume_type)
+        cls.addClassResourceCleanup(
+            cls.volume_types_client.wait_for_resource_deletion,
+            volume_type['id'])
+        cls.addClassResourceCleanup(
+            test_utils.call_and_ignore_notfound_exc,
+            cls.volume_types_client.delete_volume_type, volume_type['id'])
         return volume_type
 
     def create_group_type(self, name=None, ignore_notfound=False, **kwargs):
@@ -77,14 +70,3 @@ class BaseVolumeRbacTest(vol_base.BaseVolumeTest):
                             group_type['id'])
 
         return group_type
-
-    @classmethod
-    def clear_volume_types(cls):
-        for vol_type in cls.volume_types:
-            test_utils.call_and_ignore_notfound_exc(
-                cls.volume_types_client.delete_volume_type, vol_type['id'])
-
-        for vol_type in cls.volume_types:
-            test_utils.call_and_ignore_notfound_exc(
-                cls.volume_types_client.wait_for_resource_deletion,
-                vol_type['id'])
