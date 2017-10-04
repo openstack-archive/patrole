@@ -31,13 +31,9 @@ class ImageResourceTypesRbacTest(rbac_base.BaseV2ImageRbacTest):
         cls.namespaces_client.create_namespace(
             namespace=cls.namespace_name,
             protected=False)
-
-    @classmethod
-    def resource_cleanup(cls):
-        test_utils.call_and_ignore_notfound_exc(
-            cls.namespaces_client.delete_namespace,
-            cls.namespace_name)
-        super(ImageResourceTypesRbacTest, cls).resource_cleanup()
+        cls.addClassResourceCleanup(
+            test_utils.call_and_ignore_notfound_exc,
+            cls.namespaces_client.delete_namespace, cls.namespace_name)
 
     @rbac_rule_validation.action(service="glance",
                                  rule="list_metadef_resource_types")
