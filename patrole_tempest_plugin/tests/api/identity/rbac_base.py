@@ -41,34 +41,6 @@ class BaseIdentityRbacTest(base.BaseIdentityTest):
         cls.rbac_utils = rbac_utils.RbacUtils(cls)
 
     @classmethod
-    def resource_setup(cls):
-        super(BaseIdentityRbacTest, cls).resource_setup()
-        cls.endpoints = []
-        cls.roles = []
-        cls.services = []
-        cls.users = []
-
-    @classmethod
-    def resource_cleanup(cls):
-        for endpoint in cls.endpoints:
-            test_utils.call_and_ignore_notfound_exc(
-                cls.endpoints_client.delete_endpoint, endpoint['id'])
-
-        for role in cls.roles:
-            test_utils.call_and_ignore_notfound_exc(
-                cls.roles_client.delete_role, role['id'])
-
-        for service in cls.services:
-            test_utils.call_and_ignore_notfound_exc(
-                cls.services_client.delete_service, service['id'])
-
-        for user in cls.users:
-            test_utils.call_and_ignore_notfound_exc(
-                cls.users_client.delete_user, user['id'])
-
-        super(BaseIdentityRbacTest, cls).resource_cleanup()
-
-    @classmethod
     def setup_test_endpoint(cls, service=None):
         """Creates a service and an endpoint for test."""
         interface = 'public'
@@ -89,7 +61,9 @@ class BaseIdentityRbacTest(base.BaseIdentityTest):
             params['url'] = url
 
         endpoint = cls.endpoints_client.create_endpoint(**params)['endpoint']
-        cls.endpoints.append(endpoint)
+        cls.addClassResourceCleanup(
+            test_utils.call_and_ignore_notfound_exc,
+            cls.endpoints_client.delete_endpoint, endpoint['id'])
 
         return endpoint
 
@@ -98,7 +72,9 @@ class BaseIdentityRbacTest(base.BaseIdentityTest):
         """Set up a test role."""
         name = data_utils.rand_name(cls.__name__ + '-test_role')
         role = cls.roles_client.create_role(name=name)['role']
-        cls.roles.append(role)
+        cls.addClassResourceCleanup(
+            test_utils.call_and_ignore_notfound_exc,
+            cls.roles_client.delete_role, role['id'])
 
         return role
 
@@ -119,7 +95,9 @@ class BaseIdentityRbacTest(base.BaseIdentityTest):
         elif cls.identity_version == 'v3':
             service = service['service']
 
-        cls.services.append(service)
+        cls.addClassResourceCleanup(
+            test_utils.call_and_ignore_notfound_exc,
+            cls.services_client.delete_service, service['id'])
 
         return service
 
@@ -134,7 +112,9 @@ class BaseIdentityRbacTest(base.BaseIdentityTest):
             email=email,
             password=password,
             **kwargs)['user']
-        cls.users.append(user)
+        cls.addClassResourceCleanup(
+            test_utils.call_and_ignore_notfound_exc,
+            cls.users_client.delete_user, user['id'])
 
         return user
 
