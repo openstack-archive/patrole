@@ -37,14 +37,9 @@ class SecGroupRbacTest(base.BaseNetworkRbacTest):
         secgroup_name = data_utils.rand_name(cls.__name__ + '-secgroup')
         cls.secgroup = cls.security_groups_client.create_security_group(
             name=secgroup_name)['security_group']
-
-    @classmethod
-    def resource_cleanup(cls):
-        # Clean up security group
-        test_utils.call_and_ignore_notfound_exc(
+        cls.addClassResourceCleanup(
             cls.security_groups_client.delete_security_group,
             cls.secgroup['id'])
-        super(SecGroupRbacTest, cls).resource_cleanup()
 
     def _create_security_group(self):
         # Create a security group
