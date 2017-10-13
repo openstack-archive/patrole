@@ -17,8 +17,8 @@ import datetime
 
 from six.moves.urllib import parse as urllib
 
+from tempest.common import utils
 from tempest.lib import decorators
-from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
@@ -29,8 +29,8 @@ class InstanceUsagesAuditLogRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @classmethod
     def skip_checks(cls):
         super(InstanceUsagesAuditLogRbacTest, cls).skip_checks()
-        if not test.is_extension_enabled('os-instance-usage-audit-log',
-                                         'compute'):
+        if not utils.is_extension_enabled('os-instance-usage-audit-log',
+                                          'compute'):
             msg = "os-instance-usage-audit-log extension not enabled."
             raise cls.skipException(msg)
 

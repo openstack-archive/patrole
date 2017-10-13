@@ -13,8 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from tempest.common import utils
 from tempest.lib import decorators
-from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
@@ -25,7 +25,7 @@ class SchedulerStatsRbacTest(rbac_base.BaseVolumeRbacTest):
     @classmethod
     def skip_checks(cls):
         super(SchedulerStatsRbacTest, cls).skip_checks()
-        if not test.is_extension_enabled('scheduler-stats', 'volume'):
+        if not utils.is_extension_enabled('scheduler-stats', 'volume'):
             msg = "%s skipped as scheduler-stats not enabled." % cls.__name__
             raise cls.skipException(msg)
 

@@ -13,9 +13,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from tempest.common import utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
-from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
@@ -27,7 +27,7 @@ class VolumeTypesAccessRbacTest(rbac_base.BaseVolumeRbacTest):
     @classmethod
     def skip_checks(cls):
         super(VolumeTypesAccessRbacTest, cls).skip_checks()
-        if not test.is_extension_enabled('os-volume-type-access', 'volume'):
+        if not utils.is_extension_enabled('os-volume-type-access', 'volume'):
             msg = "os-volume-type-access extension not enabled."
             raise cls.skipException(msg)
 

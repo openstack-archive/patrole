@@ -15,11 +15,11 @@
 
 import netaddr
 
+from tempest.common import utils
 from tempest.common.utils import net_utils
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
-from tempest import test
 
 from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
@@ -30,7 +30,7 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
     @classmethod
     def skip_checks(cls):
         super(RouterRbacTest, cls).skip_checks()
-        if not test.is_extension_enabled('router', 'network'):
+        if not utils.is_extension_enabled('router', 'network'):
             msg = "router extension not enabled."
             raise cls.skipException(msg)
 
@@ -69,7 +69,7 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
                         router['router']['id'])
 
     @decorators.idempotent_id('6139eb97-95c0-40d8-a109-99de11ab2e5e')
-    @test.requires_ext(extension='l3-ha', service='network')
+    @utils.requires_ext(extension='l3-ha', service='network')
     @rbac_rule_validation.action(service="neutron",
                                  rule="create_router:ha")
     def test_create_high_availability_router(self):
@@ -83,7 +83,7 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
                         router['router']['id'])
 
     @decorators.idempotent_id('c6254ca6-2728-412d-803d-d4aa3935e56d')
-    @test.requires_ext(extension='dvr', service='network')
+    @utils.requires_ext(extension='dvr', service='network')
     @rbac_rule_validation.action(service="neutron",
                                  rule="create_router:distributed")
     def test_create_distributed_router(self):
@@ -96,7 +96,7 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
         self.addCleanup(self.routers_client.delete_router,
                         router['router']['id'])
 
-    @test.requires_ext(extension='ext-gw-mode', service='network')
+    @utils.requires_ext(extension='ext-gw-mode', service='network')
     @rbac_rule_validation.action(
         service="neutron",
         rule="create_router:external_gateway_info:enable_snat")
@@ -156,7 +156,7 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
         self.routers_client.show_router(self.router['id'], fields=['id'])
 
     @decorators.idempotent_id('3ed26ea2-b419-410c-b4b5-576c1edafa06')
-    @test.requires_ext(extension='dvr', service='network')
+    @utils.requires_ext(extension='dvr', service='network')
     @rbac_rule_validation.action(service="neutron",
                                  rule="get_router:distributed")
     def test_show_distributed_router(self):
@@ -221,7 +221,7 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
             self.router['id'],
             external_gateway_info=None)
 
-    @test.requires_ext(extension='ext-gw-mode', service='network')
+    @utils.requires_ext(extension='ext-gw-mode', service='network')
     @rbac_rule_validation.action(
         service="neutron",
         rule="update_router:external_gateway_info:enable_snat")
@@ -268,7 +268,7 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
             external_gateway_info=None)
 
     @decorators.idempotent_id('ddc20731-dea1-4321-9abf-8772bf0b5977')
-    @test.requires_ext(extension='l3-ha', service='network')
+    @utils.requires_ext(extension='l3-ha', service='network')
     @rbac_rule_validation.action(service="neutron",
                                  rule="update_router:ha")
     def test_update_high_availability_router(self):
@@ -282,7 +282,7 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
                         ha=False)
 
     @decorators.idempotent_id('e1932c19-8f73-41cd-b5d2-84c7ae5d530c')
-    @test.requires_ext(extension='dvr', service='network')
+    @utils.requires_ext(extension='dvr', service='network')
     @rbac_rule_validation.action(service="neutron",
                                  rule="update_router:distributed")
     def test_update_distributed_router(self):

@@ -13,9 +13,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from tempest.common import utils
 from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
-from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.network import rbac_base as base
@@ -26,7 +26,7 @@ class SubnetsRbacTest(base.BaseNetworkRbacTest):
     @classmethod
     def skip_checks(cls):
         super(SubnetsRbacTest, cls).skip_checks()
-        if not test.is_extension_enabled('subnet_allocation', 'network'):
+        if not utils.is_extension_enabled('subnet_allocation', 'network'):
             msg = "subnet_allocation extension not enabled."
             raise cls.skipException(msg)
 

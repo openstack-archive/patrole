@@ -13,9 +13,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from tempest.common import utils
 from tempest import config
 from tempest.lib import decorators
-from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
@@ -33,7 +33,7 @@ class FloatingIpsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @classmethod
     def skip_checks(cls):
         super(FloatingIpsRbacTest, cls).skip_checks()
-        if not test.is_extension_enabled('os-floating-ips', 'compute'):
+        if not utils.is_extension_enabled('os-floating-ips', 'compute'):
             msg = "%s skipped as os-floating-ips extension not enabled." \
                   % cls.__name__
             raise cls.skipException(msg)

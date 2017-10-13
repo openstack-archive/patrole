@@ -13,9 +13,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from tempest.common import utils
 from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
-from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
@@ -29,7 +29,7 @@ class ServerTagsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @classmethod
     def skip_checks(cls):
         super(ServerTagsRbacTest, cls).skip_checks()
-        if not test.is_extension_enabled('os-server-tags', 'compute'):
+        if not utils.is_extension_enabled('os-server-tags', 'compute'):
             msg = "os-server-tags extension is not enabled."
             raise cls.skipException(msg)
 

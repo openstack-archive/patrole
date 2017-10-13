@@ -15,13 +15,13 @@
 
 from oslo_log import log
 
+from tempest.common import utils
 from tempest.common import waiters
 from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 from tempest.lib import exceptions
-from tempest import test
 
 from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
@@ -76,7 +76,7 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
         self.create_test_server(wait_until='ACTIVE',
                                 availability_zone=availability_zone)
 
-    @test.services('volume')
+    @utils.services('volume')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:servers:create:attach_volume")
@@ -110,7 +110,7 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
                         self.servers_client, server['id'])
         self.addCleanup(self.delete_server, server['id'])
 
-    @test.services('network')
+    @utils.services('network')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:servers:create:attach_network")

@@ -15,6 +15,7 @@
 
 import testtools
 
+from tempest.common import utils
 from tempest.common import waiters
 from tempest import config
 from tempest.lib.common import api_version_utils
@@ -22,7 +23,6 @@ from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 from tempest.lib import exceptions as lib_exc
-from tempest import test
 
 from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
@@ -194,7 +194,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.servers_client.show_server(self.server_id)
 
-    @test.services('image')
+    @utils.services('image')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:servers:create_image")
@@ -205,7 +205,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         # This function will also call show image
         self.create_image_from_server(self.server_id, wait_until='ACTIVE')
 
-    @test.services('image', 'volume')
+    @utils.services('image', 'volume')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:servers:create_image:allow_volume_backed")
@@ -231,7 +231,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('9fdd4630-731c-4f7c-bce5-69fa3792c52a')
     @testtools.skipUnless(CONF.compute_feature_enabled.snapshot,
                           'Snapshotting not available, backup not possible.')
-    @test.services('image')
+    @utils.services('image')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-create-backup")

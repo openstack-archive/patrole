@@ -13,9 +13,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from tempest.common import utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
-from tempest import test
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.network import rbac_base as base
@@ -26,7 +26,7 @@ class AgentsRbacTest(base.BaseNetworkRbacTest):
     @classmethod
     def skip_checks(cls):
         super(AgentsRbacTest, cls).skip_checks()
-        if not test.is_extension_enabled('agent', 'network'):
+        if not utils.is_extension_enabled('agent', 'network'):
             msg = "agent extension not enabled."
             raise cls.skipException(msg)
 
@@ -70,7 +70,7 @@ class L3AgentSchedulerRbacTest(base.BaseNetworkRbacTest):
     @classmethod
     def skip_checks(cls):
         super(L3AgentSchedulerRbacTest, cls).skip_checks()
-        if not test.is_extension_enabled('l3_agent_scheduler', 'network'):
+        if not utils.is_extension_enabled('l3_agent_scheduler', 'network'):
             msg = "l3_agent_scheduler extension not enabled."
             raise cls.skipException(msg)
 
@@ -149,7 +149,7 @@ class DHCPAgentSchedulersRbacTest(base.BaseNetworkRbacTest):
     @classmethod
     def skip_checks(cls):
         super(DHCPAgentSchedulersRbacTest, cls).skip_checks()
-        if not test.is_extension_enabled('dhcp_agent_scheduler', 'network'):
+        if not utils.is_extension_enabled('dhcp_agent_scheduler', 'network'):
             msg = "dhcp_agent_scheduler extension not enabled."
             raise cls.skipException(msg)
 

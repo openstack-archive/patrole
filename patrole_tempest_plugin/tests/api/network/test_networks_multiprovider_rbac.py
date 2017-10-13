@@ -14,10 +14,10 @@
 #    under the License.
 
 from oslo_log import log
+from tempest.common import utils
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
-from tempest import test
 
 from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
@@ -31,7 +31,7 @@ class NetworksMultiProviderRbacTest(base.BaseNetworkRbacTest):
     @classmethod
     def skip_checks(cls):
         super(NetworksMultiProviderRbacTest, cls).skip_checks()
-        if not test.is_extension_enabled('multi-provider', 'network'):
+        if not utils.is_extension_enabled('multi-provider', 'network'):
             msg = "multi-provider extension not enabled."
             raise cls.skipException(msg)
 
