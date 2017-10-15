@@ -42,6 +42,8 @@ class FloatingIpsBulkRbacTest(rbac_base.BaseV2ComputeRbacTest):
             msg = "%s skipped as os-floating-ips-bulk extension not enabled." \
                   % cls.__name__
             raise cls.skipException(msg)
+        if not CONF.network_feature_enabled.floating_ips:
+            raise cls.skipException("Floating ips are not available")
 
     @decorators.idempotent_id('3b5c8a02-005d-4256-8a95-6fa2f389c6cf')
     @rbac_rule_validation.action(
