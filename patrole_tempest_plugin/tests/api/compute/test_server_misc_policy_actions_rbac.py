@@ -571,6 +571,20 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.interfaces_client.list_interfaces(
             self.server['id'])['interfaceAttachments']
 
+    @decorators.idempotent_id('1b9cf7db-dc50-48a2-8eb9-8c25af5e934a')
+    @testtools.skipUnless(CONF.compute_feature_enabled.interface_attach,
+                          "Interface attachment is not available.")
+    @utils.requires_ext(extension='os-attach-interfaces', service='compute')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-attach-interfaces")
+    def test_show_interface(self):
+        """Test show interfaces, part of os-attach-interfaces."""
+        interface = self._attach_interface_to_server()
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.interfaces_client.show_interface(
+            self.server['id'], interface['port_id'])['interfaceAttachment']
+
     @testtools.skipUnless(CONF.compute_feature_enabled.interface_attach,
                           "Interface attachment is not available.")
     @utils.requires_ext(extension='os-attach-interfaces', service='compute')
