@@ -72,6 +72,26 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         waiters.wait_for_server_status(
             self.os_admin.servers_client, self.server_id, 'ACTIVE')
 
+    def _shelve_server(self):
+        self.servers_client.shelve_server(self.server_id)
+        self.addCleanup(self._cleanup_server_actions,
+                        self.servers_client.unshelve_server,
+                        self.server_id)
+        offload_time = CONF.compute.shelved_offload_time
+        if offload_time >= 0:
+            waiters.wait_for_server_status(self.os_admin.servers_client,
+                                           self.server_id,
+                                           'SHELVED_OFFLOADED',
+                                           extra_timeout=offload_time)
+        else:
+            waiters.wait_for_server_status(self.os_admin.servers_client,
+                                           self.server_id, 'SHELVED')
+
+    def _cleanup_server_actions(self, function, server_id, **kwargs):
+        server = self.servers_client.show_server(server_id)['server']
+        if server['status'] != 'ACTIVE':
+            function(server_id, **kwargs)
+
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:servers:stop")
@@ -266,6 +286,27 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         glance_admin_client.delete_image, image_id)
         waiters.wait_for_image_status(glance_admin_client, image_id, 'active')
+
+    @decorators.attr(type='slow')
+    @decorators.idempotent_id('0b70c527-af75-4bed-9ccf-4f1310a8b60f')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-shelve:shelve")
+    def test_shelve_server(self):
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self._shelve_server()
+
+    @decorators.attr(type='slow')
+    @decorators.idempotent_id('4b6e849a-9182-49ff-9257-e97e751b475e')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-shelve:unshelve")
+    def test_unshelve_server(self):
+        self._shelve_server()
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.servers_client.unshelve_server(self.server_id)
+        waiters.wait_for_server_status(
+            self.os_admin.servers_client, self.server_id, 'ACTIVE')
 
 
 class ServerActionsV214RbacTest(rbac_base.BaseV2ComputeRbacTest):
