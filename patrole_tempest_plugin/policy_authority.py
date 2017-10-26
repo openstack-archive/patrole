@@ -225,7 +225,7 @@ class PolicyAuthority(RbacAuthority):
 
         try:
             policy_data = json.dumps(policy_data)
-        except ValueError:
+        except (TypeError, ValueError):
             error_message = 'Policy file for {0} service is invalid.'.format(
                 service)
             raise rbac_exceptions.RbacParsingException(error_message)
