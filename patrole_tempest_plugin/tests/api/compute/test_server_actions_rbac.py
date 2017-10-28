@@ -54,8 +54,8 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             server = self.create_test_server(wait_until='ACTIVE')
             self.__class__.server_id = server['id']
         except Exception:
-            # Rebuilding the server in case something happened during a test
-            self.__class__.server_id = self.rebuild_server(self.server_id)
+            # Recreating the server in case something happened during a test
+            self.__class__.server_id = self.recreate_server(self.server_id)
 
     def _stop_server(self):
         self.servers_client.stop_server(self.server_id)
