@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from tempest.common import image as common_image
 from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
@@ -49,10 +50,10 @@ class ImagesRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(ImagesRbacTest, cls).setup_clients()
-        if CONF.image_feature_enabled.api_v1:
-            cls.glance_image_client = cls.os_primary.image_client
-        elif CONF.image_feature_enabled.api_v2:
+        if CONF.image_feature_enabled.api_v2:
             cls.glance_image_client = cls.os_primary.image_client_v2
+        elif CONF.image_feature_enabled.api_v1:
+            cls.glance_image_client = cls.os_primary.image_client
         else:
             raise lib_exc.InvalidConfiguration(
                 'Either api_v1 or api_v2 must be True in '
@@ -61,8 +62,11 @@ class ImagesRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @classmethod
     def resource_setup(cls):
         super(ImagesRbacTest, cls).resource_setup()
-        cls.image = cls.glance_image_client.create_image(
-            name=data_utils.rand_name(cls.__name__ + '-image'))
+        params = {'name': data_utils.rand_name(cls.__name__ + '-image')}
+        if CONF.image_feature_enabled.api_v1:
+            params = {'headers': common_image.image_meta_to_headers(**params)}
+
+        cls.image = cls.glance_image_client.create_image(**params)
         cls.addClassResourceCleanup(
             cls.glance_image_client.wait_for_resource_deletion,
             cls.image['id'])
