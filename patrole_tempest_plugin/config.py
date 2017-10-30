@@ -167,3 +167,18 @@ PatroleLogGroup = [
                     "'enable_reporting' is logged. This is combined with"
                     "report_log_name to generate the full path."),
 ]
+
+
+def list_opts():
+    """Return a list of oslo.config options available.
+
+    The purpose of this is to allow tools like the Oslo sample config file
+    generator to discover the options exposed to users.
+    """
+    opt_list = [
+        (patrole_group, PatroleGroup),
+        (patrole_log_group, PatroleLogGroup),
+        (rbac_group, PatroleGroup)
+    ]
+
+    return opt_list

@@ -1,0 +1,276 @@
+[DEFAULT]
+
+
+[patrole]
+
+#
+# From patrole.config
+#
+
+# The current RBAC role against which to run Patrole
+# tests. (string value)
+#rbac_test_role = admin
+
+# Enables RBAC tests. (boolean value)
+#enable_rbac = true
+
+# If true, throws RbacParsingException for policies which
+# don't exist or are not included in the service's policy file. If
+# false, throws
+# skipException. (boolean value)
+#strict_policy_check = false
+
+# List of the paths to search for policy files. Each
+# policy path assumes that the service name is included in the path
+# once. Also
+# assumes Patrole is on the same host as the policy files. The paths
+# should be
+# ordered by precedence, with high-priority paths before low-priority
+# paths. The
+# first path that is found to contain the service's policy file will
+# be used.
+#  (list value)
+#custom_policy_files = /etc/%s/policy.json
+
+# DEPRECATED: Location of the Cinder policy file. Assumed to be on
+# the same host as Patrole. (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: It is better to use `custom_policy_files` which supports any
+# OpenStack service.
+#cinder_policy_file = /etc/cinder/policy.json
+
+# DEPRECATED: Location of the Glance policy file. Assumed to be on
+# the same host as Patrole. (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: It is better to use `custom_policy_files` which supports any
+# OpenStack service.
+#glance_policy_file = /etc/glance/policy.json
+
+# DEPRECATED: Location of the custom Keystone policy file. Assumed to
+# be on the same host as Patrole. (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: It is better to use `custom_policy_files` which supports any
+# OpenStack service.
+#keystone_policy_file = /etc/keystone/policy.json
+
+# DEPRECATED: Location of the Neutron policy file. Assumed to be on
+# the same host as Patrole. (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: It is better to use `custom_policy_files` which supports any
+# OpenStack service.
+#neutron_policy_file = /etc/neutron/policy.json
+
+# DEPRECATED: Location of the custom Nova policy file. Assumed to be
+# on the same host as Patrole. (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: It is better to use `custom_policy_files` which supports any
+# OpenStack service.
+#nova_policy_file = /etc/nova/policy.json
+
+#
+# This option determines whether Patrole should run against a
+# `custom_requirements_file` which defines RBAC requirements. The
+# purpose of setting this flag to True is to verify that RBAC policy
+# is in accordance to requirements. The idea is that the
+# `custom_requirements_file` perfectly defines what the RBAC
+# requirements are.
+#
+# Here are the possible outcomes when running the Patrole tests
+# against
+# a `custom_requirements_file`:
+#
+# YAML definition: allowed
+# test run: allowed
+# test result: pass
+#
+# YAML definition: allowed
+# test run: not allowed
+# test result: fail (under-permission)
+#
+# YAML definition: not allowed
+# test run: allowed
+# test result: fail (over-permission)
+#  (boolean value)
+#test_custom_requirements = false
+
+#
+# File path of the yaml file that defines your RBAC requirements. This
+# file must be located on the same host that Patrole runs on. The yaml
+# file should be written as follows:
+#
+# ```
+# <service>:
+#   <api_action>:
+#     - <allowed_role>
+#     - <allowed_role>
+#     - <allowed_role>
+#   <api_action>:
+#     - <allowed_role>
+#     - <allowed_role>
+# <service>
+#   <api_action>:
+#     - <allowed_role>
+# ```
+# Where:
+# service = the service that is being tested (cinder, nova, etc)
+# api_action = the policy action that is being tested. Examples:
+#              - volume:create
+#              - os_compute_api:servers:start
+#              - add_image
+# allowed_role = the Keystone role that is allowed to perform the API
+#  (string value)
+#custom_requirements_file = <None>
+
+
+[patrole_log]
+
+#
+# From patrole.config
+#
+
+# Enables reporting on RBAC expected and actual test results for each
+# Patrole test (boolean value)
+#enable_reporting = false
+
+# Name of file where output from 'enable_reporting' is logged. Note
+# that this file is recreated on each invocation of patrole (string
+# value)
+#report_log_name = patrole.log
+
+# Path (relative or absolute) where the output from 'enable_reporting'
+# is logged. This is combined withreport_log_name to generate the full
+# path. (string value)
+#report_log_path = .
+
+
+[rbac]
+# This group is deprecated and will be removed in the next release.
+# Use the [patrole] group instead.
+
+#
+# From patrole.config
+#
+
+# The current RBAC role against which to run Patrole
+# tests. (string value)
+#rbac_test_role = admin
+
+# Enables RBAC tests. (boolean value)
+#enable_rbac = true
+
+# If true, throws RbacParsingException for policies which
+# don't exist or are not included in the service's policy file. If
+# false, throws
+# skipException. (boolean value)
+#strict_policy_check = false
+
+# List of the paths to search for policy files. Each
+# policy path assumes that the service name is included in the path
+# once. Also
+# assumes Patrole is on the same host as the policy files. The paths
+# should be
+# ordered by precedence, with high-priority paths before low-priority
+# paths. The
+# first path that is found to contain the service's policy file will
+# be used.
+#  (list value)
+#custom_policy_files = /etc/%s/policy.json
+
+# DEPRECATED: Location of the Cinder policy file. Assumed to be on
+# the same host as Patrole. (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: It is better to use `custom_policy_files` which supports any
+# OpenStack service.
+#cinder_policy_file = /etc/cinder/policy.json
+
+# DEPRECATED: Location of the Glance policy file. Assumed to be on
+# the same host as Patrole. (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: It is better to use `custom_policy_files` which supports any
+# OpenStack service.
+#glance_policy_file = /etc/glance/policy.json
+
+# DEPRECATED: Location of the custom Keystone policy file. Assumed to
+# be on the same host as Patrole. (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: It is better to use `custom_policy_files` which supports any
+# OpenStack service.
+#keystone_policy_file = /etc/keystone/policy.json
+
+# DEPRECATED: Location of the Neutron policy file. Assumed to be on
+# the same host as Patrole. (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: It is better to use `custom_policy_files` which supports any
+# OpenStack service.
+#neutron_policy_file = /etc/neutron/policy.json
+
+# DEPRECATED: Location of the custom Nova policy file. Assumed to be
+# on the same host as Patrole. (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: It is better to use `custom_policy_files` which supports any
+# OpenStack service.
+#nova_policy_file = /etc/nova/policy.json
+
+#
+# This option determines whether Patrole should run against a
+# `custom_requirements_file` which defines RBAC requirements. The
+# purpose of setting this flag to True is to verify that RBAC policy
+# is in accordance to requirements. The idea is that the
+# `custom_requirements_file` perfectly defines what the RBAC
+# requirements are.
+#
+# Here are the possible outcomes when running the Patrole tests
+# against
+# a `custom_requirements_file`:
+#
+# YAML definition: allowed
+# test run: allowed
+# test result: pass
+#
+# YAML definition: allowed
+# test run: not allowed
+# test result: fail (under-permission)
+#
+# YAML definition: not allowed
+# test run: allowed
+# test result: fail (over-permission)
+#  (boolean value)
+#test_custom_requirements = false
+
+#
+# File path of the yaml file that defines your RBAC requirements. This
+# file must be located on the same host that Patrole runs on. The yaml
+# file should be written as follows:
+#
+# ```
+# <service>:
+#   <api_action>:
+#     - <allowed_role>
+#     - <allowed_role>
+#     - <allowed_role>
+#   <api_action>:
+#     - <allowed_role>
+#     - <allowed_role>
+# <service>
+#   <api_action>:
+#     - <allowed_role>
+# ```
+# Where:
+# service = the service that is being tested (cinder, nova, etc)
+# api_action = the policy action that is being tested. Examples:
+#              - volume:create
+#              - os_compute_api:servers:start
+#              - add_image
+# allowed_role = the Keystone role that is allowed to perform the API
+#  (string value)
+#custom_requirements_file = <None>

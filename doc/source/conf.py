@@ -22,9 +22,14 @@ sys.path.insert(0, os.path.abspath('../..'))
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
     'sphinx.ext.autodoc',
-    #'sphinx.ext.intersphinx',
-    'openstackdocstheme'
+    'sphinx.ext.todo',
+    'sphinx.ext.viewcode',
+    'openstackdocstheme',
+    'oslo_config.sphinxconfiggen',
 ]
+
+config_generator_config_file = '../../etc/config-generator.patrole.conf'
+sample_config_basename = '_static/patrole'
 
 # autodoc generation is a bit aggressive and a nuisance when doing heavy
 # text edit cycles.
@@ -55,7 +60,7 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.  Major themes that come with
 # Sphinx are currently 'default' and 'sphinxdoc'.
 # html_theme_path = ["."]
-# html_static_path = ['static']
+html_static_path = ['_static']
 html_theme = 'openstackdocs'
 
 # openstackdocstheme options
