@@ -419,6 +419,21 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.servers_client.rescue_server(self.server['id'])
 
+    @decorators.idempotent_id('ac2d956f-d6a3-4184-b814-b44d05c9574c')
+    @utils.requires_ext(extension='os-rescue', service='compute')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-rescue")
+    def test_unrescue_server(self):
+        """Test unrescue server, part of os-rescue."""
+        self.servers_client.rescue_server(self.server['id'])
+        waiters.wait_for_server_status(
+            self.os_admin.servers_client, self.server['id'], 'RESCUE')
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.servers_client.unrescue_server(self.server['id'])
+        # `setUp` will wait for the server to reach 'ACTIVE' for next test.
+
     @utils.requires_ext(extension='os-server-diagnostics', service='compute')
     @rbac_rule_validation.action(
         service="nova",
@@ -508,8 +523,8 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_resume_server(self):
         """Test resume server, part of os-suspend-server."""
         self.servers_client.suspend_server(self.server['id'])
-        waiters.wait_for_server_status(self.servers_client, self.server['id'],
-                                       'SUSPENDED')
+        waiters.wait_for_server_status(
+            self.os_admin.servers_client, self.server['id'], 'SUSPENDED')
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.servers_client.resume_server(self.server['id'])
