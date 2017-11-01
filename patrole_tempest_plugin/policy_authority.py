@@ -107,12 +107,10 @@ class PolicyAuthority(RbacAuthority):
 
         # Prioritize dynamically searching for policy files over relying on
         # deprecated service-specific policy file locations.
+        self.path = None
         if CONF.patrole.custom_policy_files:
             self.discover_policy_files()
             self.path = self.policy_files.get(service)
-        else:
-            self.path = getattr(CONF.patrole, '%s_policy_file' % str(service),
-                                None)
 
         self.rules = policy.Rules.load(self._get_policy_data(service),
                                        'default')

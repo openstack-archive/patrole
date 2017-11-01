@@ -46,46 +46,6 @@ assumes Patrole is on the same host as the policy files. The paths should be
 ordered by precedence, with high-priority paths before low-priority paths. The
 first path that is found to contain the service's policy file will be used.
 """),
-    cfg.StrOpt('cinder_policy_file',
-               default='/etc/cinder/policy.json',
-               help="""Location of the Cinder policy file. Assumed to be on
-the same host as Patrole.""",
-               deprecated_group='rbac',
-               deprecated_for_removal=True,
-               deprecated_reason="It is better to use `custom_policy_files` "
-                                 "which supports any OpenStack service."),
-    cfg.StrOpt('glance_policy_file',
-               default='/etc/glance/policy.json',
-               help="""Location of the Glance policy file. Assumed to be on
-the same host as Patrole.""",
-               deprecated_group='rbac',
-               deprecated_for_removal=True,
-               deprecated_reason="It is better to use `custom_policy_files` "
-                                 "which supports any OpenStack service."),
-    cfg.StrOpt('keystone_policy_file',
-               default='/etc/keystone/policy.json',
-               help="""Location of the custom Keystone policy file. Assumed to
-be on the same host as Patrole.""",
-               deprecated_group='rbac',
-               deprecated_for_removal=True,
-               deprecated_reason="It is better to use `custom_policy_files` "
-                                 "which supports any OpenStack service."),
-    cfg.StrOpt('neutron_policy_file',
-               default='/etc/neutron/policy.json',
-               help="""Location of the Neutron policy file. Assumed to be on
-the same host as Patrole.""",
-               deprecated_group='rbac',
-               deprecated_for_removal=True,
-               deprecated_reason="It is better to use `custom_policy_files` "
-                                 "which supports any OpenStack service."),
-    cfg.StrOpt('nova_policy_file',
-               default='/etc/nova/policy.json',
-               help="""Location of the custom Nova policy file. Assumed to be
-on the same host as Patrole.""",
-               deprecated_group='rbac',
-               deprecated_for_removal=True,
-               deprecated_reason="It is better to use `custom_policy_files` "
-                                 "which supports any OpenStack service."),
     cfg.BoolOpt('test_custom_requirements',
                 default=False,
                 deprecated_group='rbac',
