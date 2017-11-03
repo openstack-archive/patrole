@@ -203,17 +203,16 @@ class RBACRuleValidationTest(base.TestCase):
         def test_policy(*args):
             raise exceptions.Forbidden('Test message')
 
-        error_re = ("An unexpected exception has occurred during test: "
-                    "test_policy. Exception was: Forbidden\nDetails: Test "
-                    "message")
+        error_msg = ("An unexpected exception has occurred during test: "
+                     "test_policy. Exception was: Forbidden\nDetails: Test "
+                     "message")
 
         for allowed in [True, False]:
             mock_authority.PolicyAuthority.return_value.allowed.\
                 return_value = allowed
-
-            self.assertRaisesRegex(exceptions.Forbidden, '.* ' + error_re,
+            self.assertRaisesRegex(exceptions.Forbidden, 'Test message',
                                    test_policy, self.mock_test_args)
-            self.assertIn(error_re, mock_log.error.mock_calls[0][1][0])
+            self.assertIn(error_msg, mock_log.error.mock_calls[0][1][0])
             mock_log.error.reset_mock()
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)

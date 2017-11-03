@@ -17,6 +17,7 @@ import logging
 import sys
 import testtools
 
+from oslo_utils import excutils
 import six
 
 from tempest import config
@@ -158,14 +159,14 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
                     raise exceptions.Forbidden(
                         "%s Exception was: %s" % (msg, e))
             except Exception as e:
-                exc_info = sys.exc_info()
-                error_details = exc_info[1].__str__()
-                msg = ("An unexpected exception has occurred during test: %s. "
-                       "Exception was: %s"
-                       % (test_func.__name__, error_details))
-                test_status = ('Error, %s' % (error_details))
-                LOG.error(msg)
-                six.reraise(exc_info[0], exc_info[0](msg), exc_info[2])
+                with excutils.save_and_reraise_exception():
+                    exc_info = sys.exc_info()
+                    error_details = six.text_type(exc_info[1])
+                    msg = ("An unexpected exception has occurred during test: "
+                           "%s. Exception was: %s" % (test_func.__name__,
+                                                      error_details))
+                    test_status = 'Error, %s' % (error_details)
+                    LOG.error(msg)
             else:
                 if not allowed:
                     LOG.error("Role %s was allowed to perform %s",
