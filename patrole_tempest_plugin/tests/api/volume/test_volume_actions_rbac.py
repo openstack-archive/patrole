@@ -141,15 +141,17 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
                                                 bootable=True)
 
     @decorators.idempotent_id('41566922-75a1-4484-99c7-9c8782ee99ac')
-    @rbac_rule_validation.action(service="cinder",
-                                 rule="volume:reserve_volume")
+    @rbac_rule_validation.action(
+        service="cinder",
+        rule="volume_extension:volume_actions:reserve")
     def test_volume_reserve(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.volumes_client.reserve_volume(self.volume['id'])
 
     @decorators.idempotent_id('e5fa9564-77d9-4e57-b0c0-3e0ae4d08535')
-    @rbac_rule_validation.action(service="cinder",
-                                 rule="volume:unreserve_volume")
+    @rbac_rule_validation.action(
+        service="cinder",
+        rule="volume_extension:volume_actions:unreserve")
     def test_volume_unreserve(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.volumes_client.unreserve_volume(self.volume['id'])
