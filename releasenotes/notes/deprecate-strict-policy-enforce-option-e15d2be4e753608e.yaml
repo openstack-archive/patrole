@@ -1,0 +1,10 @@
+---
+deprecations:
+  - |
+    The configuration option ``[patrole] strict_policy_check`` is deprecated
+    and will be removed in the Rocky release cycle.
+other:
+  - |
+    The default value for ``[patrole] strict_policy_check`` has been changed
+    to ``True`` because a Patrole test should always fail if the policy action
+    is invalid, to avoid false positives.

@@ -20,7 +20,6 @@ function install_patrole_tempest_plugin() {
 
         iniset $TEMPEST_CONFIG rbac enable_rbac True
         iniset $TEMPEST_CONFIG rbac rbac_test_role $RBAC_TEST_ROLE
-        iniset $TEMPEST_CONFIG rbac strict_policy_check False
     fi
 }
 

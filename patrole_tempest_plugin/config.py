@@ -30,8 +30,12 @@ tests."""),
                 deprecated_group='rbac',
                 help="Enables RBAC tests."),
     cfg.BoolOpt('strict_policy_check',
-                default=False,
+                default=True,
                 deprecated_group='rbac',
+                deprecated_for_removal=True,
+                deprecated_reason="""This option allows for the possibility
+of false positives. As a testing framework, Patrole should fail any test that
+passes in an invalid policy.""",
                 help="""If true, throws RbacParsingException for policies which
 don't exist or are not included in the service's policy file. If false, throws
 skipException."""),
