@@ -69,7 +69,9 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
             self.admin_volumes_client, volume_id, 'available')
 
     @utils.services('compute')
-    @rbac_rule_validation.action(service="cinder", rule="volume:attach")
+    @rbac_rule_validation.action(
+        service="cinder",
+        rule="volume_extension:volume_actions:attach")
     @decorators.idempotent_id('f97b10e4-2eed-4f8b-8632-71c02cb9fe42')
     def test_attach_volume_to_instance(self):
         server = self._create_server()
@@ -78,7 +80,9 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
 
     @utils.services('compute')
     @decorators.attr(type='slow')
-    @rbac_rule_validation.action(service="cinder", rule="volume:detach")
+    @rbac_rule_validation.action(
+        service="cinder",
+        rule="volume_extension:volume_actions:detach")
     @decorators.idempotent_id('5a042f6a-688b-42e6-a02e-fe5c47b89b07')
     def test_detach_volume_from_instance(self):
         server = self._create_server()
