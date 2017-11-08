@@ -141,7 +141,7 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
 
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(service="cinder",
-                                 rule="backup:backup-export")
+                                 rule="backup:export-import")
     @decorators.idempotent_id('e984ec8d-e8eb-485c-98bc-f1856020303c')
     def test_export_backup(self):
         backup = self.create_backup(volume_id=self.volume['id'])
