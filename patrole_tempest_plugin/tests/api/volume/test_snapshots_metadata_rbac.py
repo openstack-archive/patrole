@@ -80,6 +80,45 @@ class SnapshotMetadataRbacTest(rbac_base.BaseVolumeRbacTest):
         self.snapshots_client.show_snapshot_metadata(
             self.snapshot_id)['metadata']
 
+    @decorators.idempotent_id('7ea597f6-c544-4b10-aab0-ff68f595fb06')
+    @rbac_rule_validation.action(service="cinder",
+                                 rule="volume:update_snapshot_metadata")
+    def test_update_snapshot_metadata(self):
+        self._create_test_snapshot_metadata()
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        update = {"key3": "value3_update",
+                  "key4": "value4"}
+        self.snapshots_client.update_snapshot_metadata(
+            self.snapshot['id'], metadata=update)
+
+    @decorators.idempotent_id('93068d02-0131-4dd3-af16-fc40d7128d93')
+    @rbac_rule_validation.action(service="cinder",
+                                 rule="volume:get_snapshot_metadata")
+    def test_show_snapshot_metadata_item(self):
+        self._create_test_snapshot_metadata()
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.snapshots_client.show_snapshot_metadata_item(
+            self.snapshot['id'], "key3")['meta']
+
+    @decorators.idempotent_id('1f8f43e7-da31-4128-bb3c-73fc548650e3')
+    @rbac_rule_validation.action(service="cinder",
+                                 rule="volume:update_snapshot_metadata")
+    def test_update_snapshot_metadata_item(self):
+        update_item = {"key3": "value3_update"}
+        self._create_test_snapshot_metadata()
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.snapshots_client.update_snapshot_metadata_item(
+            self.snapshot['id'], "key3", meta=update_item)['meta']
+
+    @decorators.idempotent_id('3ec32516-f7cd-4f88-b78a-ddee67492071')
+    @rbac_rule_validation.action(service="cinder",
+                                 rule="volume:delete_snapshot_metadata")
+    def test_delete_snapshot_metadata_item(self):
+        self._create_test_snapshot_metadata()
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.snapshots_client.delete_snapshot_metadata_item(
+            self.snapshot['id'], "key1")
+
 
 class SnapshotMetadataV3RbacTest(SnapshotMetadataRbacTest):
     _api_version = 3
