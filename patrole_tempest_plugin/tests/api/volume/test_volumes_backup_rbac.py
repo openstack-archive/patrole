@@ -201,3 +201,31 @@ class VolumesBackupsV318RbacTest(rbac_base.BaseVolumeRbacTest):
         if expected_attr not in body:
             raise rbac_exceptions.RbacMalformedResponse(
                 attribute=expected_attr)
+
+
+class VolumesBackupsV39RbacTest(rbac_base.BaseVolumeRbacTest):
+    _api_version = 3
+    min_microversion = '3.9'
+    max_microversion = 'latest'
+
+    @classmethod
+    def skip_checks(cls):
+        super(VolumesBackupsV39RbacTest, cls).skip_checks()
+        if not CONF.volume_feature_enabled.backup:
+            raise cls.skipException("Cinder backup feature disabled")
+
+    @decorators.attr(type='slow')
+    @decorators.idempotent_id('b45b0e98-6eb8-4c62-aa53-0f8c7c09faa6')
+    @rbac_rule_validation.action(
+        service="cinder",
+        rule="backup:update")
+    def test_backup_update(self):
+        volume = self.create_volume()
+        backup = self.create_backup(volume_id=volume['id'])
+        update_kwargs = {
+            'name': data_utils.rand_name(self.__class__.__name__ + '-Backup'),
+            'description': data_utils.rand_name("volume-backup-description")
+        }
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.backups_client.update_backup(backup['id'],
+                                          **update_kwargs)
