@@ -20,18 +20,18 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 
-class SchedulerStatsRbacTest(rbac_base.BaseVolumeRbacTest):
+class SchedulerStatsV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @classmethod
     def skip_checks(cls):
-        super(SchedulerStatsRbacTest, cls).skip_checks()
+        super(SchedulerStatsV3RbacTest, cls).skip_checks()
         if not utils.is_extension_enabled('scheduler-stats', 'volume'):
             msg = "%s skipped as scheduler-stats not enabled." % cls.__name__
             raise cls.skipException(msg)
 
     @classmethod
     def setup_clients(cls):
-        super(SchedulerStatsRbacTest, cls).setup_clients()
+        super(SchedulerStatsV3RbacTest, cls).setup_clients()
         cls.scheduler_stats_client =\
             cls.os_primary.volume_scheduler_stats_v2_client
 
@@ -42,7 +42,3 @@ class SchedulerStatsRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_list_back_end_storage_pools(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.scheduler_stats_client.list_pools()
-
-
-class SchedulerStatsV3RbacTest(SchedulerStatsRbacTest):
-    _api_version = 3

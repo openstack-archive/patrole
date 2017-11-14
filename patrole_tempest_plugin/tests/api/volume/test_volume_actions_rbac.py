@@ -27,19 +27,18 @@ from patrole_tempest_plugin.tests.api.volume import rbac_base
 CONF = config.CONF
 
 
-class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
-
+class VolumesActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
     credentials = ['primary', 'admin']
 
     @classmethod
     def setup_clients(cls):
-        super(VolumesActionsRbacTest, cls).setup_clients()
+        super(VolumesActionsV3RbacTest, cls).setup_clients()
         cls.admin_image_client = cls.os_admin.image_client_v2
         cls.admin_volumes_client = cls.os_admin.volumes_client_latest
 
     @classmethod
     def resource_setup(cls):
-        super(VolumesActionsRbacTest, cls).resource_setup()
+        super(VolumesActionsV3RbacTest, cls).resource_setup()
         cls.volume = cls.create_volume()
 
     def _create_server(self):
@@ -215,10 +214,6 @@ class VolumesActionsRbacTest(rbac_base.BaseVolumeRbacTest):
             attachment_id=attachment['attachment_id'])
         waiters.wait_for_volume_resource_status(self.admin_volumes_client,
                                                 volume['id'], 'available')
-
-
-class VolumesActionsV3RbacTest(VolumesActionsRbacTest):
-    _api_version = 3
 
 
 class VolumesActionsV310RbacTest(rbac_base.BaseVolumeRbacTest):

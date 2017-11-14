@@ -25,13 +25,12 @@ from patrole_tempest_plugin.tests.api.volume import rbac_base
 CONF = config.CONF
 
 
-class VolumesManageRbacTest(rbac_base.BaseVolumeRbacTest):
-
+class VolumesManageV3RbacTest(rbac_base.BaseVolumeRbacTest):
     credentials = ['primary', 'admin']
 
     @classmethod
     def skip_checks(cls):
-        super(VolumesManageRbacTest, cls).skip_checks()
+        super(VolumesManageV3RbacTest, cls).skip_checks()
 
         if not CONF.volume_feature_enabled.manage_volume:
             raise cls.skipException("Manage volume tests are disabled")
@@ -42,7 +41,7 @@ class VolumesManageRbacTest(rbac_base.BaseVolumeRbacTest):
 
     @classmethod
     def setup_clients(cls):
-        super(VolumesManageRbacTest, cls).setup_clients()
+        super(VolumesManageV3RbacTest, cls).setup_clients()
         cls.volume_manage_client = cls.os_primary.volume_manage_v2_client
         cls.admin_volumes_client = cls.os_admin.volumes_client_latest
 
@@ -110,7 +109,3 @@ class VolumesManageRbacTest(rbac_base.BaseVolumeRbacTest):
         # volume after the test.  The _manage_volume method will set up the
         # proper resource cleanup
         self.addCleanup(self._manage_volume, volume)
-
-
-class VolumesManageV3RbacTest(VolumesManageRbacTest):
-    _api_version = 3

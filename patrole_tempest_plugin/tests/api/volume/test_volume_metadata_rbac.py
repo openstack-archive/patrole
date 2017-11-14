@@ -22,21 +22,21 @@ from patrole_tempest_plugin.tests.api.volume import rbac_base
 CONF = config.CONF
 
 
-class VolumeMetadataRbacTest(rbac_base.BaseVolumeRbacTest):
+class VolumeMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @classmethod
     def resource_setup(cls):
-        super(VolumeMetadataRbacTest, cls).resource_setup()
+        super(VolumeMetadataV3RbacTest, cls).resource_setup()
         cls.volume = cls.create_volume()
         cls.image_id = CONF.compute.image_ref
 
     def setUp(self):
-        super(VolumeMetadataRbacTest, self).setUp()
+        super(VolumeMetadataV3RbacTest, self).setUp()
         self._add_metadata(self.volume)
 
     def tearDown(self):
         self.volumes_client.update_volume_metadata(self.volume['id'], {})
-        super(VolumeMetadataRbacTest, self).tearDown()
+        super(VolumeMetadataV3RbacTest, self).tearDown()
 
     def _add_metadata(self, volume):
         # Create metadata for the volume
@@ -103,7 +103,3 @@ class VolumeMetadataRbacTest(rbac_base.BaseVolumeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.volumes_client.update_volume_image_metadata(
             self.volume['id'], image_id=self.image_id)
-
-
-class VolumeMetadataV3RbacTest(VolumeMetadataRbacTest):
-    _api_version = 3

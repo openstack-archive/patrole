@@ -21,19 +21,18 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 
-class VolumesTransfersRbacTest(rbac_base.BaseVolumeRbacTest):
-
+class VolumesTransfersV3RbacTest(rbac_base.BaseVolumeRbacTest):
     credentials = ['primary', 'admin']
 
     @classmethod
     def setup_clients(cls):
-        super(VolumesTransfersRbacTest, cls).setup_clients()
+        super(VolumesTransfersV3RbacTest, cls).setup_clients()
         cls.transfers_client = cls.os_primary.volume_transfers_v2_client
         cls.admin_volumes_client = cls.os_admin.volumes_client_latest
 
     @classmethod
     def resource_setup(cls):
-        super(VolumesTransfersRbacTest, cls).resource_setup()
+        super(VolumesTransfersV3RbacTest, cls).resource_setup()
         cls.volume = cls.create_volume()
 
     def _delete_transfer(self, transfer):
@@ -89,7 +88,3 @@ class VolumesTransfersRbacTest(rbac_base.BaseVolumeRbacTest):
         transfer = self._create_transfer()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.transfers_client.delete_volume_transfer(transfer['id'])
-
-
-class VolumesTransfersV3RbacTest(VolumesTransfersRbacTest):
-    _api_version = 3

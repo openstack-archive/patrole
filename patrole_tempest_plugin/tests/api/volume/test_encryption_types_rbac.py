@@ -20,18 +20,18 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 
-class EncryptionTypesRbacTest(rbac_base.BaseVolumeRbacTest):
+class EncryptionTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @classmethod
     def skip_checks(cls):
-        super(EncryptionTypesRbacTest, cls).skip_checks()
+        super(EncryptionTypesV3RbacTest, cls).skip_checks()
         if not utils.is_extension_enabled('encryption', 'volume'):
             msg = "%s skipped as encryption not enabled." % cls.__name__
             raise cls.skipException(msg)
 
     @classmethod
     def setup_clients(cls):
-        super(EncryptionTypesRbacTest, cls).setup_clients()
+        super(EncryptionTypesV3RbacTest, cls).setup_clients()
         cls.encryption_types_client = cls.os_primary.encryption_types_v2_client
 
     def _create_volume_type_encryption(self):
@@ -82,7 +82,3 @@ class EncryptionTypesRbacTest(rbac_base.BaseVolumeRbacTest):
         vol_type_id = self._create_volume_type_encryption()
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.encryption_types_client.show_encryption_type(vol_type_id)
-
-
-class EncryptionTypesV3RbacTest(EncryptionTypesRbacTest):
-    _api_version = 3

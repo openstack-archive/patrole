@@ -29,24 +29,23 @@ from patrole_tempest_plugin.tests.api.volume import rbac_base
 CONF = config.CONF
 
 
-class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
-
+class VolumesBackupsV3RbacTest(rbac_base.BaseVolumeRbacTest):
     credentials = ['primary', 'admin']
 
     @classmethod
     def skip_checks(cls):
-        super(VolumesBackupsRbacTest, cls).skip_checks()
+        super(VolumesBackupsV3RbacTest, cls).skip_checks()
         if not CONF.volume_feature_enabled.backup:
             raise cls.skipException("Cinder backup feature disabled")
 
     @classmethod
     def setup_clients(cls):
-        super(VolumesBackupsRbacTest, cls).setup_clients()
+        super(VolumesBackupsV3RbacTest, cls).setup_clients()
         cls.admin_backups_client = cls.os_admin.backups_v2_client
 
     @classmethod
     def resource_setup(cls):
-        super(VolumesBackupsRbacTest, cls).resource_setup()
+        super(VolumesBackupsV3RbacTest, cls).resource_setup()
         cls.volume = cls.create_volume()
 
     def _decode_url(self, backup_url):
@@ -166,10 +165,6 @@ class VolumesBackupsRbacTest(rbac_base.BaseVolumeRbacTest):
             backup_service=export_backup['backup_service'],
             backup_url=new_url)['backup']
         self.addCleanup(self.backups_client.delete_backup, import_backup['id'])
-
-
-class VolumesBackupsV3RbacTest(VolumesBackupsRbacTest):
-    _api_version = 3
 
 
 class VolumesBackupsV318RbacTest(rbac_base.BaseVolumeRbacTest):

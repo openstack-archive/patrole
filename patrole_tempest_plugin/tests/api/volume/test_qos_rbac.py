@@ -22,13 +22,12 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 
-class VolumeQOSRbacTest(rbac_base.BaseVolumeRbacTest):
-
+class VolumeQOSV3RbacTest(rbac_base.BaseVolumeRbacTest):
     credentials = ['primary', 'admin']
 
     @classmethod
     def setup_clients(cls):
-        super(VolumeQOSRbacTest, cls).setup_clients()
+        super(VolumeQOSV3RbacTest, cls).setup_clients()
         cls.qos_client = cls.os_primary.volume_qos_v2_client
         cls.admin_qos_client = cls.os_admin.volume_qos_v2_client
 
@@ -146,7 +145,3 @@ class VolumeQOSRbacTest(rbac_base.BaseVolumeRbacTest):
         self.qos_client.disassociate_all_qos(qos['id'])
         waiters.wait_for_qos_operations(self.admin_qos_client, qos['id'],
                                         'disassociate-all')
-
-
-class VolumeQOSV3RbacTest(VolumeQOSRbacTest):
-    _api_version = 3

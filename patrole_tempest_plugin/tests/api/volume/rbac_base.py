@@ -22,6 +22,12 @@ CONF = config.CONF
 
 
 class BaseVolumeRbacTest(vol_base.BaseVolumeTest):
+    # NOTE(felipemonteiro): Patrole currently only tests the v3 Cinder API
+    # because it is the current API and because policy enforcement does not
+    # change between API major versions. So, it is not necessary to specify
+    # the `_api_version` in any test class. However, specify microversions in
+    # subclasses if necessary.
+    _api_version = 3
 
     @classmethod
     def skip_checks(cls):

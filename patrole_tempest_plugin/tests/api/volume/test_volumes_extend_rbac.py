@@ -23,18 +23,17 @@ from patrole_tempest_plugin.tests.api.volume import rbac_base
 CONF = config.CONF
 
 
-class VolumesExtendRbacTest(rbac_base.BaseVolumeRbacTest):
-
+class VolumesExtendV3RbacTest(rbac_base.BaseVolumeRbacTest):
     credentials = ['primary', 'admin']
 
     @classmethod
     def setup_clients(cls):
-        super(VolumesExtendRbacTest, cls).setup_clients()
+        super(VolumesExtendV3RbacTest, cls).setup_clients()
         cls.admin_volumes_client = cls.os_admin.volumes_client_latest
 
     @classmethod
     def resource_setup(cls):
-        super(VolumesExtendRbacTest, cls).resource_setup()
+        super(VolumesExtendV3RbacTest, cls).resource_setup()
         # Create a test shared volume for tests
         cls.volume = cls.create_volume()
 
@@ -48,7 +47,3 @@ class VolumesExtendRbacTest(rbac_base.BaseVolumeRbacTest):
                                           new_size=extend_size)
         waiters.wait_for_volume_resource_status(
             self.admin_volumes_client, self.volume['id'], 'available')
-
-
-class VolumesExtendV3RbacTest(VolumesExtendRbacTest):
-    _api_version = 3

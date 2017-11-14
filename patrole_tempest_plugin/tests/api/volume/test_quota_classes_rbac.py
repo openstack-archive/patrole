@@ -21,11 +21,11 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 
-class QuotaClassesRbacTest(rbac_base.BaseVolumeRbacTest):
+class QuotaClassesV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @classmethod
     def skip_checks(cls):
-        super(QuotaClassesRbacTest, cls).skip_checks()
+        super(QuotaClassesV3RbacTest, cls).skip_checks()
         if not utils.is_extension_enabled('os-quota-class-sets', 'volume'):
             msg = ("%s skipped as os-quota-class-sets not enabled."
                    % cls.__name__)
@@ -33,7 +33,7 @@ class QuotaClassesRbacTest(rbac_base.BaseVolumeRbacTest):
 
     @classmethod
     def setup_clients(cls):
-        super(QuotaClassesRbacTest, cls).setup_clients()
+        super(QuotaClassesV3RbacTest, cls).setup_clients()
         cls.quota_classes_client = cls.os_primary.quota_classes_client
         cls.quota_name = data_utils.rand_name(cls.__name__ + '-QuotaClass')
 
@@ -56,7 +56,3 @@ class QuotaClassesRbacTest(rbac_base.BaseVolumeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.quota_classes_client.update_quota_class_set(self.quota_name,
                                                          **quota_class_set)
-
-
-class QuotaClassesV3RbacTest(QuotaClassesRbacTest):
-    _api_version = 3
