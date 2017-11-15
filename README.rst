@@ -16,6 +16,35 @@ only intended roles have access to those APIs.
 Patrole currently offers testing for the following OpenStack services: Nova,
 Neutron, Glance, Cinder and Keystone.
 
+Patrole is currently undergoing heavy development. As more projects move
+toward policy in code, Patrole will align its testing with the appropriate
+documentation.
+
+Design Principles
+-----------------
+
+Patrole borrows some design principles from Tempest, but not all, as its
+testing scope is confined to policies.
+
+* *Stability*. Patrole uses OpenStack public interfaces. Tests in Patrole
+  should only touch public OpenStack APIs.
+* *Atomicity*. Patrole tests should be atomic: they should test policies in
+  isolation. Unlike Tempest, a Patrole test strives to only call a single
+  endpoint at a time.
+* *Holistic coverage*. Patrole strives for complete coverage of the OpenStack
+  API. Additionally, Patrole strives to test the API-to-policy mapping
+  contained in each project's policy in code documentation.
+* *Self-contained*. Patrole should attempt to clean up after itself; whenever
+  possible we should tear down resources when done.
+
+  .. note::
+
+      Patrole modifies roles dynamically in the background, which affects
+      pre-provisioned credentials. Work is currently underway to clean up
+      modifications made to pre-provisioned credentials.
+
+* *Self-tested*. Patrole should be self-tested.
+
 Features
 --------
 * Validation of default policy definitions located in policy.json files.
