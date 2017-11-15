@@ -127,3 +127,11 @@ class IdentityTrustV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.trusts_client.show_trust_role(
             self.trust['id'], self.delegated_role_id)['role']
+
+    @decorators.idempotent_id('0184e0fb-641e-4b52-ab73-81c1ce6ca5c1')
+    @rbac_rule_validation.action(
+        service="keystone",
+        rule="identity:get_trust")
+    def test_show_trust(self):
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.trusts_client.show_trust(self.trust['id'])
