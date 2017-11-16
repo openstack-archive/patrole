@@ -87,10 +87,41 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             waiters.wait_for_server_status(self.os_admin.servers_client,
                                            self.server_id, 'SHELVED')
 
+    def _pause_server(self):
+        self.servers_client.pause_server(self.server_id)
+        self.addCleanup(self._cleanup_server_actions,
+                        self.servers_client.unpause_server,
+                        self.server_id)
+        waiters.wait_for_server_status(
+            self.os_admin.servers_client, self.server_id, 'PAUSED')
+
     def _cleanup_server_actions(self, function, server_id, **kwargs):
         server = self.servers_client.show_server(server_id)['server']
         if server['status'] != 'ACTIVE':
             function(server_id, **kwargs)
+
+    @decorators.idempotent_id('117f4ff2-8544-437b-824f-5e41cb6640ee')
+    @testtools.skipUnless(CONF.compute_feature_enabled.pause,
+                          'Pause is not available.')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-pause-server:pause")
+    def test_pause_server(self):
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self._pause_server()
+
+    @decorators.idempotent_id('087008cf-82fa-4eeb-ae8b-32c4126456ad')
+    @testtools.skipUnless(CONF.compute_feature_enabled.pause,
+                          'Pause is not available.')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-pause-server:unpause")
+    def test_unpause_server(self):
+        self._pause_server()
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.servers_client.unpause_server(self.server_id)
+        waiters.wait_for_server_status(
+            self.os_admin.servers_client, self.server_id, 'ACTIVE')
 
     @rbac_rule_validation.action(
         service="nova",
