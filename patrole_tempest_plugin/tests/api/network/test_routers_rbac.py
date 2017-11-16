@@ -176,6 +176,27 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
             raise rbac_exceptions.RbacMalformedResponse(
                 attribute='distributed')
 
+    @decorators.idempotent_id('defc502c-4159-4824-b4d9-3cdcc39015b2')
+    @utils.requires_ext(extension='l3-ha', service='network')
+    @rbac_rule_validation.action(service="neutron",
+                                 rule="get_router:ha")
+    def test_show_high_availability_router(self):
+        """GET high-availability router
+
+        RBAC test for the neutron get_router:ha policy
+        """
+        router = self.routers_client.create_router(ha=True)['router']
+        self.addCleanup(self.routers_client.delete_router, router['id'])
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        retrieved_fields = self.routers_client.show_router(
+            router['id'], fields=['ha'])['router']
+
+        # Rather than throwing a 403, the field is not present, so raise exc.
+        if 'ha' not in retrieved_fields:
+            raise rbac_exceptions.RbacMalformedResponse(
+                attribute='ha')
+
     @rbac_rule_validation.action(
         service="neutron", rule="update_router")
     @decorators.idempotent_id('3d182f4e-0023-4218-9aa0-ea2b0ae0bd7a')
