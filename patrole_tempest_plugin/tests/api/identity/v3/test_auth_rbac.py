@@ -26,8 +26,8 @@ class IdentityAuthV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     https://github.com/openstack/keystone/blob/master/keystone/common/policies/auth.py
     """
 
-    # TODO(felipemonteiro): Add tests for identity:get_auth_catalog and
-    # identity:get_auth_domains once the endpoints are implemented in Tempest's
+    # TODO(felipemonteiro): Add tests for identity:get_auth_catalog
+    # once the endpoints are implemented in Tempest's
     # identity v3 client.
 
     @decorators.idempotent_id('2a9fbf7f-6feb-4161-ae4b-faf7d6421b1a')
@@ -36,3 +36,10 @@ class IdentityAuthV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     def test_list_auth_projects(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.identity_client.list_auth_projects()['projects']
+
+    @decorators.idempotent_id('6a40af0d-7265-4657-b6b2-87a2828e263e')
+    @rbac_rule_validation.action(service="keystone",
+                                 rule="identity:get_auth_domains")
+    def test_list_auth_domain(self):
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.identity_client.list_auth_domains()
