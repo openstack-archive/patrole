@@ -18,8 +18,8 @@ function install_patrole_tempest_plugin() {
             RBAC_TEST_ROLE="Member"
         fi
 
-        iniset $TEMPEST_CONFIG rbac enable_rbac True
-        iniset $TEMPEST_CONFIG rbac rbac_test_role $RBAC_TEST_ROLE
+        iniset $TEMPEST_CONFIG patrole enable_rbac True
+        iniset $TEMPEST_CONFIG patrole rbac_test_role $RBAC_TEST_ROLE
     fi
 }
 

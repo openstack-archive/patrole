@@ -4,8 +4,8 @@
 Usage
 ========
 
-RBAC (API) Tests
-================
+Patrole (API) Tests
+===================
 
 If Patrole is installed correctly, then the RBAC tests can be executed
 from inside the tempest root directory as follows::
@@ -28,7 +28,7 @@ To execute patrole tests for a specific module, run::
 ..
 
 To change the role that the patrole tests are being run as, edit
-``rbac_test_role`` in the ``rbac`` section of tempest.conf: ::
+``rbac_test_role`` in the ``patrole`` section of tempest.conf: ::
 
     [patrole]
     rbac_test_role = Member

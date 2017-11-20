@@ -22,16 +22,13 @@ patrole_group = cfg.OptGroup(name='patrole', title='Patrole Testing Options')
 PatroleGroup = [
     cfg.StrOpt('rbac_test_role',
                default='admin',
-               deprecated_group='rbac',
                help="""The current RBAC role against which to run Patrole
 tests."""),
     cfg.BoolOpt('enable_rbac',
                 default=True,
-                deprecated_group='rbac',
                 help="Enables RBAC tests."),
     cfg.BoolOpt('strict_policy_check',
                 default=True,
-                deprecated_group='rbac',
                 deprecated_for_removal=True,
                 deprecated_reason="""This option allows for the possibility
 of false positives. As a testing framework, Patrole should fail any test that
@@ -43,7 +40,6 @@ skipException."""),
     # other hosts. It may be possible to leverage the v3 identity policy API.
     cfg.ListOpt('custom_policy_files',
                 default=['/etc/%s/policy.json'],
-                deprecated_group='rbac',
                 help="""List of the paths to search for policy files. Each
 policy path assumes that the service name is included in the path once. Also
 assumes Patrole is on the same host as the policy files. The paths should be
@@ -52,7 +48,6 @@ first path that is found to contain the service's policy file will be used.
 """),
     cfg.BoolOpt('test_custom_requirements',
                 default=False,
-                deprecated_group='rbac',
                 help="""
 This option determines whether Patrole should run against a
 `custom_requirements_file` which defines RBAC requirements. The
@@ -76,7 +71,6 @@ test run: allowed
 test result: fail (over-permission)
 """),
     cfg.StrOpt('custom_requirements_file',
-               deprecated_group='rbac',
                help="""
 File path of the yaml file that defines your RBAC requirements. This
 file must be located on the same host that Patrole runs on. The yaml
@@ -105,12 +99,6 @@ allowed_role = the Keystone role that is allowed to perform the API
 """)
 ]
 
-
-rbac_group = cfg.OptGroup(name='rbac',
-                          title='RBAC testing options',
-                          help="This group is deprecated and will be removed "
-                               "in the next release. Use the [patrole] group "
-                               "instead.")
 
 patrole_log_group = cfg.OptGroup(
     name='patrole_log', title='Patrole Logging Options')
@@ -141,8 +129,7 @@ def list_opts():
     """
     opt_list = [
         (patrole_group, PatroleGroup),
-        (patrole_log_group, PatroleLogGroup),
-        (rbac_group, PatroleGroup)
+        (patrole_log_group, PatroleLogGroup)
     ]
 
     return opt_list
