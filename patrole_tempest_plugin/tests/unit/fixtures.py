@@ -92,21 +92,21 @@ class RbacUtilsFixture(fixtures.Fixture):
 
         self.set_roles(['admin', 'member'], [])
 
-    def switch_role(self, *role_toggles):
-        """Instantiate `rbac_utils.RbacUtils` and call `switch_role`.
+    def override_role(self, *role_toggles):
+        """Instantiate `rbac_utils.RbacUtils` and call `override_role`.
 
-        Create an instance of `rbac_utils.RbacUtils` and call `switch_role`
+        Create an instance of `rbac_utils.RbacUtils` and call `override_role`
         for each boolean value in `role_toggles`. The number of calls to
-        `switch_role` is always 1 + len(`role_toggles`) because the
-        `rbac_utils.RbacUtils` constructor automatically calls `switch_role`.
+        `override_role` is always 1 + len(`role_toggles`) because the
+        `rbac_utils.RbacUtils` constructor automatically calls `override_role`.
 
         :param role_toggles: the list of boolean values iterated over and
-            passed to `switch_role`.
+            passed to `override_role`.
         """
-        self.fake_rbac_utils = rbac_utils.RbacUtils(self.mock_test_obj)
+        _rbac_utils = rbac_utils.RbacUtils(self.mock_test_obj)
 
         for role_toggle in role_toggles:
-            self.fake_rbac_utils.switch_role(self.mock_test_obj, role_toggle)
+            _rbac_utils._override_role(self.mock_test_obj, role_toggle)
             # NOTE(felipemonteiro): Simulate that a role switch has occurred
             # by updating the user's current role to the new role. This means
             # that all API actions involved during a role switch -- listing,

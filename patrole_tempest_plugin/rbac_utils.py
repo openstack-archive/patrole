@@ -14,8 +14,9 @@
 #    under the License.
 
 import abc
+from contextlib import contextmanager
+import debtcollector.removals
 import six
-import sys
 import time
 
 from oslo_log import log as logging
@@ -32,14 +33,15 @@ LOG = logging.getLogger(__name__)
 
 
 class RbacUtils(object):
-    """Utility class responsible for switching os_primary role.
+    """Utility class responsible for switching ``os_primary`` role.
 
     This class is responsible for overriding the value of the primary Tempest
-    credential's role (i.e. "os_primary" role). By doing so, it is possible to
-    seamlessly swap between admin credentials, needed for setup and clean up,
-    and primary credentials, needed to perform the API call which does
+    credential's role (i.e. ``os_primary`` role). By doing so, it is possible
+    to seamlessly swap between admin credentials, needed for setup and clean
+    up, and primary credentials, needed to perform the API call which does
     policy enforcement. The primary credentials always cycle between roles
-    defined by ``CONF.identity.admin_role`` and `CONF.patrole.rbac_test_role``.
+    defined by ``CONF.identity.admin_role`` and
+    ``CONF.patrole.rbac_test_role``.
     """
 
     def __init__(self, test_obj):
@@ -56,18 +58,56 @@ class RbacUtils(object):
             admin_roles_client = admin_mgr.roles_client
 
         self.admin_roles_client = admin_roles_client
-        self.switch_role(test_obj, toggle_rbac_role=False)
+        self._override_role(test_obj, False)
 
-    # References the last value of `toggle_rbac_role` that was passed to
-    # `switch_role`. Used for ensuring that `switch_role` is correctly used
-    # in a test file, so that false positives are prevented. The key used
-    # to index into the dictionary is the module path plus class name, which is
-    # unique.
-    switch_role_history = {}
     admin_role_id = None
     rbac_role_id = None
 
-    def switch_role(self, test_obj, toggle_rbac_role=False):
+    @contextmanager
+    def override_role(self, test_obj):
+        """Override the role used by ``os_primary`` Tempest credentials.
+
+        Temporarily change the role used by ``os_primary`` credentials to:
+          * ``[patrole] rbac_test_role`` before test execution
+          * ``[identity] admin_role`` after test execution
+
+        Automatically switches to admin role after test execution.
+
+        :param test_obj: Instance of ``tempest.test.BaseTestCase``.
+        :returns: None
+
+        .. warning::
+
+            This function can alter user roles for pre-provisioned credentials.
+            Work is underway to safely clean up after this function.
+
+        Example::
+
+            @rbac_rule_validation.action(service='test',
+                                         rule='a:test:rule')
+            def test_foo(self):
+                # Allocate test-level resources here.
+                with self.rbac_utils.override_role(self):
+                    # The role for `os_primary` has now been overriden. Within
+                    # this block, call the API endpoint that enforces the
+                    # expected policy specified by "rule" in the decorator.
+                    self.foo_service.bar_api_call()
+                # The role is switched back to admin automatically. Note that
+                # if the API call above threw an exception, any code below this
+                # point in the test is not executed.
+        """
+        self._override_role(test_obj, True)
+        try:
+            # Execute the test.
+            yield
+        finally:
+            # This code block is always executed, no matter the result of the
+            # test. Automatically switch back to the admin role for test clean
+            # up.
+            self._override_role(test_obj, False)
+
+    @debtcollector.removals.remove(removal_version='Rocky')
+    def switch_role(self, test_obj, toggle_rbac_role):
         """Switch the role used by `os_primary` Tempest credentials.
 
         Switch the role used by `os_primary` credentials to:
@@ -77,25 +117,34 @@ class RbacUtils(object):
         :param test_obj: test object of type tempest.lib.base.BaseTestCase
         :param toggle_rbac_role: role to switch `os_primary` Tempest creds to
         """
+        self._override_role(test_obj, toggle_rbac_role)
+
+    def _override_role(self, test_obj, toggle_rbac_role=False):
+        """Private helper for overriding ``os_primary`` Tempest credentials.
+
+        :param test_obj: test object of type tempest.lib.base.BaseTestCase
+        :param toggle_rbac_role: Boolean value that controls the role that
+            overrides default role of ``os_primary`` credentials.
+            * If True: role is set to ``[patrole] rbac_test_role``
+            * If False: role is set to ``[identity] admin_role``
+        """
         self.user_id = test_obj.os_primary.credentials.user_id
         self.project_id = test_obj.os_primary.credentials.tenant_id
         self.token = test_obj.os_primary.auth_provider.get_token()
 
-        LOG.debug('Switching role to: %s.', toggle_rbac_role)
+        LOG.debug('Overriding role to: %s.', toggle_rbac_role)
         role_already_present = False
 
         try:
             if not all([self.admin_role_id, self.rbac_role_id]):
                 self._get_roles_by_name()
 
-            self._validate_switch_role(test_obj, toggle_rbac_role)
-
             target_role = (
                 self.rbac_role_id if toggle_rbac_role else self.admin_role_id)
             role_already_present = self._list_and_clear_user_roles_on_project(
                 target_role)
 
-            # Do not switch roles if `target_role` already exists.
+            # Do not override roles if `target_role` already exists.
             if not role_already_present:
                 self._create_user_role_on_project(target_role)
         except Exception as exp:
@@ -106,7 +155,7 @@ class RbacUtils(object):
             # Fernet tokens are not subsecond aware so sleep to ensure we are
             # passing the second boundary before attempting to authenticate.
             # Only sleep if a token revocation occurred as a result of role
-            # switching. This will optimize test runtime in the case where
+            # overriding. This will optimize test runtime in the case where
             # ``[identity] admin_role`` == ``[patrole] rbac_test_role``.
             if not role_already_present:
                 time.sleep(1)
@@ -152,44 +201,6 @@ class RbacUtils(object):
                 self.project_id, self.user_id, role['id'])
 
         return False
-
-    def _validate_switch_role(self, test_obj, toggle_rbac_role):
-        """Validates that the test role passed to `switch_role` is legal.
-
-        Throws an error for the following improper usages of `switch_role`:
-            * `switch_role` is not called with a boolean value
-            * `switch_role` is never called inside a test, except in tearDown
-            * `switch_role` is called with the same boolean value twice
-
-        If a `skipException` is thrown then this is a legitimate reason why
-        `switch_role` is not called.
-        """
-        if not isinstance(toggle_rbac_role, bool):
-            raise rbac_exceptions.RbacResourceSetupFailed(
-                '`toggle_rbac_role` must be a boolean value.')
-
-        # The unique key is the combination of module path plus class name.
-        class_name = test_obj.__name__ if isinstance(test_obj, type) else \
-            test_obj.__class__.__name__
-        module_name = test_obj.__module__
-        key = '%s.%s' % (module_name, class_name)
-
-        self.switch_role_history.setdefault(key, None)
-
-        if self.switch_role_history[key] == toggle_rbac_role:
-            # If an exception was thrown, like a skipException or otherwise,
-            # then this is a legitimate reason why `switch_role` was not
-            # called, so only raise an exception if no current exception is
-            # being handled.
-            if sys.exc_info()[0] is None:
-                self.switch_role_history[key] = False
-                error_message = '`toggle_rbac_role` must not be called with '\
-                    'the same bool value twice. Make sure that you included '\
-                    'a rbac_utils.switch_role method call inside the test.'
-                LOG.error(error_message)
-                raise rbac_exceptions.RbacResourceSetupFailed(error_message)
-        else:
-            self.switch_role_history[key] = toggle_rbac_role
 
 
 def is_admin():

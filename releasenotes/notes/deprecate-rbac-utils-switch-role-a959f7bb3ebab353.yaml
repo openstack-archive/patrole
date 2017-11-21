@@ -1,0 +1,13 @@
+---
+features:
+  - |
+    Implemented a new method ``override_role`` in ``rbac_utils`` module, which
+    provides the exact same functionality as the now-deprecated ``switch_role``
+    method, with one difference: ``override_role`` is a contextmanager which
+    provides better policy validation granularity. This means that immediately
+    after the contextmanager's code has executed, the role is switched back
+    to the admin role automatically.
+deprecations:
+  - |
+    The ``switch_role`` method in ``rbac_utils`` module has been deprecated
+    and will be removed during the Rocky release cycle.
