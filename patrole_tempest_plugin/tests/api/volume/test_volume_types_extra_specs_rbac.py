@@ -23,7 +23,6 @@ from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 
 class VolumeTypesExtraSpecsRbacTest(rbac_base.BaseVolumeRbacTest):
-    _api_version = 3
 
     @classmethod
     def skip_checks(cls):

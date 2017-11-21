@@ -22,17 +22,17 @@ from patrole_tempest_plugin.tests.api.volume import rbac_base
 CONF = config.CONF
 
 
-class SnapshotMetadataRbacTest(rbac_base.BaseVolumeRbacTest):
+class SnapshotMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @classmethod
     def skip_checks(cls):
-        super(SnapshotMetadataRbacTest, cls).skip_checks()
+        super(SnapshotMetadataV3RbacTest, cls).skip_checks()
         if not CONF.volume_feature_enabled.snapshot:
             raise cls.skipException("Cinder snapshot feature disabled")
 
     @classmethod
     def resource_setup(cls):
-        super(SnapshotMetadataRbacTest, cls).resource_setup()
+        super(SnapshotMetadataV3RbacTest, cls).resource_setup()
         cls.volume = cls.create_volume()
         # Create a snapshot
         cls.snapshot = cls.create_snapshot(volume_id=cls.volume['id'])
@@ -118,7 +118,3 @@ class SnapshotMetadataRbacTest(rbac_base.BaseVolumeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.snapshots_client.delete_snapshot_metadata_item(
             self.snapshot['id'], "key1")
-
-
-class SnapshotMetadataV3RbacTest(SnapshotMetadataRbacTest):
-    _api_version = 3

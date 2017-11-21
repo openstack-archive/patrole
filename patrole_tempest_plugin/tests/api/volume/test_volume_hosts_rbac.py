@@ -19,7 +19,7 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 
-class VolumeHostsRbacTest(rbac_base.BaseVolumeRbacTest):
+class VolumeHostsV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume_extension:hosts")
@@ -39,7 +39,3 @@ class VolumeHostsRbacTest(rbac_base.BaseVolumeRbacTest):
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.volume_hosts_client.show_host(host_names[0])
-
-
-class VolumeHostsV3RbacTest(VolumeHostsRbacTest):
-    _api_version = 3

@@ -20,18 +20,18 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 
-class CapabilitiesRbacTest(rbac_base.BaseVolumeRbacTest):
+class CapabilitiesV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @classmethod
     def skip_checks(cls):
-        super(CapabilitiesRbacTest, cls).skip_checks()
+        super(CapabilitiesV3RbacTest, cls).skip_checks()
         if not utils.is_extension_enabled('capabilities', 'volume'):
             msg = "%s skipped as capabilities not enabled." % cls.__name__
             raise cls.skipException(msg)
 
     @classmethod
     def setup_clients(cls):
-        super(CapabilitiesRbacTest, cls).setup_clients()
+        super(CapabilitiesV3RbacTest, cls).setup_clients()
         cls.capabilities_client = cls.os_primary.volume_capabilities_v2_client
         cls.hosts_client = cls.os_primary.volume_hosts_v2_client
 
@@ -42,7 +42,3 @@ class CapabilitiesRbacTest(rbac_base.BaseVolumeRbacTest):
         host = self.hosts_client.list_hosts()['hosts'][0]['host_name']
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.capabilities_client.show_backend_capabilities(host)
-
-
-class CapabilitiesV3RbacTest(CapabilitiesRbacTest):
-    _api_version = 3

@@ -20,7 +20,7 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 
-class VolumeServicesRbacTest(rbac_base.BaseVolumeRbacTest):
+class VolumeServicesV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     # TODO(felipemonteiro): Implement a test to cover the policy action,
     # "volume_extension:services:update", once the Tempest client endpoint
@@ -28,14 +28,14 @@ class VolumeServicesRbacTest(rbac_base.BaseVolumeRbacTest):
 
     @classmethod
     def skip_checks(cls):
-        super(VolumeServicesRbacTest, cls).skip_checks()
+        super(VolumeServicesV3RbacTest, cls).skip_checks()
         if not utils.is_extension_enabled('os-services', 'volume'):
             msg = "%s skipped as os-services not enabled." % cls.__name__
             raise cls.skipException(msg)
 
     @classmethod
     def setup_clients(cls):
-        super(VolumeServicesRbacTest, cls).setup_clients()
+        super(VolumeServicesV3RbacTest, cls).setup_clients()
         cls.services_client = cls.os_primary.volume_services_v2_client
 
     @decorators.idempotent_id('b9134f01-97c0-4abd-9455-fe2f03e3f966')
@@ -45,7 +45,3 @@ class VolumeServicesRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_list_services(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.services_client.list_services()['services']
-
-
-class VolumeServicesV3RbacTest(VolumeServicesRbacTest):
-    _api_version = 3

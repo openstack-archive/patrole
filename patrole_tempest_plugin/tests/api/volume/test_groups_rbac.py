@@ -24,7 +24,6 @@ from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 
 class GroupsV3RbacTest(rbac_base.BaseVolumeRbacTest):
-    _api_version = 3
     min_microversion = '3.14'
     max_microversion = 'latest'
 
@@ -116,7 +115,6 @@ class GroupsV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
 
 class GroupTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
-    _api_version = 3
     min_microversion = '3.11'
     max_microversion = 'latest'
 

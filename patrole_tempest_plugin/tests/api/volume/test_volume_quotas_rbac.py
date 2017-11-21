@@ -19,16 +19,16 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 
-class VolumeQuotasRbacTest(rbac_base.BaseVolumeRbacTest):
+class VolumeQuotasV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @classmethod
     def setup_credentials(cls):
-        super(VolumeQuotasRbacTest, cls).setup_credentials()
+        super(VolumeQuotasV3RbacTest, cls).setup_credentials()
         cls.demo_tenant_id = cls.os_primary.credentials.tenant_id
 
     @classmethod
     def setup_clients(cls):
-        super(VolumeQuotasRbacTest, cls).setup_clients()
+        super(VolumeQuotasV3RbacTest, cls).setup_clients()
         cls.quotas_client = cls.os_primary.volume_quotas_v2_client
 
     @rbac_rule_validation.action(service="cinder",
@@ -51,7 +51,3 @@ class VolumeQuotasRbacTest(rbac_base.BaseVolumeRbacTest):
         self.quotas_client.update_quota_set(
             self.demo_tenant_id,
             **new_quota_set)['quota_set']
-
-
-class VolumeQuotasV3RbacTest(VolumeQuotasRbacTest):
-    _api_version = 3

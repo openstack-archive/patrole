@@ -23,24 +23,23 @@ from patrole_tempest_plugin.tests.api.volume import rbac_base
 CONF = config.CONF
 
 
-class VolumesSnapshotRbacTest(rbac_base.BaseVolumeRbacTest):
-
+class VolumesSnapshotV3RbacTest(rbac_base.BaseVolumeRbacTest):
     credentials = ['primary', 'admin']
 
     @classmethod
     def skip_checks(cls):
-        super(VolumesSnapshotRbacTest, cls).skip_checks()
+        super(VolumesSnapshotV3RbacTest, cls).skip_checks()
         if not CONF.volume_feature_enabled.snapshot:
             raise cls.skipException("Cinder volume snapshots are disabled")
 
     @classmethod
     def setup_clients(cls):
-        super(VolumesSnapshotRbacTest, cls).setup_clients()
+        super(VolumesSnapshotV3RbacTest, cls).setup_clients()
         cls.admin_snapshots_client = cls.os_admin.snapshots_v2_client
 
     @classmethod
     def resource_setup(cls):
-        super(VolumesSnapshotRbacTest, cls).resource_setup()
+        super(VolumesSnapshotV3RbacTest, cls).resource_setup()
         # Create a test shared volume for tests
         cls.volume = cls.create_volume()
         # Create a test shared snapshot for tests
@@ -107,7 +106,3 @@ class VolumesSnapshotRbacTest(rbac_base.BaseVolumeRbacTest):
         self.snapshots_client.delete_snapshot(temp_snapshot['id'])
         self.admin_snapshots_client.wait_for_resource_deletion(
             temp_snapshot['id'])
-
-
-class VolumesSnapshotV3RbacTest(VolumesSnapshotRbacTest):
-    _api_version = 3

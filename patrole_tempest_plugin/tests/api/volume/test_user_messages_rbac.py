@@ -25,7 +25,6 @@ CONF = config.CONF
 
 
 class MessagesV3RbacTest(rbac_base.BaseVolumeRbacTest):
-    _api_version = 3
     min_microversion = '3.3'
     max_microversion = 'latest'
 
