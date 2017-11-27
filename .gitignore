@@ -53,6 +53,10 @@ ChangeLog
 *~
 .*.swp
 .*sw?
+*.idea
 
 # Files created by releasenotes build
 releasenotes/build
+
+# Misc
+.stestr/
