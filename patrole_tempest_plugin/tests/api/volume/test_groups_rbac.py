@@ -146,7 +146,21 @@ class GroupTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
         service="cinder",
         rule="group:group_types_manage")
     def test_delete_group_type(self):
-        goup_type = self.create_group_type(ignore_notfound=True)
+        group_type = self.create_group_type(ignore_notfound=True)
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.group_types_client.delete_group_type(goup_type['id'])
+        self.group_types_client.delete_group_type(group_type['id'])
+
+    @decorators.idempotent_id('8d9e2831-24c3-47b7-a76a-2e563287f12f')
+    @rbac_rule_validation.action(
+        service="cinder",
+        rule="group:access_group_types_specs")
+    def test_show_group_type(self):
+        group_type = self.create_group_type()
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        resp_body = \
+            self.group_types_client.show_group_type(
+                group_type['id'])['group_type']
+        if 'group_specs' not in resp_body:
+            raise rbac_exceptions.RbacMalformedResponse(
+                attribute='group_specs')
