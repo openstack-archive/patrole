@@ -18,6 +18,9 @@ from tempest.lib import decorators
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
+QUOTA_KEYS = ['gigabytes', 'snapshots', 'volumes', 'backups',
+              'backup_gigabytes', 'per_volume_gigabytes']
+
 
 class VolumeQuotasV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
@@ -31,23 +34,56 @@ class VolumeQuotasV3RbacTest(rbac_base.BaseVolumeRbacTest):
         super(VolumeQuotasV3RbacTest, cls).setup_clients()
         cls.quotas_client = cls.os_primary.volume_quotas_v2_client
 
+    def _restore_default_quota_set(self):
+        default_quota_set = self.quotas_client.show_default_quota_set(
+            self.demo_tenant_id)['quota_set']
+        cleanup_quota_set = dict(
+            (k, v) for k, v in default_quota_set.items()
+            if k in QUOTA_KEYS)
+        self.addCleanup(self.quotas_client.update_quota_set,
+                        self.demo_tenant_id, **cleanup_quota_set)
+
+    @decorators.idempotent_id('427c9f0c-982e-403d-ae45-c05f4d6322ff')
+    @rbac_rule_validation.action(service="cinder",
+                                 rule="volume_extension:quotas:show")
+    def test_list_quotas(self):
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.quotas_client.show_quota_set(self.demo_tenant_id)
+
+    @decorators.idempotent_id('e47cf444-2753-4983-be6d-fc0d6523720f')
+    @rbac_rule_validation.action(service="cinder",
+                                 rule="volume_extension:quotas:show")
+    def test_list_quotas_usage_true(self):
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.quotas_client.show_quota_set(self.demo_tenant_id,
+                                          params={'usage': True})
+
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume_extension:quotas:show")
     @decorators.idempotent_id('b3c7177e-b6b1-4d0f-810a-fc95606964dd')
     def test_list_default_quotas(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.quotas_client.show_default_quota_set(
-            self.demo_tenant_id)['quota_set']
+            self.demo_tenant_id)
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume_extension:quotas:update")
     @decorators.idempotent_id('60f8f421-1630-4953-b449-b22af32265c7')
-    def test_update_all_quota_resources_for_tenant(self):
+    def test_update_quota_set(self):
+        self._restore_default_quota_set()
         new_quota_set = {'gigabytes': 1009,
                          'volumes': 11,
                          'snapshots': 11}
-        # Update limits for all quota resources
+        # Update limits for all quota resources.
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.quotas_client.update_quota_set(
-            self.demo_tenant_id,
-            **new_quota_set)['quota_set']
+            self.demo_tenant_id, **new_quota_set)
+
+    @decorators.idempotent_id('329bdb88-5132-4810-b1fc-350d181577e3')
+    @rbac_rule_validation.action(service="cinder",
+                                 rule="volume_extension:quotas:delete")
+    def test_delete_quota_set(self):
+        self._restore_default_quota_set()
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.quotas_client.delete_quota_set(self.demo_tenant_id)
