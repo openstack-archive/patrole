@@ -14,6 +14,7 @@
 #    under the License.
 
 from tempest import config
+from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
@@ -66,17 +67,6 @@ class VolumeMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
         self.volumes_client.delete_volume_metadata_item(self.volume['id'],
                                                         "key1")
 
-    @decorators.idempotent_id('a41c8eed-2051-4a25-b401-df036faacbdc')
-    @rbac_rule_validation.action(
-        service="cinder",
-        rule="volume:delete_volume_metadata")
-    def test_delete_volume_image_metadata(self):
-        self.volumes_client.update_volume_image_metadata(
-            self.volume['id'], image_id=self.image_id)
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.volumes_client.delete_volume_image_metadata(self.volume['id'],
-                                                         'image_id')
-
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:update_volume_metadata")
     @decorators.idempotent_id('8ce2ff80-99ba-49ae-9bb1-7e96729ee5af')
@@ -98,8 +88,25 @@ class VolumeMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('a9d9e825-5ea3-42e6-96f3-7ac4e97b2ed0')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="volume:update_volume_metadata")
+        rule="volume_extension:volume_image_metadata")
     def test_update_volume_image_metadata(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.volumes_client.update_volume_image_metadata(
             self.volume['id'], image_id=self.image_id)
+        self.addCleanup(self.volumes_client.delete_volume_image_metadata,
+                        self.volume['id'], 'image_id')
+
+    @decorators.idempotent_id('a41c8eed-2051-4a25-b401-df036faacbdc')
+    @rbac_rule_validation.action(
+        service="cinder",
+        rule="volume_extension:volume_image_metadata")
+    def test_delete_volume_image_metadata(self):
+        self.volumes_client.update_volume_image_metadata(
+            self.volume['id'], image_id=self.image_id)
+        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
+                        self.volumes_client.delete_volume_image_metadata,
+                        self.volume['id'], 'image_id')
+
+        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        self.volumes_client.delete_volume_image_metadata(self.volume['id'],
+                                                         'image_id')
