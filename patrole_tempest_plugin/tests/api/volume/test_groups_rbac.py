@@ -27,6 +27,14 @@ class GroupsV3RbacTest(rbac_base.BaseVolumeRbacTest):
     min_microversion = '3.14'
     max_microversion = 'latest'
 
+    credentials = ['primary', 'admin']
+
+    @classmethod
+    def setup_clients(cls):
+        super(GroupsV3RbacTest, cls).setup_clients()
+        cls.admin_groups_client = cls.os_admin.groups_v3_client
+        cls.admin_volumes_client = cls.os_admin.volumes_v3_client
+
     def setUp(self):
         super(GroupsV3RbacTest, self).setUp()
         self.volume_type_id = self.create_volume_type()['id']
@@ -37,20 +45,25 @@ class GroupsV3RbacTest(rbac_base.BaseVolumeRbacTest):
             self.__class__.__name__ + '-Group')
         group = self.groups_client.create_group(name=group_name, **kwargs)[
             'group']
-        waiters.wait_for_volume_resource_status(
-            self.groups_client, group['id'], 'available')
-
         if ignore_notfound:
             self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                             self._delete_group, group['id'])
         else:
             self.addCleanup(self._delete_group, group['id'])
-
+        waiters.wait_for_volume_resource_status(
+            self.admin_groups_client, group['id'], 'available')
         return group
 
-    def _delete_group(self, group_id, delete_volumes=True):
-        self.groups_client.delete_group(group_id, delete_volumes)
-        self.groups_client.wait_for_resource_deletion(group_id)
+    def _delete_group(self, group_id):
+        self.groups_client.delete_group(group_id, delete_volumes=True)
+        self.admin_groups_client.wait_for_resource_deletion(group_id)
+
+        vols = self.admin_volumes_client.list_volumes(
+            detail=True, params={'all_tenants': True})['volumes']
+        for vol in vols:
+            if vol['group_id'] == group_id:
+                self.admin_volumes_client.wait_for_resource_deletion(
+                    vol['id'])
 
     @decorators.idempotent_id('43235328-66ae-424f-bc7f-f709c0ca268c')
     @rbac_rule_validation.action(
@@ -111,7 +124,7 @@ class GroupsV3RbacTest(rbac_base.BaseVolumeRbacTest):
                                    volume_types=[self.volume_type_id])
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.groups_client.delete_group(group['id'])
+        self._delete_group(group['id'])
 
 
 class GroupTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
