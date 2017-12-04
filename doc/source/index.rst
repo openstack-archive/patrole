@@ -30,7 +30,10 @@ Framework
 .. toctree::
    :maxdepth: 2
 
-   rbac_validation
+   framework/overview
+   framework/rbac_validation
+   framework/policy_authority
+   framework/rbac_utils
 
 Indices and tables
 ==================
