@@ -107,7 +107,7 @@ class RbacUtils(object):
             # passing the second boundary before attempting to authenticate.
             # Only sleep if a token revocation occurred as a result of role
             # switching. This will optimize test runtime in the case where
-            # ``[identity] admin_role`` == ``[rbac] rbac_test_role``.
+            # ``[identity] admin_role`` == ``[patrole] rbac_test_role``.
             if not role_already_present:
                 time.sleep(1)
             test_obj.os_primary.auth_provider.set_auth()

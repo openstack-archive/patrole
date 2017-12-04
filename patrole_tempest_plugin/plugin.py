@@ -62,12 +62,6 @@ class PatroleTempestPlugin(plugins.TempestPlugin):
         RBACLOG.addHandler(rbac_report_handler)
 
     def register_opts(self, conf):
-        # TODO(fmontei): Remove ``rbac_group`` in a future release as it is
-        # currently deprecated.
-        config.register_opt_group(
-            conf,
-            project_config.rbac_group,
-            project_config.PatroleGroup)
         config.register_opt_group(
             conf,
             project_config.patrole_group,
