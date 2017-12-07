@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from tempest.common import waiters
 from tempest import config
 from tempest.lib import decorators
 
@@ -37,15 +38,26 @@ class SnapshotsActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
         cls.snapshot = cls.create_snapshot(volume_id=cls.volume['id'])
         cls.snapshot_id = cls.snapshot['id']
 
+    def tearDown(self):
+        # Set snapshot's status to available after test
+        status = 'available'
+        self.snapshots_client.reset_snapshot_status(self.snapshot_id,
+                                                    status)
+        waiters.wait_for_volume_resource_status(self.snapshots_client,
+                                                self.snapshot_id, status)
+        super(SnapshotsActionsV3RbacTest, self).tearDown()
+
     @rbac_rule_validation.action(
         service="cinder",
         rule="volume_extension:snapshot_admin_actions:reset_status")
     @decorators.idempotent_id('ea430145-34ef-408d-b678-95d5ae5f46eb')
     def test_reset_snapshot_status(self):
         status = 'error'
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.snapshots_client.reset_snapshot_status(self.snapshot['id'],
-                                                    status)
+        with self.rbac_utils.override_role(self):
+            self.snapshots_client.reset_snapshot_status(
+                self.snapshot['id'], status)
+        waiters.wait_for_volume_resource_status(
+            self.snapshots_client, self.snapshot['id'], status)
 
     @rbac_rule_validation.action(
         service="cinder",
@@ -57,3 +69,19 @@ class SnapshotsActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.snapshots_client.force_delete_snapshot(temp_snapshot['id'])
         self.snapshots_client.wait_for_resource_deletion(temp_snapshot['id'])
+
+    @decorators.idempotent_id('a95eab2a-c441-4609-9235-f7478627da88')
+    @rbac_rule_validation.action(
+        service="cinder",
+        rule="snapshot_extension:snapshot_actions:update_snapshot_status")
+    def test_update_snapshot_status(self):
+        status = 'creating'
+        self.snapshots_client.reset_snapshot_status(
+            self.snapshot['id'], status)
+        waiters.wait_for_volume_resource_status(self.snapshots_client,
+                                                self.snapshot['id'], status)
+        with self.rbac_utils.override_role(self):
+            self.snapshots_client.update_snapshot_status(self.snapshot['id'],
+                                                         status="creating")
+        waiters.wait_for_volume_resource_status(
+            self.snapshots_client, self.snapshot['id'], status)
