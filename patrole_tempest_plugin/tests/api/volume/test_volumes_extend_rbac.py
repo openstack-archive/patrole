@@ -14,22 +14,13 @@
 #    under the License.
 
 from tempest.common import waiters
-from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
-CONF = config.CONF
-
 
 class VolumesExtendV3RbacTest(rbac_base.BaseVolumeRbacTest):
-    credentials = ['primary', 'admin']
-
-    @classmethod
-    def setup_clients(cls):
-        super(VolumesExtendV3RbacTest, cls).setup_clients()
-        cls.admin_volumes_client = cls.os_admin.volumes_client_latest
 
     @classmethod
     def resource_setup(cls):
@@ -42,8 +33,8 @@ class VolumesExtendV3RbacTest(rbac_base.BaseVolumeRbacTest):
     def test_volume_extend(self):
         # Extend volume test
         extend_size = int(self.volume['size']) + 1
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.volumes_client.extend_volume(self.volume['id'],
-                                          new_size=extend_size)
+        with self.rbac_utils.override_role(self):
+            self.volumes_client.extend_volume(self.volume['id'],
+                                              new_size=extend_size)
         waiters.wait_for_volume_resource_status(
-            self.admin_volumes_client, self.volume['id'], 'available')
+            self.volumes_client, self.volume['id'], 'available')

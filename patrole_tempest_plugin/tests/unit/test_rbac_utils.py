@@ -16,6 +16,7 @@
 import mock
 import testtools
 
+from tempest.lib import exceptions as lib_exc
 from tempest.tests import base
 
 from patrole_tempest_plugin import rbac_exceptions
@@ -29,27 +30,27 @@ class RBACUtilsTest(base.TestCase):
         super(RBACUtilsTest, self).setUp()
         # Reset the role history after each test run to avoid validation
         # errors between tests.
-        rbac_utils.RbacUtils.switch_role_history = {}
+        rbac_utils.RbacUtils.override_role_history = {}
         self.rbac_utils = self.useFixture(patrole_fixtures.RbacUtilsFixture())
 
-    def test_switch_role_with_missing_admin_role(self):
+    def test_override_role_with_missing_admin_role(self):
         self.rbac_utils.set_roles('member')
         error_re = (
             'Roles defined by `\[patrole\] rbac_test_role` and `\[identity\] '
             'admin_role` must be defined in the system.')
         self.assertRaisesRegex(rbac_exceptions.RbacResourceSetupFailed,
-                               error_re, self.rbac_utils.switch_role)
+                               error_re, self.rbac_utils.override_role)
 
-    def test_switch_role_with_missing_rbac_role(self):
+    def test_override_role_with_missing_rbac_role(self):
         self.rbac_utils.set_roles('admin')
         error_re = (
             'Roles defined by `\[patrole\] rbac_test_role` and `\[identity\] '
             'admin_role` must be defined in the system.')
         self.assertRaisesRegex(rbac_exceptions.RbacResourceSetupFailed,
-                               error_re, self.rbac_utils.switch_role)
+                               error_re, self.rbac_utils.override_role)
 
-    def test_switch_role_to_admin_role(self):
-        self.rbac_utils.switch_role()
+    def test_override_role_to_admin_role(self):
+        self.rbac_utils.override_role()
 
         mock_test_obj = self.rbac_utils.mock_test_obj
         roles_client = self.rbac_utils.roles_v3_client
@@ -63,9 +64,9 @@ class RBACUtilsTest(base.TestCase):
             .assert_called_once_with()
         mock_time.sleep.assert_called_once_with(1)
 
-    def test_switch_role_to_admin_role_avoids_role_switch(self):
+    def test_override_role_to_admin_role_avoids_role_switch(self):
         self.rbac_utils.set_roles(['admin', 'member'], 'admin')
-        self.rbac_utils.switch_role()
+        self.rbac_utils.override_role()
 
         roles_client = self.rbac_utils.roles_v3_client
         mock_time = self.rbac_utils.mock_time
@@ -73,8 +74,8 @@ class RBACUtilsTest(base.TestCase):
         roles_client.create_user_role_on_project.assert_not_called()
         mock_time.sleep.assert_not_called()
 
-    def test_switch_role_to_member_role(self):
-        self.rbac_utils.switch_role(True)
+    def test_override_role_to_member_role(self):
+        self.rbac_utils.override_role(True)
 
         mock_test_obj = self.rbac_utils.mock_test_obj
         roles_client = self.rbac_utils.roles_v3_client
@@ -92,9 +93,9 @@ class RBACUtilsTest(base.TestCase):
             [mock.call()] * 2)
         mock_time.sleep.assert_has_calls([mock.call(1)] * 2)
 
-    def test_switch_role_to_member_role_avoids_role_switch(self):
+    def test_override_role_to_member_role_avoids_role_switch(self):
         self.rbac_utils.set_roles(['admin', 'member'], 'member')
-        self.rbac_utils.switch_role(True)
+        self.rbac_utils.override_role(True)
 
         roles_client = self.rbac_utils.roles_v3_client
         mock_time = self.rbac_utils.mock_time
@@ -105,8 +106,8 @@ class RBACUtilsTest(base.TestCase):
         ])
         mock_time.sleep.assert_called_once_with(1)
 
-    def test_switch_role_to_member_role_then_admin_role(self):
-        self.rbac_utils.switch_role(True, False)
+    def test_override_role_to_member_role_then_admin_role(self):
+        self.rbac_utils.override_role(True, False)
 
         mock_test_obj = self.rbac_utils.mock_test_obj
         roles_client = self.rbac_utils.roles_v3_client
@@ -126,47 +127,12 @@ class RBACUtilsTest(base.TestCase):
             [mock.call()] * 3)
         mock_time.sleep.assert_has_calls([mock.call(1)] * 3)
 
-    def test_switch_role_without_boolean_value(self):
-        self.assertRaises(rbac_exceptions.RbacResourceSetupFailed,
-                          self.rbac_utils.switch_role, "admin")
-        self.assertRaises(rbac_exceptions.RbacResourceSetupFailed,
-                          self.rbac_utils.switch_role, None)
-
-    def test_switch_role_with_false_value_twice(self):
-        expected_error_message = (
-            '`toggle_rbac_role` must not be called with the same bool value '
-            'twice. Make sure that you included a rbac_utils.switch_role '
-            'method call inside the test.')
-
-        e = self.assertRaises(rbac_exceptions.RbacResourceSetupFailed,
-                              self.rbac_utils.switch_role, False)
-        self.assertIn(expected_error_message, str(e))
-
-        e = self.assertRaises(rbac_exceptions.RbacResourceSetupFailed,
-                              self.rbac_utils.switch_role, True, False, False)
-        self.assertIn(expected_error_message, str(e))
-
-    def test_switch_role_with_true_value_twice(self):
-        expected_error_message = (
-            '`toggle_rbac_role` must not be called with the same bool value '
-            'twice. Make sure that you included a rbac_utils.switch_role '
-            'method call inside the test.')
-
-        e = self.assertRaises(rbac_exceptions.RbacResourceSetupFailed,
-                              self.rbac_utils.switch_role, True, True)
-        self.assertIn(expected_error_message, str(e))
-
-        e = self.assertRaises(rbac_exceptions.RbacResourceSetupFailed,
-                              self.rbac_utils.switch_role, True, False, True,
-                              True)
-        self.assertIn(expected_error_message, str(e))
-
     def test_clear_user_roles(self):
         # NOTE(felipemonteiro): Set the user's roles on the project to
         # include 'random' to coerce a role switch, or else it will be
         # skipped.
         self.rbac_utils.set_roles(['admin', 'member'], ['member', 'random'])
-        self.rbac_utils.switch_role()
+        self.rbac_utils.override_role()
 
         roles_client = self.rbac_utils.roles_v3_client
 
@@ -179,20 +145,57 @@ class RBACUtilsTest(base.TestCase):
                 mock.call(mock.sentinel.project_id, mock.sentinel.user_id,
                           'random_id')])
 
-    @mock.patch.object(rbac_utils, 'LOG', autospec=True)
-    @mock.patch.object(rbac_utils, 'sys', autospec=True)
-    def test_switch_roles_with_unexpected_exception(self, mock_sys, mock_log):
-        """Test whether unexpected exceptions don't throw error.
-
-        If an unexpected exception or skip exception is raised, then that
-        should not result in an error being raised.
+    @mock.patch.object(rbac_utils.RbacUtils, '_override_role', autospec=True)
+    def test_override_role_context_manager_simulate_pass(self,
+                                                         mock_override_role):
+        """Validate that expected override_role calls are made when switching
+        to admin role for success path.
         """
-        unexpected_exceptions = [testtools.TestCase.skipException,
-                                 AttributeError]
+        test_obj = mock.MagicMock()
+        _rbac_utils = rbac_utils.RbacUtils(test_obj)
 
-        for unexpected_exception in unexpected_exceptions:
-            mock_sys.exc_info.return_value = [unexpected_exception()]
-            # Ordinarily calling switch_role twice with the same value should
-            # result in an error being thrown -- but not in this case.
-            self.rbac_utils.switch_role(False)
-            mock_log.error.assert_not_called()
+        # Validate constructor called _override_role with False.
+        mock_override_role.assert_called_once_with(_rbac_utils, test_obj,
+                                                   False)
+        mock_override_role.reset_mock()
+
+        with _rbac_utils.override_role(test_obj):
+            # Validate `override_role` public method called private method
+            # `_override_role` with True.
+            mock_override_role.assert_called_once_with(_rbac_utils, test_obj,
+                                                       True)
+            mock_override_role.reset_mock()
+        # Validate that `override_role` switched back to admin role after
+        # contextmanager.
+        mock_override_role.assert_called_once_with(_rbac_utils, test_obj,
+                                                   False)
+
+    @mock.patch.object(rbac_utils.RbacUtils, '_override_role', autospec=True)
+    def test_override_role_context_manager_simulate_fail(self,
+                                                         mock_override_role):
+        """Validate that expected override_role calls are made when switching
+        to admin role for failure path (i.e. when test raises exception).
+        """
+        test_obj = mock.MagicMock()
+        _rbac_utils = rbac_utils.RbacUtils(test_obj)
+
+        # Validate constructor called _override_role with False.
+        mock_override_role.assert_called_once_with(_rbac_utils, test_obj,
+                                                   False)
+        mock_override_role.reset_mock()
+
+        def _do_test():
+            with _rbac_utils.override_role(test_obj):
+                # Validate `override_role` public method called private method
+                # `_override_role` with True.
+                mock_override_role.assert_called_once_with(
+                    _rbac_utils, test_obj, True)
+                mock_override_role.reset_mock()
+                # Raise exc to verify role switch works for negative case.
+                raise lib_exc.Forbidden()
+
+        # Validate that role is switched back to admin, despite test failure.
+        with testtools.ExpectedException(lib_exc.Forbidden):
+            _do_test()
+        mock_override_role.assert_called_once_with(_rbac_utils, test_obj,
+                                                   False)
