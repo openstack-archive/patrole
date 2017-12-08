@@ -23,20 +23,17 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 
-class GroupsV3RbacTest(rbac_base.BaseVolumeRbacTest):
-    min_microversion = '3.14'
-    max_microversion = 'latest'
-
+class BaseGroupRbacTest(rbac_base.BaseVolumeRbacTest):
     credentials = ['primary', 'admin']
 
     @classmethod
     def setup_clients(cls):
-        super(GroupsV3RbacTest, cls).setup_clients()
+        super(BaseGroupRbacTest, cls).setup_clients()
         cls.admin_groups_client = cls.os_admin.groups_v3_client
         cls.admin_volumes_client = cls.os_admin.volumes_v3_client
 
     def setUp(self):
-        super(GroupsV3RbacTest, self).setUp()
+        super(BaseGroupRbacTest, self).setUp()
         self.volume_type_id = self.create_volume_type()['id']
         self.group_type_id = self.create_group_type()['id']
 
@@ -64,6 +61,11 @@ class GroupsV3RbacTest(rbac_base.BaseVolumeRbacTest):
             if vol['group_id'] == group_id:
                 self.admin_volumes_client.wait_for_resource_deletion(
                     vol['id'])
+
+
+class GroupsV3RbacTest(BaseGroupRbacTest):
+    min_microversion = '3.14'
+    max_microversion = 'latest'
 
     @decorators.idempotent_id('43235328-66ae-424f-bc7f-f709c0ca268c')
     @rbac_rule_validation.action(
@@ -125,6 +127,27 @@ class GroupsV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self._delete_group(group['id'])
+
+
+class GroupV320RbacTest(BaseGroupRbacTest):
+    _api_version = 3
+    min_microversion = '3.20'
+    max_microversion = 'latest'
+
+    @decorators.idempotent_id('b849c1d4-3215-4f9d-b1e6-0aeb4b2b65ac')
+    @rbac_rule_validation.action(
+        service="cinder",
+        rule="group:reset_status")
+    def test_reset_group_status(self):
+        group = self._create_group(ignore_notfound=False,
+                                   group_type=self.group_type_id,
+                                   volume_types=[self.volume_type_id])
+        status = 'available'
+        with self.rbac_utils.override_role(self):
+            self.groups_client.reset_group_status(group['id'],
+                                                  status)
+        waiters.wait_for_volume_resource_status(
+            self.groups_client, group['id'], status)
 
 
 class GroupTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
