@@ -28,7 +28,6 @@ class VolumeHostsV3RbacTest(rbac_base.BaseVolumeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.volume_hosts_client.list_hosts()
 
-    @decorators.skip_because(bug="1732808")
     @decorators.idempotent_id('9ddf321e-788f-4787-b8cc-dfa59e264143')
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume_extension:hosts")
