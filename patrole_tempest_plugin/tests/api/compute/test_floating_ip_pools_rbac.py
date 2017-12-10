@@ -50,5 +50,5 @@ class FloatingIpPoolsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-floating-ip-pools")
     def test_list_floating_ip_pools(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.fip_pools_client.list_floating_ip_pools()['floating_ip_pools']
+        with self.rbac_utils.override_role(self):
+            self.fip_pools_client.list_floating_ip_pools()

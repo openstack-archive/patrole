@@ -53,16 +53,16 @@ class FlavorExtraSpecsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-flavor-extra-specs:show")
     def test_show_flavor_extra_spec(self):
         key = self._set_flavor_extra_spec()
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.flavors_client.show_flavor_extra_spec(self.flavor['id'], key)[key]
+        with self.rbac_utils.override_role(self):
+            self.flavors_client.show_flavor_extra_spec(self.flavor['id'], key)
 
     @decorators.idempotent_id('fcffeca2-ed04-4e85-bf93-02fb5643f22b')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-flavor-extra-specs:create")
     def test_set_flavor_extra_spec(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self._set_flavor_extra_spec()
+        with self.rbac_utils.override_role(self):
+            self._set_flavor_extra_spec()
 
     @decorators.idempotent_id('42b85279-6bfa-4f58-b7a2-258c284f03c5')
     @rbac_rule_validation.action(
@@ -70,10 +70,10 @@ class FlavorExtraSpecsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-flavor-extra-specs:update")
     def test_update_flavor_extra_spec(self):
         key = self._set_flavor_extra_spec()
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         update_val = data_utils.rand_name(self.__class__.__name__ + '-val')
-        self.flavors_client.update_flavor_extra_spec(
-            self.flavor['id'], key, **{key: update_val})[key]
+        with self.rbac_utils.override_role(self):
+            self.flavors_client.update_flavor_extra_spec(
+                self.flavor['id'], key, **{key: update_val})
 
     @decorators.idempotent_id('4b0e5471-e010-4c09-8965-80898e6760a3')
     @rbac_rule_validation.action(
@@ -81,8 +81,8 @@ class FlavorExtraSpecsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-flavor-extra-specs:delete")
     def test_unset_flavor_extra_spec(self):
         key = self._set_flavor_extra_spec()
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.flavors_client.unset_flavor_extra_spec(self.flavor['id'], key)
+        with self.rbac_utils.override_role(self):
+            self.flavors_client.unset_flavor_extra_spec(self.flavor['id'], key)
 
     @decorators.idempotent_id('02c3831a-3ce9-476e-a722-d805ac2da621')
     @rbac_rule_validation.action(
@@ -90,6 +90,5 @@ class FlavorExtraSpecsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-flavor-extra-specs:index")
     def test_list_flavor_extra_specs(self):
         self._set_flavor_extra_spec()
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.flavors_client.list_flavor_extra_specs(
-            self.flavor['id'])['extra_specs']
+        with self.rbac_utils.override_role(self):
+            self.flavors_client.list_flavor_extra_specs(self.flavor['id'])
