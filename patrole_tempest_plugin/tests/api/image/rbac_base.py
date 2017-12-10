@@ -19,21 +19,6 @@ from patrole_tempest_plugin import rbac_utils
 CONF = config.CONF
 
 
-class BaseV1ImageRbacTest(image_base.BaseV1ImageTest):
-
-    @classmethod
-    def skip_checks(cls):
-        super(BaseV1ImageRbacTest, cls).skip_checks()
-        if not CONF.patrole.enable_rbac:
-            raise cls.skipException(
-                "%s skipped as RBAC testing not enabled" % cls.__name__)
-
-    @classmethod
-    def setup_clients(cls):
-        super(BaseV1ImageRbacTest, cls).setup_clients()
-        cls.rbac_utils = rbac_utils.RbacUtils(cls)
-
-
 class BaseV2ImageRbacTest(image_base.BaseV2ImageTest):
 
     @classmethod
