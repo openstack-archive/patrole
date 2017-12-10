@@ -34,5 +34,5 @@ class HostsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-hosts")
     def test_list_hosts(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.hosts_client.list_hosts()['hosts']
+        with self.rbac_utils.override_role(self):
+            self.hosts_client.list_hosts()

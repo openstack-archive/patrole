@@ -33,8 +33,6 @@ CONF = config.CONF
 
 class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
-    credentials = ['primary', 'admin']
-
     @classmethod
     def resource_setup(cls):
         super(ServerActionsRbacTest, cls).resource_setup()
@@ -60,17 +58,17 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def _stop_server(self):
         self.servers_client.stop_server(self.server_id)
         waiters.wait_for_server_status(
-            self.os_admin.servers_client, self.server_id, 'SHUTOFF')
+            self.servers_client, self.server_id, 'SHUTOFF')
 
     def _resize_server(self, flavor):
         self.servers_client.resize_server(self.server_id, flavor)
         waiters.wait_for_server_status(
-            self.os_admin.servers_client, self.server_id, 'VERIFY_RESIZE')
+            self.servers_client, self.server_id, 'VERIFY_RESIZE')
 
     def _confirm_resize_server(self):
         self.servers_client.confirm_resize_server(self.server_id)
         waiters.wait_for_server_status(
-            self.os_admin.servers_client, self.server_id, 'ACTIVE')
+            self.servers_client, self.server_id, 'ACTIVE')
 
     def _shelve_server(self):
         self.servers_client.shelve_server(self.server_id)
@@ -79,13 +77,13 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                         self.server_id)
         offload_time = CONF.compute.shelved_offload_time
         if offload_time >= 0:
-            waiters.wait_for_server_status(self.os_admin.servers_client,
+            waiters.wait_for_server_status(self.servers_client,
                                            self.server_id,
                                            'SHELVED_OFFLOADED',
                                            extra_timeout=offload_time)
         else:
-            waiters.wait_for_server_status(self.os_admin.servers_client,
-                                           self.server_id, 'SHELVED')
+            waiters.wait_for_server_status(self.servers_client, self.server_id,
+                                           'SHELVED')
 
     def _pause_server(self):
         self.servers_client.pause_server(self.server_id)
@@ -93,7 +91,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                         self.servers_client.unpause_server,
                         self.server_id)
         waiters.wait_for_server_status(
-            self.os_admin.servers_client, self.server_id, 'PAUSED')
+            self.servers_client, self.server_id, 'PAUSED')
 
     def _cleanup_server_actions(self, function, server_id, **kwargs):
         server = self.servers_client.show_server(server_id)['server']
@@ -107,8 +105,8 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-pause-server:pause")
     def test_pause_server(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self._pause_server()
+        with self.rbac_utils.override_role(self):
+            self._pause_server()
 
     @decorators.idempotent_id('087008cf-82fa-4eeb-ae8b-32c4126456ad')
     @testtools.skipUnless(CONF.compute_feature_enabled.pause,
@@ -118,18 +116,18 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-pause-server:unpause")
     def test_unpause_server(self):
         self._pause_server()
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.unpause_server(self.server_id)
+        with self.rbac_utils.override_role(self):
+            self.servers_client.unpause_server(self.server_id)
         waiters.wait_for_server_status(
-            self.os_admin.servers_client, self.server_id, 'ACTIVE')
+            self.servers_client, self.server_id, 'ACTIVE')
 
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:servers:stop")
     @decorators.idempotent_id('ab4a17d2-166f-4a6d-9944-f17baa576cf2')
     def test_stop_server(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self._stop_server()
+        with self.rbac_utils.override_role(self):
+            self._stop_server()
 
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(
@@ -139,10 +137,10 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_start_server(self):
         self._stop_server()
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.start_server(self.server_id)
+        with self.rbac_utils.override_role(self):
+            self.servers_client.start_server(self.server_id)
         waiters.wait_for_server_status(
-            self.os_admin.servers_client, self.server_id, 'ACTIVE')
+            self.servers_client, self.server_id, 'ACTIVE')
 
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(
@@ -152,8 +150,8 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @testtools.skipUnless(CONF.compute_feature_enabled.resize,
                           'Resize is not available.')
     def test_resize_server(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self._resize_server(self.flavor_ref_alt)
+        with self.rbac_utils.override_role(self):
+            self._resize_server(self.flavor_ref_alt)
 
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(
@@ -165,10 +163,10 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_revert_resize_server(self):
         self._resize_server(self.flavor_ref_alt)
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.revert_resize_server(self.server_id)
+        with self.rbac_utils.override_role(self):
+            self.servers_client.revert_resize_server(self.server_id)
         waiters.wait_for_server_status(
-            self.os_admin.servers_client, self.server_id, 'ACTIVE')
+            self.servers_client, self.server_id, 'ACTIVE')
 
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(
@@ -182,68 +180,68 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.addCleanup(self._confirm_resize_server)
         self.addCleanup(self._resize_server, self.flavor_ref)
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self._confirm_resize_server()
+        with self.rbac_utils.override_role(self):
+            self._confirm_resize_server()
 
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:servers:rebuild")
     @decorators.idempotent_id('54b1a30b-c96c-472c-9c83-ccaf6ec7e20b')
     def test_rebuild_server(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.rebuild_server(self.server_id, self.image_ref)
+        with self.rbac_utils.override_role(self):
+            self.servers_client.rebuild_server(self.server_id, self.image_ref)
         waiters.wait_for_server_status(
-            self.os_admin.servers_client, self.server_id, 'ACTIVE')
+            self.servers_client, self.server_id, 'ACTIVE')
 
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:servers:reboot")
     @decorators.idempotent_id('19f27856-56e1-44f8-8615-7257f6b85cbb')
     def test_reboot_server(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.reboot_server(self.server_id, type='HARD')
+        with self.rbac_utils.override_role(self):
+            self.servers_client.reboot_server(self.server_id, type='HARD')
         waiters.wait_for_server_status(
-            self.os_admin.servers_client, self.server_id, 'ACTIVE')
+            self.servers_client, self.server_id, 'ACTIVE')
 
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:servers:index")
     @decorators.idempotent_id('631f0d86-7607-4198-8312-9da2f05464a4')
     def test_server_index(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.list_servers(minimal=True)
+        with self.rbac_utils.override_role(self):
+            self.servers_client.list_servers(minimal=True)
 
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:servers:detail")
     @decorators.idempotent_id('96093480-3ce5-4a8b-b569-aed870379c24')
     def test_server_detail(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.list_servers(detail=True)
+        with self.rbac_utils.override_role(self):
+            self.servers_client.list_servers(detail=True)
 
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:servers:detail:get_all_tenants")
     @decorators.idempotent_id('a9e5a1c0-acfe-49a2-b2b1-fd8b19d61f71')
     def test_server_detail_all_tenants(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.list_servers(detail=True, all_tenants=1)
+        with self.rbac_utils.override_role(self):
+            self.servers_client.list_servers(detail=True, all_tenants=1)
 
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:servers:index:get_all_tenants")
     @decorators.idempotent_id('4b93ba56-69e6-41f5-82c4-84a5c4c42091')
     def test_server_index_all_tenants(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.list_servers(minimal=True, all_tenants=1)
+        with self.rbac_utils.override_role(self):
+            self.servers_client.list_servers(minimal=True, all_tenants=1)
 
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:servers:show")
     @decorators.idempotent_id('eaaf4f51-31b5-497f-8f0f-f527e5f70b83')
     def test_show_server(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.show_server(self.server_id)
+        with self.rbac_utils.override_role(self):
+            self.servers_client.show_server(self.server_id)
 
     @utils.services('image')
     @rbac_rule_validation.action(
@@ -251,10 +249,9 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:servers:create_image")
     @decorators.idempotent_id('ba0ac859-99f4-4055-b5e0-e0905a44d331')
     def test_create_image(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-
-        # This function will also call show image
-        self.create_image_from_server(self.server_id, wait_until='ACTIVE')
+        with self.rbac_utils.override_role(self):
+            # This function will also call show image
+            self.create_image_from_server(self.server_id, wait_until='ACTIVE')
 
     @utils.services('image', 'volume')
     @rbac_rule_validation.action(
@@ -267,12 +264,11 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         # this test.
         server = self.create_test_server(volume_backed=True,
                                          wait_until='ACTIVE')
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-
-        # This function will also call show image.
-        image = self.create_image_from_server(server['id'],
-                                              wait_until='ACTIVE',
-                                              wait_for_server=False)
+        with self.rbac_utils.override_role(self):
+            # This function will also call show image.
+            image = self.create_image_from_server(server['id'],
+                                                  wait_until='ACTIVE',
+                                                  wait_for_server=False)
         self.addCleanup(self.compute_images_client.wait_for_resource_deletion,
                         image['id'])
         self.addCleanup(
@@ -289,9 +285,9 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_create_backup(self):
         # Prioritize glance v2 over v1 for deleting/waiting for image status.
         if CONF.image_feature_enabled.api_v2:
-            glance_admin_client = self.os_admin.image_client_v2
+            glance_client = self.os_primary.image_client_v2
         elif CONF.image_feature_enabled.api_v1:
-            glance_admin_client = self.os_admin.image_client
+            glance_client = self.os_primary.image_client
         else:
             raise lib_exc.InvalidConfiguration(
                 'Either api_v1 or api_v2 must be True in '
@@ -299,10 +295,10 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
         backup_name = data_utils.rand_name(self.__class__.__name__ + '-Backup')
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        resp = self.servers_client.create_backup(
-            self.server_id, backup_type='daily', rotation=1,
-            name=backup_name).response
+        with self.rbac_utils.override_role(self):
+            resp = self.servers_client.create_backup(
+                self.server_id, backup_type='daily', rotation=1,
+                name=backup_name).response
 
         # Prior to microversion 2.45, image ID must be parsed from location
         # header. With microversion 2.45+, image_id is returned.
@@ -312,11 +308,9 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         else:
             image_id = data_utils.parse_image_id(resp['location'])
 
-        # Use admin credentials to wait since waiting involves show, which is
-        # a different policy.
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        glance_admin_client.delete_image, image_id)
-        waiters.wait_for_image_status(glance_admin_client, image_id, 'active')
+                        glance_client.delete_image, image_id)
+        waiters.wait_for_image_status(glance_client, image_id, 'active')
 
     @decorators.attr(type='slow')
     @decorators.idempotent_id('0b70c527-af75-4bed-9ccf-4f1310a8b60f')
@@ -324,8 +318,8 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-shelve:shelve")
     def test_shelve_server(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self._shelve_server()
+        with self.rbac_utils.override_role(self):
+            self._shelve_server()
 
     @decorators.attr(type='slow')
     @decorators.idempotent_id('4b6e849a-9182-49ff-9257-e97e751b475e')
@@ -334,10 +328,10 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-shelve:unshelve")
     def test_unshelve_server(self):
         self._shelve_server()
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.unshelve_server(self.server_id)
+        with self.rbac_utils.override_role(self):
+            self.servers_client.unshelve_server(self.server_id)
         waiters.wait_for_server_status(
-            self.os_admin.servers_client, self.server_id, 'ACTIVE')
+            self.servers_client, self.server_id, 'ACTIVE')
 
 
 class ServerActionsV214RbacTest(rbac_base.BaseV2ComputeRbacTest):
@@ -361,12 +355,12 @@ class ServerActionsV214RbacTest(rbac_base.BaseV2ComputeRbacTest):
         # NOTE(felipemonteiro): Because evacuating a server is a risky action
         # to test in the gates, a 404 is coerced using a fake host. However,
         # the policy check is done before the 404 is thrown.
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.assertRaisesRegex(lib_exc.NotFound,
-                               "Compute host %s not found." % fake_host_name,
-                               self.servers_client.evacuate_server,
-                               self.server_id,
-                               host=fake_host_name)
+        with self.rbac_utils.override_role(self):
+            self.assertRaisesRegex(
+                lib_exc.NotFound,
+                "Compute host %s not found." % fake_host_name,
+                self.servers_client.evacuate_server, self.server_id,
+                host=fake_host_name)
 
 
 class ServerActionsV216RbacTest(rbac_base.BaseV2ComputeRbacTest):
@@ -387,8 +381,8 @@ class ServerActionsV216RbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:servers:show:host_status")
     @decorators.idempotent_id('736da575-86f8-4b2a-9902-dd37dc9a409b')
     def test_show_server_host_status(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        server = self.servers_client.show_server(self.server_id)['server']
+        with self.rbac_utils.override_role(self):
+            server = self.servers_client.show_server(self.server_id)['server']
 
         if 'host_status' not in server:
             raise rbac_exceptions.RbacMalformedResponse(
