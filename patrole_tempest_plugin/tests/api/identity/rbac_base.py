@@ -26,19 +26,18 @@ CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
 
-class BaseIdentityRbacTest(base.BaseIdentityTest):
+class BaseIdentityRbacTest(rbac_utils.RbacUtilsMixin,
+                           base.BaseIdentityTest):
 
     @classmethod
     def skip_checks(cls):
         super(BaseIdentityRbacTest, cls).skip_checks()
-        if not CONF.patrole.enable_rbac:
-            raise cls.skipException(
-                "%s skipped as RBAC testing not enabled" % cls.__name__)
+        cls.skip_rbac_checks()
 
     @classmethod
     def setup_clients(cls):
         super(BaseIdentityRbacTest, cls).setup_clients()
-        cls.rbac_utils = rbac_utils.RbacUtils(cls)
+        cls.setup_rbac_utils()
 
     @classmethod
     def setup_test_endpoint(cls, service=None):

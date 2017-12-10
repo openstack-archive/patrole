@@ -17,6 +17,7 @@ import mock
 import testtools
 
 from tempest.lib import exceptions as lib_exc
+from tempest import test
 from tempest.tests import base
 
 from patrole_tempest_plugin import rbac_exceptions
@@ -199,3 +200,60 @@ class RBACUtilsTest(base.TestCase):
             _do_test()
         mock_override_role.assert_called_once_with(_rbac_utils, test_obj,
                                                    False)
+
+
+class RBACUtilsMixinTest(base.TestCase):
+
+    def setUp(self):
+        super(RBACUtilsMixinTest, self).setUp()
+
+        class FakeRbacTest(rbac_utils.RbacUtilsMixin, test.BaseTestCase):
+
+            @classmethod
+            def skip_checks(cls):
+                super(FakeRbacTest, cls).skip_checks()
+                cls.skip_rbac_checks()
+
+            @classmethod
+            def setup_clients(cls):
+                super(FakeRbacTest, cls).setup_clients()
+                cls.setup_rbac_utils()
+
+            def runTest(self):
+                pass
+
+        self.parent_class = FakeRbacTest
+
+    def test_setup_rbac_utils(self):
+        """Validate that the child class has the `rbac_utils` attribute after
+        running parent class's `cls.setup_rbac_utils`.
+        """
+        class ChildRbacTest(self.parent_class):
+            pass
+
+        child_test = ChildRbacTest()
+
+        with mock.patch.object(rbac_utils.RbacUtils, '__init__',
+                               lambda *args: None):
+            child_test.setUpClass()
+
+        self.assertTrue(hasattr(child_test, 'rbac_utils'))
+        self.assertIsInstance(child_test.rbac_utils, rbac_utils.RbacUtils)
+
+    def test_skip_rbac_checks(self):
+        """Validate that the child class is skipped if `[patrole] enable_rbac`
+        is False and that the child class's name is in the skip message.
+        """
+        self.useFixture(patrole_fixtures.ConfPatcher(enable_rbac=False,
+                                                     group='patrole'))
+
+        class ChildRbacTest(self.parent_class):
+            pass
+
+        child_test = ChildRbacTest()
+
+        with testtools.ExpectedException(
+                testtools.TestCase.skipException,
+                value_re=('%s skipped as Patrole testing not enabled.'
+                          % ChildRbacTest.__name__)):
+            child_test.setUpClass()
