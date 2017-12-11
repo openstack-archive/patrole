@@ -175,10 +175,10 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
                         "OverPermission: Role %s was allowed to perform %s" %
                         (role, rule))
             finally:
-                # TODO(felipemonteiro): Remove the `switch_role` call below
-                # once all the tests have migrated over to `override_role`.
-                test_obj.rbac_utils.switch_role(test_obj,
-                                                toggle_rbac_role=False)
+                # TODO(felipemonteiro): Remove the call below once all the
+                # tests have migrated over to `override_role` public method.
+                test_obj.rbac_utils._override_role(test_obj,
+                                                   toggle_rbac_role=False)
                 if CONF.patrole_log.enable_reporting:
                     RBACLOG.info(
                         "[Service]: %s, [Test]: %s, [Rule]: %s, "
