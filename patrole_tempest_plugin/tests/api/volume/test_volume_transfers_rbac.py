@@ -72,6 +72,13 @@ class VolumesTransfersV3RbacTest(rbac_base.BaseVolumeRbacTest):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         self.transfers_client.list_volume_transfers()
 
+    @decorators.idempotent_id('e84e45b0-9872-40bf-bf44-971266161a86')
+    @rbac_rule_validation.action(service="cinder",
+                                 rule="volume:get_all_transfers")
+    def test_list_volume_transfers_details(self):
+        with self.rbac_utils.override_role(self):
+            self.transfers_client.list_volume_transfers(detail=True)
+
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:accept_transfer")
     @decorators.idempotent_id('987f2a11-d657-4984-a6c9-28f06c1cd014')
