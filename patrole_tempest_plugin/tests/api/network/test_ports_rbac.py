@@ -106,9 +106,9 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
         self.create_port(**post_body)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="create_port:fixed_ips")
+                                 rule="create_port:fixed_ips:ip_address")
     @decorators.idempotent_id('2551e10d-006a-413c-925a-8c6f834c09ac')
-    def test_create_port_fixed_ips(self):
+    def test_create_port_fixed_ips_ip_address(self):
 
         ip_list = self._get_unused_ip_address()
         fixed_ips = [{'ip_address': ip_list[0]},
@@ -269,9 +269,9 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
                         mac_address=original_mac_address)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="update_port:fixed_ips")
+                                 rule="update_port:fixed_ips:ip_address")
     @decorators.idempotent_id('c091c825-532b-4c6f-a14f-affd3259c1c3')
-    def test_update_port_fixed_ips(self):
+    def test_update_port_fixed_ips_ip_address(self):
 
         # Pick an ip address within the allocation_pools range.
         post_body = {'network': self.network}
