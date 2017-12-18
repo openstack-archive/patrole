@@ -64,7 +64,8 @@ class VolumeQOSV3RbacTest(rbac_base.BaseVolumeRbacTest):
         self.qos_client.show_qos(qos['id'])['qos_specs']
 
     @rbac_rule_validation.action(service="cinder",
-                                 rule="volume_extension:qos_specs_manage:get")
+                                 rule="volume_extension:"
+                                      "qos_specs_manage:get_all")
     @decorators.idempotent_id('ff1e98f3-d456-40a9-96d4-c7e4a55dcffa')
     def test_get_association_qos(self):
         qos = self._create_test_qos_specs()
