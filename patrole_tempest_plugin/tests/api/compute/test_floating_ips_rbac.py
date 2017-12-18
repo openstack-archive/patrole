@@ -46,8 +46,8 @@ class FloatingIpsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-floating-ips")
     def test_list_floating_ips(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.floating_ips_client.list_floating_ips()['floating_ips']
+        with self.rbac_utils.override_role(self):
+            self.floating_ips_client.list_floating_ips()
 
     @decorators.idempotent_id('bebe52b3-5269-4e72-80c8-5a4a39c3bfa6')
     @rbac_rule_validation.action(
@@ -58,17 +58,17 @@ class FloatingIpsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             pool=CONF.network.floating_network_name)['floating_ip']
         self.addCleanup(
             self.floating_ips_client.delete_floating_ip, body['id'])
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.floating_ips_client.show_floating_ip(body['id'])['floating_ip']
+        with self.rbac_utils.override_role(self):
+            self.floating_ips_client.show_floating_ip(body['id'])
 
     @decorators.idempotent_id('2bfb8745-c329-4ee9-95f6-c165a1989dbf')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-floating-ips")
     def test_create_floating_ips(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        body = self.floating_ips_client.create_floating_ip(
-            pool=CONF.network.floating_network_name)['floating_ip']
+        with self.rbac_utils.override_role(self):
+            body = self.floating_ips_client.create_floating_ip(
+                pool=CONF.network.floating_network_name)['floating_ip']
         self.addCleanup(
             self.floating_ips_client.delete_floating_ip, body['id'])
 
@@ -82,5 +82,5 @@ class FloatingIpsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.addCleanup(
             test_utils.call_and_ignore_notfound_exc,
             self.floating_ips_client.delete_floating_ip, body['id'])
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.floating_ips_client.delete_floating_ip(body['id'])
+        with self.rbac_utils.override_role(self):
+            self.floating_ips_client.delete_floating_ip(body['id'])

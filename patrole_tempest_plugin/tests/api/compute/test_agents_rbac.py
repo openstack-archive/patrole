@@ -45,8 +45,8 @@ class AgentsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova", rule="os_compute_api:os-agents")
     @decorators.idempotent_id('d1bc6d97-07f5-4f45-ac29-1c619a6a7e27')
     def test_list_agents_rbac(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.agents_client.list_agents()
+        with self.rbac_utils.override_role(self):
+            self.agents_client.list_agents()
 
     @rbac_rule_validation.action(
         service="nova",
@@ -56,8 +56,8 @@ class AgentsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         params = {'hypervisor': 'kvm', 'os': 'win', 'architecture': 'x86',
                   'version': '7.0', 'url': 'xxx://xxxx/xxx/xxx',
                   'md5hash': 'add6bb58e139be103324d04d82d8f545'}
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        body = self.agents_client.create_agent(**params)['agent']
+        with self.rbac_utils.override_role(self):
+            body = self.agents_client.create_agent(**params)['agent']
         self.addCleanup(self.agents_client.delete_agent,
                         body['agent_id'])
 
@@ -74,13 +74,13 @@ class AgentsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         body = self.agents_client.create_agent(**params)['agent']
         self.addCleanup(self.agents_client.delete_agent,
                         body['agent_id'])
-
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         update_params = self._param_helper(
             version='8.0',
             url='xxx://xxxx/xxx/xxx2',
             md5hash='add6bb58e139be103324d04d82d8f547')
-        self.agents_client.update_agent(body['agent_id'], **update_params)
+
+        with self.rbac_utils.override_role(self):
+            self.agents_client.update_agent(body['agent_id'], **update_params)
 
     @rbac_rule_validation.action(
         service="nova",
@@ -96,5 +96,5 @@ class AgentsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self.agents_client.delete_agent,
                         body['agent_id'])
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.agents_client.delete_agent(body['agent_id'])
+        with self.rbac_utils.override_role(self):
+            self.agents_client.delete_agent(body['agent_id'])

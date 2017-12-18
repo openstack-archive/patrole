@@ -22,10 +22,6 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 class FlavorManageRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
-    # Need admin to wait for resource deletion below to avoid test role
-    # having to pass extra policies.
-    credentials = ['primary', 'admin']
-
     @classmethod
     def skip_checks(cls):
         super(FlavorManageRbacTest, cls).skip_checks()
@@ -38,8 +34,8 @@ class FlavorManageRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-flavor-manage:create")
     def test_create_flavor_manage(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.create_flavor()
+        with self.rbac_utils.override_role(self):
+            self.create_flavor()
 
     @decorators.idempotent_id('782e988e-061b-4c40-896f-a77c70c2b057')
     @rbac_rule_validation.action(
@@ -48,6 +44,6 @@ class FlavorManageRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_delete_flavor_manage(self):
         flavor_id = self.create_flavor()['id']
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.flavors_client.delete_flavor(flavor_id)
-        self.os_admin.flavors_client.wait_for_resource_deletion(flavor_id)
+        with self.rbac_utils.override_role(self):
+            self.flavors_client.delete_flavor(flavor_id)
+        self.flavors_client.wait_for_resource_deletion(flavor_id)

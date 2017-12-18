@@ -41,9 +41,9 @@ class FlavorAccessRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_show_flavor_contains_is_public_key(self):
         public_flavor_id = CONF.compute.flavor_ref
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        body = self.flavors_client.show_flavor(public_flavor_id)[
-            'flavor']
+        with self.rbac_utils.override_role(self):
+            body = self.flavors_client.show_flavor(public_flavor_id)[
+                'flavor']
 
         expected_attr = 'os-flavor-access:is_public'
         if expected_attr not in body:
@@ -57,8 +57,8 @@ class FlavorAccessRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_list_flavors_details_contains_is_public_key(self):
         expected_attr = 'os-flavor-access:is_public'
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        flavors = self.flavors_client.list_flavors(detail=True)['flavors']
+        with self.rbac_utils.override_role(self):
+            flavors = self.flavors_client.list_flavors(detail=True)['flavors']
         # There should already be a public flavor available, namely
         # `CONF.compute.flavor_ref`.
         public_flavors = [f for f in flavors if expected_attr in f]
@@ -74,10 +74,9 @@ class FlavorAccessRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-flavor-access:add_tenant_access")
     def test_add_flavor_access(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.flavors_client.add_flavor_access(
-            flavor_id=self.flavor_id, tenant_id=self.tenant_id)[
-            'flavor_access']
+        with self.rbac_utils.override_role(self):
+            self.flavors_client.add_flavor_access(
+                flavor_id=self.flavor_id, tenant_id=self.tenant_id)
         self.addCleanup(self.flavors_client.remove_flavor_access,
                         flavor_id=self.flavor_id, tenant_id=self.tenant_id)
 
@@ -92,9 +91,9 @@ class FlavorAccessRbacTest(rbac_base.BaseV2ComputeRbacTest):
                         self.flavors_client.remove_flavor_access,
                         flavor_id=self.flavor_id, tenant_id=self.tenant_id)
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.flavors_client.remove_flavor_access(
-            flavor_id=self.flavor_id, tenant_id=self.tenant_id)
+        with self.rbac_utils.override_role(self):
+            self.flavors_client.remove_flavor_access(
+                flavor_id=self.flavor_id, tenant_id=self.tenant_id)
 
     @decorators.idempotent_id('e1cf59fb-7f32-40a1-96b9-248ab23dd581')
     @rbac_rule_validation.action(
@@ -104,10 +103,9 @@ class FlavorAccessRbacTest(rbac_base.BaseV2ComputeRbacTest):
         # Add flavor access for os_primary so that it can access the flavor or
         # else a NotFound is raised.
         self.flavors_client.add_flavor_access(
-            flavor_id=self.flavor_id, tenant_id=self.tenant_id)[
-            'flavor_access']
+            flavor_id=self.flavor_id, tenant_id=self.tenant_id)
         self.addCleanup(self.flavors_client.remove_flavor_access,
                         flavor_id=self.flavor_id, tenant_id=self.tenant_id)
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.flavors_client.list_flavor_access(self.flavor_id)
+        with self.rbac_utils.override_role(self):
+            self.flavors_client.list_flavor_access(self.flavor_id)
