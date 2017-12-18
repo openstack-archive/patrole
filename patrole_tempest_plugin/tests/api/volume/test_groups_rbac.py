@@ -64,7 +64,7 @@ class BaseGroupRbacTest(rbac_base.BaseVolumeRbacTest):
 
 
 class GroupsV3RbacTest(BaseGroupRbacTest):
-    min_microversion = '3.14'
+    min_microversion = '3.13'
     max_microversion = 'latest'
 
     @decorators.idempotent_id('43235328-66ae-424f-bc7f-f709c0ca268c')
