@@ -16,6 +16,7 @@
 from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
+from tempest.lib import exceptions as lib_exc
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
@@ -33,7 +34,7 @@ class SnapshotManageRbacTest(rbac_base.BaseVolumeRbacTest):
         if len(CONF.volume.manage_snapshot_ref) != 2:
             msg = ("Manage snapshot ref is not correctly configured, "
                    "it should be a list of two elements")
-            raise cls.InvalidConfiguration(msg)
+            raise lib_exc.InvalidConfiguration(msg)
 
     @classmethod
     def setup_clients(cls):
