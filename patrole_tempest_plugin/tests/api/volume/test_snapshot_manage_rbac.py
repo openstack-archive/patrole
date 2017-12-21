@@ -1,0 +1,80 @@
+# Copyright 2017 NEC Corporation
+# All Rights Reserved.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License"); you may
+#    not use this file except in compliance with the License. You may obtain
+#    a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#    License for the specific language governing permissions and limitations
+#    under the License.
+
+from tempest import config
+from tempest.lib.common.utils import data_utils
+from tempest.lib import decorators
+
+from patrole_tempest_plugin import rbac_rule_validation
+from patrole_tempest_plugin.tests.api.volume import rbac_base
+
+CONF = config.CONF
+
+
+class SnapshotManageRbacTest(rbac_base.BaseVolumeRbacTest):
+
+    @classmethod
+    def skip_checks(cls):
+        super(SnapshotManageRbacTest, cls).skip_checks()
+        if not CONF.volume_feature_enabled.manage_snapshot:
+            raise cls.skipException("Manage snapshot tests are disabled")
+        if len(CONF.volume.manage_snapshot_ref) != 2:
+            msg = ("Manage snapshot ref is not correctly configured, "
+                   "it should be a list of two elements")
+            raise cls.InvalidConfiguration(msg)
+
+    @classmethod
+    def setup_clients(cls):
+        super(SnapshotManageRbacTest, cls).setup_clients()
+        cls.snapshot_manage_client = cls.os_primary.snapshot_manage_v2_client
+
+    @classmethod
+    def resource_setup(cls):
+        super(SnapshotManageRbacTest, cls).resource_setup()
+        cls.volume = cls.create_volume()
+        cls.snapshot = cls.create_snapshot(volume_id=cls.volume['id'])
+
+    @decorators.idempotent_id('bd7d62f2-e485-4626-87ef-03b7f19ee1d0')
+    @rbac_rule_validation.action(
+        service="cinder",
+        rule="snapshot_extension:snapshot_manage")
+    def test_manage_snapshot_rbac(self):
+        name = data_utils.rand_name(self.__class__.__name__ +
+                                    '-Managed-Snapshot')
+        description = data_utils.rand_name(self.__class__.__name__ +
+                                           '-Managed-Snapshot-Description')
+        metadata = {"manage-snap-meta1": "value1",
+                    "manage-snap-meta2": "value2",
+                    "manage-snap-meta3": "value3"}
+        snapshot_ref = {
+            'volume_id': self.volume['id'],
+            'ref': {CONF.volume.manage_snapshot_ref[0]:
+                    CONF.volume.manage_snapshot_ref[1] % self.snapshot['id']},
+            'name': name,
+            'description': description,
+            'metadata': metadata
+        }
+        with self.rbac_utils.override_role(self):
+            self.snapshot_manage_client.manage_snapshot(**snapshot_ref)
+
+    @decorators.idempotent_id('4a2e8934-9c0b-434e-8f0b-e18b9aff126f')
+    @rbac_rule_validation.action(
+        service="cinder",
+        rule="snapshot_extension:snapshot_unmanage")
+    def test_unmanage_snapshot_rbac(self):
+        with self.rbac_utils.override_role(self):
+            self.snapshots_client.unmanage_snapshot(self.snapshot['id'])
+        self.snapshots_client.wait_for_resource_deletion(
+            self.snapshot['id'])
