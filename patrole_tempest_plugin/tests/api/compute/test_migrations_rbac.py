@@ -34,5 +34,5 @@ class MigrationsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-migrations:index")
     def test_list_services(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.migrations_client.list_migrations()['migrations']
+        with self.rbac_utils.override_role(self):
+            self.migrations_client.list_migrations()
