@@ -14,6 +14,7 @@
 #    under the License.
 
 from tempest.common import waiters
+from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
@@ -32,8 +33,17 @@ class VolumeRbacTest(rbac_base.BaseV2ComputeRbacTest):
     # For more information, see:
     # https://developer.openstack.org/api-ref/compute/#volume-extension-os-volumes-os-snapshots-deprecated
     max_microversion = '2.35'
-
     credentials = ['primary', 'admin']
+
+    @classmethod
+    def skip_checks(cls):
+        super(VolumeRbacTest, cls).skip_checks()
+        if not CONF.service_available.cinder:
+            skip_msg = ("%s skipped as Cinder is not available" % cls.__name__)
+            raise cls.skipException(skip_msg)
+        if not CONF.volume_feature_enabled.snapshot:
+            skip_msg = ("Cinder volume snapshots are disabled")
+            raise cls.skipException(skip_msg)
 
     @classmethod
     def setup_clients(cls):
@@ -99,8 +109,9 @@ class VolumeRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-volumes")
     def test_create_snapshot(self):
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
+        s_name = data_utils.rand_name(self.__class__.__name__ + '-Snapshot')
         snapshot = self.snapshots_extensions_client.create_snapshot(
-            self.volume['id'])['snapshot']
+            volume_id=self.volume['id'], display_name=s_name)['snapshot']
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self._delete_snapshot, snapshot['id'])
 
@@ -117,8 +128,9 @@ class VolumeRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-volumes")
     def test_show_snapshot(self):
+        s_name = data_utils.rand_name(self.__class__.__name__ + '-Snapshot')
         snapshot = self.snapshots_extensions_client.create_snapshot(
-            self.volume['id'])['snapshot']
+            volume_id=self.volume['id'], display_name=s_name)['snapshot']
         self.addCleanup(self._delete_snapshot, snapshot['id'])
 
         self.rbac_utils.switch_role(self, toggle_rbac_role=True)
@@ -129,8 +141,9 @@ class VolumeRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-volumes")
     def test_delete_snapshot(self):
+        s_name = data_utils.rand_name(self.__class__.__name__ + '-Snapshot')
         snapshot = self.snapshots_extensions_client.create_snapshot(
-            self.volume['id'])['snapshot']
+            volume_id=self.volume['id'], display_name=s_name)['snapshot']
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self._delete_snapshot, snapshot['id'])
 
