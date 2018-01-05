@@ -49,17 +49,16 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-volumes-attachments:index")
     @decorators.idempotent_id('529b668b-6edb-41d5-8886-d7dbd0614678')
     def test_list_volume_attachments(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.list_volume_attachments(self.server['id'])[
-            'volumeAttachments']
+        with self.rbac_utils.override_role(self):
+            self.servers_client.list_volume_attachments(self.server['id'])
 
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-volumes-attachments:create")
     @decorators.idempotent_id('21c2c3fd-fbe8-41b1-8ef8-115ec47d54c1')
     def test_create_volume_attachment(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.attach_volume(self.server, self.volume)
+        with self.rbac_utils.override_role(self):
+            self.attach_volume(self.server, self.volume)
 
     @rbac_rule_validation.action(
         service="nova",
@@ -68,9 +67,9 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_show_volume_attachment(self):
         attachment = self.attach_volume(self.server, self.volume)
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.show_volume_attachment(
-            self.server['id'], attachment['id'])
+        with self.rbac_utils.override_role(self):
+            self.servers_client.show_volume_attachment(
+                self.server['id'], attachment['id'])
 
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(
@@ -81,9 +80,9 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
         attachment = self.attach_volume(self.server, self.volume)
         alt_volume = self.create_volume()
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.update_attached_volume(
-            self.server['id'], attachment['id'], volumeId=alt_volume['id'])
+        with self.rbac_utils.override_role(self):
+            self.servers_client.update_attached_volume(
+                self.server['id'], attachment['id'], volumeId=alt_volume['id'])
         waiters.wait_for_volume_resource_status(self.volumes_client,
                                                 alt_volume['id'], 'in-use')
         # On teardown detach the volume and wait for it to be available. This
@@ -105,7 +104,8 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_delete_volume_attachment(self):
         self.attach_volume(self.server, self.volume)
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.detach_volume(self.server['id'], self.volume['id'])
+        with self.rbac_utils.override_role(self):
+            self.servers_client.detach_volume(self.server['id'],
+                                              self.volume['id'])
         waiters.wait_for_volume_resource_status(self.volumes_client,
                                                 self.volume['id'], 'available')

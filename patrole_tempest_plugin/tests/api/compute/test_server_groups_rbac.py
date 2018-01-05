@@ -34,8 +34,8 @@ class ServerGroupsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-server-groups:create")
     @decorators.idempotent_id('7f3eae94-6130-47e9-81ac-34009f55be2f')
     def test_create_server_group(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.create_test_server_group()
+        with self.rbac_utils.override_role(self):
+            self.create_test_server_group()
 
     @rbac_rule_validation.action(
         service="nova",
@@ -43,16 +43,16 @@ class ServerGroupsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('832d9be3-632e-47b2-93d2-5897db43e3e2')
     def test_delete_server_group(self):
         server_group = self.create_test_server_group()
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.server_groups_client.delete_server_group(server_group['id'])
+        with self.rbac_utils.override_role(self):
+            self.server_groups_client.delete_server_group(server_group['id'])
 
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-server-groups:index")
     @decorators.idempotent_id('5eccd67f-5945-483b-b1c8-de851ebfc1c1')
     def test_list_server_groups(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.server_groups_client.list_server_groups()
+        with self.rbac_utils.override_role(self):
+            self.server_groups_client.list_server_groups()
 
     @rbac_rule_validation.action(
         service="nova",
@@ -60,5 +60,5 @@ class ServerGroupsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('62534e3f-7e99-4a3d-a08e-33e056460cf2')
     def test_show_server_group(self):
         server_group = self.create_test_server_group()
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.server_groups_client.show_server_group(server_group['id'])
+        with self.rbac_utils.override_role(self):
+            self.server_groups_client.show_server_group(server_group['id'])

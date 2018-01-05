@@ -33,15 +33,12 @@ LOG = log.getLogger(__name__)
 
 class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
 
-    credentials = ['primary', 'admin']
-
     @classmethod
     def setup_clients(cls):
         super(ComputeServersRbacTest, cls).setup_clients()
         cls.networks_client = cls.os_primary.networks_client
         cls.ports_client = cls.os_primary.ports_client
         cls.subnets_client = cls.os_primary.subnets_client
-        cls.admin_servers_client = cls.os_admin.servers_client
 
     @classmethod
     def resource_setup(cls):
@@ -53,8 +50,8 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
         rule="os_compute_api:servers:create")
     @decorators.idempotent_id('4f34c73a-6ddc-4677-976f-71320fa855bd')
     def test_create_server(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.create_test_server(wait_until='ACTIVE')
+        with self.rbac_utils.override_role(self):
+            self.create_test_server(wait_until='ACTIVE')
 
     @rbac_rule_validation.action(
         service="nova",
@@ -72,9 +69,9 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
         host = list(hosts[0].keys())[0]
         availability_zone = 'nova:' + host
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.create_test_server(wait_until='ACTIVE',
-                                availability_zone=availability_zone)
+        with self.rbac_utils.override_role(self):
+            self.create_test_server(wait_until='ACTIVE',
+                                    availability_zone=availability_zone)
 
     @utils.services('volume')
     @rbac_rule_validation.action(
@@ -97,10 +94,10 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
                       'delete_on_termination': True}]
         device_mapping = {'block_device_mapping_v2': bd_map_v2}
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        # Use image_id='' to avoid using the default image in tempest.conf.
-        server = self.create_test_server(name=server_name, image_id='',
-                                         **device_mapping)
+        with self.rbac_utils.override_role(self):
+            # Use image_id='' to avoid using the default image in tempest.conf.
+            server = self.create_test_server(name=server_name, image_id='',
+                                             **device_mapping)
         # Delete the server and wait for the volume to become available to
         # avoid clean up errors.
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
@@ -140,9 +137,9 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
         network = _create_network_resources()
         network_id = {'uuid': network['id']}
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        server = self.create_test_server(wait_until='ACTIVE',
-                                         networks=[network_id])
+        with self.rbac_utils.override_role(self):
+            server = self.create_test_server(wait_until='ACTIVE',
+                                             networks=[network_id])
         self.addCleanup(waiters.wait_for_server_termination,
                         self.servers_client, server['id'])
         self.addCleanup(self.servers_client.delete_server, server['id'])
@@ -154,10 +151,10 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
     def test_delete_server(self):
         server = self.create_test_server(wait_until='ACTIVE')
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.delete_server(server['id'])
+        with self.rbac_utils.override_role(self):
+            self.servers_client.delete_server(server['id'])
         waiters.wait_for_server_termination(
-            self.admin_servers_client, server['id'])
+            self.servers_client, server['id'])
 
     @rbac_rule_validation.action(
         service="nova",
@@ -165,13 +162,14 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('077b17cb-5621-43b9-8adf-5725f0d7a863')
     def test_update_server(self):
         new_name = data_utils.rand_name(self.__class__.__name__ + '-server')
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        try:
-            self.servers_client.update_server(self.server['id'], name=new_name)
-            waiters.wait_for_server_status(self.admin_servers_client,
-                                           self.server['id'], 'ACTIVE')
-        except exceptions.ServerFault as e:
-            # Some other policy may have blocked it.
-            LOG.info("ServerFault exception caught. Some other policy "
-                     "blocked updating of server")
-            raise rbac_exceptions.RbacConflictingPolicies(e)
+        with self.rbac_utils.override_role(self):
+            try:
+                self.servers_client.update_server(self.server['id'],
+                                                  name=new_name)
+                waiters.wait_for_server_status(self.servers_client,
+                                               self.server['id'], 'ACTIVE')
+            except exceptions.ServerFault as e:
+                # Some other policy may have blocked it.
+                LOG.info("ServerFault exception caught. Some other policy "
+                         "blocked updating of server")
+                raise rbac_exceptions.RbacConflictingPolicies(e)
