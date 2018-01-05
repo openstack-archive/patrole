@@ -55,11 +55,11 @@ class IdentityTokenV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         # Explicit negative test for identity:validate_token policy action.
         # Assert expected exception is Forbidden and then reraise it.
         alt_token_id = self._setup_alt_token()
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        e = self.assertRaises(lib_exc.Forbidden,
-                              self.identity_client.show_token,
-                              alt_token_id)
-        raise e
+        with self.rbac_utils.override_role(self):
+            e = self.assertRaises(lib_exc.Forbidden,
+                                  self.identity_client.show_token,
+                                  alt_token_id)
+            raise e
 
     @decorators.idempotent_id('2786a55d-a818-433a-af7a-41ebf72ab4da')
     @decorators.attr(type=['negative'])
@@ -74,11 +74,11 @@ class IdentityTokenV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         # Explicit negative test for identity:revoke_token policy action.
         # Assert expected exception is Forbidden and then reraise it.
         alt_token_id = self._setup_alt_token()
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        e = self.assertRaises(lib_exc.Forbidden,
-                              self.identity_client.delete_token,
-                              alt_token_id)
-        raise e
+        with self.rbac_utils.override_role(self):
+            e = self.assertRaises(lib_exc.Forbidden,
+                                  self.identity_client.delete_token,
+                                  alt_token_id)
+            raise e
 
     @decorators.idempotent_id('1ea02ac0-9a96-44bd-bdc3-4dae3c10cc2e')
     @decorators.attr(type=['negative'])
@@ -93,8 +93,8 @@ class IdentityTokenV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         # Explicit negative test for identity:check_token policy action.
         # Assert expected exception is Forbidden and then reraise it.
         alt_token_id = self._setup_alt_token()
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        e = self.assertRaises(lib_exc.Forbidden,
-                              self.identity_client.check_token_existence,
-                              alt_token_id)
-        raise e
+        with self.rbac_utils.override_role(self):
+            e = self.assertRaises(lib_exc.Forbidden,
+                                  self.identity_client.check_token_existence,
+                                  alt_token_id)
+            raise e

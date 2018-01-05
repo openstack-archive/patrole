@@ -70,9 +70,9 @@ class IdentityTrustV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
             "trust.trustor_user_id": "os_primary.credentials.user_id"
         })
     def test_create_trust(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.setup_test_trust(trustor_user_id=self.trustor_user_id,
-                              trustee_user_id=self.trustee_user_id)
+        with self.rbac_utils.override_role(self):
+            self.setup_test_trust(trustor_user_id=self.trustor_user_id,
+                                  trustee_user_id=self.trustee_user_id)
 
     @decorators.idempotent_id('bd72d22a-6e11-4840-bd93-17b382e7f0e0')
     @decorators.attr(type=['negative'])
@@ -85,11 +85,11 @@ class IdentityTrustV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     def test_create_trust_negative(self):
         # Explicit negative test for identity:create_trust policy action.
         # Assert expected exception is Forbidden and then reraise it.
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        e = self.assertRaises(lib_exc.Forbidden, self.setup_test_trust,
-                              trustor_user_id=self.unauthorized_user_id,
-                              trustee_user_id=self.trustee_user_id)
-        raise e
+        with self.rbac_utils.override_role(self):
+            e = self.assertRaises(lib_exc.Forbidden, self.setup_test_trust,
+                                  trustor_user_id=self.unauthorized_user_id,
+                                  trustee_user_id=self.trustee_user_id)
+            raise e
 
     @decorators.idempotent_id('d9a6fd06-08f6-462c-a86c-ce009adf1230')
     @rbac_rule_validation.action(
@@ -99,39 +99,39 @@ class IdentityTrustV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         trust = self.setup_test_trust(trustor_user_id=self.trustor_user_id,
                                       trustee_user_id=self.trustee_user_id)
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.trusts_client.delete_trust(trust['id'])
+        with self.rbac_utils.override_role(self):
+            self.trusts_client.delete_trust(trust['id'])
 
     @decorators.idempotent_id('f2e32896-bf66-4f4e-89cf-e7fba0ef1f38')
     @rbac_rule_validation.action(
         service="keystone",
         rule="identity:list_trusts")
     def test_list_trusts(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.trusts_client.list_trusts(
-            trustor_user_id=self.trustor_user_id)['trusts']
+        with self.rbac_utils.override_role(self):
+            self.trusts_client.list_trusts(
+                trustor_user_id=self.trustor_user_id)
 
     @decorators.idempotent_id('3c9ff92f-a73e-4f9b-8865-e017f38c70f5')
     @rbac_rule_validation.action(
         service="keystone",
         rule="identity:list_roles_for_trust")
     def test_list_roles_for_trust(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.trusts_client.list_trust_roles(self.trust['id'])['roles']
+        with self.rbac_utils.override_role(self):
+            self.trusts_client.list_trust_roles(self.trust['id'])
 
     @decorators.idempotent_id('3bb4f97b-cecd-4c7d-ad10-b88ee6c5d573')
     @rbac_rule_validation.action(
         service="keystone",
         rule="identity:get_role_for_trust")
     def test_show_trust_role(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.trusts_client.show_trust_role(
-            self.trust['id'], self.delegated_role_id)['role']
+        with self.rbac_utils.override_role(self):
+            self.trusts_client.show_trust_role(
+                self.trust['id'], self.delegated_role_id)
 
     @decorators.idempotent_id('0184e0fb-641e-4b52-ab73-81c1ce6ca5c1')
     @rbac_rule_validation.action(
         service="keystone",
         rule="identity:get_trust")
     def test_show_trust(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.trusts_client.show_trust(self.trust['id'])
+        with self.rbac_utils.override_role(self):
+            self.trusts_client.show_trust(self.trust['id'])

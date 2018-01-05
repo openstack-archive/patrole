@@ -37,8 +37,8 @@ class IdentityTokenV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         })
     def test_show_token(self):
         token_id = self.setup_test_token(self.user_id, self.password)
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.identity_client.show_token(token_id)
+        with self.rbac_utils.override_role(self):
+            self.identity_client.show_token(token_id)
 
     @decorators.idempotent_id('42a299db-fe0a-4ea0-9824-0bfd13155886')
     @rbac_rule_validation.action(
@@ -50,8 +50,8 @@ class IdentityTokenV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         })
     def test_delete_token(self):
         token_id = self.setup_test_token(self.user_id, self.password)
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.identity_client.delete_token(token_id)
+        with self.rbac_utils.override_role(self):
+            self.identity_client.delete_token(token_id)
 
     @decorators.idempotent_id('3554d218-8cd6-4730-a1b2-0e22f9b78f45')
     @rbac_rule_validation.action(
@@ -63,5 +63,5 @@ class IdentityTokenV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         })
     def test_check_token_exsitence(self):
         token_id = self.setup_test_token(self.user_id, self.password)
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.identity_client.check_token_existence(token_id)
+        with self.rbac_utils.override_role(self):
+            self.identity_client.check_token_existence(token_id)

@@ -26,8 +26,8 @@ class IdentityPoliciesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                                  rule="identity:create_policy")
     @decorators.idempotent_id('de2f7ecb-fbf0-41f3-abf4-b97b5e082fd5')
     def test_create_policy(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.setup_test_policy()
+        with self.rbac_utils.override_role(self):
+            self.setup_test_policy()
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:update_policy")
@@ -37,9 +37,9 @@ class IdentityPoliciesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         updated_policy_type = data_utils.rand_name(
             self.__class__.__name__ + '-policy_type')
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.policies_client.update_policy(policy['id'],
-                                           type=updated_policy_type)
+        with self.rbac_utils.override_role(self):
+            self.policies_client.update_policy(policy['id'],
+                                               type=updated_policy_type)
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:delete_policy")
@@ -47,8 +47,8 @@ class IdentityPoliciesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     def test_delete_policy(self):
         policy = self.setup_test_policy()
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.policies_client.delete_policy(policy['id'])
+        with self.rbac_utils.override_role(self):
+            self.policies_client.delete_policy(policy['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:get_policy")
@@ -56,12 +56,12 @@ class IdentityPoliciesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     def test_show_policy(self):
         policy = self.setup_test_policy()
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.policies_client.show_policy(policy['id'])
+        with self.rbac_utils.override_role(self):
+            self.policies_client.show_policy(policy['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:list_policies")
     @decorators.idempotent_id('35a56161-4054-4237-8a78-7ce805dce202')
     def test_list_policies(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.policies_client.list_policies()['policies']
+        with self.rbac_utils.override_role(self):
+            self.policies_client.list_policies()

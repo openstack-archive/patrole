@@ -25,9 +25,8 @@ class IdentityRoleAssignmentsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:list_role_assignments")
     def test_list_role_assignments(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.role_assignments_client.\
-            list_role_assignments()['role_assignments']
+        with self.rbac_utils.override_role(self):
+            self.role_assignments_client.list_role_assignments()
 
     @decorators.idempotent_id('36c7a990-857e-415c-8717-38d7200a9894')
     @rbac_rule_validation.action(
@@ -36,7 +35,7 @@ class IdentityRoleAssignmentsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     def test_list_role_assignments_for_tree(self):
         project = self.setup_test_project()
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.role_assignments_client.list_role_assignments(
-            include_subtree=True,
-            **{'scope.project.id': project['id']})['role_assignments']
+        with self.rbac_utils.override_role(self):
+            self.role_assignments_client.list_role_assignments(
+                include_subtree=True,
+                **{'scope.project.id': project['id']})
