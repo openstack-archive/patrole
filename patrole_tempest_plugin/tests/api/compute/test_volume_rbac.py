@@ -33,7 +33,6 @@ class VolumeRbacTest(rbac_base.BaseV2ComputeRbacTest):
     # For more information, see:
     # https://developer.openstack.org/api-ref/compute/#volume-extension-os-volumes-os-snapshots-deprecated
     max_microversion = '2.35'
-    credentials = ['primary', 'admin']
 
     @classmethod
     def skip_checks(cls):
@@ -46,21 +45,16 @@ class VolumeRbacTest(rbac_base.BaseV2ComputeRbacTest):
             raise cls.skipException(skip_msg)
 
     @classmethod
-    def setup_clients(cls):
-        super(VolumeRbacTest, cls).setup_clients()
-        cls.admin_volumes_client = cls.os_admin.volumes_client_latest
-
-    @classmethod
     def resource_setup(cls):
         super(VolumeRbacTest, cls).resource_setup()
         cls.volume = cls.create_volume()
 
     def _delete_snapshot(self, snapshot_id):
         waiters.wait_for_volume_resource_status(
-            self.os_admin.snapshots_extensions_client, snapshot_id,
+            self.snapshots_extensions_client, snapshot_id,
             'available')
         self.snapshots_extensions_client.delete_snapshot(snapshot_id)
-        self.os_admin.snapshots_extensions_client.wait_for_resource_deletion(
+        self.snapshots_extensions_client.wait_for_resource_deletion(
             snapshot_id)
 
     @decorators.idempotent_id('2402013e-a624-43e3-9518-44a5d1dbb32d')
@@ -68,12 +62,10 @@ class VolumeRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-volumes")
     def test_create_volume(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        volume = self.volumes_extensions_client.create_volume(
-            size=CONF.volume.volume_size)['volume']
-        # Use the admin volumes client to wait, because waiting involves
-        # calling show API action which enforces a different policy.
-        waiters.wait_for_volume_resource_status(self.admin_volumes_client,
+        with self.rbac_utils.override_role(self):
+            volume = self.volumes_extensions_client.create_volume(
+                size=CONF.volume.volume_size)['volume']
+        waiters.wait_for_volume_resource_status(self.volumes_client,
                                                 volume['id'], 'available')
         # Use non-deprecated volumes_client for deletion.
         self.addCleanup(self.volumes_client.delete_volume, volume['id'])
@@ -83,16 +75,16 @@ class VolumeRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-volumes")
     def test_list_volumes(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.volumes_extensions_client.list_volumes()
+        with self.rbac_utils.override_role(self):
+            self.volumes_extensions_client.list_volumes()
 
     @decorators.idempotent_id('4ba0a820-040f-488b-86bb-be2e920ea12c')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-volumes")
     def test_show_volume(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.volumes_extensions_client.show_volume(self.volume['id'])
+        with self.rbac_utils.override_role(self):
+            self.volumes_extensions_client.show_volume(self.volume['id'])
 
     @decorators.idempotent_id('6e7870f2-1bb2-4b58-96f8-6782071ef327')
     @rbac_rule_validation.action(
@@ -100,18 +92,18 @@ class VolumeRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-volumes")
     def test_delete_volume(self):
         volume = self.create_volume()
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.volumes_extensions_client.delete_volume(volume['id'])
+        with self.rbac_utils.override_role(self):
+            self.volumes_extensions_client.delete_volume(volume['id'])
 
     @decorators.idempotent_id('0c3eaa4f-69d6-4a13-9dda-19585f36b1c1')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-volumes")
     def test_create_snapshot(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         s_name = data_utils.rand_name(self.__class__.__name__ + '-Snapshot')
-        snapshot = self.snapshots_extensions_client.create_snapshot(
-            volume_id=self.volume['id'], display_name=s_name)['snapshot']
+        with self.rbac_utils.override_role(self):
+            snapshot = self.snapshots_extensions_client.create_snapshot(
+                volume_id=self.volume['id'], display_name=s_name)['snapshot']
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self._delete_snapshot, snapshot['id'])
 
@@ -120,8 +112,8 @@ class VolumeRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rule="os_compute_api:os-volumes")
     def test_list_snapshots(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.snapshots_extensions_client.list_snapshots()
+        with self.rbac_utils.override_role(self):
+            self.snapshots_extensions_client.list_snapshots()
 
     @decorators.idempotent_id('19c2e6bd-585b-472f-a8d7-71ea9299c655')
     @rbac_rule_validation.action(
@@ -133,8 +125,8 @@ class VolumeRbacTest(rbac_base.BaseV2ComputeRbacTest):
             volume_id=self.volume['id'], display_name=s_name)['snapshot']
         self.addCleanup(self._delete_snapshot, snapshot['id'])
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.snapshots_extensions_client.show_snapshot(snapshot['id'])
+        with self.rbac_utils.override_role(self):
+            self.snapshots_extensions_client.show_snapshot(snapshot['id'])
 
     @decorators.idempotent_id('f4f5635c-416c-11e7-a919-92ebcb67fe33')
     @rbac_rule_validation.action(
@@ -146,6 +138,11 @@ class VolumeRbacTest(rbac_base.BaseV2ComputeRbacTest):
             volume_id=self.volume['id'], display_name=s_name)['snapshot']
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self._delete_snapshot, snapshot['id'])
+        waiters.wait_for_volume_resource_status(
+            self.snapshots_extensions_client, snapshot['id'],
+            'available')
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self._delete_snapshot(snapshot['id'])
+        with self.rbac_utils.override_role(self):
+            self.snapshots_extensions_client.delete_snapshot(snapshot['id'])
+        self.snapshots_extensions_client.wait_for_resource_deletion(
+            snapshot['id'])

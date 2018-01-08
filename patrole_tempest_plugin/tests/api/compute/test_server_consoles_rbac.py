@@ -40,8 +40,8 @@ class ServerConsolesRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-console-output")
     @decorators.idempotent_id('90fd80f6-456c-11e7-a919-92ebcb67fe33')
     def test_get_console_output(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.get_console_output(self.server_id)
+        with self.rbac_utils.override_role(self):
+            self.servers_client.get_console_output(self.server_id)
 
 
 class ServerConsolesMaxV25RbacTest(rbac_base.BaseV2ComputeRbacTest):
@@ -64,8 +64,8 @@ class ServerConsolesMaxV25RbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-remote-consoles")
     @decorators.idempotent_id('b0a72c02-9b15-4dcb-b186-efe8753370ab')
     def test_get_vnc_console_output(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.get_vnc_console(self.server_id, type="novnc")
+        with self.rbac_utils.override_role(self):
+            self.servers_client.get_vnc_console(self.server_id, type="novnc")
 
 
 class ServerConsolesV26RbacTest(rbac_base.BaseV2ComputeRbacTest):
@@ -89,6 +89,6 @@ class ServerConsolesV26RbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-remote-consoles")
     @decorators.idempotent_id('879597de-87e0-4da9-a60a-28c8088dc508')
     def test_get_remote_console_output(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.get_remote_console(self.server_id,
-                                               "novnc", "vnc")
+        with self.rbac_utils.override_role(self):
+            self.servers_client.get_remote_console(self.server_id,
+                                                   "novnc", "vnc")

@@ -30,19 +30,12 @@ class MigrateServerV225RbacTest(base.BaseV2ComputeRbacTest):
     max_microversion = 'latest'
     block_migration = 'auto'
 
-    credentials = ['primary', 'admin']
-
     @classmethod
     def skip_checks(cls):
         super(MigrateServerV225RbacTest, cls).skip_checks()
         if CONF.compute.min_compute_nodes < 2:
             raise cls.skipException(
                 "Less than 2 compute nodes, skipping migration tests.")
-
-    @classmethod
-    def setup_clients(cls):
-        super(MigrateServerV225RbacTest, cls).setup_clients()
-        cls.admin_servers_client = cls.os_admin.servers_client
 
     def _get_server_details(self, server_id):
         body = self.servers_client.show_server(server_id)['server']
@@ -73,9 +66,9 @@ class MigrateServerV225RbacTest(base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('c6f1607c-9fed-4c00-807e-9ba675b98b1b')
     def test_cold_migration(self):
         server = self.create_test_server(wait_until="ACTIVE")
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.migrate_server(server['id'])
-        waiters.wait_for_server_status(self.admin_servers_client,
+        with self.rbac_utils.override_role(self):
+            self.servers_client.migrate_server(server['id'])
+        waiters.wait_for_server_status(self.servers_client,
                                        server['id'], 'VERIFY_RESIZE')
 
     @decorators.attr(type='slow')
@@ -91,8 +84,9 @@ class MigrateServerV225RbacTest(base.BaseV2ComputeRbacTest):
         actual_host = self._get_host_for_server(server_id)
         target_host = self._get_host_other_than(actual_host)
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.servers_client.live_migrate_server(
-            server_id, host=target_host, block_migration=self.block_migration)
-        waiters.wait_for_server_status(self.admin_servers_client,
+        with self.rbac_utils.override_role(self):
+            self.servers_client.live_migrate_server(
+                server_id, host=target_host,
+                block_migration=self.block_migration)
+        waiters.wait_for_server_status(self.servers_client,
                                        server_id, "ACTIVE")
