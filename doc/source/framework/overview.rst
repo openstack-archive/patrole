@@ -7,32 +7,32 @@ Overview
 
 RBAC testing validation is broken up into 3 stages:
 
-  #. "Expected" stage. Determine whether the test should be able to succeed
-     or fail based on the test role defined by ``[patrole] rbac_test_role``)
-     and the policy action that the test enforces.
-  #. "Actual" stage. Run the test by calling the API endpoint that enforces
-     the expected policy action using the test role.
-  #. Comparing the outputs from both stages for consistency. A "consistent"
-     result is treated as a pass and an "inconsistent" result is treated
-     as a failure. "Consistent" (or successful) cases include:
+#. "Expected" stage. Determine whether the test should be able to succeed
+   or fail based on the test role defined by ``[patrole] rbac_test_role``)
+   and the policy action that the test enforces.
+#. "Actual" stage. Run the test by calling the API endpoint that enforces
+   the expected policy action using the test role.
+#. Comparing the outputs from both stages for consistency. A "consistent"
+   result is treated as a pass and an "inconsistent" result is treated
+   as a failure. "Consistent" (or successful) cases include:
 
-      * Expected result is ``True`` and the test passes.
-      * Expected result is ``False`` and the test fails.
+   * Expected result is ``True`` and the test passes.
+   * Expected result is ``False`` and the test fails.
 
-     For example, a 200 from the API call and a ``True`` result from
-     ``oslo.policy`` or a 403 from the API call and a ``False`` result from
-     ``oslo.policy`` are successful results.
+   For example, a 200 from the API call and a ``True`` result from
+   ``oslo.policy`` or a 403 from the API call and a ``False`` result from
+   ``oslo.policy`` are successful results.
 
-     "Inconsistent" (or failing) cases include:
+   "Inconsistent" (or failing) cases include:
 
-      * Expected result is ``False`` and the test passes. This results in an
-        ``RbacOverPermission`` exception getting thrown.
-      * Expected result is ``True`` and the test fails. This results in a
-        ``Forbidden`` exception getting thrown.
+   * Expected result is ``False`` and the test passes. This results in an
+     ``RbacOverPermission`` exception getting thrown.
+   * Expected result is ``True`` and the test fails. This results in a
+     ``Forbidden`` exception getting thrown.
 
-     For example, a 200 from the API call and a ``False`` result from
-     ``oslo.policy`` or a 403 from the API call and a ``True`` result from
-     ``oslo.policy`` are failing results.
+   For example, a 200 from the API call and a ``False`` result from
+   ``oslo.policy`` or a 403 from the API call and a ``True`` result from
+   ``oslo.policy`` are failing results.
 
 -------------------------------
 The RBAC Rule Validation Module
