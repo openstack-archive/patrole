@@ -45,8 +45,8 @@ class AgentsRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron get_agent policy
         """
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.agents_client.show_agent(self.agent['id'])
+        with self.rbac_utils.override_role(self):
+            self.agents_client.show_agent(self.agent['id'])
 
     @decorators.idempotent_id('8ca68fdb-eaf6-4880-af82-ba0982949dec')
     @rbac_rule_validation.action(service="neutron",
@@ -60,9 +60,9 @@ class AgentsRbacTest(base.BaseNetworkRbacTest):
         original_status = self.agent['admin_state_up']
         agent_status = {'admin_state_up': original_status}
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.agents_client.update_agent(agent_id=self.agent['id'],
-                                        agent=agent_status)
+        with self.rbac_utils.override_role(self):
+            self.agents_client.update_agent(agent_id=self.agent['id'],
+                                            agent=agent_status)
 
 
 class L3AgentSchedulerRbacTest(base.BaseNetworkRbacTest):
@@ -105,8 +105,8 @@ class L3AgentSchedulerRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron get_l3-routers policy
         """
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.agents_client.list_routers_on_l3_agent(self.agent['id'])
+        with self.rbac_utils.override_role(self):
+            self.agents_client.list_routers_on_l3_agent(self.agent['id'])
 
     @decorators.idempotent_id('466b2a10-8747-4c09-855a-bd90a1c86ce7')
     @rbac_rule_validation.action(service="neutron",
@@ -116,9 +116,9 @@ class L3AgentSchedulerRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron create_l3-router policy
         """
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.agents_client.create_router_on_l3_agent(
-            self.agent['id'], router_id=self.router['id'])
+        with self.rbac_utils.override_role(self):
+            self.agents_client.create_router_on_l3_agent(
+                self.agent['id'], router_id=self.router['id'])
         self.addCleanup(
             test_utils.call_and_ignore_notfound_exc,
             self.agents_client.delete_router_from_l3_agent,
@@ -139,9 +139,9 @@ class L3AgentSchedulerRbacTest(base.BaseNetworkRbacTest):
             self.agents_client.delete_router_from_l3_agent,
             self.agent['id'], router_id=self.router['id'])
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.agents_client.delete_router_from_l3_agent(
-            self.agent['id'], router_id=self.router['id'])
+        with self.rbac_utils.override_role(self):
+            self.agents_client.delete_router_from_l3_agent(
+                self.agent['id'], router_id=self.router['id'])
 
 
 class DHCPAgentSchedulersRbacTest(base.BaseNetworkRbacTest):
@@ -198,9 +198,9 @@ class DHCPAgentSchedulersRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron get_dhcp-networks policy
         """
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.agents_client.list_networks_hosted_by_one_dhcp_agent(
-            self.agent['id'])
+        with self.rbac_utils.override_role(self):
+            self.agents_client.list_networks_hosted_by_one_dhcp_agent(
+                self.agent['id'])
 
     @decorators.idempotent_id('14e014ac-f355-46d3-b6d8-98f2c9ec1610')
     @rbac_rule_validation.action(service="neutron",
@@ -213,9 +213,9 @@ class DHCPAgentSchedulersRbacTest(base.BaseNetworkRbacTest):
         network_id = self._create_and_prepare_network_for_agent(
             self.agent['id'])
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.agents_client.add_dhcp_agent_to_network(
-            self.agent['id'], network_id=network_id)
+        with self.rbac_utils.override_role(self):
+            self.agents_client.add_dhcp_agent_to_network(
+                self.agent['id'], network_id=network_id)
         # Clean up is not necessary and might result in 409 being raised.
 
     @decorators.idempotent_id('937a4302-4b49-407d-9980-5843d7badc38')
@@ -232,6 +232,6 @@ class DHCPAgentSchedulersRbacTest(base.BaseNetworkRbacTest):
             self.agent['id'], network_id=network_id)
         # Clean up is not necessary and might result in 409 being raised.
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.agents_client.delete_network_from_dhcp_agent(
-            self.agent['id'], network_id=network_id)
+        with self.rbac_utils.override_role(self):
+            self.agents_client.delete_network_from_dhcp_agent(
+                self.agent['id'], network_id=network_id)
