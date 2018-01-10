@@ -63,8 +63,8 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron create_router policy
         """
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        router = self.routers_client.create_router()
+        with self.rbac_utils.override_role(self):
+            router = self.routers_client.create_router()
         self.addCleanup(self.routers_client.delete_router,
                         router['router']['id'])
 
@@ -77,8 +77,8 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron create_router:ha policy
         """
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        router = self.routers_client.create_router(ha=True)
+        with self.rbac_utils.override_role(self):
+            router = self.routers_client.create_router(ha=True)
         self.addCleanup(self.routers_client.delete_router,
                         router['router']['id'])
 
@@ -91,8 +91,8 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron create_router:distributed policy
         """
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        router = self.routers_client.create_router(distributed=True)
+        with self.rbac_utils.override_role(self):
+            router = self.routers_client.create_router(distributed=True)
         self.addCleanup(self.routers_client.delete_router,
                         router['router']['id'])
 
@@ -111,9 +111,9 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
         external_gateway_info = {'network_id': self.network['id'],
                                  'enable_snat': True}
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        router = self.routers_client.create_router(
-            name=name, external_gateway_info=external_gateway_info)
+        with self.rbac_utils.override_role(self):
+            router = self.routers_client.create_router(
+                name=name, external_gateway_info=external_gateway_info)
         self.addCleanup(self.routers_client.delete_router,
                         router['router']['id'])
 
@@ -136,9 +136,9 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
                                  'enable_snat': False,  # Default is True.
                                  'external_fixed_ips': [external_fixed_ips]}
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        router = self.routers_client.create_router(
-            name=name, external_gateway_info=external_gateway_info)
+        with self.rbac_utils.override_role(self):
+            router = self.routers_client.create_router(
+                name=name, external_gateway_info=external_gateway_info)
         self.addCleanup(self.routers_client.delete_router,
                         router['router']['id'])
 
@@ -151,9 +151,9 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron get_router policy
         """
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
         # Prevent other policies from being enforced by using barebones fields.
-        self.routers_client.show_router(self.router['id'], fields=['id'])
+        with self.rbac_utils.override_role(self):
+            self.routers_client.show_router(self.router['id'], fields=['id'])
 
     @decorators.idempotent_id('3ed26ea2-b419-410c-b4b5-576c1edafa06')
     @utils.requires_ext(extension='dvr', service='network')
@@ -167,9 +167,9 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
         router = self.routers_client.create_router(distributed=True)['router']
         self.addCleanup(self.routers_client.delete_router, router['id'])
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        retrieved_fields = self.routers_client.show_router(
-            router['id'], fields=['distributed'])['router']
+        with self.rbac_utils.override_role(self):
+            retrieved_fields = self.routers_client.show_router(
+                router['id'], fields=['distributed'])['router']
 
         # Rather than throwing a 403, the field is not present, so raise exc.
         if 'distributed' not in retrieved_fields:
@@ -188,9 +188,9 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
         router = self.routers_client.create_router(ha=True)['router']
         self.addCleanup(self.routers_client.delete_router, router['id'])
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        retrieved_fields = self.routers_client.show_router(
-            router['id'], fields=['ha'])['router']
+        with self.rbac_utils.override_role(self):
+            retrieved_fields = self.routers_client.show_router(
+                router['id'], fields=['ha'])['router']
 
         # Rather than throwing a 403, the field is not present, so raise exc.
         if 'ha' not in retrieved_fields:
@@ -207,8 +207,8 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
         """
         new_name = data_utils.rand_name(
             self.__class__.__name__ + '-new-router-name')
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.routers_client.update_router(self.router['id'], name=new_name)
+        with self.rbac_utils.override_role(self):
+            self.routers_client.update_router(self.router['id'], name=new_name)
 
     @rbac_rule_validation.action(
         service="neutron", rule="update_router:external_gateway_info")
@@ -219,9 +219,9 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron
         update_router:external_gateway_info policy
         """
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.routers_client.update_router(self.router['id'],
-                                          external_gateway_info={})
+        with self.rbac_utils.override_role(self):
+            self.routers_client.update_router(self.router['id'],
+                                              external_gateway_info={})
 
     @rbac_rule_validation.action(
         service="neutron",
@@ -233,10 +233,10 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron
         update_router:external_gateway_info:network_id policy
         """
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.routers_client.update_router(
-            self.router['id'],
-            external_gateway_info={'network_id': self.network['id']})
+        with self.rbac_utils.override_role(self):
+            self.routers_client.update_router(
+                self.router['id'],
+                external_gateway_info={'network_id': self.network['id']})
         self.addCleanup(
             self.routers_client.update_router,
             self.router['id'],
@@ -253,11 +253,11 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron
         update_router:external_gateway_info:enable_snat policy
         """
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.routers_client.update_router(
-            self.router['id'],
-            external_gateway_info={'network_id': self.network['id'],
-                                   'enable_snat': True})
+        with self.rbac_utils.override_role(self):
+            self.routers_client.update_router(
+                self.router['id'],
+                external_gateway_info={'network_id': self.network['id'],
+                                       'enable_snat': True})
         self.addCleanup(
             self.routers_client.update_router,
             self.router['id'],
@@ -279,10 +279,10 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
         external_gateway_info = {'network_id': self.network['id'],
                                  'external_fixed_ips': [external_fixed_ips]}
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.routers_client.update_router(
-            self.router['id'],
-            external_gateway_info=external_gateway_info)
+        with self.rbac_utils.override_role(self):
+            self.routers_client.update_router(
+                self.router['id'],
+                external_gateway_info=external_gateway_info)
         self.addCleanup(
             self.routers_client.update_router,
             self.router['id'],
@@ -297,8 +297,8 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron update_router:ha policy
         """
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.routers_client.update_router(self.router['id'], ha=True)
+        with self.rbac_utils.override_role(self):
+            self.routers_client.update_router(self.router['id'], ha=True)
         self.addCleanup(self.routers_client.update_router, self.router['id'],
                         ha=False)
 
@@ -311,8 +311,9 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron update_router:distributed policy
         """
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.routers_client.update_router(self.router['id'], distributed=True)
+        with self.rbac_utils.override_role(self):
+            self.routers_client.update_router(self.router['id'],
+                                              distributed=True)
         self.addCleanup(self.routers_client.update_router, self.router['id'],
                         distributed=False)
 
@@ -325,8 +326,8 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron delete_router policy
         """
         router = self.create_router()
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.routers_client.delete_router(router['id'])
+        with self.rbac_utils.override_role(self):
+            self.routers_client.delete_router(router['id'])
 
     @rbac_rule_validation.action(service="neutron",
                                  rule="add_router_interface")
@@ -340,9 +341,9 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
         subnet = self.create_subnet(network)
         router = self.create_router()
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.routers_client.add_router_interface(
-            router['id'], subnet_id=subnet['id'])
+        with self.rbac_utils.override_role(self):
+            self.routers_client.add_router_interface(
+                router['id'], subnet_id=subnet['id'])
         self.addCleanup(
             test_utils.call_and_ignore_notfound_exc,
             self.routers_client.remove_router_interface,
@@ -369,7 +370,7 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
                         router['id'],
                         subnet_id=subnet['id'])
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.routers_client.remove_router_interface(
-            router['id'],
-            subnet_id=subnet['id'])
+        with self.rbac_utils.override_role(self):
+            self.routers_client.remove_router_interface(
+                router['id'],
+                subnet_id=subnet['id'])
