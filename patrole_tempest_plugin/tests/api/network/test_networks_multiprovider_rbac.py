@@ -56,8 +56,8 @@ class NetworksMultiProviderRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron create_network:segments policy
         """
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self._create_network_segments()
+        with self.rbac_utils.override_role(self):
+            self._create_network_segments()
 
     @rbac_rule_validation.action(service="neutron",
                                  rule="update_network:segments")
@@ -70,9 +70,9 @@ class NetworksMultiProviderRbacTest(base.BaseNetworkRbacTest):
         network = self._create_network_segments()
         new_segments = [{"provider:network_type": "gre"}]
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.networks_client.update_network(network['id'],
-                                            segments=new_segments)
+        with self.rbac_utils.override_role(self):
+            self.networks_client.update_network(network['id'],
+                                                segments=new_segments)
 
     @rbac_rule_validation.action(service="neutron",
                                  rule="get_network:segments")
@@ -84,9 +84,9 @@ class NetworksMultiProviderRbacTest(base.BaseNetworkRbacTest):
         """
         network = self._create_network_segments()
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        body = self.networks_client.show_network(network['id'],
-                                                 fields='segments')
+        with self.rbac_utils.override_role(self):
+            body = self.networks_client.show_network(network['id'],
+                                                     fields='segments')
         response_network = body['network']
 
         # If user does not have access to the network segments attribute,
