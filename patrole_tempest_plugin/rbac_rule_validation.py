@@ -43,15 +43,15 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
 
     A decorator which allows for positive and negative RBAC testing. Given:
 
-        * an OpenStack service,
-        * a policy action (``rule``) enforced by that service, and
-        * the test role defined by ``[patrole] rbac_test_role``
+    * an OpenStack service,
+    * a policy action (``rule``) enforced by that service, and
+    * the test role defined by ``[patrole] rbac_test_role``
 
     determines whether the test role has sufficient permissions to perform an
     API call that enforces the ``rule``.
 
     This decorator should only be applied to an instance or subclass of
-        ``tempest.test.BaseTestCase``.
+    ``tempest.test.BaseTestCase``.
 
     The result from ``_is_authorized`` is used to determine the *expected*
     test result. The *actual* test result is determined by running the
@@ -306,14 +306,14 @@ def _format_extra_target_data(test_obj, extra_target_data):
     Before being formatted, "extra_target_data" is a dictionary that maps a
     policy string like "trust.trustor_user_id" to a nested list of
     ``tempest.test.BaseTestCase`` attributes. For example, the attribute list
-    in:
+    in::
 
-        "trust.trustor_user_id": "os.auth_provider.credentials.user_id"
+      "trust.trustor_user_id": "os.auth_provider.credentials.user_id"
 
     is parsed by iteratively calling ``getattr`` until the value of "user_id"
-    is resolved. The resulting dictionary returns:
+    is resolved. The resulting dictionary returns::
 
-        "trust.trustor_user_id": "the user_id of the `os_primary` credential"
+      "trust.trustor_user_id": "the user_id of the `os_primary` credential"
 
     :param test_obj: An instance or subclass of ``tempest.test.BaseTestCase``.
     :param extra_target_data: Dictionary, keyed with ``oslo.policy`` generic

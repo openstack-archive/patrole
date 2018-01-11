@@ -44,6 +44,7 @@ output/*/index.html
 
 # Sphinx
 doc/build
+doc/source/_static/patrole.conf.sample
 
 # pbr generates these
 AUTHORS

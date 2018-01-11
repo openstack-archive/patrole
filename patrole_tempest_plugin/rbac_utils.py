@@ -68,8 +68,9 @@ class RbacUtils(object):
         """Override the role used by ``os_primary`` Tempest credentials.
 
         Temporarily change the role used by ``os_primary`` credentials to:
-          * ``[patrole] rbac_test_role`` before test execution
-          * ``[identity] admin_role`` after test execution
+
+        * ``[patrole] rbac_test_role`` before test execution
+        * ``[identity] admin_role`` after test execution
 
         Automatically switches to admin role after test execution.
 
@@ -111,8 +112,9 @@ class RbacUtils(object):
         """Switch the role used by `os_primary` Tempest credentials.
 
         Switch the role used by `os_primary` credentials to:
-          * admin if `toggle_rbac_role` is False
-          * `CONF.patrole.rbac_test_role` if `toggle_rbac_role` is True
+
+        * admin if `toggle_rbac_role` is False
+        * `CONF.patrole.rbac_test_role` if `toggle_rbac_role` is True
 
         :param test_obj: test object of type tempest.lib.base.BaseTestCase
         :param toggle_rbac_role: role to switch `os_primary` Tempest creds to
