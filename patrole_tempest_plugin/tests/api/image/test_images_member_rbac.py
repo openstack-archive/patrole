@@ -46,9 +46,9 @@ class ImagesMemberRbacTest(base.BaseV2ImageRbacTest):
         """
         image_id = self.create_image()['id']
         # Toggle role and add image member
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.image_member_client.create_image_member(image_id,
-                                                     member=self.alt_tenant_id)
+        with self.rbac_utils.override_role(self):
+            self.image_member_client.create_image_member(
+                image_id, member=self.alt_tenant_id)
 
     @rbac_rule_validation.action(service="glance",
                                  rule="delete_member")
@@ -63,9 +63,9 @@ class ImagesMemberRbacTest(base.BaseV2ImageRbacTest):
         self.image_member_client.create_image_member(image_id,
                                                      member=self.alt_tenant_id)
         # Toggle role and delete image member
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.image_member_client.delete_image_member(image_id,
-                                                     self.alt_tenant_id)
+        with self.rbac_utils.override_role(self):
+            self.image_member_client.delete_image_member(image_id,
+                                                         self.alt_tenant_id)
 
     @rbac_rule_validation.action(service="glance",
                                  rule="get_member",
@@ -83,10 +83,9 @@ class ImagesMemberRbacTest(base.BaseV2ImageRbacTest):
             member=self.alt_tenant_id)
 
         # Toggle role and get image member
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.image_member_client.show_image_member(
-            image_id,
-            self.alt_tenant_id)
+        with self.rbac_utils.override_role(self):
+            self.image_member_client.show_image_member(image_id,
+                                                       self.alt_tenant_id)
 
     @rbac_rule_validation.action(service="glance",
                                  rule="modify_member")
@@ -105,10 +104,10 @@ class ImagesMemberRbacTest(base.BaseV2ImageRbacTest):
             image_id, self.tenant_id,
             status='accepted')
         # Toggle role and update member
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.image_member_client.update_image_member(
-            image_id, self.tenant_id,
-            status='pending')
+        with self.rbac_utils.override_role(self):
+            self.image_member_client.update_image_member(
+                image_id, self.tenant_id,
+                status='pending')
 
     @rbac_rule_validation.action(service="glance",
                                  rule="get_members")
@@ -123,5 +122,5 @@ class ImagesMemberRbacTest(base.BaseV2ImageRbacTest):
         self.image_member_client.create_image_member(image_id,
                                                      member=self.alt_tenant_id)
         # Toggle role and list image members
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.image_member_client.list_image_members(image_id)
+        with self.rbac_utils.override_role(self):
+            self.image_member_client.list_image_members(image_id)
