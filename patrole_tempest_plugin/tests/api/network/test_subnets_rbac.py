@@ -44,8 +44,8 @@ class SubnetsRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron "create_subnet" policy
         """
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.create_subnet(self.network)
+        with self.rbac_utils.override_role(self):
+            self.create_subnet(self.network)
 
     @decorators.idempotent_id('c02618e7-bb20-4abd-83c8-6eec2af08752')
     @rbac_rule_validation.action(service="neutron",
@@ -55,8 +55,8 @@ class SubnetsRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron "get_subnet" policy
         """
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.subnets_client.show_subnet(self.subnet['id'])
+        with self.rbac_utils.override_role(self):
+            self.subnets_client.show_subnet(self.subnet['id'])
 
     @decorators.idempotent_id('e2ddc415-5cab-43f4-9b61-166aed65d637')
     @rbac_rule_validation.action(service="neutron",
@@ -66,8 +66,8 @@ class SubnetsRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron "get_subnet" policy
         """
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.subnets_client.list_subnets()
+        with self.rbac_utils.override_role(self):
+            self.subnets_client.list_subnets()
 
     @decorators.idempotent_id('f36cd821-dd22-4bd0-b43d-110fc4b553eb')
     @rbac_rule_validation.action(service="neutron",
@@ -79,8 +79,9 @@ class SubnetsRbacTest(base.BaseNetworkRbacTest):
         """
         update_name = data_utils.rand_name(self.__class__.__name__ + '-Subnet')
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.subnets_client.update_subnet(self.subnet['id'], name=update_name)
+        with self.rbac_utils.override_role(self):
+            self.subnets_client.update_subnet(self.subnet['id'],
+                                              name=update_name)
 
     @decorators.idempotent_id('bcfc7153-bbd1-43a4-a908-b3e1b0cde0dc')
     @rbac_rule_validation.action(service="neutron",
@@ -92,5 +93,5 @@ class SubnetsRbacTest(base.BaseNetworkRbacTest):
         """
         subnet = self.create_subnet(self.network)
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.subnets_client.delete_subnet(subnet['id'])
+        with self.rbac_utils.override_role(self):
+            self.subnets_client.delete_subnet(subnet['id'])

@@ -25,5 +25,5 @@ class ServiceProvidersRbacTest(base.BaseNetworkRbacTest):
                                  rule="get_service_provider")
     @decorators.idempotent_id('15f573b7-474a-4b37-8629-7fac86553ce5')
     def test_list_service_providers(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.service_providers_client.list_service_providers()
+        with self.rbac_utils.override_role(self):
+            self.service_providers_client.list_service_providers()
