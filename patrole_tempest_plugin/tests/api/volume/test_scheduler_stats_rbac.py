@@ -40,5 +40,5 @@ class SchedulerStatsV3RbacTest(rbac_base.BaseVolumeRbacTest):
         rule="scheduler_extension:scheduler_stats:get_pools")
     @decorators.idempotent_id('5f800441-4d30-48ec-9e5b-0d55bc86acbb')
     def test_list_back_end_storage_pools(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.scheduler_stats_client.list_pools()
+        with self.rbac_utils.override_role(self):
+            self.scheduler_stats_client.list_pools()
