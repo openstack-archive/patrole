@@ -116,7 +116,7 @@ class RbacUtils(object):
         * admin if `toggle_rbac_role` is False
         * `CONF.patrole.rbac_test_role` if `toggle_rbac_role` is True
 
-        :param test_obj: test object of type tempest.lib.base.BaseTestCase
+        :param test_obj: instance of :py:class:`tempest.test.BaseTestCase`
         :param toggle_rbac_role: role to switch `os_primary` Tempest creds to
         """
         self._override_role(test_obj, toggle_rbac_role)
@@ -124,7 +124,7 @@ class RbacUtils(object):
     def _override_role(self, test_obj, toggle_rbac_role=False):
         """Private helper for overriding ``os_primary`` Tempest credentials.
 
-        :param test_obj: test object of type tempest.lib.base.BaseTestCase
+        :param test_obj: instance of :py:class:`tempest.test.BaseTestCase`
         :param toggle_rbac_role: Boolean value that controls the role that
             overrides default role of ``os_primary`` credentials.
             * If True: role is set to ``[patrole] rbac_test_role``
@@ -203,6 +203,39 @@ class RbacUtils(object):
                 self.project_id, self.user_id, role['id'])
 
         return False
+
+
+class RbacUtilsMixin(object):
+    """Mixin class to be used alongside an instance of
+    :py:class:`tempest.test.BaseTestCase`.
+
+    Should be used to perform Patrole class setup for a base RBAC class. Child
+    classes should not use this mixin.
+
+    Example::
+
+        class BaseRbacTest(rbac_utils.RbacUtilsMixin, base.BaseV2ComputeTest):
+
+            @classmethod
+            def skip_checks(cls):
+                super(BaseRbacTest, cls).skip_checks()
+                cls.skip_rbac_checks()
+
+            @classmethod
+            def setup_clients(cls):
+                super(BaseRbacTest, cls).setup_clients()
+                cls.setup_rbac_utils()
+    """
+
+    @classmethod
+    def skip_rbac_checks(cls):
+        if not CONF.patrole.enable_rbac:
+            raise cls.skipException(
+                '%s skipped as Patrole testing not enabled.' % cls.__name__)
+
+    @classmethod
+    def setup_rbac_utils(cls):
+        cls.rbac_utils = RbacUtils(cls)
 
 
 def is_admin():

@@ -21,16 +21,15 @@ from patrole_tempest_plugin import rbac_utils
 CONF = config.CONF
 
 
-class BaseNetworkRbacTest(network_base.BaseNetworkTest):
+class BaseNetworkRbacTest(rbac_utils.RbacUtilsMixin,
+                          network_base.BaseNetworkTest):
 
     @classmethod
     def skip_checks(cls):
         super(BaseNetworkRbacTest, cls).skip_checks()
-        if not CONF.patrole.enable_rbac:
-            raise cls.skipException(
-                "%s skipped as RBAC testing not enabled" % cls.__name__)
+        cls.skip_rbac_checks()
 
     @classmethod
     def setup_clients(cls):
         super(BaseNetworkRbacTest, cls).setup_clients()
-        cls.rbac_utils = rbac_utils.RbacUtils(cls)
+        cls.setup_rbac_utils()

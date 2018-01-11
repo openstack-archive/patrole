@@ -21,7 +21,8 @@ from patrole_tempest_plugin import rbac_utils
 CONF = config.CONF
 
 
-class BaseVolumeRbacTest(vol_base.BaseVolumeTest):
+class BaseVolumeRbacTest(rbac_utils.RbacUtilsMixin,
+                         vol_base.BaseVolumeTest):
     # NOTE(felipemonteiro): Patrole currently only tests the v3 Cinder API
     # because it is the current API and because policy enforcement does not
     # change between API major versions. So, it is not necessary to specify
@@ -32,15 +33,12 @@ class BaseVolumeRbacTest(vol_base.BaseVolumeTest):
     @classmethod
     def skip_checks(cls):
         super(BaseVolumeRbacTest, cls).skip_checks()
-        if not CONF.patrole.enable_rbac:
-            raise cls.skipException(
-                "%s skipped as RBAC testing not enabled" % cls.__name__)
+        cls.skip_rbac_checks()
 
     @classmethod
     def setup_clients(cls):
         super(BaseVolumeRbacTest, cls).setup_clients()
-        cls.rbac_utils = rbac_utils.RbacUtils(cls)
-
+        cls.setup_rbac_utils()
         cls.volume_hosts_client = cls.os_primary.volume_hosts_v2_client
         cls.volume_types_client = cls.os_primary.volume_types_v2_client
         cls.groups_client = cls.os_primary.groups_v3_client
