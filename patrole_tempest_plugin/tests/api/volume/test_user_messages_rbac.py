@@ -28,13 +28,10 @@ class MessagesV3RbacTest(rbac_base.BaseVolumeRbacTest):
     min_microversion = '3.3'
     max_microversion = 'latest'
 
-    credentials = ['primary', 'admin']
-
     @classmethod
     def setup_clients(cls):
         super(MessagesV3RbacTest, cls).setup_clients()
         cls.messages_client = cls.os_primary.volume_v3_messages_client
-        cls.admin_messages_client = cls.os_admin.volume_v3_messages_client
 
     def _create_user_message(self):
         """Trigger a 'no valid host' situation to generate a message."""
@@ -70,8 +67,8 @@ class MessagesV3RbacTest(rbac_base.BaseVolumeRbacTest):
         service="cinder",
         rule="message:get_all")
     def test_list_messages(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.messages_client.list_messages()['messages']
+        with self.rbac_utils.override_role(self):
+            self.messages_client.list_messages()['messages']
 
     @decorators.idempotent_id('9cc1ad1e-68a2-4407-8b60-ea77909bce08')
     @rbac_rule_validation.action(
@@ -80,8 +77,8 @@ class MessagesV3RbacTest(rbac_base.BaseVolumeRbacTest):
     def test_show_message(self):
         message_id = self._create_user_message()
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.messages_client.show_message(message_id)['message']
+        with self.rbac_utils.override_role(self):
+            self.messages_client.show_message(message_id)['message']
 
     @decorators.idempotent_id('65ca7fb7-7f2c-443e-b144-ac86973a97be')
     @rbac_rule_validation.action(
@@ -90,6 +87,6 @@ class MessagesV3RbacTest(rbac_base.BaseVolumeRbacTest):
     def test_delete_message(self):
         message_id = self._create_user_message()
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.messages_client.delete_message(message_id)
-        self.admin_messages_client.wait_for_resource_deletion(message_id)
+        with self.rbac_utils.override_role(self):
+            self.messages_client.delete_message(message_id)
+        self.messages_client.wait_for_resource_deletion(message_id)
