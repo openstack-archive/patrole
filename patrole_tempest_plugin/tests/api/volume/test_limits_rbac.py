@@ -26,5 +26,5 @@ class LimitsV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @rbac_rule_validation.action(service="cinder",
                                  rule="limits_extension:used_limits")
     def test_show_limits(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.volume_limits_client.show_limits()
+        with self.rbac_utils.override_role(self):
+            self.volume_limits_client.show_limits()

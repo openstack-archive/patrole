@@ -66,8 +66,8 @@ class SnapshotsActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
     def test_snapshot_force_delete(self):
         temp_snapshot = self.create_snapshot(self.volume['id'])
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.snapshots_client.force_delete_snapshot(temp_snapshot['id'])
+        with self.rbac_utils.override_role(self):
+            self.snapshots_client.force_delete_snapshot(temp_snapshot['id'])
         self.snapshots_client.wait_for_resource_deletion(temp_snapshot['id'])
 
     @decorators.idempotent_id('a95eab2a-c441-4609-9235-f7478627da88')
