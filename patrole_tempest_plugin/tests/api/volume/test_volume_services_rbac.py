@@ -43,5 +43,5 @@ class VolumeServicesV3RbacTest(rbac_base.BaseVolumeRbacTest):
         service="cinder",
         rule="volume_extension:services:index")
     def test_list_services(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.services_client.list_services()['services']
+        with self.rbac_utils.override_role(self):
+            self.services_client.list_services()['services']
