@@ -73,8 +73,8 @@ class SecGroupRbacTest(base.BaseNetworkRbacTest):
     @decorators.idempotent_id('db7003ce-5717-4e5b-afc7-befa35e8c67f')
     def test_create_security_group(self):
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self._create_security_group()
+        with self.rbac_utils.override_role(self):
+            self._create_security_group()
 
     @rbac_rule_validation.action(service="neutron",
                                  rule="get_security_group",
@@ -82,9 +82,9 @@ class SecGroupRbacTest(base.BaseNetworkRbacTest):
     @decorators.idempotent_id('56335e77-aef2-4b54-86c7-7f772034b585')
     def test_show_security_groups(self):
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.security_groups_client.show_security_group(
-            self.secgroup['id'])
+        with self.rbac_utils.override_role(self):
+            self.security_groups_client.show_security_group(
+                self.secgroup['id'])
 
     @rbac_rule_validation.action(service="neutron",
                                  rule="delete_security_group",
@@ -95,8 +95,8 @@ class SecGroupRbacTest(base.BaseNetworkRbacTest):
         # Create a security group
         secgroup_id = self._create_security_group()['id']
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.security_groups_client.delete_security_group(secgroup_id)
+        with self.rbac_utils.override_role(self):
+            self.security_groups_client.delete_security_group(secgroup_id)
 
     @rbac_rule_validation.action(service="neutron",
                                  rule="update_security_group",
@@ -107,26 +107,26 @@ class SecGroupRbacTest(base.BaseNetworkRbacTest):
         # Create a security group
         secgroup_id = self._create_security_group()['id']
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.security_groups_client.update_security_group(
-            secgroup_id,
-            description="test description")
+        with self.rbac_utils.override_role(self):
+            self.security_groups_client.update_security_group(
+                secgroup_id,
+                description="test description")
 
     @rbac_rule_validation.action(service="neutron",
                                  rule="get_security_groups")
     @decorators.idempotent_id('fbaf8d96-ed3e-49af-b24c-5fb44f05bbb7')
     def test_list_security_groups(self):
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.security_groups_client.list_security_groups()
+        with self.rbac_utils.override_role(self):
+            self.security_groups_client.list_security_groups()
 
     @rbac_rule_validation.action(service="neutron",
                                  rule="create_security_group_rule")
     @decorators.idempotent_id('953d78df-00cd-416f-9cbd-b7cb4ea65772')
     def test_create_security_group_rule(self):
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self._create_security_group_rule()
+        with self.rbac_utils.override_role(self):
+            self._create_security_group_rule()
 
     @rbac_rule_validation.action(service="neutron",
                                  rule="delete_security_group_rule",
@@ -135,9 +135,9 @@ class SecGroupRbacTest(base.BaseNetworkRbacTest):
     def test_delete_security_group_rule(self):
 
         sec_group_rule = self._create_security_group_rule()
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.security_group_rules_client.delete_security_group_rule(
-            sec_group_rule['id'])
+        with self.rbac_utils.override_role(self):
+            self.security_group_rules_client.delete_security_group_rule(
+                sec_group_rule['id'])
 
     @rbac_rule_validation.action(service="neutron",
                                  rule="get_security_group_rule",
@@ -146,14 +146,14 @@ class SecGroupRbacTest(base.BaseNetworkRbacTest):
     def test_show_security_group_rule(self):
 
         sec_group_rule = self._create_security_group_rule()
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.security_group_rules_client.show_security_group_rule(
-            sec_group_rule['id'])
+        with self.rbac_utils.override_role(self):
+            self.security_group_rules_client.show_security_group_rule(
+                sec_group_rule['id'])
 
     @rbac_rule_validation.action(service="neutron",
                                  rule="get_security_group_rules")
     @decorators.idempotent_id('05739ab6-fa35-11e6-bc64-92361f002671')
     def test_list_security_group_rules(self):
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.security_group_rules_client.list_security_group_rules()
+        with self.rbac_utils.override_role(self):
+            self.security_group_rules_client.list_security_group_rules()
