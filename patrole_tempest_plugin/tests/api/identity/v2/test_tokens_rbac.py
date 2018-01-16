@@ -41,8 +41,8 @@ class IdentityTokenV2RbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         """
         token_id = self._create_token()
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.show_token(token_id)
+        with self.rbac_utils.override_role(self):
+            self.client.show_token(token_id)
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:revoke_token")
@@ -55,8 +55,8 @@ class IdentityTokenV2RbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         """
         token_id = self._create_token()
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.delete_token(token_id)
+        with self.rbac_utils.override_role(self):
+            self.client.delete_token(token_id)
 
     @rbac_rule_validation.action(service="keystone",
                                  rule="identity:validate_token_head")
@@ -68,5 +68,5 @@ class IdentityTokenV2RbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         RBAC test for Identity v2 token head validation
         """
         token_id = self._create_token()
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.client.check_token_existence(token_id)
+        with self.rbac_utils.override_role(self):
+            self.client.check_token_existence(token_id)

@@ -31,8 +31,8 @@ class IdentityEndpointsV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         RBAC test for Identity v2 create_endpoint
         """
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.setup_test_endpoint()
+        with self.rbac_utils.override_role(self):
+            self.setup_test_endpoint()
 
     @rbac_rule_validation.action(service="keystone",
                                  admin_only=True)
@@ -45,8 +45,8 @@ class IdentityEndpointsV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         """
 
         endpoint = self.setup_test_endpoint()
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.endpoints_client.delete_endpoint(endpoint['id'])
+        with self.rbac_utils.override_role(self):
+            self.endpoints_client.delete_endpoint(endpoint['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  admin_only=True)
@@ -58,5 +58,5 @@ class IdentityEndpointsV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         RBAC test for Identity v2 list_endpoint
         """
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.endpoints_client.list_endpoints()
+        with self.rbac_utils.override_role(self):
+            self.endpoints_client.list_endpoints()

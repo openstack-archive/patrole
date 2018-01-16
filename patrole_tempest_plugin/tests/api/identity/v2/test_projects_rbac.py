@@ -36,8 +36,8 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         RBAC test for Identity 2.0 create_tenant
         """
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.setup_test_tenant()
+        with self.rbac_utils.override_role(self):
+            self.setup_test_tenant()
 
     @rbac_rule_validation.action(service="keystone",
                                  admin_only=True)
@@ -50,9 +50,9 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         """
         tenant = self.setup_test_tenant()
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.tenants_client.update_tenant(tenant['id'],
-                                          description="Changed description")
+        with self.rbac_utils.override_role(self):
+            self.tenants_client.update_tenant(
+                tenant['id'], description="Changed description")
 
     @rbac_rule_validation.action(service="keystone",
                                  admin_only=True)
@@ -65,8 +65,8 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         """
         tenant = self.setup_test_tenant()
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.tenants_client.delete_tenant(tenant['id'])
+        with self.rbac_utils.override_role(self):
+            self.tenants_client.delete_tenant(tenant['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  admin_only=True)
@@ -80,8 +80,8 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
 
         tenant = self.setup_test_tenant()
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.tenants_client.show_tenant(tenant['id'])
+        with self.rbac_utils.override_role(self):
+            self.tenants_client.show_tenant(tenant['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  admin_only=True)
@@ -94,8 +94,8 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         """
         tenant = self.setup_test_tenant()
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.tenants_client.list_tenant_users(tenant['id'])
+        with self.rbac_utils.override_role(self):
+            self.tenants_client.list_tenant_users(tenant['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  admin_only=True)
@@ -117,8 +117,8 @@ class IdentityProjectV2AdminRbacTest(rbac_base.BaseIdentityV2AdminRbacTest):
         admin_tenant_id = self.os_admin.credentials.project_id
         non_admin_tenant_id = self.os_primary.credentials.project_id
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        tenants = tenants_client.list_tenants()['tenants']
+        with self.rbac_utils.override_role(self):
+            tenants = tenants_client.list_tenants()['tenants']
 
         tenant_ids = [t['id'] for t in tenants]
         if admin_tenant_id not in tenant_ids:
