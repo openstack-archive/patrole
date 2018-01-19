@@ -40,5 +40,5 @@ class CapabilitiesV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('40928b74-2141-11e7-93ae-92361f002671')
     def test_show_back_end_capabilities(self):
         host = self.hosts_client.list_hosts()['hosts'][0]['host_name']
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.capabilities_client.show_backend_capabilities(host)
+        with self.rbac_utils.override_role(self):
+            self.capabilities_client.show_backend_capabilities(host)

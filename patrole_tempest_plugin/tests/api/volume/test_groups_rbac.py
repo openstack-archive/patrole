@@ -24,13 +24,6 @@ from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 
 class BaseGroupRbacTest(rbac_base.BaseVolumeRbacTest):
-    credentials = ['primary', 'admin']
-
-    @classmethod
-    def setup_clients(cls):
-        super(BaseGroupRbacTest, cls).setup_clients()
-        cls.admin_groups_client = cls.os_admin.groups_v3_client
-        cls.admin_volumes_client = cls.os_admin.volumes_v3_client
 
     def setUp(self):
         super(BaseGroupRbacTest, self).setUp()
@@ -48,18 +41,18 @@ class BaseGroupRbacTest(rbac_base.BaseVolumeRbacTest):
         else:
             self.addCleanup(self._delete_group, group['id'])
         waiters.wait_for_volume_resource_status(
-            self.admin_groups_client, group['id'], 'available')
+            self.groups_client, group['id'], 'available')
         return group
 
     def _delete_group(self, group_id):
         self.groups_client.delete_group(group_id, delete_volumes=True)
-        self.admin_groups_client.wait_for_resource_deletion(group_id)
+        self.groups_client.wait_for_resource_deletion(group_id)
 
-        vols = self.admin_volumes_client.list_volumes(
+        vols = self.volumes_client.list_volumes(
             detail=True, params={'all_tenants': True})['volumes']
         for vol in vols:
             if vol['group_id'] == group_id:
-                self.admin_volumes_client.wait_for_resource_deletion(
+                self.volumes_client.wait_for_resource_deletion(
                     vol['id'])
 
 
@@ -71,11 +64,18 @@ class GroupsV3RbacTest(BaseGroupRbacTest):
     @rbac_rule_validation.action(
         service="cinder",
         rule="group:create")
-    def test_create_group(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self._create_group(ignore_notfound=True,
-                           group_type=self.group_type_id,
-                           volume_types=[self.volume_type_id])
+    def test_create_group(self, name=None):
+
+        group_name = name or data_utils.rand_name(
+            self.__class__.__name__ + '-Group')
+        with self.rbac_utils.override_role(self):
+            group = self.groups_client.create_group(
+                name=group_name, group_type=self.group_type_id,
+                volume_types=[self.volume_type_id])['group']
+        self.addCleanup(self._delete_group, group['id'])
+
+        waiters.wait_for_volume_resource_status(
+            self.groups_client, group['id'], 'available')
 
     @decorators.idempotent_id('9dc34a62-ae3e-439e-92b6-9389ea4c2863')
     @rbac_rule_validation.action(
@@ -85,24 +85,24 @@ class GroupsV3RbacTest(BaseGroupRbacTest):
         group = self._create_group(group_type=self.group_type_id,
                                    volume_types=[self.volume_type_id])
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.groups_client.show_group(group['id'])
+        with self.rbac_utils.override_role(self):
+            self.groups_client.show_group(group['id'])
 
     @decorators.idempotent_id('db43841b-a173-4317-acfc-f83e4e48e4ee')
     @rbac_rule_validation.action(
         service="cinder",
         rule="group:get_all")
     def test_list_groups(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.groups_client.list_groups()['groups']
+        with self.rbac_utils.override_role(self):
+            self.groups_client.list_groups()['groups']
 
     @decorators.idempotent_id('5378da93-9c26-4ad4-b039-0555e2b8f668')
     @rbac_rule_validation.action(
         service="cinder",
         rule="group:get_all")
     def test_list_groups_with_details(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.groups_client.list_groups(detail=True)['groups']
+        with self.rbac_utils.override_role(self):
+            self.groups_client.list_groups(detail=True)['groups']
 
     @decorators.idempotent_id('f499fc48-df83-4917-bf8d-783ebf6f080b')
     @rbac_rule_validation.action(
@@ -113,20 +113,29 @@ class GroupsV3RbacTest(BaseGroupRbacTest):
                                    volume_types=[self.volume_type_id])
         updated_name = data_utils.rand_name(self.__class__.__name__ + '-Group')
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.groups_client.update_group(group['id'], name=updated_name)
+        with self.rbac_utils.override_role(self):
+            self.groups_client.update_group(group['id'], name=updated_name)
 
     @decorators.idempotent_id('66fda391-5774-42a9-a018-80b34e57ab76')
     @rbac_rule_validation.action(
         service="cinder",
         rule="group:delete")
     def test_delete_group(self):
+
         group = self._create_group(ignore_notfound=True,
                                    group_type=self.group_type_id,
                                    volume_types=[self.volume_type_id])
+        group_id = group['id']
+        with self.rbac_utils.override_role(self):
+            self.groups_client.delete_group(group_id, delete_volumes=True)
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self._delete_group(group['id'])
+        self.groups_client.wait_for_resource_deletion(group_id)
+        vols = self.volumes_client.list_volumes(
+            detail=True, params={'all_tenants': True})['volumes']
+        for vol in vols:
+            if vol['group_id'] == group_id:
+                self.volumes_client.wait_for_resource_deletion(
+                    vol['id'])
 
 
 class GroupV320RbacTest(BaseGroupRbacTest):
@@ -159,8 +168,8 @@ class GroupTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
         service="cinder",
         rule="group:group_types_manage")
     def test_create_group_type(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.create_group_type(ignore_notfound=True)
+        with self.rbac_utils.override_role(self):
+            self.create_group_type(ignore_notfound=True)
 
     @decorators.idempotent_id('a5f88c26-df7c-4f21-a3ae-7a4c2d6212b4')
     @rbac_rule_validation.action(
@@ -170,8 +179,8 @@ class GroupTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
         # TODO(felipemonteiro): Combine with ``test_create_group_type``
         # once multiple policy testing is supported. This policy is
         # only enforced after "group:group_types_manage".
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        group_type = self.create_group_type(ignore_notfound=True)
+        with self.rbac_utils.override_role(self):
+            group_type = self.create_group_type(ignore_notfound=True)
 
         if 'group_specs' not in group_type:
             raise rbac_exceptions.RbacMalformedResponse(
@@ -184,8 +193,8 @@ class GroupTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
     def test_delete_group_type(self):
         group_type = self.create_group_type(ignore_notfound=True)
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.group_types_client.delete_group_type(group_type['id'])
+        with self.rbac_utils.override_role(self):
+            self.group_types_client.delete_group_type(group_type['id'])
 
     @decorators.idempotent_id('8d9e2831-24c3-47b7-a76a-2e563287f12f')
     @rbac_rule_validation.action(
@@ -193,9 +202,8 @@ class GroupTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
         rule="group:access_group_types_specs")
     def test_show_group_type(self):
         group_type = self.create_group_type()
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        resp_body = \
-            self.group_types_client.show_group_type(
+        with self.rbac_utils.override_role(self):
+            resp_body = self.group_types_client.show_group_type(
                 group_type['id'])['group_type']
         if 'group_specs' not in resp_body:
             raise rbac_exceptions.RbacMalformedResponse(
