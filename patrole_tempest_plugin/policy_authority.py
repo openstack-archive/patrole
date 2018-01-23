@@ -292,8 +292,9 @@ class PolicyAuthority(RbacAuthority):
 
     def _try_rule(self, apply_rule, target, access_data, o):
         if apply_rule not in self.rules:
-            message = "Policy action: {0} not found in policy file: {1}."\
-                      .format(apply_rule, self.path)
+            message = ("Policy action \"{0}\" not found in policy file: {1} or"
+                       " among registered policy in code defaults for service."
+                       ).format(apply_rule, self.path)
             LOG.debug(message)
             raise rbac_exceptions.RbacParsingException(message)
         else:
