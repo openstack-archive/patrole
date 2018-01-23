@@ -269,8 +269,10 @@ class PolicyAuthorityTest(base.TestCase):
             test_tenant_id, test_user_id, "custom_rbac_policy")
 
         fake_rule = 'fake_rule'
-        expected_message = "Policy action: {0} not found in policy file: {1}."\
-                           .format(fake_rule, self.custom_policy_file)
+        expected_message = (
+            "Policy action \"{0}\" not found in policy file: {1} or among "
+            "registered policy in code defaults for service.").format(
+            fake_rule, self.custom_policy_file)
 
         e = self.assertRaises(rbac_exceptions.RbacParsingException,
                               authority.allowed, fake_rule, None)
@@ -289,9 +291,10 @@ class PolicyAuthorityTest(base.TestCase):
             **{'__getitem__.return_value.side_effect': Exception(
                mock.sentinel.error)})
 
-        expected_message = "Policy action: {0} not found in "\
-                           "policy file: {1}.".format(mock.sentinel.rule,
-                                                      self.custom_policy_file)
+        expected_message = (
+            "Policy action \"{0}\" not found in policy file: {1} or among "
+            "registered policy in code defaults for service.").format(
+            mock.sentinel.rule, self.custom_policy_file)
 
         e = self.assertRaises(rbac_exceptions.RbacParsingException,
                               authority.allowed, mock.sentinel.rule, None)
