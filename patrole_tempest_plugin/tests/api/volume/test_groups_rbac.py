@@ -171,6 +171,31 @@ class GroupTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
         with self.rbac_utils.override_role(self):
             self.create_group_type(ignore_notfound=True)
 
+    @decorators.idempotent_id('f77f8156-4fc9-4f02-be15-8930f748e10c')
+    @rbac_rule_validation.action(
+        service="cinder",
+        rule="group:group_types_manage")
+    def test_delete_group_type(self):
+        group_type = self.create_group_type(ignore_notfound=True)
+
+        with self.rbac_utils.override_role(self):
+            self.group_types_client.delete_group_type(group_type['id'])
+
+    @decorators.idempotent_id('67929954-4551-4d22-b15a-27fb6e56b711')
+    @rbac_rule_validation.action(
+        service="cinder",
+        rule="group:group_types_manage")
+    def test_update_group_type(self):
+        group_type = self.create_group_type()
+        update_params = {
+            'name': data_utils.rand_name(
+                self.__class__.__name__ + '-updated-group-type'),
+            'description': 'updated-group-type-desc'
+        }
+        with self.rbac_utils.override_role(self):
+            self.group_types_client.update_group_type(
+                group_type['id'], **update_params)
+
     @decorators.idempotent_id('a5f88c26-df7c-4f21-a3ae-7a4c2d6212b4')
     @rbac_rule_validation.action(
         service="cinder",
@@ -185,16 +210,6 @@ class GroupTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
         if 'group_specs' not in group_type:
             raise rbac_exceptions.RbacMalformedResponse(
                 attribute='group_specs')
-
-    @decorators.idempotent_id('f77f8156-4fc9-4f02-be15-8930f748e10c')
-    @rbac_rule_validation.action(
-        service="cinder",
-        rule="group:group_types_manage")
-    def test_delete_group_type(self):
-        group_type = self.create_group_type(ignore_notfound=True)
-
-        with self.rbac_utils.override_role(self):
-            self.group_types_client.delete_group_type(group_type['id'])
 
     @decorators.idempotent_id('8d9e2831-24c3-47b7-a76a-2e563287f12f')
     @rbac_rule_validation.action(
