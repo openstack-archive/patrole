@@ -51,7 +51,13 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('4f34c73a-6ddc-4677-976f-71320fa855bd')
     def test_create_server(self):
         with self.rbac_utils.override_role(self):
-            self.create_test_server(wait_until='ACTIVE')
+            server = self.servers_client.create_server(
+                name=data_utils.rand_name(self.__class__.__name__ + '-Server'),
+                flavorRef=CONF.compute.flavor_ref,
+                imageRef=CONF.compute.image_ref)['server']
+        self.addCleanup(waiters.wait_for_server_termination,
+                        self.servers_client, server['id'])
+        self.addCleanup(self.servers_client.delete_server, server['id'])
 
     @rbac_rule_validation.action(
         service="nova",
@@ -70,8 +76,14 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
         availability_zone = 'nova:' + host
 
         with self.rbac_utils.override_role(self):
-            self.create_test_server(wait_until='ACTIVE',
-                                    availability_zone=availability_zone)
+            server = self.servers_client.create_server(
+                name=data_utils.rand_name(self.__class__.__name__ + '-Server'),
+                flavorRef=CONF.compute.flavor_ref,
+                imageRef=CONF.compute.image_ref,
+                availability_zone=availability_zone)['server']
+        self.addCleanup(waiters.wait_for_server_termination,
+                        self.servers_client, server['id'])
+        self.addCleanup(self.servers_client.delete_server, server['id'])
 
     @utils.services('volume')
     @rbac_rule_validation.action(
@@ -86,7 +98,6 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
             imageRef=CONF.compute.image_ref,
             size=CONF.volume.volume_size)['id']
 
-        server_name = data_utils.rand_name(self.__class__.__name__ + "-server")
         bd_map_v2 = [{'uuid': volume_id,
                       'source_type': 'volume',
                       'destination_type': 'volume',
@@ -96,8 +107,11 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
 
         with self.rbac_utils.override_role(self):
             # Use image_id='' to avoid using the default image in tempest.conf.
-            server = self.create_test_server(name=server_name, image_id='',
-                                             **device_mapping)
+            server = self.servers_client.create_server(
+                name=data_utils.rand_name(self.__class__.__name__ + '-Server'),
+                flavorRef=CONF.compute.flavor_ref,
+                imageRef='',
+                **device_mapping)['server']
         # Delete the server and wait for the volume to become available to
         # avoid clean up errors.
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
@@ -138,8 +152,11 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
         network_id = {'uuid': network['id']}
 
         with self.rbac_utils.override_role(self):
-            server = self.create_test_server(wait_until='ACTIVE',
-                                             networks=[network_id])
+            server = self.servers_client.create_server(
+                name=data_utils.rand_name(self.__class__.__name__ + '-Server'),
+                flavorRef=CONF.compute.flavor_ref,
+                imageRef=CONF.compute.image_ref,
+                networks=[network_id])['server']
         self.addCleanup(waiters.wait_for_server_termination,
                         self.servers_client, server['id'])
         self.addCleanup(self.servers_client.delete_server, server['id'])
