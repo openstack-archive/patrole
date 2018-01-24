@@ -30,18 +30,12 @@ CONF = config.CONF
 
 
 class VolumesBackupsV3RbacTest(rbac_base.BaseVolumeRbacTest):
-    credentials = ['primary', 'admin']
 
     @classmethod
     def skip_checks(cls):
         super(VolumesBackupsV3RbacTest, cls).skip_checks()
         if not CONF.volume_feature_enabled.backup:
             raise cls.skipException("Cinder backup feature disabled")
-
-    @classmethod
-    def setup_clients(cls):
-        super(VolumesBackupsV3RbacTest, cls).setup_clients()
-        cls.admin_backups_client = cls.os_admin.backups_v2_client
 
     @classmethod
     def resource_setup(cls):
@@ -65,8 +59,8 @@ class VolumesBackupsV3RbacTest(rbac_base.BaseVolumeRbacTest):
                                  rule="backup:create")
     @decorators.idempotent_id('6887ec94-0bcf-4ab7-b30f-3808a4b5a2a5')
     def test_create_backup(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.create_backup(volume_id=self.volume['id'])
+        with self.rbac_utils.override_role(self):
+            self.create_backup(volume_id=self.volume['id'])
 
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(service="cinder",
@@ -75,22 +69,22 @@ class VolumesBackupsV3RbacTest(rbac_base.BaseVolumeRbacTest):
     def test_show_backup(self):
         backup = self.create_backup(volume_id=self.volume['id'])
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.backups_client.show_backup(backup['id'])
+        with self.rbac_utils.override_role(self):
+            self.backups_client.show_backup(backup['id'])
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="backup:get_all")
     @decorators.idempotent_id('4d18f0f0-7e01-4007-b622-dedc859b22f6')
     def test_list_backups(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.backups_client.list_backups()
+        with self.rbac_utils.override_role(self):
+            self.backups_client.list_backups()
 
     @decorators.idempotent_id('dbd69865-876f-4835-b70e-7341153fb162')
     @rbac_rule_validation.action(service="cinder",
                                  rule="backup:get_all")
     def test_list_backups_with_details(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.backups_client.list_backups(detail=True)
+        with self.rbac_utils.override_role(self):
+            self.backups_client.list_backups(detail=True)
 
     @decorators.attr(type='slow')
     @decorators.idempotent_id('50f43bde-205e-438e-9a05-5eac07fc3d63')
@@ -100,10 +94,10 @@ class VolumesBackupsV3RbacTest(rbac_base.BaseVolumeRbacTest):
     def test_reset_backup_status(self):
         backup = self.create_backup(volume_id=self.volume['id'])
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.backups_client.reset_backup_status(backup_id=backup['id'],
-                                                status='error')
-        waiters.wait_for_volume_resource_status(self.admin_backups_client,
+        with self.rbac_utils.override_role(self):
+            self.backups_client.reset_backup_status(backup_id=backup['id'],
+                                                    status='error')
+        waiters.wait_for_volume_resource_status(self.backups_client,
                                                 backup['id'], 'error')
 
     @decorators.attr(type='slow')
@@ -113,10 +107,11 @@ class VolumesBackupsV3RbacTest(rbac_base.BaseVolumeRbacTest):
     def test_restore_backup(self):
         backup = self.create_backup(volume_id=self.volume['id'])
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        restore = self.backups_client.restore_backup(backup['id'])['restore']
+        with self.rbac_utils.override_role(self):
+            restore = self.backups_client.restore_backup(
+                backup['id'])['restore']
         waiters.wait_for_volume_resource_status(
-            self.admin_backups_client, restore['backup_id'], 'available')
+            self.backups_client, restore['backup_id'], 'available')
 
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(service="cinder",
@@ -130,13 +125,13 @@ class VolumesBackupsV3RbacTest(rbac_base.BaseVolumeRbacTest):
             volume_id=self.volume['id'])['backup']
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self.backups_client.delete_backup, backup['id'])
-        waiters.wait_for_volume_resource_status(self.admin_backups_client,
+        waiters.wait_for_volume_resource_status(self.backups_client,
                                                 backup['id'], 'available')
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.backups_client.delete_backup(backup['id'])
+        with self.rbac_utils.override_role(self):
+            self.backups_client.delete_backup(backup['id'])
         # Wait for deletion so error isn't thrown during clean up.
-        self.admin_backups_client.wait_for_resource_deletion(backup['id'])
+        self.backups_client.wait_for_resource_deletion(backup['id'])
 
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(service="cinder",
@@ -145,8 +140,8 @@ class VolumesBackupsV3RbacTest(rbac_base.BaseVolumeRbacTest):
     def test_export_backup(self):
         backup = self.create_backup(volume_id=self.volume['id'])
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.backups_client.export_backup(backup['id'])['backup-record']
+        with self.rbac_utils.override_role(self):
+            self.backups_client.export_backup(backup['id'])['backup-record']
 
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(service="cinder",
@@ -160,10 +155,10 @@ class VolumesBackupsV3RbacTest(rbac_base.BaseVolumeRbacTest):
         new_url = self._modify_backup_url(
             export_backup['backup_url'], {'id': new_id})
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        import_backup = self.backups_client.import_backup(
-            backup_service=export_backup['backup_service'],
-            backup_url=new_url)['backup']
+        with self.rbac_utils.override_role(self):
+            import_backup = self.backups_client.import_backup(
+                backup_service=export_backup['backup_service'],
+                backup_url=new_url)['backup']
         self.addCleanup(self.backups_client.delete_backup, import_backup['id'])
 
 
@@ -188,8 +183,8 @@ class VolumesBackupsV318RbacTest(rbac_base.BaseVolumeRbacTest):
         backup = self.create_backup(volume_id=volume['id'])
         expected_attr = 'os-backup-project-attr:project_id'
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        body = self.backups_client.show_backup(backup['id'])['backup']
+        with self.rbac_utils.override_role(self):
+            body = self.backups_client.show_backup(backup['id'])['backup']
 
         # Show backup API attempts to inject the attribute below into the
         # response body but only if policy enforcement succeeds.
@@ -221,6 +216,6 @@ class VolumesBackupsV39RbacTest(rbac_base.BaseVolumeRbacTest):
             'name': data_utils.rand_name(self.__class__.__name__ + '-Backup'),
             'description': data_utils.rand_name("volume-backup-description")
         }
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.backups_client.update_backup(backup['id'],
-                                          **update_kwargs)
+        with self.rbac_utils.override_role(self):
+            self.backups_client.update_backup(backup['id'],
+                                              **update_kwargs)

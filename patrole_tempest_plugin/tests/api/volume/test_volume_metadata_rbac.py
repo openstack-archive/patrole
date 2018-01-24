@@ -49,50 +49,51 @@ class VolumeMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
                                  rule="volume:create_volume_metadata")
     @decorators.idempotent_id('232bbb8b-4c29-44dc-9077-b1398c20b738')
     def test_create_volume_metadata(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self._add_metadata(self.volume)
+        with self.rbac_utils.override_role(self):
+            self._add_metadata(self.volume)
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:get_volume_metadata")
     @decorators.idempotent_id('87ea37d9-23ab-47b2-a59c-16fc4d2c6dfa')
     def test_show_volume_metadata(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.volumes_client.show_volume_metadata(self.volume['id'])['metadata']
+        with self.rbac_utils.override_role(self):
+            self.volumes_client.show_volume_metadata(
+                self.volume['id'])['metadata']
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:delete_volume_metadata")
     @decorators.idempotent_id('7498dfc1-9db2-4423-ad20-e6dcb25d1beb')
     def test_delete_volume_metadata_item(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.volumes_client.delete_volume_metadata_item(self.volume['id'],
-                                                        "key1")
+        with self.rbac_utils.override_role(self):
+            self.volumes_client.delete_volume_metadata_item(self.volume['id'],
+                                                            "key1")
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:update_volume_metadata")
     @decorators.idempotent_id('8ce2ff80-99ba-49ae-9bb1-7e96729ee5af')
     def test_update_volume_metadata_item(self):
         updated_metadata_item = {"key1": "value1_update"}
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.volumes_client.update_volume_metadata_item(
-            self.volume['id'], "key1", updated_metadata_item)['meta']
+        with self.rbac_utils.override_role(self):
+            self.volumes_client.update_volume_metadata_item(
+                self.volume['id'], "key1", updated_metadata_item)['meta']
 
     @decorators.idempotent_id('a231b445-97a5-4657-b05f-245895e88da9')
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:update_volume_metadata")
     def test_update_volume_metadata(self):
         updated_metadata = {"key1": "value1"}
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.volumes_client.update_volume_metadata(self.volume['id'],
-                                                   updated_metadata)
+        with self.rbac_utils.override_role(self):
+            self.volumes_client.update_volume_metadata(self.volume['id'],
+                                                       updated_metadata)
 
     @decorators.idempotent_id('a9d9e825-5ea3-42e6-96f3-7ac4e97b2ed0')
     @rbac_rule_validation.action(
         service="cinder",
         rule="volume_extension:volume_image_metadata")
     def test_update_volume_image_metadata(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.volumes_client.update_volume_image_metadata(
-            self.volume['id'], image_id=self.image_id)
+        with self.rbac_utils.override_role(self):
+            self.volumes_client.update_volume_image_metadata(
+                self.volume['id'], image_id=self.image_id)
         self.addCleanup(self.volumes_client.delete_volume_image_metadata,
                         self.volume['id'], 'image_id')
 
@@ -107,6 +108,6 @@ class VolumeMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
                         self.volumes_client.delete_volume_image_metadata,
                         self.volume['id'], 'image_id')
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.volumes_client.delete_volume_image_metadata(self.volume['id'],
-                                                         'image_id')
+        with self.rbac_utils.override_role(self):
+            self.volumes_client.delete_volume_image_metadata(self.volume['id'],
+                                                             'image_id')

@@ -57,17 +57,17 @@ class VolumeTypesExtraSpecsRbacTest(rbac_base.BaseVolumeRbacTest):
         service="cinder",
         rule="volume_extension:types_extra_specs:index")
     def test_list_volume_types_extra_specs(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.volume_types_client.list_volume_types_extra_specs(
-            self.vol_type['id'])['extra_specs']
+        with self.rbac_utils.override_role(self):
+            self.volume_types_client.list_volume_types_extra_specs(
+                self.vol_type['id'])['extra_specs']
 
     @rbac_rule_validation.action(
         service="cinder",
         rule="volume_extension:types_extra_specs:create")
     @decorators.idempotent_id('eea40251-990b-49b0-99ae-10e4585b479b')
     def test_create_volume_type_extra_specs(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self._create_volume_type_extra_specs(ignore_not_found=True)
+        with self.rbac_utils.override_role(self):
+            self._create_volume_type_extra_specs(ignore_not_found=True)
 
     @decorators.idempotent_id('e2dcc9c6-2fef-431d-afaf-92b45bc76d1a')
     @rbac_rule_validation.action(
@@ -76,9 +76,9 @@ class VolumeTypesExtraSpecsRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_show_volume_type_extra_specs(self):
         self._create_volume_type_extra_specs()
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.volume_types_client.show_volume_type_extra_specs(
-            self.vol_type['id'], self.spec_key)
+        with self.rbac_utils.override_role(self):
+            self.volume_types_client.show_volume_type_extra_specs(
+                self.vol_type['id'], self.spec_key)
 
     @decorators.idempotent_id('93001912-f938-41c7-8787-62dc7010fd52')
     @rbac_rule_validation.action(
@@ -87,9 +87,9 @@ class VolumeTypesExtraSpecsRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_delete_volume_type_extra_specs(self):
         self._create_volume_type_extra_specs(ignore_not_found=True)
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.volume_types_client.delete_volume_type_extra_specs(
-            self.vol_type['id'], self.spec_key)
+        with self.rbac_utils.override_role(self):
+            self.volume_types_client.delete_volume_type_extra_specs(
+                self.vol_type['id'], self.spec_key)
 
     @decorators.idempotent_id('0a444437-7402-4fbe-a18a-93af2ee00618')
     @rbac_rule_validation.action(
@@ -99,6 +99,6 @@ class VolumeTypesExtraSpecsRbacTest(rbac_base.BaseVolumeRbacTest):
         self._create_volume_type_extra_specs()
         update_extra_specs = {self.spec_key: "val2"}
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.volume_types_client.update_volume_type_extra_specs(
-            self.vol_type['id'], self.spec_key, update_extra_specs)
+        with self.rbac_utils.override_role(self):
+            self.volume_types_client.update_volume_type_extra_specs(
+                self.vol_type['id'], self.spec_key, update_extra_specs)

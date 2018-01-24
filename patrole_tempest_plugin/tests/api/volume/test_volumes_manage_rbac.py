@@ -26,7 +26,6 @@ CONF = config.CONF
 
 
 class VolumesManageV3RbacTest(rbac_base.BaseVolumeRbacTest):
-    credentials = ['primary', 'admin']
 
     @classmethod
     def skip_checks(cls):
@@ -43,7 +42,6 @@ class VolumesManageV3RbacTest(rbac_base.BaseVolumeRbacTest):
     def setup_clients(cls):
         super(VolumesManageV3RbacTest, cls).setup_clients()
         cls.volume_manage_client = cls.os_primary.volume_manage_v2_client
-        cls.admin_volumes_client = cls.os_admin.volumes_client_latest
 
     def _manage_volume(self, org_volume):
         # Manage volume
@@ -61,14 +59,10 @@ class VolumesManageV3RbacTest(rbac_base.BaseVolumeRbacTest):
         new_volume_id = self.volume_manage_client.manage_volume(
             **new_volume_ref)['volume']['id']
 
-        waiters.wait_for_volume_resource_status(self.admin_volumes_client,
+        waiters.wait_for_volume_resource_status(self.volumes_client,
                                                 new_volume_id, 'available')
         self.addCleanup(self.delete_volume,
                         self.volumes_client, new_volume_id)
-
-    def _unmanage_volume(self, volume):
-        self.volumes_client.unmanage_volume(volume['id'])
-        self.admin_volumes_client.wait_for_resource_deletion(volume['id'])
 
     @rbac_rule_validation.action(
         service="cinder",
@@ -80,19 +74,37 @@ class VolumesManageV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
         # By default, the volume is managed after creation.  We need to
         # unmanage the volume first before testing manage volume.
-        self._unmanage_volume(volume)
+        self.volumes_client.unmanage_volume(volume['id'])
+        self.volumes_client.wait_for_resource_deletion(volume['id'])
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        try:
-            self._manage_volume(volume)
-        except exceptions.Forbidden as e:
-            # Since the test role under test does not have permission to
-            # manage the volume, Forbidden exception is thrown and the
-            # manageable list will not be cleaned up. Therefore, we need to
-            # re-manage the volume at the end of the test case for proper
-            # resource clean up.
-            self.addCleanup(self._manage_volume, volume)
-            raise exceptions.Forbidden(e)
+        new_volume_name = data_utils.rand_name(
+            self.__class__.__name__ + '-volume')
+
+        new_volume_ref = {
+            'name': new_volume_name,
+            'host': volume['os-vol-host-attr:host'],
+            'ref': {CONF.volume.manage_volume_ref[0]:
+                    CONF.volume.manage_volume_ref[1] % volume['id']},
+            'volume_type': volume['volume_type'],
+            'availability_zone': volume['availability_zone']}
+
+        with self.rbac_utils.override_role(self):
+            try:
+                new_volume_id = self.volume_manage_client.manage_volume(
+                    **new_volume_ref)['volume']['id']
+            except exceptions.Forbidden as e:
+                # Since the test role under test does not have permission to
+                # manage the volume, Forbidden exception is thrown and the
+                # manageable list will not be cleaned up. Therefore, we need to
+                # re-manage the volume at the end of the test case for proper
+                # resource clean up.
+                self.addCleanup(self._manage_volume, volume)
+                raise exceptions.Forbidden(e)
+
+        waiters.wait_for_volume_resource_status(self.volumes_client,
+                                                new_volume_id, 'available')
+        self.addCleanup(
+            self.delete_volume, self.volumes_client, new_volume_id)
 
     @rbac_rule_validation.action(
         service="cinder",
@@ -102,8 +114,9 @@ class VolumesManageV3RbacTest(rbac_base.BaseVolumeRbacTest):
         volume_id = self.create_volume()['id']
         volume = self.volumes_client.show_volume(volume_id)['volume']
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self._unmanage_volume(volume)
+        with self.rbac_utils.override_role(self):
+            self.volumes_client.unmanage_volume(volume['id'])
+        self.volumes_client.wait_for_resource_deletion(volume['id'])
 
         # In order to clean up the manageable list, we need to re-manage the
         # volume after the test.  The _manage_volume method will set up the

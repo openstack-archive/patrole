@@ -56,17 +56,17 @@ class VolumeTypesAccessRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_list_type_access(self):
         self._add_type_access()
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.volume_types_client.list_type_access(self.vol_type['id'])[
-            'volume_type_access']
+        with self.rbac_utils.override_role(self):
+            self.volume_types_client.list_type_access(self.vol_type['id'])[
+                'volume_type_access']
 
     @decorators.idempotent_id('b462eeba-45d0-4d6e-945a-a1d27708d367')
     @rbac_rule_validation.action(
         service="cinder",
         rule="volume_extension:volume_type_access:addProjectAccess")
     def test_add_type_access(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self._add_type_access(ignore_not_found=True)
+        with self.rbac_utils.override_role(self):
+            self._add_type_access(ignore_not_found=True)
 
     @decorators.idempotent_id('8f848aeb-636a-46f1-aeeb-e2a60e9d2bfe')
     @rbac_rule_validation.action(
@@ -75,6 +75,6 @@ class VolumeTypesAccessRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_remove_type_access(self):
         self._add_type_access(ignore_not_found=True)
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.volume_types_client.remove_type_access(
-            self.vol_type['id'], project=self.project_id)
+        with self.rbac_utils.override_role(self):
+            self.volume_types_client.remove_type_access(
+                self.vol_type['id'], project=self.project_id)

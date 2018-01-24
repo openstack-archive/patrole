@@ -47,24 +47,24 @@ class VolumeQuotasV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume_extension:quotas:show")
     def test_list_quotas(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.quotas_client.show_quota_set(self.demo_tenant_id)
+        with self.rbac_utils.override_role(self):
+            self.quotas_client.show_quota_set(self.demo_tenant_id)
 
     @decorators.idempotent_id('e47cf444-2753-4983-be6d-fc0d6523720f')
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume_extension:quotas:show")
     def test_list_quotas_usage_true(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.quotas_client.show_quota_set(self.demo_tenant_id,
-                                          params={'usage': True})
+        with self.rbac_utils.override_role(self):
+            self.quotas_client.show_quota_set(self.demo_tenant_id,
+                                              params={'usage': True})
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume_extension:quotas:show")
     @decorators.idempotent_id('b3c7177e-b6b1-4d0f-810a-fc95606964dd')
     def test_list_default_quotas(self):
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.quotas_client.show_default_quota_set(
-            self.demo_tenant_id)
+        with self.rbac_utils.override_role(self):
+            self.quotas_client.show_default_quota_set(
+                self.demo_tenant_id)
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume_extension:quotas:update")
@@ -75,9 +75,9 @@ class VolumeQuotasV3RbacTest(rbac_base.BaseVolumeRbacTest):
                          'volumes': 11,
                          'snapshots': 11}
         # Update limits for all quota resources.
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.quotas_client.update_quota_set(
-            self.demo_tenant_id, **new_quota_set)
+        with self.rbac_utils.override_role(self):
+            self.quotas_client.update_quota_set(
+                self.demo_tenant_id, **new_quota_set)
 
     @decorators.idempotent_id('329bdb88-5132-4810-b1fc-350d181577e3')
     @rbac_rule_validation.action(service="cinder",
@@ -85,5 +85,5 @@ class VolumeQuotasV3RbacTest(rbac_base.BaseVolumeRbacTest):
     def test_delete_quota_set(self):
         self._restore_default_quota_set()
 
-        self.rbac_utils.switch_role(self, toggle_rbac_role=True)
-        self.quotas_client.delete_quota_set(self.demo_tenant_id)
+        with self.rbac_utils.override_role(self):
+            self.quotas_client.delete_quota_set(self.demo_tenant_id)
