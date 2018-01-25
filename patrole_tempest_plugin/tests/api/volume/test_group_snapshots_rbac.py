@@ -154,3 +154,47 @@ class GroupSnaphotsV314RbacTest(BaseGroupSnapshotsRbacTest):
                         snap['id'])
         self.group_snapshots_client.wait_for_resource_deletion(
             group_snapshot['id'])
+
+
+class GroupSnaphotsV319RbacTest(BaseGroupSnapshotsRbacTest):
+    _api_version = 3
+    min_microversion = '3.19'
+    max_microversion = 'latest'
+
+    @classmethod
+    def skip_checks(cls):
+        super(GroupSnaphotsV319RbacTest, cls).skip_checks()
+        if not utils.is_extension_enabled('groupsnapshot', 'volume'):
+            msg = "%s skipped as group snapshots not enabled." % cls.__name__
+            raise cls.skipException(msg)
+
+    @classmethod
+    def setup_clients(cls):
+        super(GroupSnaphotsV319RbacTest, cls).setup_clients()
+        cls.group_snapshot_client = \
+            cls.os_primary.group_snapshots_v3_client
+
+    def setUp(self):
+        super(GroupSnaphotsV319RbacTest, self).setUp()
+        self.volume_type = self.create_volume_type()
+        self.group_type = self.create_group_type()
+        self.grp = self.create_group(group_type=self.group_type['id'],
+                                     volume_types=[self.volume_type['id']])
+        self.vol = self.create_volume(volume_type=self.volume_type['id'],
+                                      group_id=self.grp['id'])
+
+    @decorators.idempotent_id('3f0c842e-0c72-4f5e-a9c2-281070be3e2c')
+    @rbac_rule_validation.action(
+        service="cinder",
+        rule="group:reset_group_snapshot_status"
+        )
+    def test_reset_group_snapshot_rbac(self):
+        group_snapshot_name = data_utils.rand_name('group_snapshot')
+        group_snapshot = self._create_group_snapshot(group_id=self.grp['id'],
+                                                     name=group_snapshot_name)
+        with self.rbac_utils.override_role(self):
+            self.group_snapshots_client.reset_group_snapshot_status(
+                group_snapshot['id'], 'error')
+
+        waiters.wait_for_volume_resource_status(
+            self.group_snapshots_client, group_snapshot['id'], 'error')
