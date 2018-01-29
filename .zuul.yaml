@@ -65,7 +65,6 @@
     post-run: playbooks/legacy/patrole-py35-member/post.yaml
 
 - project:
-    name: openstack/patrole
     check:
       jobs:
         - patrole-admin
