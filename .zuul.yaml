@@ -33,36 +33,36 @@
 - job:
     name: patrole-admin
     parent: patrole-base
-    run: playbooks/legacy/patrole-admin/run.yaml
-    post-run: playbooks/legacy/patrole-admin/post.yaml
+    run: playbooks/patrole-admin/run.yaml
+    post-run: playbooks/patrole-admin/post.yaml
 
 - job:
     name: patrole-member
     parent: patrole-base
-    run: playbooks/legacy/patrole-member/run.yaml
-    post-run: playbooks/legacy/patrole-member/post.yaml
+    run: playbooks/patrole-member/run.yaml
+    post-run: playbooks/patrole-member/post.yaml
 
 - job:
     name: patrole-multinode-admin
     parent: patrole-base-multinode
-    run: playbooks/legacy/patrole-multinode-admin/run.yaml
-    post-run: playbooks/legacy/patrole-multinode-admin/post.yaml
+    run: playbooks/patrole-multinode-admin/run.yaml
+    post-run: playbooks/patrole-multinode-admin/post.yaml
     voting: false
     nodeset: legacy-ubuntu-xenial-2-node
 
 - job:
     name: patrole-multinode-member
     parent: patrole-base-multinode
-    run: playbooks/legacy/patrole-multinode-member/run.yaml
-    post-run: playbooks/legacy/patrole-multinode-member/post.yaml
+    run: playbooks/patrole-multinode-member/run.yaml
+    post-run: playbooks/patrole-multinode-member/post.yaml
     voting: false
     nodeset: legacy-ubuntu-xenial-2-node
 
 - job:
     name: patrole-py35-member
     parent: patrole-base
-    run: playbooks/legacy/patrole-py35-member/run.yaml
-    post-run: playbooks/legacy/patrole-py35-member/post.yaml
+    run: playbooks/patrole-py35-member/run.yaml
+    post-run: playbooks/patrole-py35-member/post.yaml
 
 - project:
     check:
