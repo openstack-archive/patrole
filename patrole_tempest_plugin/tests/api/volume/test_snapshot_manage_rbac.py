@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from tempest.common import waiters
 from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
@@ -54,21 +55,20 @@ class SnapshotManageRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_manage_snapshot_rbac(self):
         name = data_utils.rand_name(self.__class__.__name__ +
                                     '-Managed-Snapshot')
-        description = data_utils.rand_name(self.__class__.__name__ +
-                                           '-Managed-Snapshot-Description')
-        metadata = {"manage-snap-meta1": "value1",
-                    "manage-snap-meta2": "value2",
-                    "manage-snap-meta3": "value3"}
         snapshot_ref = {
             'volume_id': self.volume['id'],
             'ref': {CONF.volume.manage_snapshot_ref[0]:
                     CONF.volume.manage_snapshot_ref[1] % self.snapshot['id']},
-            'name': name,
-            'description': description,
-            'metadata': metadata
+            'name': name
         }
         with self.rbac_utils.override_role(self):
-            self.snapshot_manage_client.manage_snapshot(**snapshot_ref)
+            snapshot = self.snapshot_manage_client.manage_snapshot(
+                **snapshot_ref)['snapshot']
+        self.addCleanup(self.delete_snapshot, snapshot['id'],
+                        self.snapshots_client)
+        waiters.wait_for_volume_resource_status(self.snapshots_client,
+                                                snapshot['id'],
+                                                'available')
 
     @decorators.idempotent_id('4a2e8934-9c0b-434e-8f0b-e18b9aff126f')
     @rbac_rule_validation.action(
