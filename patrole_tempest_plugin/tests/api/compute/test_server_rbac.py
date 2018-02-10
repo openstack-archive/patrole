@@ -102,7 +102,7 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
                       'source_type': 'volume',
                       'destination_type': 'volume',
                       'boot_index': 0,
-                      'delete_on_termination': True}]
+                      'delete_on_termination': False}]
         device_mapping = {'block_device_mapping_v2': bd_map_v2}
 
         with self.rbac_utils.override_role(self):
@@ -112,6 +112,8 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
                 flavorRef=CONF.compute.flavor_ref,
                 imageRef='',
                 **device_mapping)['server']
+        waiters.wait_for_server_status(
+            self.servers_client, server['id'], 'ACTIVE')
         # Delete the server and wait for the volume to become available to
         # avoid clean up errors.
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
