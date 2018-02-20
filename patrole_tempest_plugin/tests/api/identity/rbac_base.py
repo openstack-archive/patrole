@@ -52,12 +52,9 @@ class BaseIdentityRbacTest(rbac_utils.RbacUtilsMixin,
         params = {
             'service_id': service['id'],
             'region': region_name,
-            'interface': interface
+            'interface': interface,
+            'url': url
         }
-        if cls.identity_version == 'v2':
-            params['publicurl'] = url
-        elif cls.identity_version == 'v3':
-            params['url'] = url
 
         endpoint = cls.endpoints_client.create_endpoint(**params)['endpoint']
         cls.addClassResourceCleanup(
@@ -87,12 +84,7 @@ class BaseIdentityRbacTest(rbac_utils.RbacUtilsMixin,
         service = cls.services_client.create_service(
             name=name,
             type=serv_type,
-            description=desc)
-
-        if cls.identity_version == 'v2':
-            service = service['OS-KSADM:service']
-        elif cls.identity_version == 'v3':
-            service = service['service']
+            description=desc)['service']
 
         cls.addClassResourceCleanup(
             test_utils.call_and_ignore_notfound_exc,
@@ -116,74 +108,6 @@ class BaseIdentityRbacTest(rbac_utils.RbacUtilsMixin,
             cls.users_client.delete_user, user['id'])
 
         return user
-
-
-class BaseIdentityV2AdminRbacTest(BaseIdentityRbacTest):
-    """Base test class for the Identity v2 admin API.
-
-    Keystone's v2 API is split into two APIs: an admin and non-admin API. RBAC
-    testing is only provided for the admin API. Instead of policy enforcement,
-    these APIs execute ``self.assert_admin(request)``, which checks that the
-    request object has ``context_is_admin``. For more details, see the
-    implementation of ``assert_admin`` in ``keystone.common.wsgi``.
-    """
-    identity_version = 'v2'
-    credentials = ['primary']
-
-    @classmethod
-    def skip_checks(cls):
-        super(BaseIdentityV2AdminRbacTest, cls).skip_checks()
-        if not CONF.identity_feature_enabled.api_v2_admin:
-            raise cls.skipException('Identity v2 admin not available')
-
-    @classmethod
-    def setup_clients(cls):
-        super(BaseIdentityV2AdminRbacTest, cls).setup_clients()
-        cls.client = cls.os_primary.identity_client
-        cls.endpoints_client = cls.os_primary.endpoints_client
-        cls.roles_client = cls.os_primary.roles_client
-        cls.services_client = cls.os_primary.identity_services_client
-        cls.tenants_client = cls.os_primary.tenants_client
-        cls.token_client = cls.os_primary.token_client
-        cls.users_client = cls.os_primary.users_client
-
-    @classmethod
-    def resource_setup(cls):
-        super(BaseIdentityV2AdminRbacTest, cls).resource_setup()
-        cls.tenants = []
-        cls.tokens = []
-
-    @classmethod
-    def resource_cleanup(cls):
-        for tenant in cls.tenants:
-            test_utils.call_and_ignore_notfound_exc(
-                cls.tenants_client.delete_tenant, tenant['id'])
-
-        for token in cls.tokens:
-            test_utils.call_and_ignore_notfound_exc(
-                cls.client.delete_token, token)
-
-        super(BaseIdentityV2AdminRbacTest, cls).resource_cleanup()
-
-    @classmethod
-    def setup_test_tenant(cls):
-        """Set up a test tenant."""
-        name = data_utils.rand_name(cls.__name__ + '-test_tenant')
-        tenant = cls.tenants_client.create_tenant(
-            name=name,
-            description=data_utils.rand_name(
-                cls.__name__ + '-desc'))['tenant']
-        cls.tenants.append(tenant)
-        return tenant
-
-    @classmethod
-    def setup_test_token(cls, user_name, password, tenant_name):
-        """Set up a test token."""
-        token = cls.token_client.auth(user_name, password,
-                                      tenant_name)['token']
-        token_id = token['id']
-        cls.tokens.append(token_id)
-        return token_id
 
 
 class BaseIdentityV3RbacTest(BaseIdentityRbacTest):
