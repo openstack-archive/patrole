@@ -17,6 +17,7 @@ from tempest import config
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
+from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
@@ -31,19 +32,14 @@ class VolumeMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
         cls.volume = cls.create_volume()
         cls.image_id = CONF.compute.image_ref
 
-    def setUp(self):
-        super(VolumeMetadataV3RbacTest, self).setUp()
-        self._add_metadata(self.volume)
-
-    def tearDown(self):
-        self.volumes_client.update_volume_metadata(self.volume['id'], {})
-        super(VolumeMetadataV3RbacTest, self).tearDown()
-
     def _add_metadata(self, volume):
-        # Create metadata for the volume
+        # Create metadata for the volume.
         metadata = {"key1": "value1"}
         self.volumes_client.create_volume_metadata(
             self.volume['id'], metadata)['metadata']
+        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
+                        self.volumes_client.delete_volume_metadata_item,
+                        self.volume['id'], "key1")
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:create_volume_metadata")
@@ -60,10 +56,22 @@ class VolumeMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
             self.volumes_client.show_volume_metadata(
                 self.volume['id'])['metadata']
 
+    @decorators.idempotent_id('5c0f4c19-b448-4f51-9224-dad5faddc3bb')
+    @rbac_rule_validation.action(service="cinder",
+                                 rule="volume:get_volume_metadata")
+    def test_show_volume_metadata_item(self):
+        self._add_metadata(self.volume)
+
+        with self.rbac_utils.override_role(self):
+            self.volumes_client.show_volume_metadata_item(
+                self.volume['id'], "key1")
+
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:delete_volume_metadata")
     @decorators.idempotent_id('7498dfc1-9db2-4423-ad20-e6dcb25d1beb')
     def test_delete_volume_metadata_item(self):
+        self._add_metadata(self.volume)
+
         with self.rbac_utils.override_role(self):
             self.volumes_client.delete_volume_metadata_item(self.volume['id'],
                                                             "key1")
@@ -72,6 +80,7 @@ class VolumeMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
                                  rule="volume:update_volume_metadata")
     @decorators.idempotent_id('8ce2ff80-99ba-49ae-9bb1-7e96729ee5af')
     def test_update_volume_metadata_item(self):
+        self._add_metadata(self.volume)
         updated_metadata_item = {"key1": "value1_update"}
         with self.rbac_utils.override_role(self):
             self.volumes_client.update_volume_metadata_item(
@@ -81,10 +90,47 @@ class VolumeMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:update_volume_metadata")
     def test_update_volume_metadata(self):
+        self._add_metadata(self.volume)
         updated_metadata = {"key1": "value1"}
         with self.rbac_utils.override_role(self):
             self.volumes_client.update_volume_metadata(self.volume['id'],
                                                        updated_metadata)
+
+    @decorators.idempotent_id('39e8f82c-f1fc-4905-bf47-177ce2f71bb9')
+    @rbac_rule_validation.action(
+        service="cinder",
+        rule="volume_extension:volume_image_metadata")
+    def test_list_volumes_details_image_metadata(self):
+        self.volumes_client.update_volume_image_metadata(
+            self.volume['id'], image_id=self.image_id)
+        self.addCleanup(self.volumes_client.delete_volume_image_metadata,
+                        self.volume['id'], 'image_id')
+
+        with self.rbac_utils.override_role(self):
+            resp_body = self.volumes_client.list_volumes(detail=True)[
+                'volumes']
+        expected_attr = 'volume_image_metadata'
+        if expected_attr not in resp_body[0]:
+            raise rbac_exceptions.RbacMalformedResponse(
+                attribute=expected_attr)
+
+    @decorators.idempotent_id('53f94d52-0dd5-42cf-a3a4-59b35150b3d5')
+    @rbac_rule_validation.action(
+        service="cinder",
+        rule="volume_extension:volume_image_metadata")
+    def test_show_volume_details_image_metadata(self):
+        self.volumes_client.update_volume_image_metadata(
+            self.volume['id'], image_id=self.image_id)
+        self.addCleanup(self.volumes_client.delete_volume_image_metadata,
+                        self.volume['id'], 'image_id')
+
+        with self.rbac_utils.override_role(self):
+            resp_body = self.volumes_client.show_volume(self.volume['id'])[
+                'volume']
+        expected_attr = 'volume_image_metadata'
+        if expected_attr not in resp_body:
+            raise rbac_exceptions.RbacMalformedResponse(
+                attribute=expected_attr)
 
     @decorators.idempotent_id('a9d9e825-5ea3-42e6-96f3-7ac4e97b2ed0')
     @rbac_rule_validation.action(
