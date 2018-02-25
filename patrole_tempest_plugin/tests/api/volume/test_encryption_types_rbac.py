@@ -82,3 +82,13 @@ class EncryptionTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
         vol_type_id = self._create_volume_type_encryption()
         with self.rbac_utils.override_role(self):
             self.encryption_types_client.show_encryption_type(vol_type_id)
+
+    @decorators.idempotent_id('d4ed3cf8-52b2-4fa2-910d-e405361f0881')
+    @rbac_rule_validation.action(
+        service="cinder",
+        rule="volume_extension:volume_type_encryption")
+    def test_show_encryption_specs_item(self):
+        vol_type_id = self._create_volume_type_encryption()
+        with self.rbac_utils.override_role(self):
+            self.encryption_types_client.show_encryption_specs_item(
+                vol_type_id, 'provider')
