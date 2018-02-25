@@ -13,14 +13,23 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.identity import rbac_base
 
+CONF = config.CONF
+
 
 class ProjectTagsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
+
+    @classmethod
+    def skip_checks(cls):
+        super(ProjectTagsV3RbacTest, cls).skip_checks()
+        if not CONF.identity_feature_enabled.project_tags:
+            raise cls.skipException("Project tags feature disabled")
 
     @classmethod
     def resource_setup(cls):

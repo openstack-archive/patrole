@@ -55,9 +55,24 @@
     name: patrole-member
     parent: patrole-base
     description: Patrole job for Member role.
+    # This currently works from stable/pike onward.
+    branches:
+      - master
+      - stable/queens
+      - stable/pike
     vars:
       devstack_localrc:
         RBAC_TEST_ROLE: Member
+
+- job:
+    name: patrole-member-queens
+    parent: patrole-member
+    override-checkout: stable/queens
+
+- job:
+    name: patrole-member-pike
+    parent: patrole-member
+    override-checkout: stable/pike
 
 - job:
     name: patrole-multinode-admin
@@ -98,6 +113,8 @@
       jobs:
         - patrole-admin
         - patrole-member
+        - patrole-member-queens
+        - patrole-member-pike
         - patrole-py35-member
         - patrole-multinode-admin
         - patrole-multinode-member
@@ -106,5 +123,7 @@
       jobs:
         - patrole-admin
         - patrole-member
+        - patrole-member-queens
+        - patrole-member-pike
         - patrole-py35-member
         - openstack-tox-lower-constraints
