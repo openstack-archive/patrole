@@ -1,0 +1,11 @@
+---
+prelude: >
+    This release marks the start of Queens release support in Patrole.
+other:
+    - OpenStack Releases supported after this release are **Queens**
+      and **Pike**.
+
+      The release under current development of this tag is Rocky, meaning
+      that every Patrole commit is also tested against master during the Rocky
+      cycle. However, this does not necessarily mean that using Patrole as of
+      this tag will work against a Rocky (or future release) cloud.
