@@ -39,25 +39,17 @@ The following are Patrole's specific Commandments:
 - [P103] ``self.client`` must not be used as a client alias; this allows for
          code that is more maintainable and easier to read
 
-Role Switching
---------------
+Role Overriding
+---------------
 
-Correct role switching is vital to correct RBAC testing within Patrole. If a
-test does not call ``rbac_utils.switch_role`` with ``toggle_rbac_role=True``
-within the RBAC test, then the test is *not* a valid RBAC test: The API
-endpoint under test will be performed with admin credentials, which is always
-wrong unless ``CONF.patrole.rbac_test_role`` is admin.
+Correct role overriding is vital to correct RBAC testing within Patrole. If a
+test does not call ``rbac_utils.override_role`` within the RBAC test, followed
+by the API endpoint that enforces the expected policy action, then the test is
+**not** a valid Patrole test: The API endpoint under test will be performed
+with admin role, which is always wrong unless ``CONF.patrole.rbac_test_role``
+is also admin.
 
-.. note::
+.. todo::
 
-    Switching back to the admin role for setup and clean up is automatically
-    performed. Toggling ``switch_role`` with ``toggle_rbac_role=False`` within
-    the context of a test should *never* be performed and doing so will likely
-    result in an error being thrown.
-..
-
-Patrole does not have a hacking check for role switching, but does use a
-built-in mechanism for verifying that role switching is being correctly
-executed across tests. If a test does not call ``switch_role`` with
-``toggle_rbac_role=True``, then an ``RbacResourceSetupFailed`` exception
-will be raised.
+    Patrole does not have a hacking check for role overriding, but one may be
+    added in the future.
