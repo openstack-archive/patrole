@@ -26,7 +26,6 @@ from tempest import test
 
 from patrole_tempest_plugin import policy_authority
 from patrole_tempest_plugin import rbac_exceptions
-from patrole_tempest_plugin import rbac_utils
 from patrole_tempest_plugin import requirements_authority
 
 CONF = config.CONF
@@ -37,8 +36,7 @@ _SUPPORTED_ERROR_CODES = [403, 404]
 RBACLOG = logging.getLogger('rbac_reporting')
 
 
-def action(service, rule='', admin_only=False, expected_error_code=403,
-           extra_target_data=None):
+def action(service, rule='', expected_error_code=403, extra_target_data=None):
     """A decorator for verifying OpenStack policy enforcement.
 
     A decorator which allows for positive and negative RBAC testing. Given:
@@ -77,10 +75,6 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
 
             Patrole currently only supports custom JSON policy files.
 
-    :param admin_only: Skips over ``oslo.policy`` check because the policy
-        action defined by ``rule`` is not enforced by the service's policy
-        enforcement engine. For example, Keystone v2 performs an admin check
-        for most of its endpoints. If True, ``rule`` is effectively ignored.
     :param expected_error_code: Overrides default value of 403 (Forbidden)
         with endpoint-specific error code. Currently only supports 403 and 404.
         Support for 404 is needed because some services, like Neutron,
@@ -131,7 +125,7 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
                     'an instance of `tempest.test.BaseTestCase`.')
 
             allowed = _is_authorized(test_obj, service, rule,
-                                     extra_target_data, admin_only)
+                                     extra_target_data)
 
             expected_exception, irregular_msg = _get_exception_type(
                 expected_error_code)
@@ -188,7 +182,7 @@ def action(service, rule='', admin_only=False, expected_error_code=403,
     return decorator
 
 
-def _is_authorized(test_obj, service, rule, extra_target_data, admin_only):
+def _is_authorized(test_obj, service, rule, extra_target_data):
     """Validates whether current RBAC role has permission to do policy action.
 
     :param test_obj: An instance or subclass of ``tempest.test.BaseTestCase``.
@@ -200,10 +194,6 @@ def _is_authorized(test_obj, service, rule, extra_target_data, admin_only):
         ``tempest.test.BaseTestCase`` attributes. Used by ``oslo.policy`` for
         performing matching against attributes that are sent along with the API
         calls.
-    :param admin_only: Skips over ``oslo.policy`` check because the policy
-        action defined by ``rule`` is not enforced by the service's policy
-        enforcement engine. For example, Keystone v2 performs an admin check
-        for most of its endpoints. If True, ``rule`` is effectively ignored.
 
     :returns: True if the current RBAC role can perform the policy action,
         else False.
@@ -215,12 +205,6 @@ def _is_authorized(test_obj, service, rule, extra_target_data, admin_only):
     :raises skipException: If ``[patrole] strict_policy_check`` is False and
         the ``rule`` does not exist in the system.
     """
-
-    if admin_only:
-        LOG.info("As admin_only is True, only admin role should be "
-                 "allowed to perform the API. Skipping oslo.policy "
-                 "check for policy action {0}.".format(rule))
-        return rbac_utils.is_admin()
 
     try:
         project_id = test_obj.os_primary.credentials.project_id
