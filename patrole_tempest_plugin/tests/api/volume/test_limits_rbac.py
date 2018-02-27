@@ -15,6 +15,7 @@
 
 from tempest.lib import decorators
 
+from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
 
@@ -26,5 +27,20 @@ class LimitsV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @rbac_rule_validation.action(service="cinder",
                                  rule="limits_extension:used_limits")
     def test_show_limits(self):
+        # It is enough to check whether any of the following keys below
+        # are in the response body under ['limits']['absolute'], but no harm
+        # in checking for them all.
+        expected_keys = {
+            'totalVolumesUsed',
+            'totalGigabytesUsed',
+            'totalSnapshotsUsed',
+            'totalBackupsUsed',
+            'totalBackupGigabytesUsed'
+        }
+
         with self.rbac_utils.override_role(self):
-            self.volume_limits_client.show_limits()
+            absolute_limits = self.volume_limits_client.show_limits()[
+                'limits']['absolute']
+        for key in expected_keys:
+            if key not in absolute_limits:
+                raise rbac_exceptions.RbacMalformedResponse(attribute=key)
