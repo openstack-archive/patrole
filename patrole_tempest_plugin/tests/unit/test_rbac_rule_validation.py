@@ -13,7 +13,6 @@
 #    under the License.
 
 import mock
-import testtools
 
 from tempest.lib import exceptions
 from tempest import manager
@@ -297,12 +296,8 @@ class RBACRuleValidationTest(base.TestCase):
     @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
     def test_invalid_policy_rule_raises_parsing_exception(
             self, mock_authority):
-        """Test that invalid policy action causes test to be fail with
-        ``[patrole] strict_policy_check`` set to True.
+        """Test that invalid policy action causes test to raise an exception.
         """
-        self.useFixture(
-            fixtures.ConfPatcher(strict_policy_check=True, group='patrole'))
-
         mock_authority.PolicyAuthority.return_value.allowed.\
             side_effect = rbac_exceptions.RbacParsingException
 
@@ -312,30 +307,6 @@ class RBACRuleValidationTest(base.TestCase):
 
         error_re = 'Attempted to test an invalid policy file or action'
         self.assertRaisesRegex(rbac_exceptions.RbacParsingException, error_re,
-                               test_policy, self.mock_test_args)
-
-        mock_authority.PolicyAuthority.assert_called_once_with(
-            mock.sentinel.project_id, mock.sentinel.user_id,
-            mock.sentinel.service, extra_target_data={})
-
-    @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
-    def test_invalid_policy_rule_raises_skip_exception(
-            self, mock_authority):
-        """Test that invalid policy action causes test to be skipped with
-        ``[patrole] strict_policy_check`` set to False.
-        """
-        self.useFixture(
-            fixtures.ConfPatcher(strict_policy_check=False, group='patrole'))
-
-        mock_authority.PolicyAuthority.return_value.allowed.side_effect = (
-            rbac_exceptions.RbacParsingException)
-
-        @rbac_rv.action(mock.sentinel.service, mock.sentinel.action)
-        def test_policy(*args):
-            pass
-
-        error_re = 'Attempted to test an invalid policy file or action'
-        self.assertRaisesRegex(testtools.TestCase.skipException, error_re,
                                test_policy, self.mock_test_args)
 
         mock_authority.PolicyAuthority.assert_called_once_with(

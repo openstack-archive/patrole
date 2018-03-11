@@ -158,6 +158,8 @@ class PolicyAuthority(RbacAuthority):
 
         :param string rule_name: Rule to be checked using ``oslo.policy``.
         :param bool is_admin: Whether admin context is used.
+        :raises RbacParsingException: If `rule_name`` does not exist in the
+            cloud (in policy file or among registered in-code policy defaults).
         """
         is_admin_context = self._is_admin_context(role)
         is_allowed = self._allowed(
@@ -215,9 +217,11 @@ class PolicyAuthority(RbacAuthority):
             policy_data = mgr_policy_data
         else:
             error_message = (
-                'Policy file for {0} service neither found in code nor at {1}.'
-                .format(service, [loc % service for loc in
-                                  CONF.patrole.custom_policy_files])
+                'Policy file for {0} service was not found among the '
+                'registered in-code policies or in any of the possible policy '
+                'files: {1}.'.format(service,
+                                     [loc % service for loc in
+                                      CONF.patrole.custom_policy_files])
             )
             raise rbac_exceptions.RbacParsingException(error_message)
 

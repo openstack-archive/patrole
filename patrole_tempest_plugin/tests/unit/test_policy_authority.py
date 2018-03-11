@@ -387,12 +387,11 @@ class PolicyAuthorityTest(base.TestCase):
                               policy_authority.PolicyAuthority,
                               None, None, 'test_service')
 
-        expected_error = \
-            'Policy file for {0} service neither found in code '\
-            'nor at {1}.'.format(
-                'test_service',
-                [CONF.patrole.custom_policy_files[0] % 'test_service'])
-
+        expected_error = (
+            'Policy file for {0} service was not found among the registered '
+            'in-code policies or in any of the possible policy files: {1}.'
+            .format('test_service',
+                    [CONF.patrole.custom_policy_files[0] % 'test_service']))
         self.assertIn(expected_error, str(e))
 
     @mock.patch.object(policy_authority, 'json', autospec=True)
@@ -436,7 +435,8 @@ class PolicyAuthorityTest(base.TestCase):
                               None, None, 'tenant_rbac_policy')
 
         expected_error = (
-            'Policy file for {0} service neither found in code nor at {1}.'
+            'Policy file for {0} service was not found among the registered '
+            'in-code policies or in any of the possible policy files: {1}.'
             .format('tenant_rbac_policy', [CONF.patrole.custom_policy_files[0]
                                            % 'tenant_rbac_policy']))
         self.assertIn(expected_error, str(e))
@@ -485,9 +485,10 @@ class PolicyAuthorityTest(base.TestCase):
                          policy_parser.policy_files['test_service'])
 
     def test_discover_policy_files_with_no_valid_files(self):
-        expected_error = ("Policy file for test_service service neither found "
-                          "in code nor at %s." %
-                          [self.conf_policy_path % 'test_service'])
+        expected_error = (
+            'Policy file for {0} service was not found among the registered '
+            'in-code policies or in any of the possible policy files: {1}.'
+            .format('test_service', [self.conf_policy_path % 'test_service']))
 
         e = self.assertRaises(rbac_exceptions.RbacParsingException,
                               policy_authority.PolicyAuthority,

@@ -163,8 +163,7 @@ def action(service, rule='', expected_error_code=403, extra_target_data=None):
                     LOG.error(msg)
             else:
                 if not allowed:
-                    LOG.error("Role %s was allowed to perform %s",
-                              role, rule)
+                    LOG.error("Role %s was allowed to perform %s", role, rule)
                     raise rbac_exceptions.RbacOverPermission(
                         "OverPermission: Role %s was allowed to perform %s" %
                         (role, rule))
@@ -200,10 +199,6 @@ def _is_authorized(test_obj, service, rule, extra_target_data):
 
     :raises RbacResourceSetupFailed: If `project_id` or `user_id` are missing
         from the `auth_provider` attribute in `test_obj`.
-    :raises RbacParsingException: if ``[patrole] strict_policy_check`` is True
-        and the ``rule`` does not exist in the system.
-    :raises skipException: If ``[patrole] strict_policy_check`` is False and
-        the ``rule`` does not exist in the system.
     """
 
     try:
@@ -215,33 +210,27 @@ def _is_authorized(test_obj, service, rule, extra_target_data):
         LOG.error(msg)
         raise rbac_exceptions.RbacResourceSetupFailed(msg)
 
-    try:
-        role = CONF.patrole.rbac_test_role
-        # Test RBAC against custom requirements. Otherwise use oslo.policy.
-        if CONF.patrole.test_custom_requirements:
-            authority = requirements_authority.RequirementsAuthority(
-                CONF.patrole.custom_requirements_file, service)
-        else:
-            formatted_target_data = _format_extra_target_data(
-                test_obj, extra_target_data)
-            authority = policy_authority.PolicyAuthority(
-                project_id, user_id, service,
-                extra_target_data=formatted_target_data)
-        is_allowed = authority.allowed(rule, role)
+    role = CONF.patrole.rbac_test_role
+    # Test RBAC against custom requirements. Otherwise use oslo.policy.
+    if CONF.patrole.test_custom_requirements:
+        authority = requirements_authority.RequirementsAuthority(
+            CONF.patrole.custom_requirements_file, service)
+    else:
+        formatted_target_data = _format_extra_target_data(
+            test_obj, extra_target_data)
+        authority = policy_authority.PolicyAuthority(
+            project_id, user_id, service,
+            extra_target_data=formatted_target_data)
+    is_allowed = authority.allowed(rule, role)
 
-        if is_allowed:
-            LOG.debug("[Action]: %s, [Role]: %s is allowed!", rule,
-                      role)
-        else:
-            LOG.debug("[Action]: %s, [Role]: %s is NOT allowed!",
-                      rule, role)
-        return is_allowed
-    except rbac_exceptions.RbacParsingException as e:
-        if CONF.patrole.strict_policy_check:
-            raise e
-        else:
-            raise testtools.TestCase.skipException(str(e))
-    return False
+    if is_allowed:
+        LOG.debug("[Action]: %s, [Role]: %s is allowed!", rule,
+                  role)
+    else:
+        LOG.debug("[Action]: %s, [Role]: %s is NOT allowed!",
+                  rule, role)
+
+    return is_allowed
 
 
 def _get_exception_type(expected_error_code=403):
