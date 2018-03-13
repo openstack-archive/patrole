@@ -14,6 +14,7 @@
 #    under the License.
 
 from oslo_log import log
+
 from tempest.common import utils
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
@@ -26,18 +27,34 @@ from patrole_tempest_plugin.tests.api.network import rbac_base as base
 LOG = log.getLogger(__name__)
 
 
-class NetworksMultiProviderRbacTest(base.BaseNetworkRbacTest):
+class NetworkSegmentsRbacTest(base.BaseNetworkRbacTest):
 
     @classmethod
     def skip_checks(cls):
-        super(NetworksMultiProviderRbacTest, cls).skip_checks()
+        super(NetworkSegmentsRbacTest, cls).skip_checks()
         if not utils.is_extension_enabled('multi-provider', 'network'):
             msg = "multi-provider extension not enabled."
             raise cls.skipException(msg)
 
+    @classmethod
+    def resource_setup(cls):
+        super(NetworkSegmentsRbacTest, cls).resource_setup()
+        # Find the network type that is supported by the current cloud by
+        # checking which network type other networks currently have. This is
+        # done because there is no tempest.conf option enumerating supported
+        # network types.
+        networks = cls.networks_client.list_networks()['networks']
+        network_types = [n['provider:network_type'] for n in networks
+                         if n['provider:network_type'] != 'flat']
+        if not network_types:
+            raise cls.skipException(
+                'Could not find network with provider:network_type that is '
+                'not "flat".')
+        cls.network_type = network_types[0]
+
     def _create_network_segments(self):
-        segments = [{"provider:network_type": "gre"},
-                    {"provider:network_type": "gre"}]
+        segments = [{'provider:network_type': self.network_type},
+                    {'provider:network_type': self.network_type}]
 
         body = self.networks_client.create_network(
             name=data_utils.rand_name(self.__class__.__name__),
@@ -68,7 +85,7 @@ class NetworksMultiProviderRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron update_network:segments policy
         """
         network = self._create_network_segments()
-        new_segments = [{"provider:network_type": "gre"}]
+        new_segments = [{'provider:network_type': self.network_type}]
 
         with self.rbac_utils.override_role(self):
             self.networks_client.update_network(network['id'],
@@ -92,7 +109,7 @@ class NetworksMultiProviderRbacTest(base.BaseNetworkRbacTest):
         # If user does not have access to the network segments attribute,
         # no NotFound or Forbidden exception are thrown.  Instead,
         # the response will have an empty network body only.
-        if len(response_network) == 0:
+        if not response_network:
             LOG.info("NotFound or Forbidden exception are not thrown when "
                      "role doesn't have access to the endpoint. Instead, "
                      "the response will have an empty network body.")
