@@ -63,8 +63,8 @@ class VolumesSnapshotV3RbacTest(rbac_base.BaseVolumeRbacTest):
     def test_snapshot_get(self):
         # Get the snapshot
         with self.rbac_utils.override_role(self):
-            self.snapshots_client.show_snapshot(self.snapshot
-                                                ['id'])['snapshot']
+            self.snapshots_client.show_snapshot(
+                self.snapshot['id'])['snapshot']
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:update_snapshot")
@@ -80,16 +80,6 @@ class VolumesSnapshotV3RbacTest(rbac_base.BaseVolumeRbacTest):
             self.snapshots_client, self.snapshot['id'], 'available')
 
     @rbac_rule_validation.action(service="cinder",
-                                 rule="volume:get_all_snapshots")
-    @decorators.idempotent_id('e4edf0c0-2cd3-420f-b8ab-4d98a0718608')
-    def test_snapshots_get_all(self):
-        """list snapshots with params."""
-        # Verify list snapshots by display_name filter
-        params = {'name': self.snapshot['name']}
-        with self.rbac_utils.override_role(self):
-            self._list_by_param_values(params)
-
-    @rbac_rule_validation.action(service="cinder",
                                  rule="volume:delete_snapshot")
     @decorators.idempotent_id('c7fe54ec-3b70-4772-ba11-f166d95888a3')
     def test_snapshot_delete(self):
@@ -100,3 +90,23 @@ class VolumesSnapshotV3RbacTest(rbac_base.BaseVolumeRbacTest):
             self.snapshots_client.delete_snapshot(temp_snapshot['id'])
         self.snapshots_client.wait_for_resource_deletion(
             temp_snapshot['id'])
+
+    @rbac_rule_validation.action(service="cinder",
+                                 rule="volume:get_all_snapshots")
+    @decorators.idempotent_id('e4edf0c0-2cd3-420f-b8ab-4d98a0718608')
+    def test_list_snapshots(self):
+        """List snapshots with params."""
+        # Verify list snapshots by display_name filter
+        params = {'name': self.snapshot['name']}
+        with self.rbac_utils.override_role(self):
+            self._list_by_param_values(params)
+
+    @decorators.idempotent_id('f3155d8e-45ee-45c9-910d-18c0242229e1')
+    @rbac_rule_validation.action(service="cinder",
+                                 rule="volume:get_all_snapshots")
+    def test_list_snapshots_details(self):
+        """List snapshots details with params."""
+        # Verify list snapshots by display_name filter
+        params = {'name': self.snapshot['name']}
+        with self.rbac_utils.override_role(self):
+            self._list_by_param_values(params, with_detail=True)
