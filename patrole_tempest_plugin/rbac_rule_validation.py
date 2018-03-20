@@ -13,9 +13,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import functools
 import logging
 import sys
-import testtools
 
 from oslo_utils import excutils
 import six
@@ -116,6 +116,7 @@ def action(service, rule='', expected_error_code=403, extra_target_data=None):
     def decorator(test_func):
         role = CONF.patrole.rbac_test_role
 
+        @functools.wraps(test_func)
         def wrapper(*args, **kwargs):
             if args and isinstance(args[0], test.BaseTestCase):
                 test_obj = args[0]
@@ -176,8 +177,7 @@ def action(service, rule='', expected_error_code=403, extra_target_data=None):
                         "Allowed" if allowed else "Denied",
                         test_status)
 
-        _wrapper = testtools.testcase.attr(role)(wrapper)
-        return _wrapper
+        return wrapper
     return decorator
 
 
