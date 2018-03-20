@@ -14,6 +14,7 @@ Patrole Configuration Guide
    installation
    configuration
    usage
+   testing
    sampleconf
 
 Developer's Guide
