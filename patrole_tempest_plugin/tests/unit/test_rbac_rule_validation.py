@@ -13,6 +13,7 @@
 #    under the License.
 
 import mock
+from oslo_config import cfg
 
 from tempest.lib import exceptions
 from tempest import manager
@@ -24,11 +25,13 @@ from patrole_tempest_plugin import rbac_rule_validation as rbac_rv
 from patrole_tempest_plugin import rbac_utils
 from patrole_tempest_plugin.tests.unit import fixtures
 
+CONF = cfg.CONF
 
-class RBACRuleValidationTest(base.TestCase):
+
+class BaseRBACRuleValidationTest(base.TestCase):
 
     def setUp(self):
-        super(RBACRuleValidationTest, self).setUp()
+        super(BaseRBACRuleValidationTest, self).setUp()
         self.mock_test_args = mock.Mock(spec=test.BaseTestCase)
         self.mock_test_args.os_primary = mock.Mock(spec=manager.Manager)
         self.mock_test_args.rbac_utils = mock.Mock(
@@ -44,6 +47,12 @@ class RBACRuleValidationTest(base.TestCase):
         # Disable patrole log for unit tests.
         self.useFixture(
             fixtures.ConfPatcher(enable_reporting=False, group='patrole_log'))
+
+
+class RBACRuleValidationTest(BaseRBACRuleValidationTest):
+    """Test suite for validating fundamental functionality for the
+    ``rbac_rule_validation`` decorator.
+    """
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
     @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
@@ -98,11 +107,11 @@ class RBACRuleValidationTest(base.TestCase):
         def test_policy(*args):
             raise exceptions.Forbidden()
 
-        test_re = "Role Member was not allowed to perform sentinel.action."
+        test_re = ("Role Member was not allowed to perform the following "
+                   "actions: \[%s\].*" % (mock.sentinel.action))
         self.assertRaisesRegex(exceptions.Forbidden, test_re, test_policy,
                                self.mock_test_args)
-        mock_log.error.assert_called_once_with("Role Member was not allowed to"
-                                               " perform sentinel.action.")
+        self.assertRegex(mock_log.error.mock_calls[0][1][0], test_re)
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
     @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
@@ -138,11 +147,11 @@ class RBACRuleValidationTest(base.TestCase):
         def test_policy(*args):
             raise rbac_exceptions.RbacMalformedResponse()
 
-        test_re = "Role Member was not allowed to perform sentinel.action."
+        test_re = ("Role Member was not allowed to perform the following "
+                   "actions: \[%s\].*" % (mock.sentinel.action))
         self.assertRaisesRegex(exceptions.Forbidden, test_re, test_policy,
                                self.mock_test_args)
-        mock_log.error.assert_called_once_with("Role Member was not allowed to"
-                                               " perform sentinel.action.")
+        self.assertRegex(mock_log.error.mock_calls[0][1][0], test_re)
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
     @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
@@ -179,11 +188,11 @@ class RBACRuleValidationTest(base.TestCase):
         def test_policy(*args):
             raise rbac_exceptions.RbacConflictingPolicies()
 
-        test_re = "Role Member was not allowed to perform sentinel.action."
+        test_re = ("Role Member was not allowed to perform the following "
+                   "actions: \[%s\].*" % (mock.sentinel.action))
         self.assertRaisesRegex(exceptions.Forbidden, test_re, test_policy,
                                self.mock_test_args)
-        mock_log.error.assert_called_once_with("Role Member was not allowed to"
-                                               " perform sentinel.action.")
+        self.assertRegex(mock_log.error.mock_calls[0][1][0], test_re)
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
     @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
@@ -233,25 +242,26 @@ class RBACRuleValidationTest(base.TestCase):
             raise exceptions.NotFound()
 
         expected_errors = [
-            "Role Member was not allowed to perform sentinel.action.", None
+            ("Role Member was not allowed to perform the following "
+             "actions: \[%s\].*" % (mock.sentinel.action)),
+            None
         ]
 
         for pos, allowed in enumerate([True, False]):
             mock_authority.PolicyAuthority.return_value.allowed\
                 .return_value = allowed
 
-            expected_error = expected_errors[pos]
+            error_re = expected_errors[pos]
 
-            if expected_error:
-                self.assertRaisesRegex(
-                    exceptions.Forbidden, '.* ' + expected_error, test_policy,
-                    self.mock_test_args)
-                mock_log.error.assert_called_once_with(expected_error)
+            if error_re:
+                self.assertRaisesRegex(exceptions.Forbidden, error_re,
+                                       test_policy, self.mock_test_args)
+                self.assertRegex(mock_log.error.mock_calls[0][1][0], error_re)
             else:
                 test_policy(self.mock_test_args)
                 mock_log.error.assert_not_called()
 
-            mock_log.warning.assert_called_once_with(
+            mock_log.warning.assert_called_with(
                 "NotFound exception was caught for policy action {0}. The "
                 "service {1} throws a 404 instead of a 403, which is "
                 "irregular.".format(mock.sentinel.action,
@@ -284,13 +294,10 @@ class RBACRuleValidationTest(base.TestCase):
         for test_policy in (
             test_policy_expect_forbidden, test_policy_expect_not_found):
 
-            error_re = (".* OverPermission: Role Member was allowed to perform"
-                        " sentinel.action")
+            error_re = ".*OverPermission: .* \[%s\]$" % mock.sentinel.action
             self.assertRaisesRegex(rbac_exceptions.RbacOverPermission,
                                    error_re, test_policy, self.mock_test_args)
-            mock_log.error.assert_called_once_with(
-                'Role %s was allowed to perform %s', 'Member',
-                mock.sentinel.action)
+            self.assertRegex(mock_log.error.mock_calls[0][1][0], error_re)
             mock_log.error.reset_mock()
 
     @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
@@ -405,3 +412,119 @@ class RBACRuleValidationTest(base.TestCase):
             mock.sentinel.action,
             "Allowed",
             "Allowed")
+
+
+class RBACRuleValidationTestMultiPolicy(BaseRBACRuleValidationTest):
+    """Test suite for validating multi-policy support for the
+    ``rbac_rule_validation`` decorator.
+    """
+
+    def _assert_policy_authority_called_with(self, rules, mock_authority):
+        m_authority = mock_authority.PolicyAuthority.return_value
+        m_authority.allowed.assert_has_calls([
+            mock.call(rule, CONF.patrole.rbac_test_role) for rule in rules
+        ])
+
+    @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
+    def test_rule_validation_multi_policy_have_permission_success(
+            self, mock_authority):
+        """Test that when expected result is authorized and test passes that
+        the overall evaluation succeeds.
+        """
+        mock_authority.PolicyAuthority.return_value.allowed.\
+            return_value = True
+
+        rules = [mock.sentinel.action1, mock.sentinel.action2]
+
+        @rbac_rv.action(mock.sentinel.service, rules=rules)
+        def test_policy(*args):
+            pass
+
+        test_policy(self.mock_test_args)
+        self._assert_policy_authority_called_with(rules, mock_authority)
+
+    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
+    @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
+    def test_rule_validation_multi_policy_overpermission_failure(
+            self, mock_authority, mock_log):
+        """Test that when expected result is unauthorized and test passes that
+        the overall evaluation results in an OverPermission getting raised.
+        """
+
+        rules = [
+            mock.sentinel.action1, mock.sentinel.action2, mock.sentinel.action3
+        ]
+
+        @rbac_rv.action(mock.sentinel.service, rules=rules)
+        def test_policy(*args):
+            pass
+
+        def _do_test(allowed_list, fail_on_action):
+            mock_authority.PolicyAuthority.return_value.allowed.side_effect = (
+                allowed_list)
+
+            error_re = ".*OverPermission: .* \[%s\]$" % fail_on_action
+            self.assertRaisesRegex(rbac_exceptions.RbacOverPermission,
+                                   error_re, test_policy, self.mock_test_args)
+            self.assertRegex(mock_log.error.mock_calls[0][1][0], error_re)
+            mock_log.error.reset_mock()
+            self._assert_policy_authority_called_with(rules, mock_authority)
+
+        _do_test([True, True, False], mock.sentinel.action3)
+        _do_test([False, True, True], mock.sentinel.action1)
+        _do_test([True, False, True], mock.sentinel.action2)
+
+    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
+    @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
+    def test_rule_validation_multi_policy_forbidden_success(
+            self, mock_authority, mock_log):
+        """Test that when the expected result is unauthorized and the test
+        fails that the overall evaluation results in success.
+        """
+
+        rules = [
+            mock.sentinel.action1, mock.sentinel.action2, mock.sentinel.action3
+        ]
+
+        @rbac_rv.action(mock.sentinel.service, rules=rules)
+        def test_policy(*args):
+            raise exceptions.Forbidden()
+
+        def _do_test(allowed_list):
+            mock_authority.PolicyAuthority.return_value.allowed.\
+                side_effect = allowed_list
+            test_policy(self.mock_test_args)
+            mock_log.error.assert_not_called()
+            self._assert_policy_authority_called_with(rules, mock_authority)
+
+        _do_test([True, True, False])
+        _do_test([False, True, True])
+        _do_test([True, False, True])
+
+    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
+    @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
+    def test_rule_validation_multi_policy_forbidden_failure(
+            self, mock_authority, mock_log):
+        """Test that when the expected result is authorized and the test
+        fails (with a Forbidden error code) that the overall evaluation
+        results a Forbidden getting raised.
+        """
+
+        # NOTE: Avoid mock.sentinel here due to weird sorting with them.
+        rules = ['action1', 'action2', 'action3']
+
+        @rbac_rv.action(mock.sentinel.service, rules=rules)
+        def test_policy(*args):
+            raise exceptions.Forbidden()
+
+        mock_authority.PolicyAuthority.return_value.allowed\
+            .return_value = True
+
+        error_re = ("Role Member was not allowed to perform the following "
+                    "actions: %s. Expected allowed actions: %s. Expected "
+                    "disallowed actions: []." % (rules, rules)).replace(
+                        '[', '\[').replace(']', '\]')
+        self.assertRaisesRegex(exceptions.Forbidden, error_re, test_policy,
+                               self.mock_test_args)
+        self.assertRegex(mock_log.error.mock_calls[0][1][0], error_re)
+        self._assert_policy_authority_called_with(rules, mock_authority)

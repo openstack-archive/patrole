@@ -17,6 +17,7 @@ import functools
 import logging
 import sys
 
+from oslo_log import versionutils
 from oslo_utils import excutils
 import six
 
@@ -36,7 +37,8 @@ _SUPPORTED_ERROR_CODES = [403, 404]
 RBACLOG = logging.getLogger('rbac_reporting')
 
 
-def action(service, rule='', expected_error_code=403, extra_target_data=None):
+def action(service, rule='', rules=None, expected_error_code=403,
+           extra_target_data=None):
     """A decorator for verifying OpenStack policy enforcement.
 
     A decorator which allows for positive and negative RBAC testing. Given:
@@ -67,15 +69,18 @@ def action(service, rule='', expected_error_code=403, extra_target_data=None):
 
     As such, negative and positive testing can be applied using this decorator.
 
-    :param service: An OpenStack service. Examples: "nova" or "neutron".
-    :param rule: A policy action defined in a policy.json file (or in
-        code).
+    :param str service: An OpenStack service. Examples: "nova" or "neutron".
+    :param str rule: (DEPRECATED) A policy action defined in a policy.json file
+        or in code.
+    :param list rules: A list of policy actions defined in a policy.json file
+        or in code. The rules are logical-ANDed together to derive the expected
+        result.
 
         .. note::
 
             Patrole currently only supports custom JSON policy files.
 
-    :param expected_error_code: Overrides default value of 403 (Forbidden)
+    :param int expected_error_code: Overrides default value of 403 (Forbidden)
         with endpoint-specific error code. Currently only supports 403 and 404.
         Support for 404 is needed because some services, like Neutron,
         intentionally throw a 404 for security reasons.
@@ -85,11 +90,11 @@ def action(service, rule='', expected_error_code=403, extra_target_data=None):
             A 404 should not be provided *unless* the endpoint masks a
             ``Forbidden`` exception as a ``NotFound`` exception.
 
-    :param extra_target_data: Dictionary, keyed with ``oslo.policy`` generic
-        check names, whose values are string literals that reference nested
-        ``tempest.test.BaseTestCase`` attributes. Used by ``oslo.policy`` for
-        performing matching against attributes that are sent along with the API
-        calls. Example::
+    :param dict extra_target_data: Dictionary, keyed with ``oslo.policy``
+        generic check names, whose values are string literals that reference
+        nested ``tempest.test.BaseTestCase`` attributes. Used by
+        ``oslo.policy`` for performing matching against attributes that are
+        sent along with the API calls. Example::
 
             extra_target_data={
                 "target.token.user_id":
@@ -113,6 +118,8 @@ def action(service, rule='', expected_error_code=403, extra_target_data=None):
     if extra_target_data is None:
         extra_target_data = {}
 
+    rules = _prepare_rules(rule, rules)
+
     def decorator(test_func):
         role = CONF.patrole.rbac_test_role
 
@@ -125,8 +132,14 @@ def action(service, rule='', expected_error_code=403, extra_target_data=None):
                     '`rbac_rule_validation` decorator can only be applied to '
                     'an instance of `tempest.test.BaseTestCase`.')
 
-            allowed = _is_authorized(test_obj, service, rule,
-                                     extra_target_data)
+            allowed = True
+            disallowed_rules = []
+            for rule in rules:
+                _allowed = _is_authorized(
+                    test_obj, service, rule, extra_target_data)
+                if not _allowed:
+                    disallowed_rules.append(rule)
+                allowed = allowed and _allowed
 
             expected_exception, irregular_msg = _get_exception_type(
                 expected_error_code)
@@ -148,8 +161,12 @@ def action(service, rule='', expected_error_code=403, extra_target_data=None):
                 if irregular_msg:
                     LOG.warning(irregular_msg.format(rule, service))
                 if allowed:
-                    msg = ("Role %s was not allowed to perform %s." %
-                           (role, rule))
+                    msg = ("Role %s was not allowed to perform the following "
+                           "actions: %s. Expected allowed actions: %s. "
+                           "Expected disallowed actions: %s." % (
+                               role, sorted(rules),
+                               sorted(set(rules) - set(disallowed_rules)),
+                               sorted(disallowed_rules)))
                     LOG.error(msg)
                     raise exceptions.Forbidden(
                         "%s Exception was: %s" % (msg, e))
@@ -164,10 +181,14 @@ def action(service, rule='', expected_error_code=403, extra_target_data=None):
                     LOG.error(msg)
             else:
                 if not allowed:
-                    LOG.error("Role %s was allowed to perform %s", role, rule)
-                    raise rbac_exceptions.RbacOverPermission(
-                        "OverPermission: Role %s was allowed to perform %s" %
-                        (role, rule))
+                    msg = (
+                        "OverPermission: Role %s was allowed to perform the "
+                        "following disallowed actions: %s" % (
+                            role, sorted(disallowed_rules)
+                        )
+                    )
+                    LOG.error(msg)
+                    raise rbac_exceptions.RbacOverPermission(msg)
             finally:
                 if CONF.patrole_log.enable_reporting:
                     RBACLOG.info(
@@ -179,6 +200,23 @@ def action(service, rule='', expected_error_code=403, extra_target_data=None):
 
         return wrapper
     return decorator
+
+
+def _prepare_rules(rule, rules):
+    if rules is None:
+        rules = []
+    elif not isinstance(rules, (tuple, list)):
+        rules = [rules]
+    if rule:
+        deprecation_msg = (
+            "The `rule` argument has been deprecated in favor of `rules` "
+            "and will be removed in a future version.")
+        versionutils.report_deprecated_feature(LOG, deprecation_msg)
+        if rules:
+            LOG.debug("The `rules` argument will be used instead of `rule`.")
+        else:
+            rules.append(rule)
+    return rules
 
 
 def _is_authorized(test_obj, service, rule, extra_target_data):

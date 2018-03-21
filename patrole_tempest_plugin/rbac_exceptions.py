@@ -38,7 +38,7 @@ class RbacMalformedResponse(exceptions.TempestException):
 
 
 class RbacResourceSetupFailed(exceptions.TempestException):
-    message = "Rbac resource setup failed"
+    message = "RBAC resource setup failed"
 
 
 class RbacOverPermission(exceptions.TempestException):
