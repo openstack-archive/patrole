@@ -1,7 +1,13 @@
 - job:
     name: patrole-base
-    parent: legacy-dsvm-base
+    parent: devstack-tempest
+    description: Patrole base job for admin and Member roles.
+    required-projects:
+      - name: openstack/tempest
+      - name: openstack/patrole
     timeout: 7800
+    roles:
+      - zuul: openstack-dev/devstack
     irrelevant-files:
       - ^(test-|)requirements.txt$
       - ^.*\.rst$
@@ -9,10 +15,17 @@
       - ^patrole/patrole_tempest_plugin/tests/unit/.*$
       - ^releasenotes/.*
       - ^setup.cfg$
-    required-projects:
-      - openstack-infra/devstack-gate
-      - openstack/patrole
-      - openstack/tempest
+    vars:
+      devstack_localrc:
+        TEMPEST_PLUGINS: "'{{ ansible_user_dir }}/src/git.openstack.org/openstack/patrole'"
+      devstack_plugins:
+        patrole: git://git.openstack.org/openstack/patrole.git
+      devstack_services:
+        tempest: true
+        neutron: true
+      tempest_concurrency: 2
+      tempest_test_regex: (?!.*\[.*\bslow\b.*\])(^patrole_tempest_plugin\.tests\.api)
+      tox_envlist: all-plugin
 
 - job:
     name: patrole-base-multinode
@@ -33,14 +46,18 @@
 - job:
     name: patrole-admin
     parent: patrole-base
-    run: playbooks/patrole-admin/run.yaml
-    post-run: playbooks/patrole-admin/post.yaml
+    description: Patrole job for admin role.
+    vars:
+      devstack_localrc:
+        RBAC_TEST_ROLE: admin
 
 - job:
     name: patrole-member
     parent: patrole-base
-    run: playbooks/patrole-member/run.yaml
-    post-run: playbooks/patrole-member/post.yaml
+    description: Patrole job for Member role.
+    vars:
+      devstack_localrc:
+        RBAC_TEST_ROLE: Member
 
 - job:
     name: patrole-multinode-admin
@@ -61,8 +78,20 @@
 - job:
     name: patrole-py35-member
     parent: patrole-base
-    run: playbooks/patrole-py35-member/run.yaml
-    post-run: playbooks/patrole-py35-member/post.yaml
+    description: Patrole py3 job for Member role.
+    vars:
+      devstack_localrc:
+        # Use Member for py3 because arguably negative testing is more
+        # important than admin, which is already covered by patrole-admin job.
+        RBAC_TEST_ROLE: Member
+        USE_PYTHON3: True
+      devstack_services:
+        s-account: false
+        s-container: false
+        s-object: false
+        s-proxy: false
+        # Without Swift, c-bak cannot run (in the gate at least).
+        c-bak: false
 
 - project:
     check:
