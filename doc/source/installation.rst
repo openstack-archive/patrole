@@ -10,12 +10,13 @@ Manual Installation Information
 At the command line::
 
     $ git clone http://git.openstack.org/openstack/patrole
-    $ sudo pip install patrole
+    $ sudo pip install ./patrole
 
 Or, if you have virtualenvwrapper installed::
 
-    $ mkvirtualenv patrole
-    $ sudo pip install patrole
+    $ mkvirtualenv patrole_env
+    $ workon patrole_env
+    $ pip install ./patrole
 
 Or to install from the source::
 
