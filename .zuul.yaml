@@ -84,7 +84,7 @@
         # Use Member for py3 because arguably negative testing is more
         # important than admin, which is already covered by patrole-admin job.
         RBAC_TEST_ROLE: Member
-        USE_PYTHON3: True
+        USE_PYTHON3: true
       devstack_services:
         s-account: false
         s-container: false
@@ -101,8 +101,10 @@
         - patrole-py35-member
         - patrole-multinode-admin
         - patrole-multinode-member
+        - openstack-tox-lower-constraints
     gate:
       jobs:
         - patrole-admin
         - patrole-member
         - patrole-py35-member
+        - openstack-tox-lower-constraints
