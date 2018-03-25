@@ -10,16 +10,25 @@
 XTRACE=$(set +o | grep xtrace)
 set -o xtrace
 
-function install_patrole_tempest_plugin() {
-    if is_service_enabled tempest; then
-        setup_package $PATROLE_DIR -e
+function install_patrole_tempest_plugin {
+    setup_package $PATROLE_DIR -e
 
-        if [[ "$RBAC_TEST_ROLE" == "member" ]]; then
-            RBAC_TEST_ROLE="Member"
-        fi
+    if [[ "$RBAC_TEST_ROLE" == "member" ]]; then
+        RBAC_TEST_ROLE="Member"
+    fi
 
-        iniset $TEMPEST_CONFIG patrole enable_rbac True
-        iniset $TEMPEST_CONFIG patrole rbac_test_role $RBAC_TEST_ROLE
+    iniset $TEMPEST_CONFIG patrole enable_rbac True
+    iniset $TEMPEST_CONFIG patrole rbac_test_role $RBAC_TEST_ROLE
+
+    if [[ ${DEVSTACK_SERIES} == 'pike' ]]; then
+        # Policies used by Patrole testing that were changed in a backwards-incompatible way.
+        # TODO(fmontei): Remove these once stable/pike becomes EOL.
+        iniset $TEMPEST_CONFIG policy-feature-enabled create_port_fixed_ips_ip_address_policy False
+        iniset $TEMPEST_CONFIG policy-feature-enabled update_port_fixed_ips_ip_address_policy False
+        iniset $TEMPEST_CONFIG policy-feature-enabled limits_extension_used_limits_policy False
+        iniset $TEMPEST_CONFIG policy-feature-enabled volume_extension_volume_actions_attach_policy False
+        iniset $TEMPEST_CONFIG policy-feature-enabled volume_extension_volume_actions_reserve_policy False
+        iniset $TEMPEST_CONFIG policy-feature-enabled volume_extension_volume_actions_unreserve_policy False
     fi
 }
 

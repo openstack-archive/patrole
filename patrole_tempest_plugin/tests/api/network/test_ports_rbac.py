@@ -15,6 +15,7 @@
 #
 
 import netaddr
+import testtools
 
 from tempest.common import utils
 from tempest.common.utils import net_utils
@@ -106,6 +107,9 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
         with self.rbac_utils.override_role(self):
             self.create_port(**post_body)
 
+    @testtools.skipUnless(
+        CONF.policy_feature_enabled.create_port_fixed_ips_ip_address_policy,
+        '"create_port:fixed_ips:ip_address" must be available in the cloud.')
     @rbac_rule_validation.action(service="neutron",
                                  rule="create_port:fixed_ips:ip_address")
     @decorators.idempotent_id('2551e10d-006a-413c-925a-8c6f834c09ac')
@@ -268,6 +272,9 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
         self.addCleanup(self.ports_client.update_port, self.port['id'],
                         mac_address=original_mac_address)
 
+    @testtools.skipUnless(
+        CONF.policy_feature_enabled.update_port_fixed_ips_ip_address_policy,
+        '"update_port:fixed_ips:ip_address" must be available in the cloud.')
     @rbac_rule_validation.action(service="neutron",
                                  rule="update_port:fixed_ips:ip_address")
     @decorators.idempotent_id('c091c825-532b-4c6f-a14f-affd3259c1c3')
