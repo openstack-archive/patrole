@@ -12,6 +12,7 @@
 #    under the License.
 
 from tempest.api.volume import base as vol_base
+from tempest.common import waiters
 from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
@@ -57,6 +58,29 @@ class BaseVolumeRbacTest(rbac_utils.RbacUtilsMixin,
             test_utils.call_and_ignore_notfound_exc,
             cls.volume_types_client.delete_volume_type, volume_type['id'])
         return volume_type
+
+    @classmethod
+    def _create_backup(cls, volume_id, backup_client=None, **kwargs):
+        """Wrapper utility that returns a test backup.
+
+        Tempest has an instance-level version. This is a class-level version.
+        """
+        if backup_client is None:
+            backup_client = cls.backups_client
+        if 'name' not in kwargs:
+            name = data_utils.rand_name(cls.__name__ + '-Backup')
+            kwargs['name'] = name
+
+        backup = backup_client.create_backup(
+            volume_id=volume_id, **kwargs)['backup']
+        cls.addClassResourceCleanup(
+            test_utils.call_and_ignore_notfound_exc,
+            backup_client.delete_backup, backup['id'])
+        waiters.wait_for_volume_resource_status(backup_client, backup['id'],
+                                                'available')
+        waiters.wait_for_volume_resource_status(cls.volumes_client, volume_id,
+                                                'available')
+        return backup
 
     def create_group_type(self, name=None, ignore_notfound=False, **kwargs):
         """Create a test group-type"""
