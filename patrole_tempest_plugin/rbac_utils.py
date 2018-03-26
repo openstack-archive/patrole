@@ -15,7 +15,6 @@
 
 import abc
 from contextlib import contextmanager
-import debtcollector.removals
 import six
 import time
 
@@ -106,20 +105,6 @@ class RbacUtils(object):
             # test. Automatically switch back to the admin role for test clean
             # up.
             self._override_role(test_obj, False)
-
-    @debtcollector.removals.remove(removal_version='Rocky')
-    def switch_role(self, test_obj, toggle_rbac_role):
-        """Switch the role used by `os_primary` Tempest credentials.
-
-        Switch the role used by `os_primary` credentials to:
-
-        * admin if `toggle_rbac_role` is False
-        * `CONF.patrole.rbac_test_role` if `toggle_rbac_role` is True
-
-        :param test_obj: instance of :py:class:`tempest.test.BaseTestCase`
-        :param toggle_rbac_role: role to switch `os_primary` Tempest creds to
-        """
-        self._override_role(test_obj, toggle_rbac_role)
 
     def _override_role(self, test_obj, toggle_rbac_role=False):
         """Private helper for overriding ``os_primary`` Tempest credentials.
