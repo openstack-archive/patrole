@@ -47,15 +47,6 @@ class SnapshotMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
         self.snapshots_client.create_snapshot_metadata(
             self.snapshot_id, metadata)['metadata']
 
-    @rbac_rule_validation.action(
-        service="cinder",
-        rule="volume_extension:extended_snapshot_attributes")
-    @decorators.idempotent_id('c9cbec1c-edfe-46b8-825b-7b6ac0a58c25')
-    def test_create_snapshot_metadata(self):
-        # Create metadata for the snapshot
-        with self.rbac_utils.override_role(self):
-            self._create_test_snapshot_metadata()
-
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:get_snapshot_metadata")
     @decorators.idempotent_id('f6912bb1-62e6-483d-bcd0-e98c1641f4c3')
