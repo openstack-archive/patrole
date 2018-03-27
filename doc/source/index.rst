@@ -13,7 +13,6 @@ Patrole Configuration Guide
 
    configuration
    usage
-   sampleconf
 
 Patrole Installation Guide
 --------------------------
