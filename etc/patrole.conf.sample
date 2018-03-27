@@ -14,18 +14,6 @@
 # Enables RBAC tests. (boolean value)
 #enable_rbac = true
 
-# DEPRECATED: If true, throws RbacParsingException for policies which
-# don't exist or are not included in the service's policy file. If
-# false, throws
-# skipException. (boolean value)
-# This option is deprecated for removal.
-# Its value may be silently ignored in the future.
-# Reason: This option allows for the possibility
-# of false positives. As a testing framework, Patrole should fail any
-# test that
-# passes in an invalid policy.
-#strict_policy_check = true
-
 # List of the paths to search for policy files. Each
 # policy path assumes that the service name is included in the path
 # once. Also

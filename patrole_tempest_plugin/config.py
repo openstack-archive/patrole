@@ -27,15 +27,6 @@ tests."""),
     cfg.BoolOpt('enable_rbac',
                 default=True,
                 help="Enables RBAC tests."),
-    cfg.BoolOpt('strict_policy_check',
-                default=True,
-                deprecated_for_removal=True,
-                deprecated_reason="""This option allows for the possibility
-of false positives. As a testing framework, Patrole should fail any test that
-passes in an invalid policy.""",
-                help="""If true, throws RbacParsingException for policies which
-don't exist or are not included in the service's policy file. If false, throws
-skipException."""),
     # TODO(rb560u): There needs to be support for reading these JSON files from
     # other hosts. It may be possible to leverage the v3 identity policy API.
     cfg.ListOpt('custom_policy_files',

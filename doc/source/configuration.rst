@@ -35,21 +35,6 @@ Enable RBAC
 Given the value of ``enable_rbac``, enables or disables Patrole tests. If
 ``enable_rbac`` is ``False``, then Patrole tests are skipped.
 
-Strict Policy Check
--------------------
-
-Currently, many services define their "default" rule to be "anyone allowed".
-If a policy action is not explicitly defined in a policy file, then
-``oslo.policy`` will fall back to the "default" rule. This implies that if
-there's a typo in a policy action specified in a Patrole test, ``oslo.policy``
-can report that the ``rbac_test_role`` will be able to perform the
-non-existent policy action. For a testing framework, this is undesirable
-behavior.
-
-Hence, ``strict_policy_check``, if ``True``, will throw an error in the event
-that a non-existent or bogus policy action is passed to a Patrole test. If
-``False``, however, a ``self.skipException`` will be raised.
-
 Custom Policy Files
 -------------------
 
@@ -70,4 +55,3 @@ keyword.
 
     Patrole currently does not support policy files located on a host different
     than the one on which it is running.
-..

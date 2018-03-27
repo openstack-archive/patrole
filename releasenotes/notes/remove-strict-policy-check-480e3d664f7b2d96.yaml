@@ -1,0 +1,6 @@
+---
+upgrade:
+  - |
+    The ``[patrole].strict_policy_check`` was deprecated during the Queens
+    release cycle. It is removed in this release cycle because Patrole should
+    always fail on invalid policies.
