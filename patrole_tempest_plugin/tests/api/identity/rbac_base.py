@@ -127,16 +127,17 @@ class BaseIdentityV3RbacTest(BaseIdentityRbacTest):
         cls.endpoint_groups_client = cls.os_primary.endpoint_groups_client
         cls.groups_client = cls.os_primary.groups_client
         cls.identity_client = cls.os_primary.identity_v3_client
+        cls.oauth_token_client = cls.os_primary.oauth_token_client
         cls.projects_client = cls.os_primary.projects_client
+        cls.project_tags_client = cls.os_primary.project_tags_client
         cls.policies_client = cls.os_primary.policies_client
         cls.regions_client = cls.os_primary.regions_client
         cls.role_assignments_client = cls.os_primary.role_assignments_client
         cls.roles_client = cls.os_primary.roles_v3_client
         cls.services_client = cls.os_primary.identity_services_v3_client
+        cls.token_client = cls.os_primary.token_v3_client
         cls.trusts_client = cls.os_primary.trusts_client
         cls.users_client = cls.os_primary.users_v3_client
-        cls.oauth_token_client = cls.os_primary.oauth_token_client
-        cls.token_client = cls.os_primary.token_v3_client
 
     @classmethod
     def resource_setup(cls):
