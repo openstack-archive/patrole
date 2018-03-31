@@ -27,11 +27,11 @@ CONF = config.CONF
 
 
 class ImagesRbacTest(rbac_base.BaseV2ComputeRbacTest):
-    """RBAC tests for the Nova images client.
+    """RBAC tests for the Nova images API.
 
-    These APIs are proxy calls to the Image service. Consequently, no nova
-    policy actions are enforced; instead, only glance policy actions are
-    enforced. As such, these tests check that only glance policy actions are
+    These APIs are proxy calls to the Image service. Consequently, no Nova
+    policy actions are enforced; instead, only Glance policy actions are
+    enforced. As such, these tests check that only Glance policy actions are
     executed.
     """
 
@@ -97,6 +97,67 @@ class ImagesRbacTest(rbac_base.BaseV2ComputeRbacTest):
         with self.rbac_utils.override_role(self):
             self.compute_images_client.show_image(self.image['id'])
 
+    @decorators.idempotent_id('5888c7aa-0803-46d4-a3fb-5d4729465cd5')
+    @rbac_rule_validation.action(
+        service="glance",
+        rule="delete_image")
+    def test_delete_image(self):
+        image = self.glance_image_client.create_image(
+            name=data_utils.rand_name(self.__class__.__name__ + '-image'))
+        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
+                        self.glance_image_client.delete_image, image['id'])
+
+        with self.rbac_utils.override_role(self):
+            self.compute_images_client.delete_image(image['id'])
+
+
+class ImagesMetadataRbacTest(rbac_base.BaseV2ComputeRbacTest):
+    """RBAC tests for the Nova metadata images API.
+
+    These APIs are proxy calls to the Image service. Consequently, no Nova
+    policy actions are enforced; instead, only Glance policy actions are
+    enforced. As such, these tests check that only Glance policy actions are
+    executed.
+    """
+
+    # These tests will fail with a 404 starting from microversion 2.39.
+    # See the following link for details:
+    # https://developer.openstack.org/api-ref/compute/#images-deprecated
+    max_microversion = '2.38'
+
+    @classmethod
+    def skip_checks(cls):
+        super(ImagesMetadataRbacTest, cls).skip_checks()
+        if not CONF.service_available.glance:
+            skip_msg = ("%s skipped as glance is not available" % cls.__name__)
+            raise cls.skipException(skip_msg)
+
+    @classmethod
+    def setup_clients(cls):
+        super(ImagesMetadataRbacTest, cls).setup_clients()
+        if CONF.image_feature_enabled.api_v2:
+            cls.glance_image_client = cls.os_primary.image_client_v2
+        elif CONF.image_feature_enabled.api_v1:
+            cls.glance_image_client = cls.os_primary.image_client
+        else:
+            raise lib_exc.InvalidConfiguration(
+                'Either api_v1 or api_v2 must be True in '
+                '[image-feature-enabled].')
+
+    @classmethod
+    def resource_setup(cls):
+        super(ImagesMetadataRbacTest, cls).resource_setup()
+        params = {'name': data_utils.rand_name(cls.__name__ + '-image')}
+        if CONF.image_feature_enabled.api_v1:
+            params = {'headers': common_image.image_meta_to_headers(**params)}
+
+        cls.image = cls.glance_image_client.create_image(**params)
+        cls.addClassResourceCleanup(
+            cls.glance_image_client.wait_for_resource_deletion,
+            cls.image['id'])
+        cls.addClassResourceCleanup(
+            cls.glance_image_client.delete_image, cls.image['id'])
+
     @decorators.idempotent_id('dbe09d4c-e615-48cb-b908-a06a0f410a8e')
     @rbac_rule_validation.action(
         service="glance",
@@ -118,19 +179,6 @@ class ImagesRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_list_image_metadata(self):
         with self.rbac_utils.override_role(self):
             self.compute_images_client.list_image_metadata(self.image['id'])
-
-    @decorators.idempotent_id('5888c7aa-0803-46d4-a3fb-5d4729465cd5')
-    @rbac_rule_validation.action(
-        service="glance",
-        rule="delete_image")
-    def test_delete_image(self):
-        image = self.glance_image_client.create_image(
-            name=data_utils.rand_name(self.__class__.__name__ + '-image'))
-        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.glance_image_client.delete_image, image['id'])
-
-        with self.rbac_utils.override_role(self):
-            self.compute_images_client.delete_image(image['id'])
 
     @decorators.idempotent_id('575604aa-909f-4b1b-a5a5-cfae1f63044b')
     @rbac_rule_validation.action(
