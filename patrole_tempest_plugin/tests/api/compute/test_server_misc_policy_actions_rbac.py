@@ -676,6 +676,24 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
             self.servers_client.add_fixed_ip(self.server['id'],
                                              networkId=network_id)
 
+
+class VirtualInterfacesRbacTest(rbac_base.BaseV2ComputeRbacTest):
+    # The compute os-virtual-interfaces API is deprecated from the Microversion
+    # 2.44 onward. For more information, see:
+    # https://developer.openstack.org/api-ref/compute/#servers-virtual-interfaces-servers-os-virtual-interfaces-deprecated
+    max_microversion = '2.43'
+
+    @classmethod
+    def setup_credentials(cls):
+        # This test needs a network and a subnet
+        cls.set_network_resources(network=True, subnet=True)
+        super(VirtualInterfacesRbacTest, cls).setup_credentials()
+
+    @classmethod
+    def resource_setup(cls):
+        super(VirtualInterfacesRbacTest, cls).resource_setup()
+        cls.server = cls.create_test_server(wait_until='ACTIVE')
+
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-virtual-interfaces")
@@ -685,9 +703,6 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
         If Neutron is available, then call the API and expect it to fail
         with a 400 BadRequest (policy enforcement is done before that happens).
-
-        For more information, see:
-        https://developer.openstack.org/api-ref/compute/#servers-virtual-interfaces-servers-os-virtual-interfaces-deprecated
         """
         with self.rbac_utils.override_role(self):
             if CONF.service_available.neutron:
