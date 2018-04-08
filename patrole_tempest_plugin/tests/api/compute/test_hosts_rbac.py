@@ -21,6 +21,10 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 
 class HostsRbacTest(rbac_base.BaseV2ComputeRbacTest):
+    # These tests will fail with a 404 starting from microversion 2.43:
+    # See the following links for details:
+    # https://developer.openstack.org/api-ref/compute/#hosts-os-hosts-deprecated
+    max_microversion = '2.42'
 
     @classmethod
     def skip_checks(cls):
@@ -36,3 +40,15 @@ class HostsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_list_hosts(self):
         with self.rbac_utils.override_role(self):
             self.hosts_client.list_hosts()
+
+    @decorators.idempotent_id('bc10d8b4-d2c3-4d4e-9d2b-31d1bd3e1b51')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-hosts")
+    def test_show_host_details(self):
+        hosts = self.hosts_client.list_hosts()['hosts']
+        hosts = [host for host in hosts if host['service'] == 'compute']
+        self.assertNotEmpty(hosts)
+
+        with self.rbac_utils.override_role(self):
+            self.hosts_client.show_host(hosts[0]['host_name'])
