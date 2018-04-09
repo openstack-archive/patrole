@@ -60,15 +60,6 @@ class HypervisorRbacTest(rbac_base.BaseV2ComputeRbacTest):
         with self.rbac_utils.override_role(self):
             self.hypervisor_client.show_hypervisor(self.hypervisor['id'])
 
-    @decorators.idempotent_id('b86f03cf-2e79-4d88-9eea-62f761591413')
-    @rbac_rule_validation.action(
-        service="nova",
-        rule="os_compute_api:os-hypervisors")
-    def test_list_servers_on_hypervisor(self):
-        with self.rbac_utils.override_role(self):
-            self.hypervisor_client.list_servers_on_hypervisor(
-                self.hypervisor['hypervisor_hostname'])
-
     @decorators.idempotent_id('ca0e465c-6365-4a7f-ae58-6f8ddbca06c2')
     @rbac_rule_validation.action(
         service="nova",
@@ -85,6 +76,37 @@ class HypervisorRbacTest(rbac_base.BaseV2ComputeRbacTest):
         with self.rbac_utils.override_role(self):
             self.hypervisor_client.show_hypervisor_uptime(
                 self.hypervisor['id'])
+
+
+class HypervisorMaxv252RbacTest(rbac_base.BaseV2ComputeRbacTest):
+    # These tests will fail with a 404 starting from microversion 2.53:
+    # See the following links for details:
+    # https://developer.openstack.org/api-ref/compute/#list-hypervisor-servers
+    # https://developer.openstack.org/api-ref/compute/#search-hypervisor
+    max_microversion = '2.52'
+
+    @classmethod
+    def skip_checks(cls):
+        super(HypervisorMaxv252RbacTest, cls).skip_checks()
+        if not utils.is_extension_enabled('os-hypervisors', 'compute'):
+            msg = "%s skipped as os-hypervisors extension not enabled." \
+                  % cls.__name__
+            raise cls.skipException(msg)
+
+    @classmethod
+    def resource_setup(cls):
+        super(HypervisorMaxv252RbacTest, cls).resource_setup()
+        cls.hypervisor =\
+            cls.hypervisor_client.list_hypervisors()['hypervisors'][0]
+
+    @decorators.idempotent_id('b86f03cf-2e79-4d88-9eea-62f761591413')
+    @rbac_rule_validation.action(
+        service="nova",
+        rule="os_compute_api:os-hypervisors")
+    def test_list_servers_on_hypervisor(self):
+        with self.rbac_utils.override_role(self):
+            self.hypervisor_client.list_servers_on_hypervisor(
+                self.hypervisor['hypervisor_hostname'])
 
     @decorators.idempotent_id('3dbc71c1-8f04-4674-a67c-dcb2fd99b1b4')
     @rbac_rule_validation.action(
