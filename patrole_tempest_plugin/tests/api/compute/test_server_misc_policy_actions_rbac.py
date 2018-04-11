@@ -472,10 +472,18 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         """Test show server usage, part of os-server-usage.
 
         TODO(felipemonteiro): Once multiple policy testing is supported, this
-        test can be combined with the generic test for showing a server.
+        test should also check for additional policies mentioned here:
+        https://github.com/openstack/nova/blob/master/nova/policies/server_usage.py
         """
+        expected_attrs = ('OS-SRV-USG:launched_at',
+                          'OS-SRV-USG:terminated_at')
+
         with self.rbac_utils.override_role(self):
-            self.servers_client.show_server(self.server['id'])
+            body = self.servers_client.show_server(self.server['id'])['server']
+        for expected_attr in expected_attrs:
+            if expected_attr not in body:
+                raise rbac_exceptions.RbacMalformedResponse(
+                    attribute=expected_attr)
 
     @utils.requires_ext(extension='os-simple-tenant-usage', service='compute')
     @rbac_rule_validation.action(
