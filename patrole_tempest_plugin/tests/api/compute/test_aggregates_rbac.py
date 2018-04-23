@@ -13,13 +13,18 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import testtools
+
 from tempest.common import utils
+from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
+
+CONF = config.CONF
 
 
 class AggregatesRbacTest(rbac_base.BaseV2ComputeRbacTest):
@@ -36,6 +41,29 @@ class AggregatesRbacTest(rbac_base.BaseV2ComputeRbacTest):
         super(AggregatesRbacTest, cls).setup_clients()
         cls.hosts_client = cls.os_primary.hosts_client
 
+    @classmethod
+    def resource_setup(cls):
+        super(AggregatesRbacTest, cls).resource_setup()
+        cls.host = None
+        hypers = cls.hypervisor_client.list_hypervisors(
+            detail=True)['hypervisors']
+
+        if CONF.compute.hypervisor_type:
+            hypers = [hyper for hyper in hypers
+                      if (hyper['hypervisor_type'] ==
+                          CONF.compute.hypervisor_type)]
+
+        hosts_available = [hyper['service']['host'] for hyper in hypers
+                           if (hyper['state'] == 'up' and
+                               hyper['status'] == 'enabled')]
+        if hosts_available:
+            cls.host = hosts_available[0]
+        else:
+            msg = "no available compute node found"
+            if CONF.compute.hypervisor_type:
+                msg += " for hypervisor_type %s" % CONF.compute.hypervisor_type
+            raise testtools.TestCase.failureException(msg)
+
     def _create_aggregate(self):
         agg_name = data_utils.rand_name(self.__class__.__name__ + '-aggregate')
         aggregate = self.aggregates_client.create_aggregate(name=agg_name)
@@ -46,13 +74,11 @@ class AggregatesRbacTest(rbac_base.BaseV2ComputeRbacTest):
         return aggregate_id
 
     def _add_host_to_aggregate(self, aggregate_id):
-        host_name = self.hosts_client.list_hosts()['hosts'][0]['host_name']
-        self.aggregates_client.add_host(aggregate_id, host=host_name)
+        self.aggregates_client.add_host(aggregate_id, host=self.host)
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self.aggregates_client.remove_host,
                         aggregate_id,
-                        host=host_name)
-        return host_name
+                        host=self.host)
 
     @rbac_rule_validation.action(
         service="nova", rule="os_compute_api:os-aggregates:create")
@@ -107,9 +133,9 @@ class AggregatesRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('5b035a25-75d2-4d72-b4d6-0f0337335628')
     def test_remove_host_from_aggregate_rbac(self):
         aggregate_id = self._create_aggregate()
-        host_name = self._add_host_to_aggregate(aggregate_id)
+        self._add_host_to_aggregate(aggregate_id)
         with self.rbac_utils.override_role(self):
-            self.aggregates_client.remove_host(aggregate_id, host=host_name)
+            self.aggregates_client.remove_host(aggregate_id, host=self.host)
 
     @rbac_rule_validation.action(
         service="nova", rule="os_compute_api:os-aggregates:set_metadata")
