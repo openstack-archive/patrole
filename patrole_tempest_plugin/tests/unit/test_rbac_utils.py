@@ -254,6 +254,6 @@ class RBACUtilsMixinTest(base.TestCase):
 
         with testtools.ExpectedException(
                 testtools.TestCase.skipException,
-                value_re=('%s skipped as Patrole testing not enabled.'
+                value_re=('Patrole testing not enabled so skipping %s.'
                           % ChildRbacTest.__name__)):
             child_test.setUpClass()

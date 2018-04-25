@@ -216,7 +216,7 @@ class RbacUtilsMixin(object):
     def skip_rbac_checks(cls):
         if not CONF.patrole.enable_rbac:
             raise cls.skipException(
-                '%s skipped as Patrole testing not enabled.' % cls.__name__)
+                'Patrole testing not enabled so skipping %s.' % cls.__name__)
 
     @classmethod
     def setup_rbac_utils(cls):
