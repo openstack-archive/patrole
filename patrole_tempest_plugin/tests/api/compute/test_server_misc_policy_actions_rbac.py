@@ -13,6 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import netaddr
+
 import testtools
 
 from tempest.common import utils
@@ -563,12 +565,48 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
     def resource_setup(cls):
+        def _cleanup_ports(network_id):
+            ports = cls.ports_client.\
+                list_ports(network_id=network_id)['ports']
+            for port in ports:
+                test_utils.call_and_ignore_notfound_exc(
+                    cls.ports_client.delete_port,
+                    port['id'])
+
         super(MiscPolicyActionsNetworkRbacTest, cls).resource_setup()
         cls.server = cls.create_test_server(wait_until='ACTIVE')
 
+        # Create network the interface will be attached to
+        network_name = \
+            data_utils.rand_name(cls.__class__.__name__ + '-network')
+        post_body = {'name': network_name}
+        post_body['router:external'] = False
+        post_body['shared'] = True
+        post_body['port_security_enabled'] = True
+        cls.network = \
+            cls.networks_client.create_network(**post_body)['network']
+        cls.addClassResourceCleanup(
+            cls.networks_client.delete_network,
+            cls.network['id'])
+
+        # Create subnet for network
+        cls.cidr = netaddr.IPNetwork(CONF.network.project_network_cidr)
+        cls.subnet = cls.subnets_client.create_subnet(
+            network_id=cls.network['id'],
+            cidr=cls.cidr,
+            ip_version=4)['subnet']
+        cls.addClassResourceCleanup(
+            cls.subnets_client.delete_subnet,
+            cls.subnet['id'])
+
+        # ports on the network need to be deleted before the network can
+        # be deleted
+        cls.addClassResourceCleanup(_cleanup_ports, cls.network['id'])
+
     def _attach_interface_to_server(self):
+        network_id = self.network['id']
         interface = self.interfaces_client.create_interface(
-            self.server['id'])['interfaceAttachment']
+            self.server['id'], net_id=network_id)['interfaceAttachment']
         waiters.wait_for_interface_status(
             self.interfaces_client, self.server['id'],
             interface['port_id'], 'ACTIVE')
@@ -613,9 +651,10 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rule="os_compute_api:os-attach-interfaces:create")
     def test_create_interface(self):
         """Test create interface, part of os-attach-interfaces."""
+        network_id = self.network['id']
         with self.rbac_utils.override_role(self):
             interface = self.interfaces_client.create_interface(
-                self.server['id'])['interfaceAttachment']
+                self.server['id'], net_id=network_id)['interfaceAttachment']
         waiters.wait_for_interface_status(
             self.interfaces_client, self.server['id'],
             interface['port_id'], 'ACTIVE')
