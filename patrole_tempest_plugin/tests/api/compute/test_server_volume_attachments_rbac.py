@@ -12,6 +12,7 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+import testtools
 
 from tempest.common import waiters
 from tempest import config
@@ -72,6 +73,8 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
                 self.server['id'], attachment['id'])
 
     @decorators.attr(type='slow')
+    @testtools.skipUnless(CONF.compute_feature_enabled.swap_volume,
+                          'In-place swapping of volumes not supported.')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-volumes-attachments:update")
