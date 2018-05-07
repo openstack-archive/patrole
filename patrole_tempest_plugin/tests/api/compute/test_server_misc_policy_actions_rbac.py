@@ -417,6 +417,8 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         """Test rescue server, part of os-rescue."""
         with self.rbac_utils.override_role(self):
             self.servers_client.rescue_server(self.server['id'])
+        waiters.wait_for_server_status(
+            self.servers_client, self.server['id'], 'RESCUE')
 
     @decorators.idempotent_id('ac2d956f-d6a3-4184-b814-b44d05c9574c')
     @utils.requires_ext(extension='os-rescue', service='compute')
@@ -431,7 +433,8 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
         with self.rbac_utils.override_role(self):
             self.servers_client.unrescue_server(self.server['id'])
-        # `setUp` will wait for the server to reach 'ACTIVE' for next test.
+        waiters.wait_for_server_status(
+            self.servers_client, self.server['id'], 'ACTIVE')
 
     @utils.requires_ext(extension='os-server-diagnostics', service='compute')
     @rbac_rule_validation.action(
