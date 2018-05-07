@@ -13,7 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from oslo_config import cfg
+from tempest import config
 
 from tempest.common import utils
 from tempest.lib import decorators
@@ -21,7 +21,7 @@ from tempest.lib import decorators
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
-CONF = cfg.CONF
+CONF = config.CONF
 
 
 class TenantNetworksRbacTest(rbac_base.BaseV2ComputeRbacTest):
