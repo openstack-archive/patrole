@@ -330,7 +330,8 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
             self.routers_client.delete_router(router['id'])
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="add_router_interface")
+                                 rules=["get_router", "add_router_interface"],
+                                 expected_error_codes=[404, 403])
     @decorators.idempotent_id('a0627778-d68d-4913-881b-e345360cca19')
     def test_add_router_interface(self):
         """Add Router Interface
