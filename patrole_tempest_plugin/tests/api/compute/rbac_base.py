@@ -35,6 +35,9 @@ class BaseV2ComputeRbacTest(rbac_utils.RbacUtilsMixin,
         cls.setup_rbac_utils()
         cls.hosts_client = cls.os_primary.hosts_client
         cls.tenant_usages_client = cls.os_primary.tenant_usages_client
+        cls.networks_client = cls.os_primary.networks_client
+        cls.subnets_client = cls.os_primary.subnets_client
+        cls.ports_client = cls.os_primary.ports_client
 
     @classmethod
     def create_flavor(cls, **kwargs):
