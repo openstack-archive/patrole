@@ -21,7 +21,7 @@ from oslo_concurrency import lockutils
 from tempest import config
 from tempest.test_discover import plugins
 
-from patrole_tempest_plugin import config as project_config
+from patrole_tempest_plugin import config as pconfig
 
 RBACLOG = logging.getLogger('rbac_reporting')
 
@@ -64,16 +64,23 @@ class PatroleTempestPlugin(plugins.TempestPlugin):
     def register_opts(self, conf):
         config.register_opt_group(
             conf,
-            project_config.patrole_group,
-            project_config.PatroleGroup)
+            pconfig.patrole_group,
+            pconfig.PatroleGroup)
         config.register_opt_group(
             conf,
-            project_config.patrole_log_group,
-            project_config.PatroleLogGroup)
+            pconfig.patrole_log_group,
+            pconfig.PatroleLogGroup)
+        config.register_opt_group(
+            conf,
+            pconfig.policy_feature_enabled,
+            pconfig.PolicyFeatureEnabledGroup)
 
         if conf.patrole_log.enable_reporting:
             self._configure_per_test_logging(conf)
 
     def get_opt_lists(self):
-        return [(project_config.patrole_group.name,
-                 project_config.PatroleGroup)]
+        return [
+            (pconfig.patrole_group.name, pconfig.PatroleGroup),
+            (pconfig.policy_feature_enabled.name,
+                pconfig.PolicyFeatureEnabledGroup)
+        ]

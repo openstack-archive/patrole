@@ -94,6 +94,7 @@ allowed_role = the Keystone role that is allowed to perform the API
 patrole_log_group = cfg.OptGroup(
     name='patrole_log', title='Patrole Logging Options')
 
+
 PatroleLogGroup = [
     cfg.BoolOpt('enable_reporting',
                 default=False,
@@ -112,6 +113,47 @@ PatroleLogGroup = [
 ]
 
 
+policy_feature_enabled = cfg.OptGroup(
+    name='policy-feature-enabled',
+    title='Feature Flags for New or Changed Policies')
+
+
+PolicyFeatureEnabledGroup = [
+    # TODO(felipemonteiro): The 6 feature flags below should be removed after
+    # Pike is EOL.
+    cfg.BoolOpt('create_port_fixed_ips_ip_address_policy',
+                default=True,
+                help="""Is the Neutron policy
+"create_port:fixed_ips:ip_address" available in the cloud? This policy was
+changed in a backwards-incompatible way."""),
+    cfg.BoolOpt('update_port_fixed_ips_ip_address_policy',
+                default=True,
+                help="""Is the Neutron policy
+"update_port:fixed_ips:ip_address" available in the cloud? This policy was
+changed in a backwards-incompatible way."""),
+    cfg.BoolOpt('limits_extension_used_limits_policy',
+                default=True,
+                help="""Is the Cinder policy
+"limits_extension:used_limits" available in the cloud? This policy was
+changed in a backwards-incompatible way."""),
+    cfg.BoolOpt('volume_extension_volume_actions_attach_policy',
+                default=True,
+                help="""Is the Cinder policy
+"volume_extension:volume_actions:attach" available in the cloud? This policy
+was changed in a backwards-incompatible way."""),
+    cfg.BoolOpt('volume_extension_volume_actions_reserve_policy',
+                default=True,
+                help="""Is the Cinder policy
+"volume_extension:volume_actions:reserve" available in the cloud? This policy
+was changed in a backwards-incompatible way."""),
+    cfg.BoolOpt('volume_extension_volume_actions_unreserve_policy',
+                default=True,
+                help="""Is the Cinder policy
+"volume_extension:volume_actions:unreserve" available in the cloud? This policy
+was changed in a backwards-incompatible way.""")
+]
+
+
 def list_opts():
     """Return a list of oslo.config options available.
 
@@ -120,7 +162,9 @@ def list_opts():
     """
     opt_list = [
         (patrole_group, PatroleGroup),
-        (patrole_log_group, PatroleLogGroup)
+        (patrole_log_group, PatroleLogGroup),
+        (policy_feature_enabled, PolicyFeatureEnabledGroup)
+
     ]
 
     return opt_list

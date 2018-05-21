@@ -13,6 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import testtools
+
 from tempest.common import compute
 from tempest.common import utils
 from tempest.common import waiters
@@ -65,6 +67,11 @@ class VolumesActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
         waiters.wait_for_volume_resource_status(
             self.volumes_client, volume_id, 'available')
 
+    @testtools.skipUnless(
+        CONF.policy_feature_enabled
+        .volume_extension_volume_actions_attach_policy,
+        '"volume_extension:volume_actions:attach" must be available in the '
+        'cloud.')
     @utils.services('compute')
     @rbac_rule_validation.action(
         service="cinder",
@@ -151,6 +158,11 @@ class VolumesActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
             self.volumes_client.set_bootable_volume(self.volume['id'],
                                                     bootable=True)
 
+    @testtools.skipUnless(
+        CONF.policy_feature_enabled
+        .volume_extension_volume_actions_reserve_policy,
+        '"volume_extension:volume_actions:reserve" must be available in the '
+        'cloud.')
     @decorators.idempotent_id('41566922-75a1-4484-99c7-9c8782ee99ac')
     @rbac_rule_validation.action(
         service="cinder",
@@ -159,6 +171,11 @@ class VolumesActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
         with self.rbac_utils.override_role(self):
             self.volumes_client.reserve_volume(self.volume['id'])
 
+    @testtools.skipUnless(
+        CONF.policy_feature_enabled
+        .volume_extension_volume_actions_unreserve_policy,
+        '"volume_extension:volume_actions:unreserve" must be available in the '
+        'cloud.')
     @decorators.idempotent_id('e5fa9564-77d9-4e57-b0c0-3e0ae4d08535')
     @rbac_rule_validation.action(
         service="cinder",
