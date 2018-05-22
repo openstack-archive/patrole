@@ -614,6 +614,9 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
             self.interfaces_client, self.server['id'],
             interface['port_id'], 'ACTIVE')
         self.addCleanup(
+            waiters.wait_for_interface_detach, self.interfaces_client,
+            self.server['id'], interface['port_id'])
+        self.addCleanup(
             test_utils.call_and_ignore_notfound_exc,
             self.interfaces_client.delete_interface,
             self.server['id'], interface['port_id'])
