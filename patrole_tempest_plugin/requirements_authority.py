@@ -18,7 +18,7 @@ from oslo_log import log as logging
 
 from tempest.lib import exceptions
 
-from patrole_tempest_plugin.rbac_utils import RbacAuthority
+from patrole_tempest_plugin.rbac_authority import RbacAuthority
 
 LOG = logging.getLogger(__name__)
 

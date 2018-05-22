@@ -24,8 +24,8 @@ from tempest import clients
 from tempest.common import credentials_factory as credentials
 from tempest import config
 
+from patrole_tempest_plugin.rbac_authority import RbacAuthority
 from patrole_tempest_plugin import rbac_exceptions
-from patrole_tempest_plugin.rbac_utils import RbacAuthority
 
 CONF = config.CONF
 LOG = logging.getLogger(__name__)
