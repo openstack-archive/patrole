@@ -41,13 +41,13 @@ first path that is found to contain the service's policy file will be used.
                 default=False,
                 help="""
 This option determines whether Patrole should run against a
-`custom_requirements_file` which defines RBAC requirements. The
+``custom_requirements_file`` which defines RBAC requirements. The
 purpose of setting this flag to True is to verify that RBAC policy
 is in accordance to requirements. The idea is that the
-`custom_requirements_file` perfectly defines what the RBAC requirements are.
+``custom_requirements_file`` perfectly defines what the RBAC requirements are.
 
 Here are the possible outcomes when running the Patrole tests against
-a `custom_requirements_file`:
+a ``custom_requirements_file``:
 
 YAML definition: allowed
 test run: allowed
@@ -55,7 +55,7 @@ test result: pass
 
 YAML definition: allowed
 test run: not allowed
-test result: fail (under-permission)
+test result: fail (under-permission, e.g. Forbidden exception)
 
 YAML definition: not allowed
 test run: allowed
@@ -63,30 +63,32 @@ test result: fail (over-permission)
 """),
     cfg.StrOpt('custom_requirements_file',
                help="""
-File path of the yaml file that defines your RBAC requirements. This
-file must be located on the same host that Patrole runs on. The yaml
+File path of the YAML file that defines your RBAC requirements. This
+file must be located on the same host that Patrole runs on. The YAML
 file should be written as follows:
 
 ```
-<service>:
-  <api_action>:
-    - <allowed_role>
-    - <allowed_role>
-    - <allowed_role>
-  <api_action>:
-    - <allowed_role>
-    - <allowed_role>
-<service>
-  <api_action>:
-    - <allowed_role>
+<service_foo>:
+  <api_action_x>:
+    - <allowed_role_a>
+    - <allowed_role_b>
+    - <allowed_role_c>
+  <api_action_y>:
+    - <allowed_role_d>
+    - <allowed_role_e>
+<service_bar>:
+  <api_action_z>:
+    - <allowed_role_b>
 ```
+
 Where:
-service = the service that is being tested (cinder, nova, etc)
+
+service = the service that is being tested (Cinder, Nova, etc.)
 api_action = the policy action that is being tested. Examples:
              - volume:create
              - os_compute_api:servers:start
              - add_image
-allowed_role = the Keystone role that is allowed to perform the API
+allowed_role = the Keystone role that is allowed to perform the API.
 """)
 ]
 
