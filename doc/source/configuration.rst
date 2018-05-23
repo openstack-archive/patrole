@@ -21,7 +21,7 @@ role. That is, ``self.os_primary.servers_client`` will run as though it were
 ``self.os_admin.servers_client``.
 
 Similarly, setting ``rbac_test_role`` to a non-admin role results in Tempest's
-primary credentials being overriden by the role specified by
+primary credentials being overridden by the role specified by
 ``rbac_test_role``.
 
 .. note::

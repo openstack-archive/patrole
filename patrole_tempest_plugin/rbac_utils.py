@@ -88,7 +88,7 @@ class RbacUtils(object):
             def test_foo(self):
                 # Allocate test-level resources here.
                 with self.rbac_utils.override_role(self):
-                    # The role for `os_primary` has now been overriden. Within
+                    # The role for `os_primary` has now been overridden. Within
                     # this block, call the API endpoint that enforces the
                     # expected policy specified by "rule" in the decorator.
                     self.foo_service.bar_api_call()
