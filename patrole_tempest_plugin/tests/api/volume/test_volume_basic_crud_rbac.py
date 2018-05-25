@@ -62,11 +62,3 @@ class VolumesBasicCrudV3RbacTest(rbac_base.BaseVolumeRbacTest):
         with self.rbac_utils.override_role(self):
             self.volumes_client.update_volume(self.volume['id'],
                                               name=update_name)
-
-    @rbac_rule_validation.action(
-        service="cinder",
-        rule="volume_extension:volume_image_metadata")
-    @decorators.idempotent_id('3d48ca91-f02b-4616-a69d-4a8b296c8529')
-    def test_volume_list_image_metadata(self):
-        with self.rbac_utils.override_role(self):
-            self.volumes_client.list_volumes(detail=True)
