@@ -47,7 +47,9 @@ Framework
 
    framework/overview
    framework/rbac_validation
+   framework/rbac_authority
    framework/policy_authority
+   framework/requirements_authority
    framework/rbac_utils
 
 Indices and tables

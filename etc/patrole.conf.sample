@@ -29,9 +29,10 @@
 #
 # This option determines whether Patrole should run against a
 # ``custom_requirements_file`` which defines RBAC requirements. The
-# purpose of setting this flag to True is to verify that RBAC policy
+# purpose of setting this flag to ``True`` is to verify that RBAC
+# policy
 # is in accordance to requirements. The idea is that the
-# ``custom_requirements_file`` perfectly defines what the RBAC
+# ``custom_requirements_file`` precisely defines what the RBAC
 # requirements are.
 #
 # Here are the possible outcomes when running the Patrole tests
@@ -57,28 +58,32 @@
 # file must be located on the same host that Patrole runs on. The YAML
 # file should be written as follows:
 #
-# ```
-# <service_foo>:
-#   <api_action_x>:
-#     - <allowed_role_a>
-#     - <allowed_role_b>
-#     - <allowed_role_c>
-#   <api_action_y>:
-#     - <allowed_role_d>
-#     - <allowed_role_e>
-# <service_bar>:
-#   <api_action_z>:
-#     - <allowed_role_b>
-# ```
+# .. code-block:: yaml
+#
+#     <service_foo>:
+#       <api_action_a>:
+#         - <allowed_role_1>
+#         - <allowed_role_2>
+#         - <allowed_role_3>
+#       <api_action_b>:
+#         - <allowed_role_2>
+#         - <allowed_role_4>
+#     <service_bar>:
+#       <api_action_c>:
+#         - <allowed_role_3>
 #
 # Where:
 #
-# service = the service that is being tested (Cinder, Nova, etc.)
+# service = the service that is being tested (Cinder, Nova, etc.).
+#
 # api_action = the policy action that is being tested. Examples:
-#              - volume:create
-#              - os_compute_api:servers:start
-#              - add_image
-# allowed_role = the Keystone role that is allowed to perform the API.
+#
+# * volume:create
+# * os_compute_api:servers:start
+# * add_image
+#
+# allowed_role = the ``oslo.policy`` role that is allowed to perform
+# the API.
 #  (string value)
 #custom_requirements_file = <None>
 
