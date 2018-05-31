@@ -11,11 +11,26 @@ Patrole Configuration Guide
 .. toctree::
    :maxdepth: 2
 
-   installation
    configuration
    usage
-   testing
    sampleconf
+
+Patrole Installation Guide
+--------------------------
+
+.. toctree::
+   :maxdepth: 2
+
+   installation
+
+Field Guides
+============
+
+.. toctree::
+   :maxdepth: 1
+
+   field_guide/index
+   field_guide/rbac
 
 Developer's Guide
 =================

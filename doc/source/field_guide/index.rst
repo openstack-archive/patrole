@@ -1,8 +1,8 @@
-.. _patrole-testing:
+.. _patrole-field-guide:
 
-===============
-Patrole Testing
-===============
+============================
+Patrole Field Guide Overview
+============================
 
 Testing Scope
 =============
@@ -13,6 +13,15 @@ major services. Thus, Patrole is concerned with validating that public API
 endpoints are correctly using ``oslo.policy`` for authorization.
 
 In other words, all tests in Patrole are RBAC tests.
+
+:ref:`rbac_field_guide`
+=======================
+
+RBAC tests are `Tempest`_-like API tests plus Patrole's
+:ref:`rbac-validation`. All Patrole tests are RBAC validation tests for the
+OpenStack API.
+
+.. _Tempest: https://docs.openstack.org/tempest/latest/
 
 Stable Tests
 ============

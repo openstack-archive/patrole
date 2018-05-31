@@ -9,9 +9,9 @@ Patrole - RBAC Integration Tempest Plugin
 =========================================
 
 Patrole is a security validation tool for verifying that Role-Based Access
-Control is correctly configured and enforced in a system. It runs Tempest-based
-API tests using specified RBAC roles, thus allowing deployments to verify that
-only intended roles have access to those APIs.
+Control is correctly configured and enforced in a system. It runs
+`Tempest`_-based API tests using specified RBAC roles, thus allowing
+deployments to verify that only intended roles have access to those APIs.
 
 Patrole currently offers testing for the following OpenStack services: Nova,
 Neutron, Glance, Cinder and Keystone.
@@ -19,6 +19,8 @@ Neutron, Glance, Cinder and Keystone.
 Patrole is currently undergoing heavy development. As more projects move
 toward policy in code, Patrole will align its testing with the appropriate
 documentation.
+
+.. _Tempest: https://docs.openstack.org/tempest/latest/
 
 Design Principles
 -----------------
