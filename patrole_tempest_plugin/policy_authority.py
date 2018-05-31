@@ -156,9 +156,9 @@ class PolicyAuthority(RbacAuthority):
     def allowed(self, rule_name, role):
         """Checks if a given rule in a policy is allowed with given role.
 
-        :param string rule_name: Rule to be checked using ``oslo.policy``.
-        :param bool is_admin: Whether admin context is used.
-        :raises RbacParsingException: If `rule_name`` does not exist in the
+        :param string rule_name: Policy name to pass to``oslo.policy``.
+        :param string role: Role to validate for authorization.
+        :raises RbacParsingException: If ``rule_name`` does not exist in the
             cloud (in policy file or among registered in-code policy defaults).
         """
         is_admin_context = self._is_admin_context(role)
