@@ -118,6 +118,8 @@ class BaseIdentityV3RbacTest(BaseIdentityRbacTest):
     @classmethod
     def setup_clients(cls):
         super(BaseIdentityV3RbacTest, cls).setup_clients()
+        cls.application_credentials_client = \
+            cls.os_primary.application_credentials_client
         cls.creds_client = cls.os_primary.credentials_client
         cls.consumers_client = cls.os_primary.oauth_consumers_client
         cls.domains_client = cls.os_primary.domains_client
