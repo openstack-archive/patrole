@@ -13,11 +13,35 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import functools
+
 from tempest.common import utils
+from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
+
+CONF = config.CONF
+
+
+def _get_volume_type_encryption_policy(action):
+    feature_flag = CONF.policy_feature_enabled.added_cinder_policies_stein
+
+    if feature_flag:
+        return "volume_extension:volume_type_encryption:%s" % action
+
+    return "volume_extension:volume_type_encryption"
+
+
+_CREATE_VOLUME_TYPE_ENCRYPTION = functools.partial(
+    _get_volume_type_encryption_policy, "create")
+_SHOW_VOLUME_TYPE_ENCRYPTION = functools.partial(
+    _get_volume_type_encryption_policy, "get")
+_UPDATE_VOLUME_TYPE_ENCRYPTION = functools.partial(
+    _get_volume_type_encryption_policy, "update")
+_DELETE_VOLUME_TYPE_ENCRYPTION = functools.partial(
+    _get_volume_type_encryption_policy, "delete")
 
 
 class EncryptionTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
@@ -45,7 +69,7 @@ class EncryptionTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('ffd94ce5-c24b-4b6c-84c9-c5aad8c3010c')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="volume_extension:volume_type_encryption")
+        rule=_CREATE_VOLUME_TYPE_ENCRYPTION)
     def test_create_volume_type_encryption(self):
         vol_type_id = self.create_volume_type()['id']
         with self.rbac_utils.override_role(self):
@@ -57,7 +81,7 @@ class EncryptionTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('6599e72e-acef-4c0d-a9b2-463fca30d1da')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="volume_extension:volume_type_encryption")
+        rule=_DELETE_VOLUME_TYPE_ENCRYPTION)
     def test_delete_volume_type_encryption(self):
         vol_type_id = self._create_volume_type_encryption()
         with self.rbac_utils.override_role(self):
@@ -66,7 +90,7 @@ class EncryptionTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('42da9fec-32fd-4dca-9242-8a53b2fed25a')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="volume_extension:volume_type_encryption")
+        rule=_UPDATE_VOLUME_TYPE_ENCRYPTION)
     def test_update_volume_type_encryption(self):
         vol_type_id = self._create_volume_type_encryption()
         with self.rbac_utils.override_role(self):
@@ -77,7 +101,7 @@ class EncryptionTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('1381a3dc-248f-4282-b231-c9399018c804')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="volume_extension:volume_type_encryption")
+        rule=_SHOW_VOLUME_TYPE_ENCRYPTION)
     def test_show_volume_type_encryption(self):
         vol_type_id = self._create_volume_type_encryption()
         with self.rbac_utils.override_role(self):
@@ -86,7 +110,7 @@ class EncryptionTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('d4ed3cf8-52b2-4fa2-910d-e405361f0881')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="volume_extension:volume_type_encryption")
+        rule=_SHOW_VOLUME_TYPE_ENCRYPTION)
     def test_show_encryption_specs_item(self):
         vol_type_id = self._create_volume_type_encryption()
         with self.rbac_utils.override_role(self):

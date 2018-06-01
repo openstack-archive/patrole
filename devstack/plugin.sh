@@ -29,6 +29,9 @@ function install_patrole_tempest_plugin {
 
         # These policies were removed in Stein but are available in Pike.
         iniset $TEMPEST_CONFIG policy-feature-enabled removed_nova_policies_stein False
+
+        # TODO(cl566n): Policies used by Patrole testing. Remove these once stable/pike becomes EOL.
+        iniset $TEMPEST_CONFIG policy-feature-enabled added_cinder_policies_stein False
     fi
 
     if [[ ${DEVSTACK_SERIES} == 'queens' ]]; then
@@ -38,6 +41,14 @@ function install_patrole_tempest_plugin {
 
         # These policies were removed in Stein but are available in Queens.
         iniset $TEMPEST_CONFIG policy-feature-enabled removed_nova_policies_stein False
+
+        # TODO(cl566n): Policies used by Patrole testing. Remove these once stable/queens becomes EOL.
+        iniset $TEMPEST_CONFIG policy-feature-enabled added_cinder_policies_stein False
+    fi
+
+    if [[ ${DEVSTACK_SERIES} == 'rocky' ]]; then
+        # TODO(cl566n): Policies used by Patrole testing. Remove these once stable/rocky becomes EOL.
+        iniset $TEMPEST_CONFIG policy-feature-enabled added_cinder_policies_stein False
     fi
 
     iniset $TEMPEST_CONFIG patrole rbac_test_role $RBAC_TEST_ROLE

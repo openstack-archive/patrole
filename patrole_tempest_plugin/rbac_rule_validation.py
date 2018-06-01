@@ -38,8 +38,11 @@ _DEFAULT_ERROR_CODE = 403
 RBACLOG = logging.getLogger('rbac_reporting')
 
 
-def action(service, rule='', rules=None,
-           expected_error_code=_DEFAULT_ERROR_CODE, expected_error_codes=None,
+def action(service,
+           rule='',
+           rules=None,
+           expected_error_code=_DEFAULT_ERROR_CODE,
+           expected_error_codes=None,
            extra_target_data=None):
     """A decorator for verifying OpenStack policy enforcement.
 
@@ -72,16 +75,18 @@ def action(service, rule='', rules=None,
     As such, negative and positive testing can be applied using this decorator.
 
     :param str service: An OpenStack service. Examples: "nova" or "neutron".
-    :param str rule: (DEPRECATED) A policy action defined in a policy.json file
-        or in code.
-    :param list rules: A list of policy actions defined in a policy.json file
+    :param rule: (DEPRECATED) A policy action defined in a policy.json file
+        or in code. Also accepts a callable that returns a policy action.
+    :type rule: str or callable
+    :param rules: A list of policy actions defined in a policy.json file
         or in code. The rules are logical-ANDed together to derive the expected
-        result.
+        result. Also accepts list of callables that return a policy action.
 
         .. note::
 
             Patrole currently only supports custom JSON policy files.
 
+    :type rules: list[str] or list[callable]
     :param int expected_error_code: (DEPRECATED) Overrides default value of 403
         (Forbidden) with endpoint-specific error code. Currently only supports
         403 and 404. Support for 404 is needed because some services, like
@@ -316,7 +321,11 @@ def _prepare_multi_policy(rule, rules, exp_error_code, exp_error_codes):
         for i in range(num_rules - num_ecs):
             exp_error_codes.append(_DEFAULT_ERROR_CODE)
 
-    return rules, exp_error_codes
+    evaluated_rules = [
+        r() if callable(r) else r for r in rules
+    ]
+
+    return evaluated_rules, exp_error_codes
 
 
 def _is_authorized(test_obj, service, rule, extra_target_data):

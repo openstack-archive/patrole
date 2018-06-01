@@ -14,6 +14,7 @@
 
 from __future__ import absolute_import
 
+import functools
 import mock
 from oslo_config import cfg
 
@@ -80,7 +81,6 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
             pass
 
         test_policy(self.mock_test_args)
-        mock_log.warning.assert_not_called()
         mock_log.error.assert_not_called()
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
@@ -99,7 +99,6 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
             raise exceptions.Forbidden()
 
         test_policy(self.mock_test_args)
-        mock_log.warning.assert_not_called()
         mock_log.error.assert_not_called()
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
@@ -130,7 +129,8 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
     @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
     def test_rule_validation_rbac_malformed_response_positive(
             self, mock_authority, mock_log):
-        """Test RbacMalformedResponse error is thrown without permission passes.
+        """Test RbacMalformedResponse error is thrown without permission
+        passes.
 
         Positive test case: if RbacMalformedResponse is thrown and the user is
         not allowed to perform the action, then this is a success.
@@ -143,7 +143,6 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
             raise rbac_exceptions.RbacMalformedResponse()
 
         mock_log.error.assert_not_called()
-        mock_log.warning.assert_not_called()
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
     @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
@@ -171,7 +170,8 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
     @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
     def test_rule_validation_rbac_conflicting_policies_positive(
             self, mock_authority, mock_log):
-        """Test RbacConflictingPolicies error is thrown without permission passes.
+        """Test RbacConflictingPolicies error is thrown without permission
+        passes.
 
         Positive test case: if RbacConflictingPolicies is thrown and the user
         is not allowed to perform the action, then this is a success.
@@ -184,7 +184,6 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
             raise rbac_exceptions.RbacConflictingPolicies()
 
         mock_log.error.assert_not_called()
-        mock_log.warning.assert_not_called()
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
     @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
@@ -447,6 +446,66 @@ class RBACRuleValidationLoggingTest(BaseRBACRuleValidationTest):
             ', '.join(policy_names),
             "Allowed",
             "Allowed")
+
+    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
+    @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
+    def test_rule_validation_with_callable_rule(self, mock_authority,
+                                                mock_log):
+        """Test that a callable as the rule is evaluated correctly."""
+        mock_authority.PolicyAuthority.return_value.allowed.return_value = True
+
+        @rbac_rv.action(mock.sentinel.service,
+                        rule=lambda: mock.sentinel.action)
+        def test_policy(*args):
+            pass
+
+        test_policy(self.mock_test_args)
+
+        policy_authority = mock_authority.PolicyAuthority.return_value
+        policy_authority.allowed.assert_called_with(
+            mock.sentinel.action,
+            CONF.patrole.rbac_test_role)
+
+        mock_log.error.assert_not_called()
+
+    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
+    @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
+    def test_rule_validation_with_conditional_callable_rule(
+            self, mock_authority, mock_log):
+        """Test that a complex callable with conditional logic as the rule is
+        evaluated correctly.
+        """
+        mock_authority.PolicyAuthority.return_value.allowed.return_value = True
+
+        def partial_func(x):
+            return "foo" if x == "bar" else "qux"
+        foo_callable = functools.partial(partial_func, "bar")
+        bar_callable = functools.partial(partial_func, "baz")
+
+        @rbac_rv.action(mock.sentinel.service,
+                        rule=foo_callable)
+        def test_foo_policy(*args):
+            pass
+
+        @rbac_rv.action(mock.sentinel.service,
+                        rule=bar_callable)
+        def test_bar_policy(*args):
+            pass
+
+        test_foo_policy(self.mock_test_args)
+        policy_authority = mock_authority.PolicyAuthority.return_value
+        policy_authority.allowed.assert_called_with(
+            "foo",
+            CONF.patrole.rbac_test_role)
+        policy_authority.allowed.reset_mock()
+
+        test_bar_policy(self.mock_test_args)
+        policy_authority = mock_authority.PolicyAuthority.return_value
+        policy_authority.allowed.assert_called_with(
+            "qux",
+            CONF.patrole.rbac_test_role)
+
+        mock_log.error.assert_not_called()
 
 
 class RBACRuleValidationNegativeTest(BaseRBACRuleValidationTest):
