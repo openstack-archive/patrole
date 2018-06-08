@@ -105,31 +105,6 @@ class VolumesActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
         waiters.wait_for_volume_resource_status(
             self.volumes_client, volume_id, 'available')
 
-    @decorators.attr(type=["slow"])
-    @utils.services('image')
-    @rbac_rule_validation.action(
-        service="cinder",
-        rule="volume_extension:volume_actions:upload_image")
-    @decorators.idempotent_id('b0d0da46-903c-4445-893e-20e680d68b50')
-    def test_volume_upload(self):
-        # TODO(felipemonteiro): The ``upload_volume`` endpoint also enforces
-        # "volume:copy_volume_to_image" but is not currently contained in
-        # Cinder's policy.json.
-        image_name = data_utils.rand_name(self.__class__.__name__ + '-Image')
-
-        with self.rbac_utils.override_role(self):
-            body = self.volumes_client.upload_volume(
-                self.volume['id'], image_name=image_name, visibility="private",
-                disk_format=CONF.volume.disk_format)['os-volume_upload_image']
-        image_id = body["image_id"]
-        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.image_client.delete_image,
-                        image_id)
-        waiters.wait_for_image_status(self.image_client, image_id,
-                                      'active')
-        waiters.wait_for_volume_resource_status(self.volumes_client,
-                                                self.volume['id'], 'available')
-
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:update_readonly_flag")
     @decorators.idempotent_id('2750717a-f250-4e41-9e09-02624aad6ff8')
@@ -252,6 +227,35 @@ class VolumesActionsV310RbacTest(rbac_base.BaseVolumeRbacTest):
         super(VolumesActionsV310RbacTest, cls).setup_clients()
         cls.image_client = cls.os_primary.image_client_v2
 
+    @classmethod
+    def resource_setup(cls):
+        super(VolumesActionsV310RbacTest, cls).resource_setup()
+        cls.volume = cls.create_volume()
+
+    @decorators.attr(type=["slow"])
+    @utils.services('image')
+    @rbac_rule_validation.action(
+        service="cinder",
+        rule="volume_extension:volume_actions:upload_image")
+    @decorators.idempotent_id('b0d0da46-903c-4445-893e-20e680d68b50')
+    def test_volume_upload_image(self):
+        # TODO(felipemonteiro): The ``upload_volume`` endpoint also enforces
+        # "volume:copy_volume_to_image".
+        image_name = data_utils.rand_name(self.__class__.__name__ + '-Image')
+
+        with self.rbac_utils.override_role(self):
+            body = self.volumes_client.upload_volume(
+                self.volume['id'], image_name=image_name, visibility="private",
+                disk_format=CONF.volume.disk_format)['os-volume_upload_image']
+        image_id = body["image_id"]
+        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
+                        self.image_client.delete_image,
+                        image_id)
+        waiters.wait_for_image_status(self.image_client, image_id,
+                                      'active')
+        waiters.wait_for_volume_resource_status(self.volumes_client,
+                                                self.volume['id'], 'available')
+
     @decorators.attr(type=["slow"])
     @utils.services('image')
     @rbac_rule_validation.action(
@@ -260,12 +264,11 @@ class VolumesActionsV310RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('578a84dd-a6bd-4f97-a418-4a0c3c272c08')
     def test_volume_upload_public(self):
         # This also enforces "volume_extension:volume_actions:upload_image".
-        volume = self.create_volume()
         image_name = data_utils.rand_name(self.__class__.__name__ + '-Image')
 
         with self.rbac_utils.override_role(self):
             body = self.volumes_client.upload_volume(
-                volume['id'], image_name=image_name, visibility="public",
+                self.volume['id'], image_name=image_name, visibility="public",
                 disk_format=CONF.volume.disk_format)['os-volume_upload_image']
             image_id = body["image_id"]
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
@@ -274,7 +277,7 @@ class VolumesActionsV310RbacTest(rbac_base.BaseVolumeRbacTest):
         waiters.wait_for_image_status(self.image_client, image_id,
                                       'active')
         waiters.wait_for_volume_resource_status(self.volumes_client,
-                                                volume['id'], 'available')
+                                                self.volume['id'], 'available')
 
 
 class VolumesActionsV312RbacTest(rbac_base.BaseVolumeRbacTest):
