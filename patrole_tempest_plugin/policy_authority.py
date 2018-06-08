@@ -274,9 +274,9 @@ class PolicyAuthority(RbacAuthority):
         access_data['is_admin'] = is_admin
         # TODO(felipemonteiro): Dynamically calculate is_admin_project rather
         # than hard-coding it to True. is_admin_project cannot be determined
-        # from the role, but rather from project and domain names. See
-        # _populate_is_admin_project in keystone.token.providers.common
-        # for more information.
+        # from the role, but rather from project and domain names. For more
+        # information, see:
+        # https://github.com/openstack/keystone/blob/37ce5417418f8acbd27f3dacb70c605b0fe48301/keystone/token/providers/common.py#L150
         access_data['is_admin_project'] = True
 
         class Object(object):
