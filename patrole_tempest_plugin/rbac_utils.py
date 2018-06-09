@@ -13,9 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import abc
 from contextlib import contextmanager
-import six
 import time
 
 from oslo_log import log as logging
@@ -229,23 +227,3 @@ def is_admin():
     :returns: True if ``rbac_test_role`` is the admin role.
     """
     return CONF.patrole.rbac_test_role == CONF.identity.admin_role
-
-
-@six.add_metaclass(abc.ABCMeta)
-class RbacAuthority(object):
-    """Class for validating whether a given role can perform a policy action.
-
-    Any class that extends ``RbacAuthority`` provides the logic for determining
-    whether a role has permissions to execute a policy action.
-    """
-
-    @abc.abstractmethod
-    def allowed(self, rule, role):
-        """Determine whether the role should be able to perform the API.
-
-        :param rule: The name of the policy enforced by the API.
-        :param role: The role used to determine whether ``rule`` can be
-            executed.
-        :returns: True if the ``role`` has permissions to execute
-            ``rule``, else False.
-        """
