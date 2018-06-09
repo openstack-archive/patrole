@@ -1,0 +1,13 @@
+---
+features:
+  - |
+    Patrole now offers support for multiple policies. The ``rules`` argument
+    has been added to the ``rbac_rule_validation.action`` decorator, which
+    takes a list of policy names which Patrole will use to determine the
+    expected test result. This allows Patrole to more accurately determine
+    whether RBAC is configured correctly, since some API endpoints enforce
+    multiple policies.
+deprecations:
+  - |
+    The ``rule`` argument in the ``rbac_rule_validation.action`` decorator has
+    been deprecated in favor of ``rules``.

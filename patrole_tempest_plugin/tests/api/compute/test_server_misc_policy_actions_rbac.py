@@ -395,7 +395,8 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-lock-server:unlock:unlock_override")
+        rules=["os_compute_api:os-lock-server:unlock",
+               "os_compute_api:os-lock-server:unlock:unlock_override"])
     @decorators.idempotent_id('40dfeef9-73ee-48a9-be19-a219875de457')
     def test_unlock_server_override(self):
         """Test force unlock server, part of os-lock-server.
