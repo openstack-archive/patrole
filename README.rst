@@ -33,10 +33,22 @@ testing scope is confined to policies.
 * *Atomicity*. Patrole tests should be atomic: they should test policies in
   isolation. Unlike Tempest, a Patrole test strives to only call a single
   endpoint at a time.
-* *Holistic coverage*. Patrole strives for complete coverage of the OpenStack
-  API. Additionally, Patrole strives to test the API-to-policy mapping
-  contained in each project's policy in code documentation.
-* *Self-contained*. Patrole should attempt to clean up after itself; whenever
+* *Complete coverage*. Patrole should validate all policy in code defaults. For
+  testing, Patrole uses the API-to-policy mapping contained in each project's
+  `policy in code`_ documentation where applicable.
+
+  For example, Nova's policy in code documentation is located in the
+  `Nova repository`_ under ``nova/policies``. Likewise, Keystone's policy in
+  code documentation is located in the `Keystone repository`_ under
+  ``keystone/common/policies``. The other OpenStack services follow the same
+  directory layout pattern with respect to policy in code.
+
+  .. note::
+
+    Realistically this is not always possible because some services have
+    not yet moved to policy in code.
+
+* *Self-cleaning*. Patrole should attempt to clean up after itself; whenever
   possible we should tear down resources when done.
 
   .. note::
@@ -45,7 +57,11 @@ testing scope is confined to policies.
       pre-provisioned credentials. Work is currently underway to clean up
       modifications made to pre-provisioned credentials.
 
-* *Self-tested*. Patrole should be self-tested.
+* *Self-testing*. Patrole should be self-testing.
+
+.. _policy in code: https://specs.openstack.org/openstack/oslo-specs/specs/newton/policy-in-code.html
+.. _Nova repository: https://github.com/openstack/nova/tree/master/nova/policies
+.. _Keystone repository: https://github.com/openstack/keystone/tree/master/keystone/common/policies
 
 Features
 --------

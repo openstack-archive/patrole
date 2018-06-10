@@ -2,6 +2,14 @@
 Patrole: Tempest Plugin for RBAC Testing
 ========================================
 
+Overview
+========
+
+.. toctree::
+   :maxdepth: 2
+
+   overview
+
 User's Guide
 ============
 
@@ -12,7 +20,6 @@ Patrole Configuration Guide
    :maxdepth: 2
 
    configuration
-   usage
 
 Patrole Installation Guide
 --------------------------

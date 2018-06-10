@@ -23,8 +23,19 @@ credentials, rather than using distinct credentials for setup/teardown
 and test execution, respectively. This is especially true when considering
 custom policy rule definitions, which can be arbitrarily complex.
 
-Patrole, therefore, implicitly splits up each test into 3 stages: set up,
-test execution, and teardown.
+.. _role-overriding:
+
+Role Overriding
+^^^^^^^^^^^^^^^
+
+Role overriding is the way Patrole is able to create resources and delete
+resources -- including those that require admin credentials -- while still
+being able to exercise the same set of Tempest credentials to perform the API
+action that authorizes the policy under test, by manipulating the role of
+the Tempest credentials.
+
+Patrole implicitly splits up each test into 3 stages: set up, test execution,
+and teardown.
 
 The role workflow is as follows:
 
@@ -43,7 +54,7 @@ The role workflow is as follows:
 Test Setup
 ----------
 
-Automatic role switch in background.
+Automatic role override in background.
 
 Resources can be set up inside the ``resource_setup`` class method that Tempest
 provides. These resources are typically reserved for "expensive" resources
@@ -59,7 +70,7 @@ resources one needs, without having to worry about permissions.
 Test Execution
 --------------
 
-Manual role switch required.
+Manual role override required.
 
 "Test execution" here means calling the API endpoint that enforces the policy
 action expected by the ``rbac_rule_validation`` decorator. Test execution
@@ -152,7 +163,7 @@ everything extraneous outside.
 Test Cleanup
 ------------
 
-Automatic role switch in background.
+Automatic role override in background.
 
 After the test -- no matter whether it ended successfully or in failure --
 the credentials are overridden with the admin role by the Patrole framework,
