@@ -294,63 +294,6 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         with self.rbac_utils.override_role(self):
             self.networks_client.delete_network(network['id'])
 
-    @rbac_rule_validation.action(service="neutron",
-                                 rule="create_subnet")
-    @decorators.idempotent_id('44f42aaf-8a9a-4678-868a-b8fe82689554')
-    def test_create_subnet(self):
-
-        """Create Subnet Test
-
-        RBAC test for the neutron create_subnet policy
-        """
-        network = self._create_network()
-
-        with self.rbac_utils.override_role(self):
-            self.create_subnet(network, enable_dhcp=False)
-
-    @rbac_rule_validation.action(service="neutron",
-                                 rule="get_subnet")
-    @decorators.idempotent_id('eb88be84-2465-482b-a40b-5201acb41152')
-    def test_show_subnet(self):
-
-        """Show Subnet Test
-
-        RBAC test for the neutron get_subnet policy
-        """
-        with self.rbac_utils.override_role(self):
-            self.subnets_client.show_subnet(self.subnet['id'])
-
-    @rbac_rule_validation.action(service="neutron",
-                                 rule="update_subnet")
-    @decorators.idempotent_id('1bfeaec5-83b9-4140-8138-93a0a9d04cee')
-    def test_update_subnet(self):
-
-        """Update Subnet Test
-
-        RBAC test for the neutron update_subnet policy
-        """
-        updated_name = data_utils.rand_name(
-            self.__class__.__name__ + '-Network')
-
-        with self.rbac_utils.override_role(self):
-            self.subnets_client.update_subnet(self.subnet['id'],
-                                              name=updated_name)
-
-    @rbac_rule_validation.action(service="neutron",
-                                 rule="delete_subnet")
-    @decorators.idempotent_id('1ad1400f-dc84-4edb-9674-b33bbfb0d3e3')
-    def test_delete_subnet(self):
-
-        """Delete Subnet Test
-
-        RBAC test for the neutron delete_subnet policy
-        """
-        network = self._create_network()
-        subnet = self.create_subnet(network, enable_dhcp=False)
-
-        with self.rbac_utils.override_role(self):
-            self.subnets_client.delete_subnet(subnet['id'])
-
     @utils.requires_ext(extension='dhcp_agent_scheduler', service='network')
     @decorators.idempotent_id('b524f19f-fbb4-4d11-a85d-03bfae17bf0e')
     @rbac_rule_validation.action(service="neutron",
