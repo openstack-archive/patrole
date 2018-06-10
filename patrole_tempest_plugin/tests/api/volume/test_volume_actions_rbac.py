@@ -140,16 +140,6 @@ class VolumesActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
         self.addCleanup(self.volumes_client.update_volume_readonly,
                         self.volume['id'], readonly=False)
 
-    @decorators.idempotent_id('72bab13c-dfaf-4b6d-a132-c83a85fb1776')
-    @rbac_rule_validation.action(
-        service="cinder",
-        rule="volume_extension:volume_unmanage")
-    def test_unmanage_volume(self):
-        volume = self.create_volume()
-
-        with self.rbac_utils.override_role(self):
-            self.volumes_client.unmanage_volume(volume['id'])
-
     @decorators.idempotent_id('59b783c0-f4ef-430c-8a90-1bad97d4ec5c')
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:update")
