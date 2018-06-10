@@ -33,6 +33,14 @@ CONF = config.CONF
 
 class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
+    # admin credentials used for waiters which invokes a show API call
+    credentials = ['primary', 'admin']
+
+    @classmethod
+    def setup_clients(cls):
+        super(ServerActionsRbacTest, cls).setup_clients()
+        cls.admin_servers_client = cls.os_admin.servers_client
+
     @classmethod
     def resource_setup(cls):
         super(ServerActionsRbacTest, cls).resource_setup()
@@ -58,17 +66,24 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def _stop_server(self):
         self.servers_client.stop_server(self.server_id)
         waiters.wait_for_server_status(
-            self.servers_client, self.server_id, 'SHUTOFF')
+            self.admin_servers_client, self.server_id, 'SHUTOFF')
 
     def _resize_server(self, flavor):
+        status = self.admin_servers_client. \
+            show_server(self.server_id)['server']['status']
+        if status == 'RESIZED':
+            return
         self.servers_client.resize_server(self.server_id, flavor)
         waiters.wait_for_server_status(
-            self.servers_client, self.server_id, 'VERIFY_RESIZE')
+            self.admin_servers_client, self.server_id, 'VERIFY_RESIZE')
 
     def _confirm_resize_server(self):
-        self.servers_client.confirm_resize_server(self.server_id)
+        status = self.admin_servers_client. \
+            show_server(self.server_id)['server']['status']
+        if status == 'VERIFY_RESIZE':
+            self.servers_client.confirm_resize_server(self.server_id)
         waiters.wait_for_server_status(
-            self.servers_client, self.server_id, 'ACTIVE')
+            self.admin_servers_client, self.server_id, 'ACTIVE')
 
     def _shelve_server(self):
         self.servers_client.shelve_server(self.server_id)
@@ -77,12 +92,13 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                         self.server_id)
         offload_time = CONF.compute.shelved_offload_time
         if offload_time >= 0:
-            waiters.wait_for_server_status(self.servers_client,
+            waiters.wait_for_server_status(self.admin_servers_client,
                                            self.server_id,
                                            'SHELVED_OFFLOADED',
                                            extra_timeout=offload_time)
         else:
-            waiters.wait_for_server_status(self.servers_client, self.server_id,
+            waiters.wait_for_server_status(self.admin_servers_client,
+                                           self.server_id,
                                            'SHELVED')
 
     def _pause_server(self):
@@ -91,7 +107,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                         self.servers_client.unpause_server,
                         self.server_id)
         waiters.wait_for_server_status(
-            self.servers_client, self.server_id, 'PAUSED')
+            self.admin_servers_client, self.server_id, 'PAUSED')
 
     def _cleanup_server_actions(self, function, server_id, **kwargs):
         server = self.servers_client.show_server(server_id)['server']
@@ -179,6 +195,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self._resize_server(self.flavor_ref_alt)
         self.addCleanup(self._confirm_resize_server)
         self.addCleanup(self._resize_server, self.flavor_ref)
+        self.addCleanup(self._confirm_resize_server)
 
         with self.rbac_utils.override_role(self):
             self._confirm_resize_server()
