@@ -570,8 +570,7 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @classmethod
     def resource_setup(cls):
         def _cleanup_ports(network_id):
-            ports = cls.ports_client.\
-                list_ports(network_id=network_id)['ports']
+            ports = cls.ports_client.list_ports(network_id=network_id)['ports']
             for port in ports:
                 test_utils.call_and_ignore_notfound_exc(
                     cls.ports_client.delete_port,
@@ -666,6 +665,9 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
             self.interfaces_client, self.server['id'],
             interface['port_id'], 'ACTIVE')
         self.addCleanup(
+            waiters.wait_for_interface_detach, self.interfaces_client,
+            self.server['id'], interface['port_id'])
+        self.addCleanup(
             test_utils.call_and_ignore_notfound_exc,
             self.interfaces_client.delete_interface,
             self.server['id'], interface['port_id'])
@@ -684,6 +686,8 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
         with self.rbac_utils.override_role(self):
             self.interfaces_client.delete_interface(self.server['id'],
                                                     interface['port_id'])
+        waiters.wait_for_interface_detach(
+            self.interfaces_client, self.server['id'], interface['port_id'])
 
     @decorators.idempotent_id('6886d360-0d86-4760-b1a3-882d81fbebcc')
     @utils.requires_ext(extension='os-ips', service='compute')
@@ -723,8 +727,15 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
         if interfaces:
             network_id = interfaces[0]['net_id']
         else:
-            network_id = self.interfaces_client.create_interface(
-                self.server['id'])['interfaceAttachment']['net_id']
+            interface = self.interfaces_client.create_interface(
+                self.server['id'])['interfaceAttachment']
+            network_id = interface['net_id']
+            self.addCleanup(
+                waiters.wait_for_interface_detach, self.interfaces_client,
+                self.server['id'], interface['port_id'])
+            self.addCleanup(
+                self.interfaces_client.delete_interface,
+                self.server['id'], interface['port_id'])
 
         with self.rbac_utils.override_role(self):
             self.servers_client.add_fixed_ip(self.server['id'],
