@@ -1,5 +1,5 @@
-Patrole Style Commandments
-==========================
+Patrole Coding Guide
+====================
 
 - Step 1: Read the OpenStack Style Commandments: `<https://docs.openstack.org/hacking/latest/>`__
 - Step 2: Review Tempest's Style Commandments: `<https://docs.openstack.org/tempest/latest/HACKING.html>`__
