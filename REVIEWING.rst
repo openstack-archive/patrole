@@ -109,6 +109,58 @@ skipped or not. Do not approve changes that depend on an API call to determine
 whether to skip or not.
 
 
+Multi-Policy Guidelines
+-----------------------
+
+Care should be taken when using multiple policies in an RBAC test. The
+following guidelines should be followed before deciding to add multiple
+policies to a Patrole test.
+
+.. _general-multi-policy-guidelines:
+
+General Multi-policy API Code Guidelines
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The list below enumerates guidelines beginning with those with the highest
+priority and ending with those with the lowest priority. A higher priority
+item takes precedence over lower priority items.
+
+#. Order the policies in the ``rules`` parameter chronologically with respect
+   to the order they're called by the API endpoint under test.
+#. Only use policies that map to the API by referencing the appropriate policy
+   in code documentation.
+#. Only include the minimum number of policies needed to test the API
+   correctly: don't add extraneous policies.
+#. If possible, only use policies that directly relate to the API. If the
+   policies are used across multiple APIs, try to omit it. If a "generic"
+   policy needs to be added to get the test to pass, then this is fair game.
+#. Limit the number of policies to a reasonable number, such as 3.
+
+Neutron Multi-policy API Code Guidelines
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Because Neutron can raise a 403 or 404 following failed authorization, Patrole
+uses the ``expected_error_codes`` parameter to accommodate this behavior.
+Each policy action enumerated in ``rules`` must have a corresponding entry
+in ``expected_error_codes``. Each expected error code must be either a 403 or a
+404, which indicates that, when policy enforcement fails for the corresponding
+policy action, that error code is expected by Patrole. For more information
+about these parameters, see :ref:`rbac-validation`.
+
+The list below enumerates additional multi-policy guidelines that apply in
+particular to Neutron. A higher priority item takes precedence over lower
+priority items.
+
+#. Order the expected error codes in the ``expected_error_codes`` parameter
+   chronologically with respect to the order each corresponding policy in
+   ``rules`` is authorized by the API under test.
+#. Ensure the :ref:`neutron-multi-policy-validation` is followed when
+   determining the expected error code for each corresponding policy.
+
+The same guidelines under :ref:`general-multi-policy-guidelines` should be
+applied afterward.
+
+
 Release Notes
 -------------
 Release notes are how we indicate to users and other consumers of Patrole what

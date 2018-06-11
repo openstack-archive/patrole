@@ -124,12 +124,9 @@ accurate validation, Patrole handles multiple policies:
   degree of log tracing is required by developers to confirm that the expected
   policies are getting enforced, prior to the tests getting merged.
 
-.. todo::
+For more information, see :ref:`multi-policy-validation`.
 
-  Link to multi-policy validation documentation section once it has been
-  written.
-
-.. _error-codes:
+.. _policy-error-codes:
 
 Error Codes
 -----------
@@ -196,7 +193,7 @@ related to RBAC in Patrole.
     in an exception getting raised or a boolean value getting returned.
     Hard authorization results in an exception getting raised. Usually, this
     results in a ``403 Forbidden`` getting returned for unauthorized requests.
-    (See :ref:`error-codes` for further details.)
+    (See :ref:`policy-error-codes` for further details.)
 
     Related term: :term:`soft authorization`.
 
