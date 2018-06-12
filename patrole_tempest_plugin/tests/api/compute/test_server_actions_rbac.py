@@ -293,6 +293,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             self.compute_images_client.delete_image, image['id'])
 
     @decorators.idempotent_id('9fdd4630-731c-4f7c-bce5-69fa3792c52a')
+    @decorators.attr(type='slow')
     @testtools.skipUnless(CONF.compute_feature_enabled.snapshot,
                           'Snapshotting not available, backup not possible.')
     @utils.services('image')

@@ -73,6 +73,7 @@ class VolumesActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
         '"volume_extension:volume_actions:attach" must be available in the '
         'cloud.')
     @utils.services('compute')
+    @decorators.attr(type='slow')
     @rbac_rule_validation.action(
         service="cinder",
         rule="volume_extension:volume_actions:attach")

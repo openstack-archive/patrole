@@ -23,10 +23,13 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 CONF = config.CONF
 
 
+# TODO(rb560u): Remove this test class once the nova queens branch goes into
+# extended maintenance mode.
 class VirtualInterfacesRbacTest(rbac_base.BaseV2ComputeRbacTest):
     # The compute os-virtual-interfaces API is deprecated from the Microversion
     # 2.44 onward. For more information, see:
     # https://developer.openstack.org/api-ref/compute/#servers-virtual-interfaces-servers-os-virtual-interfaces-deprecated
+    depends_on_nova_network = True
     max_microversion = '2.43'
 
     @classmethod
