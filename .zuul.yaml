@@ -123,7 +123,3 @@
       jobs:
         - patrole-admin
         - patrole-member
-        - patrole-member-queens
-        - patrole-member-pike
-        - patrole-py35-member
-        - openstack-tox-lower-constraints
