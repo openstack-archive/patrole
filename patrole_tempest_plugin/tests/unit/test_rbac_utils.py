@@ -36,17 +36,15 @@ class RBACUtilsTest(base.TestCase):
 
     def test_override_role_with_missing_admin_role(self):
         self.rbac_utils.set_roles('member')
-        error_re = (
-            'Roles defined by `\[patrole\] rbac_test_role` and `\[identity\] '
-            'admin_role` must be defined in the system.')
+        error_re = (".*Following roles were not found: admin. Available "
+                    "roles: member.")
         self.assertRaisesRegex(rbac_exceptions.RbacResourceSetupFailed,
                                error_re, self.rbac_utils.override_role)
 
     def test_override_role_with_missing_rbac_role(self):
         self.rbac_utils.set_roles('admin')
-        error_re = (
-            'Roles defined by `\[patrole\] rbac_test_role` and `\[identity\] '
-            'admin_role` must be defined in the system.')
+        error_re = (".*Following roles were not found: member. Available "
+                    "roles: admin.")
         self.assertRaisesRegex(rbac_exceptions.RbacResourceSetupFailed,
                                error_re, self.rbac_utils.override_role)
 

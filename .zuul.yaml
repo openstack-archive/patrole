@@ -1,7 +1,7 @@
 - job:
     name: patrole-base
     parent: devstack-tempest
-    description: Patrole base job for admin and Member roles.
+    description: Patrole base job for admin and member roles.
     required-projects:
       - name: openstack/tempest
       - name: openstack/patrole
@@ -54,7 +54,7 @@
 - job:
     name: patrole-member
     parent: patrole-base
-    description: Patrole job for Member role.
+    description: Patrole job for member role.
     # This currently works from stable/pike onward.
     branches:
       - master
@@ -62,7 +62,7 @@
       - stable/pike
     vars:
       devstack_localrc:
-        RBAC_TEST_ROLE: Member
+        RBAC_TEST_ROLE: member
 
 - job:
     name: patrole-member-queens
@@ -93,12 +93,12 @@
 - job:
     name: patrole-py35-member
     parent: patrole-base
-    description: Patrole py3 job for Member role.
+    description: Patrole py35 job for member role.
     vars:
       devstack_localrc:
-        # Use Member for py3 because arguably negative testing is more
+        # Use member for py35 because arguably negative testing is more
         # important than admin, which is already covered by patrole-admin job.
-        RBAC_TEST_ROLE: Member
+        RBAC_TEST_ROLE: member
         USE_PYTHON3: true
       devstack_services:
         s-account: false

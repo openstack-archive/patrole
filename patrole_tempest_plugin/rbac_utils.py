@@ -147,18 +147,25 @@ class RbacUtils(object):
             test_obj.os_primary.auth_provider.set_auth()
 
     def _get_roles_by_name(self):
-        available_roles = self.admin_roles_client.list_roles()
-        admin_role_id = rbac_role_id = None
+        available_roles = self.admin_roles_client.list_roles()['roles']
+        role_map = {r['name']: r['id'] for r in available_roles}
+        LOG.debug('Available roles: %s', list(role_map.keys()))
 
-        for role in available_roles['roles']:
-            if role['name'] == CONF.patrole.rbac_test_role:
-                rbac_role_id = role['id']
-            if role['name'] == CONF.identity.admin_role:
-                admin_role_id = role['id']
+        admin_role_id = role_map.get(CONF.identity.admin_role)
+        rbac_role_id = role_map.get(CONF.patrole.rbac_test_role)
 
         if not all([admin_role_id, rbac_role_id]):
-            msg = ("Roles defined by `[patrole] rbac_test_role` and "
-                   "`[identity] admin_role` must be defined in the system.")
+            missing_roles = []
+            msg = ("Could not find `[patrole] rbac_test_role` or "
+                   "`[identity] admin_role`, both of which are required for "
+                   "RBAC testing.")
+            if not admin_role_id:
+                missing_roles.append(CONF.identity.admin_role)
+            if not rbac_role_id:
+                missing_roles.append(CONF.patrole.rbac_test_role)
+            msg += " Following roles were not found: %s." % (
+                ", ".join(missing_roles))
+            msg += " Available roles: %s." % ", ".join(list(role_map.keys()))
             raise rbac_exceptions.RbacResourceSetupFailed(msg)
 
         self.admin_role_id = admin_role_id
@@ -226,4 +233,6 @@ def is_admin():
 
     :returns: True if ``rbac_test_role`` is the admin role.
     """
+    # TODO(felipemonteiro): Make this more robust via a context is admin
+    # lookup.
     return CONF.patrole.rbac_test_role == CONF.identity.admin_role
