@@ -71,7 +71,9 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
     @decorators.idempotent_id('6139eb97-95c0-40d8-a109-99de11ab2e5e')
     @utils.requires_ext(extension='l3-ha', service='network')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="create_router:ha")
+                                 rules=["create_router",
+                                        "create_router:ha"],
+                                 expected_error_codes=[403, 403])
     def test_create_high_availability_router(self):
         """Create high-availability router
 
@@ -85,7 +87,9 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
     @decorators.idempotent_id('c6254ca6-2728-412d-803d-d4aa3935e56d')
     @utils.requires_ext(extension='dvr', service='network')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="create_router:distributed")
+                                 rules=["create_router",
+                                        "create_router:distributed"],
+                                 expected_error_codes=[403, 403])
     def test_create_distributed_router(self):
         """Create distributed router
 
@@ -99,7 +103,9 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
     @utils.requires_ext(extension='ext-gw-mode', service='network')
     @rbac_rule_validation.action(
         service="neutron",
-        rule="create_router:external_gateway_info:enable_snat")
+        rules=["create_router",
+               "create_router:external_gateway_info:enable_snat"],
+        expected_error_codes=[403, 403])
     @decorators.idempotent_id('3c5acd49-0ec7-4109-ab51-640557b48ebc')
     def test_create_router_enable_snat(self):
         """Create Router Snat
@@ -119,7 +125,9 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
 
     @rbac_rule_validation.action(
         service="neutron",
-        rule="create_router:external_gateway_info:external_fixed_ips")
+        rules=["create_router",
+               "create_router:external_gateway_info:external_fixed_ips"],
+        expected_error_codes=[403, 403])
     @decorators.idempotent_id('d0354369-a040-4349-b869-645c8aed13cd')
     def test_create_router_external_fixed_ips(self):
         """Create Router Fixed IPs
@@ -158,7 +166,9 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
     @decorators.idempotent_id('3ed26ea2-b419-410c-b4b5-576c1edafa06')
     @utils.requires_ext(extension='dvr', service='network')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_router:distributed")
+                                 rules=["get_router",
+                                        "get_router:distributed"],
+                                 expected_error_codes=[404, 403])
     def test_show_distributed_router(self):
         """Get distributed router
 
@@ -179,7 +189,8 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
     @decorators.idempotent_id('defc502c-4159-4824-b4d9-3cdcc39015b2')
     @utils.requires_ext(extension='l3-ha', service='network')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_router:ha")
+                                 rules=["get_router", "get_router:ha"],
+                                 expected_error_codes=[404, 403])
     def test_show_high_availability_router(self):
         """GET high-availability router
 
@@ -197,8 +208,9 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
             raise rbac_exceptions.RbacMalformedResponse(
                 attribute='ha')
 
-    @rbac_rule_validation.action(
-        service="neutron", rule="update_router")
+    @rbac_rule_validation.action(service="neutron",
+                                 rules=["get_router", "update_router"],
+                                 expected_error_codes=[404, 403])
     @decorators.idempotent_id('3d182f4e-0023-4218-9aa0-ea2b0ae0bd7a')
     def test_update_router(self):
         """Update Router
@@ -210,8 +222,10 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
         with self.rbac_utils.override_role(self):
             self.routers_client.update_router(self.router['id'], name=new_name)
 
-    @rbac_rule_validation.action(
-        service="neutron", rule="update_router:external_gateway_info")
+    @rbac_rule_validation.action(service="neutron",
+                                 rules=["get_router", "update_router",
+                                        "update_router:external_gateway_info"],
+                                 expected_error_codes=[404, 403, 403])
     @decorators.idempotent_id('5a6ae104-a9c3-4b56-8622-e1a0a0194474')
     def test_update_router_external_gateway_info(self):
         """Update Router External Gateway Info
@@ -225,7 +239,10 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
 
     @rbac_rule_validation.action(
         service="neutron",
-        rule="update_router:external_gateway_info:network_id")
+        rules=["get_router", "update_router",
+               "update_router:external_gateway_info",
+               "update_router:external_gateway_info:network_id"],
+        expected_error_codes=[404, 403, 403, 403])
     @decorators.idempotent_id('f1fc5a23-e3d8-44f0-b7bc-47006ad9d3d4')
     def test_update_router_external_gateway_info_network_id(self):
         """Update Router External Gateway Info Network Id
@@ -245,7 +262,10 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
     @utils.requires_ext(extension='ext-gw-mode', service='network')
     @rbac_rule_validation.action(
         service="neutron",
-        rule="update_router:external_gateway_info:enable_snat")
+        rules=["get_router", "update_router",
+               "update_router:external_gateway_info",
+               "update_router:external_gateway_info:enable_snat"],
+        expected_error_codes=[404, 403, 403, 403])
     @decorators.idempotent_id('515a2954-3d79-4695-aeb9-d1c222765840')
     def test_update_router_enable_snat(self):
         """Update Router External Gateway Info Enable Snat
@@ -265,7 +285,10 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
 
     @rbac_rule_validation.action(
         service="neutron",
-        rule="update_router:external_gateway_info:external_fixed_ips")
+        rules=["get_router", "update_router",
+               "update_router:external_gateway_info",
+               "update_router:external_gateway_info:external_fixed_ips"],
+        expected_error_codes=[404, 403, 403, 403])
     @decorators.idempotent_id('f429e5ee-8f0a-4667-963e-72dd95d5adee')
     def test_update_router_external_fixed_ips(self):
         """Update Router External Gateway Info External Fixed Ips
@@ -291,7 +314,9 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
     @decorators.idempotent_id('ddc20731-dea1-4321-9abf-8772bf0b5977')
     @utils.requires_ext(extension='l3-ha', service='network')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="update_router:ha")
+                                 rules=["get_router", "update_router",
+                                        "update_router:ha"],
+                                 expected_error_codes=[404, 403, 403])
     def test_update_high_availability_router(self):
         """Update high-availability router
 
@@ -305,7 +330,9 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
     @decorators.idempotent_id('e1932c19-8f73-41cd-b5d2-84c7ae5d530c')
     @utils.requires_ext(extension='dvr', service='network')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="update_router:distributed")
+                                 rules=["get_router", "update_router",
+                                        "update_router:distributed"],
+                                 expected_error_codes=[404, 403, 403])
     def test_update_distributed_router(self):
         """Update distributed router
 
@@ -318,7 +345,8 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
                         distributed=False)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="delete_router")
+                                 rules=["get_router", "delete_router"],
+                                 expected_error_codes=[404, 403])
     @decorators.idempotent_id('c0634dd5-0467-48f7-a4ae-1014d8edb2a7')
     def test_delete_router(self):
         """Delete Router
@@ -352,7 +380,9 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
             subnet_id=subnet['id'])
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="remove_router_interface")
+                                 rules=["get_router",
+                                        "remove_router_interface"],
+                                 expected_error_codes=[404, 403])
     @decorators.idempotent_id('ff2593a4-2bff-4c27-97d3-dd3702b27dfb')
     def test_remove_router_interface(self):
         """Remove Router Interface

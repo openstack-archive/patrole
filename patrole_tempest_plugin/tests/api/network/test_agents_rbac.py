@@ -50,8 +50,8 @@ class AgentsRbacTest(base.BaseNetworkRbacTest):
 
     @decorators.idempotent_id('8ca68fdb-eaf6-4880-af82-ba0982949dec')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="update_agent",
-                                 expected_error_code=404)
+                                 rules=["get_agent", "update_agent"],
+                                 expected_error_codes=[404, 403])
     def test_update_agent(self):
         """Update agent test.
 

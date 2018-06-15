@@ -80,15 +80,16 @@ class SecGroupRbacTest(base.BaseNetworkRbacTest):
                                  rule="get_security_group",
                                  expected_error_code=404)
     @decorators.idempotent_id('56335e77-aef2-4b54-86c7-7f772034b585')
-    def test_show_security_groups(self):
+    def test_show_security_group(self):
 
         with self.rbac_utils.override_role(self):
             self.security_groups_client.show_security_group(
                 self.secgroup['id'])
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="delete_security_group",
-                                 expected_error_code=404)
+                                 rules=["get_security_group",
+                                        "delete_security_group"],
+                                 expected_error_codes=[404, 403])
     @decorators.idempotent_id('0b1330fd-dd28-40f3-ad73-966052e4b3de')
     def test_delete_security_group(self):
 
@@ -99,8 +100,9 @@ class SecGroupRbacTest(base.BaseNetworkRbacTest):
             self.security_groups_client.delete_security_group(secgroup_id)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="update_security_group",
-                                 expected_error_code=404)
+                                 rules=["get_security_group",
+                                        "update_security_group"],
+                                 expected_error_codes=[404, 403])
     @decorators.idempotent_id('56c5e4dc-f8aa-11e6-bc64-92361f002671')
     def test_update_security_group(self):
 
@@ -129,8 +131,9 @@ class SecGroupRbacTest(base.BaseNetworkRbacTest):
             self._create_security_group_rule()
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="delete_security_group_rule",
-                                 expected_error_code=404)
+                                 rules=["get_security_group_rule",
+                                        "delete_security_group_rule"],
+                                 expected_error_codes=[404, 403])
     @decorators.idempotent_id('2262539e-b7d9-438c-acf9-a5ce0613be28')
     def test_delete_security_group_rule(self):
 

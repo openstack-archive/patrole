@@ -66,7 +66,9 @@ class NetworkSegmentsRbacTest(base.BaseNetworkRbacTest):
         return network
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="create_network:segments")
+                                 rules=["create_network",
+                                        "create_network:segments"],
+                                 expected_error_codes=[403, 403])
     @decorators.idempotent_id('9e1d0c3d-92e3-40e3-855e-bfbb72ea6e0b')
     def test_create_network_segments(self):
         """Create network with segments.
@@ -77,7 +79,9 @@ class NetworkSegmentsRbacTest(base.BaseNetworkRbacTest):
             self._create_network_segments()
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="update_network:segments")
+                                 rules=["get_network", "update_network",
+                                        "update_network:segments"],
+                                 expected_error_codes=[404, 403, 403])
     @decorators.idempotent_id('0f45232a-7b59-4bb1-9a91-db77d0a8cc9b')
     def test_update_network_segments(self):
         """Update network segments.
@@ -92,7 +96,9 @@ class NetworkSegmentsRbacTest(base.BaseNetworkRbacTest):
                                                 segments=new_segments)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_network:segments")
+                                 rules=["get_network",
+                                        "get_network:segments"],
+                                 expected_error_codes=[404, 403])
     @decorators.idempotent_id('094ff9b7-0c3b-4515-b19b-b9d2031337bd')
     def test_show_network_segments(self):
         """Show network segments.
@@ -113,4 +119,4 @@ class NetworkSegmentsRbacTest(base.BaseNetworkRbacTest):
             LOG.info("NotFound or Forbidden exception are not thrown when "
                      "role doesn't have access to the endpoint. Instead, "
                      "the response will have an empty network body.")
-            raise rbac_exceptions.RbacMalformedResponse(True)
+            raise rbac_exceptions.RbacMalformedResponse(empty=True)

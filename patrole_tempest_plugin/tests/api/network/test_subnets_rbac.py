@@ -49,7 +49,8 @@ class SubnetsRbacTest(base.BaseNetworkRbacTest):
 
     @decorators.idempotent_id('c02618e7-bb20-4abd-83c8-6eec2af08752')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_subnet")
+                                 rule="get_subnet",
+                                 expected_error_code=404)
     def test_show_subnet(self):
         """Show subnet.
 
@@ -71,7 +72,8 @@ class SubnetsRbacTest(base.BaseNetworkRbacTest):
 
     @decorators.idempotent_id('f36cd821-dd22-4bd0-b43d-110fc4b553eb')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="update_subnet")
+                                 rules=["get_subnet", "update_subnet"],
+                                 expected_error_codes=[404, 403])
     def test_update_subnet(self):
         """Update subnet.
 
@@ -85,7 +87,8 @@ class SubnetsRbacTest(base.BaseNetworkRbacTest):
 
     @decorators.idempotent_id('bcfc7153-bbd1-43a4-a908-b3e1b0cde0dc')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="delete_subnet")
+                                 rules=["get_subnet", "delete_subnet"],
+                                 expected_error_codes=[404, 403])
     def test_delete_subnet(self):
         """Delete subnet.
 
