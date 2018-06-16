@@ -18,6 +18,7 @@ from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
+from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.network import rbac_base as base
 
@@ -113,12 +114,17 @@ class SecGroupRbacTest(base.BaseNetworkRbacTest):
                 description="test description")
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_security_groups")
+                                 rule="get_security_group")
     @decorators.idempotent_id('fbaf8d96-ed3e-49af-b24c-5fb44f05bbb7')
     def test_list_security_groups(self):
 
         with self.rbac_utils.override_role(self):
-            self.security_groups_client.list_security_groups()
+            security_groups = self.security_groups_client.\
+                list_security_groups()
+
+        # Neutron may return an empty list if access is denied.
+        if not security_groups['security_groups']:
+            raise rbac_exceptions.RbacMalformedResponse(empty=True)
 
     @rbac_rule_validation.action(service="neutron",
                                  rule="create_security_group_rule")
@@ -151,9 +157,14 @@ class SecGroupRbacTest(base.BaseNetworkRbacTest):
                 sec_group_rule['id'])
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_security_group_rules")
+                                 rule="get_security_group_rule")
     @decorators.idempotent_id('05739ab6-fa35-11e6-bc64-92361f002671')
     def test_list_security_group_rules(self):
 
         with self.rbac_utils.override_role(self):
-            self.security_group_rules_client.list_security_group_rules()
+            security_rules = self.security_group_rules_client.\
+                list_security_group_rules()
+
+        # Neutron may return an empty list if access is denied.
+        if not security_rules['security_group_rules']:
+            raise rbac_exceptions.RbacMalformedResponse(empty=True)
