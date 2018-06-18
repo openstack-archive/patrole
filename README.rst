@@ -25,7 +25,7 @@ documentation.
 * Free software: Apache license
 * Documentation: https://docs.openstack.org/patrole/latest
 * Source: https://git.openstack.org/cgit/openstack/patrole
-* Bugs: https://bugs.launchpad.net/patrole
+* Bugs: https://storyboard.openstack.org/#!/project/openstack/patrole
 * Release notes: https://docs.openstack.org/releasenotes/patrole/
 
 .. _design-principles:
@@ -245,3 +245,8 @@ shows which changes have been released for each version.
 
 Patrole's release versioning follows Tempest's conventions. Like Tempest,
 Patrole is branchless and uses versioning instead.
+
+Storyboard
+----------
+Bugs and enhancements are tracked via Patrole's
+`Storyboard <https://storyboard.openstack.org/#!/project/openstack/patrole>`_ page.
