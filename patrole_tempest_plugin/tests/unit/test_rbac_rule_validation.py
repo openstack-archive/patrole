@@ -436,7 +436,8 @@ class RBACRuleValidationTestMultiPolicy(BaseRBACRuleValidationTest):
 
         rules = [mock.sentinel.action1, mock.sentinel.action2]
 
-        @rbac_rv.action(mock.sentinel.service, rules=rules)
+        @rbac_rv.action(mock.sentinel.service, rules=rules,
+                        expected_error_codes=[403, 403])
         def test_policy(*args):
             pass
 
@@ -454,8 +455,10 @@ class RBACRuleValidationTestMultiPolicy(BaseRBACRuleValidationTest):
         rules = [
             mock.sentinel.action1, mock.sentinel.action2, mock.sentinel.action3
         ]
+        exp_ecodes = [403, 403, 403]
 
-        @rbac_rv.action(mock.sentinel.service, rules=rules)
+        @rbac_rv.action(mock.sentinel.service, rules=rules,
+                        expected_error_codes=exp_ecodes)
         def test_policy(*args):
             pass
 
@@ -466,6 +469,9 @@ class RBACRuleValidationTestMultiPolicy(BaseRBACRuleValidationTest):
             error_re = ".*OverPermission: .* \[%s\]$" % fail_on_action
             self.assertRaisesRegex(rbac_exceptions.RbacOverPermission,
                                    error_re, test_policy, self.mock_test_args)
+            mock_log.debug.assert_any_call(
+                "%s: Expecting %d to be raised for policy name: %s",
+                'test_policy', 403, fail_on_action)
             self.assertRegex(mock_log.error.mock_calls[0][1][0], error_re)
             mock_log.error.reset_mock()
             self._assert_policy_authority_called_with(rules, mock_authority)
@@ -485,21 +491,26 @@ class RBACRuleValidationTestMultiPolicy(BaseRBACRuleValidationTest):
         rules = [
             mock.sentinel.action1, mock.sentinel.action2, mock.sentinel.action3
         ]
+        exp_ecodes = [403, 403, 403]
 
-        @rbac_rv.action(mock.sentinel.service, rules=rules)
+        @rbac_rv.action(mock.sentinel.service, rules=rules,
+                        expected_error_codes=exp_ecodes)
         def test_policy(*args):
             raise exceptions.Forbidden()
 
-        def _do_test(allowed_list):
+        def _do_test(allowed_list, fail_on_action):
             mock_authority.PolicyAuthority.return_value.allowed.\
                 side_effect = allowed_list
             test_policy(self.mock_test_args)
+            mock_log.debug.assert_called_with(
+                "%s: Expecting %d to be raised for policy name: %s",
+                'test_policy', 403, fail_on_action)
             mock_log.error.assert_not_called()
             self._assert_policy_authority_called_with(rules, mock_authority)
 
-        _do_test([True, True, False])
-        _do_test([False, True, True])
-        _do_test([True, False, True])
+        _do_test([True, True, False], mock.sentinel.action3)
+        _do_test([False, True, True], mock.sentinel.action1)
+        _do_test([True, False, True], mock.sentinel.action2)
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
     @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
@@ -513,7 +524,8 @@ class RBACRuleValidationTestMultiPolicy(BaseRBACRuleValidationTest):
         # NOTE: Avoid mock.sentinel here due to weird sorting with them.
         rules = ['action1', 'action2', 'action3']
 
-        @rbac_rv.action(mock.sentinel.service, rules=rules)
+        @rbac_rv.action(mock.sentinel.service, rules=rules,
+                        expected_error_codes=[403, 403, 403])
         def test_policy(*args):
             raise exceptions.Forbidden()
 
@@ -528,3 +540,136 @@ class RBACRuleValidationTestMultiPolicy(BaseRBACRuleValidationTest):
                                self.mock_test_args)
         self.assertRegex(mock_log.error.mock_calls[0][1][0], error_re)
         self._assert_policy_authority_called_with(rules, mock_authority)
+
+    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
+    @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
+    def test_rule_validation_multi_actions_forbidden(
+            self, mock_authority, mock_log):
+        """Test that when the expected result is forbidden because
+        two of the actions fail and the first action specifies 403,
+        verify that the overall evaluation results in success.
+        """
+
+        rules = [
+            mock.sentinel.action1, mock.sentinel.action2, mock.sentinel.action3
+        ]
+        exp_ecodes = [403, 403, 404]
+
+        @rbac_rv.action(mock.sentinel.service, rules=rules,
+                        expected_error_codes=exp_ecodes)
+        def test_policy(*args):
+            raise exceptions.Forbidden()
+
+        def _do_test(allowed_list, fail_on_action):
+            mock_authority.PolicyAuthority.return_value.allowed.\
+                side_effect = allowed_list
+            test_policy(self.mock_test_args)
+            mock_log.debug.assert_called_with(
+                "%s: Expecting %d to be raised for policy name: %s",
+                'test_policy', 403, fail_on_action)
+            mock_log.error.assert_not_called()
+            self._assert_policy_authority_called_with(rules, mock_authority)
+
+        _do_test([False, True, False], mock.sentinel.action1)
+        _do_test([False, False, True], mock.sentinel.action1)
+
+    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
+    @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
+    def test_rule_validation_multi_actions_notfound(
+            self, mock_authority, mock_log):
+        """Test that when the expected result is not found because
+        two of the actions fail and the first action specifies 404,
+        verify that the overall evaluation results in success.
+        """
+
+        rules = [
+            mock.sentinel.action1, mock.sentinel.action2,
+            mock.sentinel.action3, mock.sentinel.action4
+        ]
+        exp_ecodes = [403, 404, 403, 403]
+
+        @rbac_rv.action(mock.sentinel.service, rules=rules,
+                        expected_error_codes=exp_ecodes)
+        def test_policy(*args):
+            raise exceptions.NotFound()
+
+        def _do_test(allowed_list, fail_on_action):
+            mock_authority.PolicyAuthority.return_value.allowed.\
+                side_effect = allowed_list
+            test_policy(self.mock_test_args)
+            mock_log.debug.assert_called_with(
+                "%s: Expecting %d to be raised for policy name: %s",
+                'test_policy', 404, fail_on_action)
+            mock_log.error.assert_not_called()
+            self._assert_policy_authority_called_with(rules, mock_authority)
+
+        _do_test([True, False, False, True], mock.sentinel.action2)
+        _do_test([True, False, True, False], mock.sentinel.action2)
+
+    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
+    def test_prepare_multi_policy_allowed_usages(self, mock_log):
+
+        def _do_test(rule, rules, ecode, ecodes, exp_rules, exp_ecodes):
+            rule_list, ec_list = rbac_rv._prepare_multi_policy(rule, rules,
+                                                               ecode, ecodes)
+            self.assertEqual(rule_list, exp_rules)
+            self.assertEqual(ec_list, exp_ecodes)
+
+        # Validate that using deprecated values: rule and expected_error_code
+        # are converted into rules = [rule] and expected_error_codes =
+        # [expected_error_code]
+        _do_test("rule1", None, 403, None, ["rule1"], [403])
+
+        # Validate that rules = [rule] and expected_error_codes defaults to
+        # 403 when no values are provided.
+        _do_test("rule1", None, None, None, ["rule1"], [403])
+
+        # Validate that `len(rules) == len(expected_error_codes)` works when
+        # both == 1.
+        _do_test(None, ["rule1"], None, [403], ["rule1"], [403])
+
+        # Validate that `len(rules) == len(expected_error_codes)` works when
+        # both are > 1.
+        _do_test(None, ["rule1", "rule2"], None, [403, 404],
+                 ["rule1", "rule2"], [403, 404])
+
+        # Validate that when only a default expected_error_code argument is
+        # provided, that default value and other default values (403) are
+        # filled into the expected_error_codes list.
+        # Example:
+        #     @rbac_rv.action(service, rules=[<rule>, <rule>])
+        #     def test_policy(*args):
+        #        ...
+        _do_test(None, ["rule1", "rule2"], 403, None,
+                 ["rule1", "rule2"], [403, 403])
+
+        # Validate that the deprecated values are ignored when new values are
+        # provided.
+        _do_test("rule3", ["rule1", "rule2"], 404, [403, 403],
+                 ["rule1", "rule2"], [403, 403])
+        mock_log.debug.assert_any_call(
+            "The `rules` argument will be used instead of `rule`.")
+        mock_log.debug.assert_any_call(
+            "The `exp_error_codes` argument will be used instead of "
+            "`exp_error_code`.")
+
+    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
+    def test_prepare_multi_policy_disallowed_usages(self, mock_log):
+
+        def _do_test(rule, rules, ecode, ecodes):
+            rule_list, ec_list = rbac_rv._prepare_multi_policy(rule, rules,
+                                                               ecode, ecodes)
+
+        error_re = ("The `expected_error_codes` list is not the same length"
+                    " as the `rules` list.")
+        # When len(rules) > 1 then len(expected_error_codes) must be same len.
+        self.assertRaisesRegex(ValueError, error_re, _do_test,
+                               None, ["rule1", "rule2"], None, [403])
+        # When len(expected_error_codes) > 1 len(rules) must be same len.
+        self.assertRaisesRegex(ValueError, error_re, _do_test,
+                               None, ["rule1"], None, [403, 404])
+        error_re = ("The `rules` list must be provided if using the "
+                    "`expected_error_codes` list.")
+        # When expected_error_codes is provided rules must be as well.
+        self.assertRaisesRegex(ValueError, error_re, _do_test,
+                               None, None, None, [404])
