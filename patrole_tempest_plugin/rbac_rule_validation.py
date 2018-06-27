@@ -82,10 +82,10 @@ def action(service, rule='', rules=None,
 
             Patrole currently only supports custom JSON policy files.
 
-    :param int expected_error_code: Overrides default value of 403 (Forbidden)
-        with endpoint-specific error code. Currently only supports 403 and 404.
-        Support for 404 is needed because some services, like Neutron,
-        intentionally throw a 404 for security reasons.
+    :param int expected_error_code: (DEPRECATED) Overrides default value of 403
+        (Forbidden) with endpoint-specific error code. Currently only supports
+        403 and 404. Support for 404 is needed because some services, like
+        Neutron, intentionally throw a 404 for security reasons.
 
         .. warning::
 
@@ -99,6 +99,7 @@ def action(service, rule='', rules=None,
         in the rules list.
 
         Example::
+
             rules=["api_action1", "api_action2"]
             expected_error_codes=[404, 403]
 

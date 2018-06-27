@@ -29,8 +29,20 @@
 
 - job:
     name: patrole-base-multinode
-    parent: legacy-dsvm-base-multinode
+    parent: tempest-multinode-full
+    description: |-
+      Patrole base job for multinode and "slow" tests where "slow" tests include:
+
+      * Tests that take more than ~30 seconds to run.
+      * Tests that experience spurious failures related to servers, volumes,
+        backups and similar resources failing to build.
     timeout: 7800
+    branches:
+      - master
+    required-projects:
+      - openstack-infra/devstack-gate
+      - openstack/tempest
+      - openstack/patrole
     irrelevant-files:
       - ^(test-|)requirements.txt$
       - ^.*\.rst$
@@ -38,10 +50,17 @@
       - ^patrole/patrole_tempest_plugin/tests/unit/.*$
       - ^releasenotes/.*
       - ^setup.cfg$
-    required-projects:
-      - openstack-infra/devstack-gate
-      - openstack/patrole
-      - openstack/tempest
+    vars:
+      devstack_localrc:
+        TEMPEST_PLUGINS: "'{{ ansible_user_dir }}/src/git.openstack.org/openstack/patrole'"
+      devstack_plugins:
+        patrole: git://git.openstack.org/openstack/patrole.git
+      devstack_services:
+        tempest: true
+        neutron: true
+      tempest_concurrency: 1
+      tempest_test_regex: (?=.*\[.*\bslow\b.*\])(^patrole_tempest_plugin\.tests\.api)
+      tox_envlist: all-plugin
 
 - job:
     name: patrole-admin
@@ -77,18 +96,18 @@
 - job:
     name: patrole-multinode-admin
     parent: patrole-base-multinode
-    run: playbooks/patrole-multinode-admin/run.yaml
-    post-run: playbooks/patrole-multinode-admin/post.yaml
     voting: false
-    nodeset: legacy-ubuntu-xenial-2-node
+    vars:
+      devstack_localrc:
+        RBAC_TEST_ROLE: admin
 
 - job:
     name: patrole-multinode-member
     parent: patrole-base-multinode
-    run: playbooks/patrole-multinode-member/run.yaml
-    post-run: playbooks/patrole-multinode-member/post.yaml
     voting: false
-    nodeset: legacy-ubuntu-xenial-2-node
+    vars:
+      devstack_localrc:
+        RBAC_TEST_ROLE: member
 
 - job:
     name: patrole-py35-member
