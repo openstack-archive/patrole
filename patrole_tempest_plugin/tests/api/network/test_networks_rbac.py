@@ -99,7 +99,9 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
             self._create_network()
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="create_network:shared")
+                                 rules=["create_network",
+                                        "create_network:shared"],
+                                 expected_error_codes=[403, 403])
     @decorators.idempotent_id('ccabf2a9-28c8-44b2-80e6-ffd65d43eef2')
     def test_create_network_shared(self):
 
@@ -112,7 +114,9 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
 
     @utils.requires_ext(extension='external-net', service='network')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="create_network:router:external")
+                                 rules=["create_network",
+                                        "create_network:router:external"],
+                                 expected_error_codes=[403, 403])
     @decorators.idempotent_id('51adf2a7-739c-41e0-8857-3b4c460cbd24')
     def test_create_network_router_external(self):
 
@@ -124,8 +128,11 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
             self._create_network(router_external=True)
 
     @utils.requires_ext(extension='provider', service='network')
-    @rbac_rule_validation.action(service="neutron",
-                                 rule="create_network:provider:network_type")
+    @rbac_rule_validation.action(
+        service="neutron",
+        rules=["create_network",
+               "create_network:provider:network_type"],
+        expected_error_codes=[403, 403])
     @decorators.idempotent_id('3c42f7b8-b80c-44ef-8fa4-69ec4b1836bc')
     def test_create_network_provider_network_type(self):
 
@@ -139,7 +146,9 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
     @utils.requires_ext(extension='provider', service='network')
     @rbac_rule_validation.action(
         service="neutron",
-        rule="create_network:provider:segmentation_id")
+        rules=["create_network",
+               "create_network:provider:segmentation_id"],
+        expected_error_codes=[403, 403])
     @decorators.idempotent_id('b9decb7b-68ef-4504-b99b-41edbf7d2af5')
     def test_create_network_provider_segmentation_id(self):
 
@@ -152,7 +161,8 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
                                  provider_segmentation_id=200)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="update_network")
+                                 rules=["get_network", "update_network"],
+                                 expected_error_codes=[404, 403])
     @decorators.idempotent_id('6485bb4e-e110-48ae-83e1-3ec8b40c3107')
     def test_update_network(self):
 
@@ -167,7 +177,10 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
             self._update_network(name=updated_name)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="update_network:shared")
+                                 rules=["get_network",
+                                        "update_network",
+                                        "update_network:shared"],
+                                 expected_error_codes=[404, 403, 403])
     @decorators.idempotent_id('37ea3e33-47d9-49fc-9bba-1af98fbd46d6')
     def test_update_network_shared(self):
 
@@ -181,7 +194,10 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
 
     @utils.requires_ext(extension='external-net', service='network')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="update_network:router:external")
+                                 rules=["get_network",
+                                        "update_network",
+                                        "update_network:router:external"],
+                                 expected_error_codes=[404, 403, 403])
     @decorators.idempotent_id('34884c22-499b-4960-97f1-e2ed8522a9c9')
     def test_update_network_router_external(self):
 
@@ -194,7 +210,8 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
             self._update_network(net_id=network['id'], router_external=True)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_network")
+                                 rule="get_network",
+                                 expected_error_code=404)
     @decorators.idempotent_id('0eb62d04-338a-4ff4-a8fa-534e52110534')
     def test_show_network(self):
 
@@ -207,7 +224,9 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
 
     @utils.requires_ext(extension='external-net', service='network')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_network:router:external")
+                                 rules=["get_network",
+                                        "get_network:router:external"],
+                                 expected_error_codes=[404, 403])
     @decorators.idempotent_id('529e4814-22e9-413f-af48-8fefcd637344')
     def test_show_network_router_external(self):
 
@@ -218,12 +237,17 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         kwargs = {'fields': 'router:external'}
 
         with self.rbac_utils.override_role(self):
-            self.networks_client.show_network(self.network['id'],
-                                              **kwargs)
+            retrieved_network = self.networks_client.show_network(
+                self.network['id'], **kwargs)['network']
+
+        if len(retrieved_network) == 0:
+            raise rbac_exceptions.RbacMalformedResponse(empty=True)
 
     @utils.requires_ext(extension='provider', service='network')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_network:provider:network_type")
+                                 rules=["get_network",
+                                        "get_network:provider:network_type"],
+                                 expected_error_codes=[404, 403])
     @decorators.idempotent_id('6521dd60-0950-458b-8491-09d3c84ac0f4')
     def test_show_network_provider_network_type(self):
 
@@ -238,11 +262,14 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
                 self.network['id'], **kwargs)['network']
 
         if len(retrieved_network) == 0:
-            raise rbac_exceptions.RbacMalformedResponse(True)
+            raise rbac_exceptions.RbacMalformedResponse(empty=True)
 
     @utils.requires_ext(extension='provider', service='network')
-    @rbac_rule_validation.action(service="neutron",
-                                 rule="get_network:provider:physical_network")
+    @rbac_rule_validation.action(
+        service="neutron",
+        rules=["get_network",
+               "get_network:provider:physical_network"],
+        expected_error_codes=[404, 403])
     @decorators.idempotent_id('c049f11a-240c-4a85-ad43-a4d3fd0a5e39')
     def test_show_network_provider_physical_network(self):
 
@@ -260,8 +287,11 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
             raise rbac_exceptions.RbacMalformedResponse(empty=True)
 
     @utils.requires_ext(extension='provider', service='network')
-    @rbac_rule_validation.action(service="neutron",
-                                 rule="get_network:provider:segmentation_id")
+    @rbac_rule_validation.action(
+        service="neutron",
+        rules=["get_network",
+               "get_network:provider:segmentation_id"],
+        expected_error_codes=[404, 403])
     @decorators.idempotent_id('38d9f085-6365-4f81-bac9-c53c294d727e')
     def test_show_network_provider_segmentation_id(self):
 
@@ -278,11 +308,9 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         if len(retrieved_network) == 0:
             raise rbac_exceptions.RbacMalformedResponse(empty=True)
 
-        key = retrieved_network.get('provider:segmentation_id', "NotFound")
-        self.assertNotEqual(key, "NotFound")
-
     @rbac_rule_validation.action(service="neutron",
-                                 rule="delete_network")
+                                 rules=["get_network", "delete_network"],
+                                 expected_error_codes=[404, 403])
     @decorators.idempotent_id('56ca50ed-ac58-49d6-b239-ed39e7124d5c')
     def test_delete_network(self):
 

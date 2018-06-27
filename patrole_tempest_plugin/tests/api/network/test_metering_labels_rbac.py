@@ -71,8 +71,9 @@ class MeteringLabelsRbacTest(base.BaseNetworkRbacTest):
             self.metering_labels_client.show_metering_label(label['id'])
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="delete_metering_label",
-                                 expected_error_code=404)
+                                 rules=["get_metering_label",
+                                        "delete_metering_label"],
+                                 expected_error_codes=[404, 403])
     @decorators.idempotent_id('1621ccfe-2e3f-4d16-98aa-b620f9d00404')
     def test_delete_metering_label(self):
         """Delete metering label.

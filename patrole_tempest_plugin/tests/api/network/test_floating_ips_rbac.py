@@ -73,8 +73,11 @@ class FloatingIpsRbacTest(base.BaseNetworkRbacTest):
         with self.rbac_utils.override_role(self):
             self._create_floatingip()
 
-    @rbac_rule_validation.action(service="neutron",
-                                 rule="create_floatingip:floating_ip_address")
+    @rbac_rule_validation.action(
+        service="neutron",
+        rules=["create_floatingip",
+               "create_floatingip:floating_ip_address"],
+        expected_error_codes=[403, 403])
     @decorators.idempotent_id('a8bb826a-403d-4130-a55d-120a0a660806')
     def test_create_floating_ip_floatingip_address(self):
         """Create floating IP with address.
@@ -87,7 +90,8 @@ class FloatingIpsRbacTest(base.BaseNetworkRbacTest):
             self._create_floatingip(floating_ip_address=fip)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="update_floatingip")
+                                 rules=["get_floatingip", "update_floatingip"],
+                                 expected_error_codes=[404, 403])
     @decorators.idempotent_id('2ab1b060-19f8-4ef6-a838-e2ab7b377c63')
     def test_update_floating_ip(self):
         """Update floating IP.
@@ -115,8 +119,8 @@ class FloatingIpsRbacTest(base.BaseNetworkRbacTest):
             self.floating_ips_client.show_floatingip(floating_ip['id'])
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="delete_floatingip",
-                                 expected_error_code=404)
+                                 rules=["get_floatingip", "delete_floatingip"],
+                                 expected_error_codes=[404, 403])
     @decorators.idempotent_id('2611b068-30d4-4241-a78f-1b801a14db7e')
     def test_delete_floating_ip(self):
         """Delete floating IP.

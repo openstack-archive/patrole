@@ -64,7 +64,9 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
             self._create_subnetpool()
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="create_subnetpool:shared")
+                                 rules=["create_subnetpool",
+                                        "create_subnetpool:shared"],
+                                 expected_error_codes=[403, 403])
     @decorators.idempotent_id('cf730989-0d47-40bc-b39a-99e7de484723')
     def test_create_subnetpool_shared(self):
         """Create subnetpool shared.
@@ -88,7 +90,9 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
             self.subnetpools_client.show_subnetpool(subnetpool['id'])
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="update_subnetpool")
+                                 rules=["get_subnetpool",
+                                        "update_subnetpool"],
+                                 expected_error_codes=[404, 403])
     @decorators.idempotent_id('1e79cead-5081-4be2-a4f7-484c0f443b9b')
     def test_update_subnetpool(self):
         """Update subnetpool.
@@ -102,7 +106,9 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
 
     @decorators.idempotent_id('a16f4e5c-0675-415f-b636-00af00638693')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="update_subnetpool:is_default")
+                                 rules=["update_subnetpool",
+                                        "update_subnetpool:is_default"],
+                                 expected_error_codes=[403, 403])
     def test_update_subnetpool_is_default(self):
         """Update default subnetpool.
 
@@ -122,7 +128,9 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
                 default_pool['id'], description=original_desc, is_default=True)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="delete_subnetpool")
+                                 rules=["get_subnetpool",
+                                        "delete_subnetpool"],
+                                 expected_error_codes=[404, 403])
     @decorators.idempotent_id('50f5944e-43e5-457b-ab50-fb48a73f0d3e')
     def test_delete_subnetpool(self):
         """Delete subnetpool.

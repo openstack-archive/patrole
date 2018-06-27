@@ -68,7 +68,9 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
 
     @decorators.idempotent_id('045ee797-4962-4913-b96a-5d7ea04099e7')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="create_port:device_owner")
+                                 rules=["create_port",
+                                        "create_port:device_owner"],
+                                 expected_error_codes=[403, 403])
     def test_create_port_device_owner(self):
         with self.rbac_utils.override_role(self):
             self.create_port(self.network,
@@ -76,14 +78,18 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
 
     @decorators.idempotent_id('c4fa8844-f5ef-4daa-bfa2-b89897dfaedf')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="create_port:port_security_enabled")
+                                 rules=["create_port",
+                                        "create_port:port_security_enabled"],
+                                 expected_error_codes=[403, 403])
     def test_create_port_security_enabled(self):
         with self.rbac_utils.override_role(self):
             self.create_port(self.network, port_security_enabled=True)
 
     @utils.requires_ext(extension='binding', service='network')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="create_port:binding:host_id")
+                                 rules=["create_port",
+                                        "create_port:binding:host_id"],
+                                 expected_error_codes=[403, 403])
     @decorators.idempotent_id('a54bd6b8-a7eb-4101-bfe8-093930b0d660')
     def test_create_port_binding_host_id(self):
 
@@ -95,7 +101,9 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
 
     @utils.requires_ext(extension='binding', service='network')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="create_port:binding:profile")
+                                 rules=["create_port",
+                                        "create_port:binding:profile"],
+                                 expected_error_codes=[403, 403])
     @decorators.idempotent_id('98fa38ab-c2ed-46a0-99f0-59f18cbd257a')
     def test_create_port_binding_profile(self):
 
@@ -111,7 +119,9 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
         CONF.policy_feature_enabled.create_port_fixed_ips_ip_address_policy,
         '"create_port:fixed_ips:ip_address" must be available in the cloud.')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="create_port:fixed_ips:ip_address")
+                                 rules=["create_port",
+                                        "create_port:fixed_ips:ip_address"],
+                                 expected_error_codes=[403, 403])
     @decorators.idempotent_id('2551e10d-006a-413c-925a-8c6f834c09ac')
     def test_create_port_fixed_ips_ip_address(self):
 
@@ -126,7 +136,9 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
             self.create_port(**post_body)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="create_port:mac_address")
+                                 rules=["create_port",
+                                        "create_port:mac_address"],
+                                 expected_error_codes=[403, 403])
     @decorators.idempotent_id('aee6d0be-a7f3-452f-aefc-796b4eb9c9a8')
     def test_create_port_mac_address(self):
 
@@ -137,7 +149,9 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
             self.create_port(**post_body)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="create_port:allowed_address_pairs")
+                                 rules=["create_port",
+                                        "create_port:allowed_address_pairs"],
+                                 expected_error_codes=[403, 403])
     @decorators.idempotent_id('b638d1f4-d903-4ca8-aa2a-6fd603c5ec3a')
     def test_create_port_allowed_address_pairs(self):
 
@@ -161,7 +175,9 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
 
     @utils.requires_ext(extension='binding', service='network')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_port:binding:vif_type")
+                                 rules=["get_port",
+                                        "get_port:binding:vif_type"],
+                                 expected_error_codes=[404, 403])
     @decorators.idempotent_id('125aff0b-8fed-4f8e-8410-338616594b06')
     def test_show_port_binding_vif_type(self):
 
@@ -179,7 +195,9 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
 
     @utils.requires_ext(extension='binding', service='network')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_port:binding:vif_details")
+                                 rules=["get_port",
+                                        "get_port:binding:vif_details"],
+                                 expected_error_codes=[404, 403])
     @decorators.idempotent_id('e42bfd77-fcce-45ee-9728-3424300f0d6f')
     def test_show_port_binding_vif_details(self):
 
@@ -197,7 +215,9 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
 
     @utils.requires_ext(extension='binding', service='network')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_port:binding:host_id")
+                                 rules=["get_port",
+                                        "get_port:binding:host_id"],
+                                 expected_error_codes=[404, 403])
     @decorators.idempotent_id('8e61bcdc-6f81-443c-833e-44410266551e')
     def test_show_port_binding_host_id(self):
 
@@ -218,7 +238,9 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
 
     @utils.requires_ext(extension='binding', service='network')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_port:binding:profile")
+                                 rules=["get_port",
+                                        "get_port:binding:profile"],
+                                 expected_error_codes=[404, 403])
     @decorators.idempotent_id('d497cea9-c4ad-42e0-acc9-8d257d6b01fc')
     def test_show_port_binding_profile(self):
 
@@ -239,7 +261,8 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
                 attribute='binding:profile')
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="update_port")
+                                 rules=["get_port", "update_port"],
+                                 expected_error_codes=[404, 403])
     @decorators.idempotent_id('afa80981-3c59-42fd-9531-3bcb2cd03711')
     def test_update_port(self):
         with self.rbac_utils.override_role(self):
@@ -250,7 +273,9 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
 
     @decorators.idempotent_id('08d70f59-67cb-4fb1-bd6c-a5e59dd5db2b')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="update_port:device_owner")
+                                 rules=["get_port", "update_port",
+                                        "update_port:device_owner"],
+                                 expected_error_codes=[404, 403, 403])
     def test_update_port_device_owner(self):
         original_device_owner = self.port['device_owner']
 
@@ -261,7 +286,9 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
                         device_owner=original_device_owner)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="update_port:mac_address")
+                                 rules=["get_port", "update_port",
+                                        "update_port:mac_address"],
+                                 expected_error_codes=[404, 403, 403])
     @decorators.idempotent_id('507140c8-7b14-4d63-b627-2103691d887e')
     def test_update_port_mac_address(self):
         original_mac_address = self.port['mac_address']
@@ -276,7 +303,9 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
         CONF.policy_feature_enabled.update_port_fixed_ips_ip_address_policy,
         '"update_port:fixed_ips:ip_address" must be available in the cloud.')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="update_port:fixed_ips:ip_address")
+                                 rules=["get_port", "update_port",
+                                        "update_port:fixed_ips:ip_address"],
+                                 expected_error_codes=[404, 403, 403])
     @decorators.idempotent_id('c091c825-532b-4c6f-a14f-affd3259c1c3')
     def test_update_port_fixed_ips_ip_address(self):
 
@@ -291,15 +320,20 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
             self.ports_client.update_port(port['id'], fixed_ips=fixed_ips)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="update_port:port_security_enabled")
+                                 rules=["get_port", "update_port",
+                                        "update_port:port_security_enabled"],
+                                 expected_error_codes=[404, 403, 403])
     @decorators.idempotent_id('795541af-6652-4e35-9581-fd58224f7545')
     def test_update_port_security_enabled(self):
         with self.rbac_utils.override_role(self):
-            self.ports_client.update_port(self.port['id'], security_groups=[])
+            self.ports_client.update_port(self.port['id'],
+                                          port_security_enabled=True)
 
     @utils.requires_ext(extension='binding', service='network')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="update_port:binding:host_id")
+                                 rules=["get_port", "update_port",
+                                        "update_port:binding:host_id"],
+                                 expected_error_codes=[404, 403, 403])
     @decorators.idempotent_id('24206a72-0d90-4712-918c-5c9a1ebef64d')
     def test_update_port_binding_host_id(self):
 
@@ -315,7 +349,9 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
 
     @utils.requires_ext(extension='binding', service='network')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="update_port:binding:profile")
+                                 rules=["get_port", "update_port",
+                                        "update_port:binding:profile"],
+                                 expected_error_codes=[404, 403, 403])
     @decorators.idempotent_id('990ea8d1-9257-4f71-a3bf-d6d0914625c5')
     def test_update_port_binding_profile(self):
 
@@ -333,7 +369,9 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
             self.ports_client.update_port(**updated_body)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="update_port:allowed_address_pairs")
+                                 rules=["get_port", "update_port",
+                                        "update_port:allowed_address_pairs"],
+                                 expected_error_codes=[404, 403, 403])
     @decorators.idempotent_id('729c2151-bb49-4f4f-9d58-3ed8819b7582')
     def test_update_port_allowed_address_pairs(self):
 
@@ -349,8 +387,8 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
                                           allowed_address_pairs=address_pairs)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="delete_port",
-                                 expected_error_code=404)
+                                 rules=["get_port", "delete_port"],
+                                 expected_error_codes=[404, 403])
     @decorators.idempotent_id('1cf8e582-bc09-46cb-b32a-82bf991ad56f')
     def test_delete_port(self):
 
