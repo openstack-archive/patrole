@@ -55,7 +55,7 @@ test result: pass
 
 YAML definition: allowed
 test run: not allowed
-test result: fail (under-permission, e.g. Forbidden exception)
+test result: fail (under-permission)
 
 YAML definition: not allowed
 test run: allowed

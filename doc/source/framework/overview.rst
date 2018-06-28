@@ -26,9 +26,11 @@ RBAC testing validation is broken up into 3 stages:
    "Inconsistent" (or failing) cases include:
 
    * Expected result is ``False`` and the test passes. This results in an
-     ``RbacOverPermission`` exception getting thrown.
+     :class:`~rbac_exceptions.RbacOverPermissionException` exception
+     getting thrown.
    * Expected result is ``True`` and the test fails. This results in a
-     ``Forbidden`` exception getting thrown.
+     :class:`~rbac_exceptions.RbacOverPermissionException` exception
+     getting thrown.
 
    For example, a 200 from the API call and a ``False`` result from
    ``oslo.policy`` or a 403 from the API call and a ``True`` result from
