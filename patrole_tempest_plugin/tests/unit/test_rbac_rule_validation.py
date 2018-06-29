@@ -430,6 +430,22 @@ class RBACRuleValidationLoggingTest(BaseRBACRuleValidationTest):
             "Allowed")
 
 
+class RBACRuleValidationNegativeTest(BaseRBACRuleValidationTest):
+
+    @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
+    def test_rule_validation_invalid_service_raises_exc(self, mock_authority):
+        """Test that invalid service raises the appropriate exception."""
+        mock_authority.PolicyAuthority.return_value.allowed.side_effect = (
+            rbac_exceptions.RbacInvalidServiceException)
+
+        @rbac_rv.action(mock.sentinel.service, mock.sentinel.action)
+        def test_policy(*args):
+            pass
+
+        self.assertRaises(rbac_exceptions.RbacInvalidServiceException,
+                          test_policy, self.mock_test_args)
+
+
 class RBACRuleValidationTestMultiPolicy(BaseRBACRuleValidationTest):
     """Test suite for validating multi-policy support for the
     ``rbac_rule_validation`` decorator.

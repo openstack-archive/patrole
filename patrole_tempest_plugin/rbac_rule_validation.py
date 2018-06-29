@@ -22,7 +22,7 @@ from oslo_utils import excutils
 import six
 
 from tempest import config
-from tempest.lib import exceptions
+from tempest.lib import exceptions as lib_exc
 from tempest import test
 
 from patrole_tempest_plugin import policy_authority
@@ -123,7 +123,7 @@ def action(service, rule='', rules=None,
                 "os_alt.auth_provider.credentials.user_id"
             })
 
-    :raises NotFound: If ``service`` is invalid.
+    :raises RbacInvalidServiceException: If ``service`` is invalid.
     :raises RbacUnderPermissionException: For item (2) above.
     :raises RbacOverPermissionException: For item (3) above.
     :raises RbacExpectedWrongException: When a 403 is expected but a 404
@@ -184,12 +184,13 @@ def action(service, rule='', rules=None,
 
             try:
                 test_func(*args, **kwargs)
-            except rbac_exceptions.RbacInvalidService as e:
-                msg = ("%s is not a valid service." % service)
-                test_status = ('Error, %s' % (msg))
-                LOG.error(msg)
-                raise exceptions.NotFound(
-                    "%s RbacInvalidService was: %s" % (msg, e))
+            except rbac_exceptions.RbacInvalidServiceException:
+                with excutils.save_and_reraise_exception():
+                    msg = ("%s is not a valid service." % service)
+                    # FIXME(felipemonteiro): This test_status is logged too
+                    # late. Need a function to log it before re-raising.
+                    test_status = ('Error, %s' % (msg))
+                    LOG.error(msg)
             except (expected_exception,
                     rbac_exceptions.RbacConflictingPolicies,
                     rbac_exceptions.RbacMalformedResponse) as e:
@@ -382,14 +383,13 @@ def _get_exception_type(expected_error_code=_DEFAULT_ERROR_CODE):
         raise rbac_exceptions.RbacInvalidErrorCode(msg)
 
     if expected_error_code == 403:
-        expected_exception = exceptions.Forbidden
+        expected_exception = lib_exc.Forbidden
     elif expected_error_code == 404:
-        expected_exception = exceptions.NotFound
+        expected_exception = lib_exc.NotFound
         irregular_msg = ("NotFound exception was caught for test %s. Expected "
                          "policies which may have caused the error: %s. The "
                          "service %s throws a 404 instead of a 403, which is "
                          "irregular.")
-
     return expected_exception, irregular_msg
 
 
@@ -431,7 +431,7 @@ def _format_extra_target_data(test_obj, extra_target_data):
 
 def _check_for_expected_mismatch_exception(expected_exception,
                                            actual_exception):
-    permission_exceptions = (exceptions.Forbidden, exceptions.NotFound)
+    permission_exceptions = (lib_exc.Forbidden, lib_exc.NotFound)
     if isinstance(actual_exception, permission_exceptions):
         if not isinstance(actual_exception, expected_exception.__class__):
             return True

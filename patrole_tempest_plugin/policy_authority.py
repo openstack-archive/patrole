@@ -136,7 +136,7 @@ class PolicyAuthority(RbacAuthority):
 
         if not service or service not in cls.available_services:
             LOG.debug("%s is NOT a valid service.", service)
-            raise rbac_exceptions.RbacInvalidService(
+            raise rbac_exceptions.RbacInvalidServiceException(
                 "%s is NOT a valid service." % service)
 
     @classmethod

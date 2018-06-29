@@ -64,7 +64,10 @@ class RbacExpectedWrongException(exceptions.TempestException):
                "instead. Actual exception: %(exception)s")
 
 
-class RbacInvalidService(exceptions.TempestException):
+class RbacInvalidServiceException(exceptions.TempestException):
+    """Raised when an invalid service is passed to ``rbac_rule_validation``
+    decorator.
+    """
     message = "Attempted to test an invalid service"
 
 

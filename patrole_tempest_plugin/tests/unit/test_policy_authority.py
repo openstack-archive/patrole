@@ -238,7 +238,7 @@ class PolicyAuthorityTest(base.TestCase):
         test_user_id = mock.sentinel.user_id
         service = 'invalid_service'
 
-        self.assertRaises(rbac_exceptions.RbacInvalidService,
+        self.assertRaises(rbac_exceptions.RbacInvalidServiceException,
                           policy_authority.PolicyAuthority,
                           test_tenant_id,
                           test_user_id,
@@ -253,7 +253,7 @@ class PolicyAuthorityTest(base.TestCase):
         test_user_id = mock.sentinel.user_id
         service = None
 
-        self.assertRaises(rbac_exceptions.RbacInvalidService,
+        self.assertRaises(rbac_exceptions.RbacInvalidServiceException,
                           policy_authority.PolicyAuthority,
                           test_tenant_id,
                           test_user_id,
@@ -528,8 +528,9 @@ class PolicyAuthorityTest(base.TestCase):
             policy_parser = None
 
             expected_exception = 'invalid_service is NOT a valid service'
-            with self.assertRaisesRegex(rbac_exceptions.RbacInvalidService,
-                                        expected_exception):
+            with self.assertRaisesRegex(
+                    rbac_exceptions.RbacInvalidServiceException,
+                    expected_exception):
                 policy_authority.PolicyAuthority(
                     test_tenant_id, test_user_id, "INVALID_SERVICE")
         else:
