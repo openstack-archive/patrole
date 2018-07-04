@@ -610,9 +610,6 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
         network_id = self.network['id']
         interface = self.interfaces_client.create_interface(
             self.server['id'], net_id=network_id)['interfaceAttachment']
-        waiters.wait_for_interface_status(
-            self.interfaces_client, self.server['id'],
-            interface['port_id'], 'ACTIVE')
         self.addCleanup(
             waiters.wait_for_interface_detach, self.interfaces_client,
             self.server['id'], interface['port_id'])
@@ -620,6 +617,9 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
             test_utils.call_and_ignore_notfound_exc,
             self.interfaces_client.delete_interface,
             self.server['id'], interface['port_id'])
+        waiters.wait_for_interface_status(
+            self.interfaces_client, self.server['id'],
+            interface['port_id'], 'ACTIVE')
         return interface
 
     @testtools.skipUnless(CONF.compute_feature_enabled.interface_attach,
@@ -661,9 +661,6 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
         with self.rbac_utils.override_role(self):
             interface = self.interfaces_client.create_interface(
                 self.server['id'], net_id=network_id)['interfaceAttachment']
-        waiters.wait_for_interface_status(
-            self.interfaces_client, self.server['id'],
-            interface['port_id'], 'ACTIVE')
         self.addCleanup(
             waiters.wait_for_interface_detach, self.interfaces_client,
             self.server['id'], interface['port_id'])
@@ -671,6 +668,9 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
             test_utils.call_and_ignore_notfound_exc,
             self.interfaces_client.delete_interface,
             self.server['id'], interface['port_id'])
+        waiters.wait_for_interface_status(
+            self.interfaces_client, self.server['id'],
+            interface['port_id'], 'ACTIVE')
 
     @testtools.skipUnless(CONF.compute_feature_enabled.interface_attach,
                           "Interface attachment is not available.")
@@ -740,3 +740,17 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
         with self.rbac_utils.override_role(self):
             self.servers_client.add_fixed_ip(self.server['id'],
                                              networkId=network_id)
+        # Get the Fixed IP from server.
+        server_detail = self.servers_client.show_server(
+            self.server['id'])['server']
+        fixed_ip = None
+        for ip_set in server_detail['addresses']:
+            for ip in server_detail['addresses'][ip_set]:
+                if ip['OS-EXT-IPS:type'] == 'fixed':
+                    fixed_ip = ip['addr']
+                    break
+            if fixed_ip is not None:
+                break
+        # Remove the fixed IP from server.
+        self.servers_client.remove_fixed_ip(self.server['id'],
+                                            address=fixed_ip)
