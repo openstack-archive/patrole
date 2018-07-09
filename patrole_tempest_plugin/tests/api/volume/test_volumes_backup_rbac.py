@@ -176,6 +176,11 @@ class VolumesBackupsV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
 
 class VolumesBackupsV318RbacTest(rbac_base.BaseVolumeRbacTest):
+    """Validates that the ``GET /backups/{backup_id}`` and
+    ``GET /backups/details`` APIs inject the expected attribute
+    'os-backup-project-attr:project_id' into the response body following
+    successful authorization.
+    """
     _api_version = 3
     # The minimum microversion for showing 'os-backup-project-attr:project_id'
     # is 3.18.
@@ -205,6 +210,17 @@ class VolumesBackupsV318RbacTest(rbac_base.BaseVolumeRbacTest):
         # Show backup API attempts to inject the attribute below into the
         # response body but only if policy enforcement succeeds.
         if self.expected_attr not in body:
+            raise rbac_exceptions.RbacMalformedResponse(
+                attribute=self.expected_attr)
+
+    @decorators.idempotent_id('aa40b7c0-5974-48be-8cbc-e23cc61c4c68')
+    @rbac_rule_validation.action(service="cinder",
+                                 rule="backup:backup_project_attribute")
+    def test_list_backup_details_project_attribute(self):
+        with self.rbac_utils.override_role(self):
+            body = self.backups_client.list_backups(detail=True)['backups']
+
+        if self.expected_attr not in body[0]:
             raise rbac_exceptions.RbacMalformedResponse(
                 attribute=self.expected_attr)
 
