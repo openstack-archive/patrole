@@ -17,6 +17,7 @@ from contextlib import contextmanager
 import time
 
 from oslo_log import log as logging
+from oslo_log import versionutils
 from oslo_utils import excutils
 
 from tempest import clients
@@ -220,6 +221,12 @@ class RbacUtilsMixin(object):
     @classmethod
     def skip_rbac_checks(cls):
         if not CONF.patrole.enable_rbac:
+            deprecation_msg = ("The `[patrole].enable_rbac` option is "
+                               "deprecated and will be removed in the S "
+                               "release. Patrole tests will always be enabled "
+                               "following installation of the Patrole Tempest "
+                               "plugin. Use a regex to skip tests.")
+            versionutils.report_deprecated_feature(LOG, deprecation_msg)
             raise cls.skipException(
                 'Patrole testing not enabled so skipping %s.' % cls.__name__)
 
