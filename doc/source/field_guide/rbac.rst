@@ -53,6 +53,48 @@ the projects themselves, but that approach has the following shortcomings:
 * Patrole is designed to work with any role via configuration settings, but
   on the other hand the projects handpick which roles to test.
 
+Why not use Patrole framework on Tempest tests?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The Patrole framework can't be applied to existing Tempest tests via
+:ref:`rbac-validation`, because:
+
+* Tempest tests aren't factored the right way: They're not granular enough.
+  They call too many APIs and too many policies are enforced by each test.
+* Tempest tests assume default policy rules: Tempest uses ``os_admin``
+  credentials for admin APIs and ``os_primary`` for non-admin APIs.
+  This breaks for custom policy overrides.
+* Tempest doesn't have tests that enforce all the policy actions, regardless.
+  Some RBAC tests require that tests be written a very precise way for the
+  server to authorize the expected policy actions.
+
+Why are these tests not in Tempest?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Patrole should be a separate project that specializes in RBAC tests.
+
+Philosophically speaking:
+
+* Tempest supports `API and scenario testing`_. RBAC testing is out of scope.
+* The `OpenStack project structure reform`_ evolved OpenStack "to a more
+  decentralized model where [projects like QA] provide processes and tools to
+  empower projects to do the work themselves". This model resulted in the
+  creation of the `Tempest external plugin interface`_.
+* Tempest supports `plugins`_. Why not use one for RBAC testing?
+
+Practically speaking:
+
+* The Tempest team should not be burdened with having to support Patrole, too.
+  Tempest is a big project and having to absorb RBAC testing is difficult.
+* Tempest already has many in-tree Zuul checks/gates. If Patrole tests lived
+  in Tempest, then adding more Zuul checks/gates for Patrole would only make it
+  harder to get changes merged in Tempest.
+
+.. _API and scenario testing: https://docs.openstack.org/tempest/latest/overview.html#tempest-the-openstack-integration-test-suite
+.. _OpenStack project structure reform: https://governance.openstack.org/tc/resolutions/20141202-project-structure-reform-spec.html#impact-for-horizontal-teams
+.. _Tempest external plugin interface: https://specs.openstack.org/openstack/qa-specs/specs/tempest/implemented/tempest-external-plugin-interface.html
+.. _plugins: https://docs.openstack.org/tempest/latest/plugin.html
+
 
 Scope of these tests
 --------------------
