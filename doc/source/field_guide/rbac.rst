@@ -62,7 +62,7 @@ The Patrole framework can't be applied to existing Tempest tests via
 * Tempest tests aren't factored the right way: They're not granular enough.
   They call too many APIs and too many policies are enforced by each test.
 * Tempest tests assume default policy rules: Tempest uses ``os_admin``
-  credentials for admin APIs and ``os_primary`` for non-admin APIs.
+  `credentials`_ for admin APIs and ``os_primary`` for non-admin APIs.
   This breaks for custom policy overrides.
 * Tempest doesn't have tests that enforce all the policy actions, regardless.
   Some RBAC tests require that tests be written a very precise way for the
@@ -71,7 +71,9 @@ The Patrole framework can't be applied to existing Tempest tests via
 Why are these tests not in Tempest?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Patrole should be a separate project that specializes in RBAC tests.
+Patrole should be a separate project that specializes in RBAC tests. This
+was agreed upon during `discussion`_ that led to the approval of the RBAC
+testing framework `spec`_, which was the genesis for Patrole.
 
 Philosophically speaking:
 
@@ -90,6 +92,9 @@ Practically speaking:
   in Tempest, then adding more Zuul checks/gates for Patrole would only make it
   harder to get changes merged in Tempest.
 
+.. _credentials: https://docs.openstack.org/tempest/latest/write_tests.html#allocating-credentials
+.. _discussion: https://review.openstack.org/#/c/382672/
+.. _spec: https://specs.openstack.org/openstack/qa-specs/specs/tempest/rbac-policy-testing.html
 .. _API and scenario testing: https://docs.openstack.org/tempest/latest/overview.html#tempest-the-openstack-integration-test-suite
 .. _OpenStack project structure reform: https://governance.openstack.org/tc/resolutions/20141202-project-structure-reform-spec.html#impact-for-horizontal-teams
 .. _Tempest external plugin interface: https://specs.openstack.org/openstack/qa-specs/specs/tempest/implemented/tempest-external-plugin-interface.html
