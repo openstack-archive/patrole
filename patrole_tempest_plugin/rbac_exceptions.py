@@ -41,8 +41,27 @@ class RbacResourceSetupFailed(exceptions.TempestException):
     message = "RBAC resource setup failed"
 
 
-class RbacOverPermission(exceptions.TempestException):
-    message = "Action performed that should not be permitted"
+class RbacOverPermissionException(exceptions.TempestException):
+    """Raised when the expected result is failure but the actual result is
+    pass.
+    """
+    message = "Unauthorized action was allowed to be performed"
+
+
+class RbacUnderPermissionException(exceptions.TempestException):
+    """Raised when the expected result is pass but the actual result is
+    failure.
+    """
+    message = "Authorized action was not allowed to be performed"
+
+
+class RbacExpectedWrongException(exceptions.TempestException):
+    """Raised when the expected exception does not match the actual exception
+    raised, when both are instances of Forbidden or NotFound, indicating
+    the test provides a wrong argument to `expected_error_codes`.
+    """
+    message = ("Expected %(expected)s to be raised but %(actual)s was raised "
+               "instead. Actual exception: %(exception)s")
 
 
 class RbacInvalidService(exceptions.TempestException):

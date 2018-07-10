@@ -64,9 +64,9 @@ def action(service, rule='', rules=None,
 
     1) If *expected* is True and the test passes (*actual*), this is a success.
     2) If *expected* is True and the test fails (*actual*), this results in a
-       `Forbidden` exception failure.
+       ``RbacUnderPermissionException`` exception failure.
     3) If *expected* is False and the test passes (*actual*), this results in
-       an `OverPermission` exception failure.
+       an ``RbacOverPermissionException`` exception failure.
     4) If *expected* is False and the test fails (*actual*), this is a success.
 
     As such, negative and positive testing can be applied using this decorator.
@@ -124,8 +124,10 @@ def action(service, rule='', rules=None,
             })
 
     :raises NotFound: If ``service`` is invalid.
-    :raises Forbidden: For item (2) above.
-    :raises RbacOverPermission: For item (3) above.
+    :raises RbacUnderPermissionException: For item (2) above.
+    :raises RbacOverPermissionException: For item (3) above.
+    :raises RbacExpectedWrongException: When a 403 is expected but a 404
+        is raised instead or vice versa.
 
     Examples::
 
@@ -202,17 +204,28 @@ def action(service, rule='', rules=None,
                                sorted(set(rules) - set(disallowed_rules)),
                                sorted(disallowed_rules)))
                     LOG.error(msg)
-                    raise exceptions.Forbidden(
+                    raise rbac_exceptions.RbacUnderPermissionException(
                         "%s Exception was: %s" % (msg, e))
-            except Exception as e:
-                with excutils.save_and_reraise_exception():
-                    exc_info = sys.exc_info()
-                    error_details = six.text_type(exc_info[1])
-                    msg = ("An unexpected exception has occurred during test: "
-                           "%s. Exception was: %s" % (test_func.__name__,
-                                                      error_details))
-                    test_status = 'Error, %s' % (error_details)
-                    LOG.error(msg)
+            except Exception as actual_exception:
+                if _check_for_expected_mismatch_exception(expected_exception,
+                                                          actual_exception):
+                    LOG.error('Expected and actual exceptions do not match. '
+                              'Expected: %s. Actual: %s.',
+                              expected_exception,
+                              actual_exception.__class__)
+                    raise rbac_exceptions.RbacExpectedWrongException(
+                        expected=expected_exception,
+                        actual=actual_exception.__class__,
+                        exception=actual_exception)
+                else:
+                    with excutils.save_and_reraise_exception():
+                        exc_info = sys.exc_info()
+                        error_details = six.text_type(exc_info[1])
+                        msg = ("An unexpected exception has occurred during "
+                               "test: %s. Exception was: %s" % (
+                                   test_func.__name__, error_details))
+                        test_status = 'Error, %s' % (error_details)
+                        LOG.error(msg)
             else:
                 if not allowed:
                     msg = (
@@ -222,7 +235,7 @@ def action(service, rule='', rules=None,
                         )
                     )
                     LOG.error(msg)
-                    raise rbac_exceptions.RbacOverPermission(msg)
+                    raise rbac_exceptions.RbacOverPermissionException(msg)
             finally:
                 if CONF.patrole_log.enable_reporting:
                     RBACLOG.info(
@@ -237,7 +250,6 @@ def action(service, rule='', rules=None,
 
 
 def _prepare_multi_policy(rule, rules, exp_error_code, exp_error_codes):
-
     if exp_error_codes:
         if not rules:
             msg = ("The `rules` list must be provided if using the "
@@ -411,3 +423,12 @@ def _format_extra_target_data(test_obj, extra_target_data):
         formatted_target_data[user_attribute] = attr_value
 
     return formatted_target_data
+
+
+def _check_for_expected_mismatch_exception(expected_exception,
+                                           actual_exception):
+    permission_exceptions = (exceptions.Forbidden, exceptions.NotFound)
+    if isinstance(actual_exception, permission_exceptions):
+        if not isinstance(actual_exception, expected_exception.__class__):
+            return True
+    return False
