@@ -64,7 +64,7 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
         """
         mock_authority.PolicyAuthority.return_value.allowed.return_value = True
 
-        @rbac_rv.action(mock.sentinel.service, mock.sentinel.action)
+        @rbac_rv.action(mock.sentinel.service, rules=[mock.sentinel.action])
         def test_policy(*args):
             pass
 
@@ -83,7 +83,7 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
         mock_authority.PolicyAuthority.return_value.allowed.return_value =\
             False
 
-        @rbac_rv.action(mock.sentinel.service, mock.sentinel.action)
+        @rbac_rv.action(mock.sentinel.service, rules=[mock.sentinel.action])
         def test_policy(*args):
             raise exceptions.Forbidden()
 
@@ -104,7 +104,7 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
         """
         mock_authority.PolicyAuthority.return_value.allowed.return_value = True
 
-        @rbac_rv.action(mock.sentinel.service, mock.sentinel.action)
+        @rbac_rv.action(mock.sentinel.service, rules=[mock.sentinel.action])
         def test_policy(*args):
             raise exceptions.Forbidden()
 
@@ -127,7 +127,7 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
         mock_authority.PolicyAuthority.return_value.allowed.return_value =\
             False
 
-        @rbac_rv.action(mock.sentinel.service, mock.sentinel.action)
+        @rbac_rv.action(mock.sentinel.service, rules=[mock.sentinel.action])
         def test_policy(*args):
             raise rbac_exceptions.RbacMalformedResponse()
 
@@ -145,7 +145,7 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
         """
         mock_authority.PolicyAuthority.return_value.allowed.return_value = True
 
-        @rbac_rv.action(mock.sentinel.service, mock.sentinel.action)
+        @rbac_rv.action(mock.sentinel.service, rules=[mock.sentinel.action])
         def test_policy(*args):
             raise rbac_exceptions.RbacMalformedResponse()
 
@@ -168,7 +168,7 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
         mock_authority.PolicyAuthority.return_value.allowed.return_value =\
             False
 
-        @rbac_rv.action(mock.sentinel.service, mock.sentinel.action)
+        @rbac_rv.action(mock.sentinel.service, rules=[mock.sentinel.action])
         def test_policy(*args):
             raise rbac_exceptions.RbacConflictingPolicies()
 
@@ -187,7 +187,7 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
         """
         mock_authority.PolicyAuthority.return_value.allowed.return_value = True
 
-        @rbac_rv.action(mock.sentinel.service, mock.sentinel.action)
+        @rbac_rv.action(mock.sentinel.service, rules=[mock.sentinel.action])
         def test_policy(*args):
             raise rbac_exceptions.RbacConflictingPolicies()
 
@@ -210,7 +210,7 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
         2) Test have permission and 404 is expected but 403 is thrown throws
            exception.
         """
-        @rbac_rv.action(mock.sentinel.service, mock.sentinel.action,
+        @rbac_rv.action(mock.sentinel.service, rules=[mock.sentinel.action],
                         expected_error_code=404)
         def test_policy(*args):
             raise exceptions.Forbidden('Test message')
@@ -238,14 +238,16 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
         In both cases, a LOG.warning is called with the "irregular message"
         that signals to user that a 404 was expected and caught.
         """
-        @rbac_rv.action(mock.sentinel.service, mock.sentinel.action,
+        policy_names = ['foo:bar']
+
+        @rbac_rv.action(mock.sentinel.service, rules=policy_names,
                         expected_error_code=404)
         def test_policy(*args):
             raise exceptions.NotFound()
 
         expected_errors = [
             ("Role Member was not allowed to perform the following "
-             "actions: \[%s\].*" % (mock.sentinel.action)),
+             "actions: \['%s'\].*" % policy_names[0]),
             None
         ]
 
@@ -265,10 +267,12 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
                 mock_log.error.assert_not_called()
 
             mock_log.warning.assert_called_with(
-                "NotFound exception was caught for policy action {0}. The "
-                "service {1} throws a 404 instead of a 403, which is "
-                "irregular.".format(mock.sentinel.action,
-                                    mock.sentinel.service))
+                "NotFound exception was caught for test %s. Expected policies "
+                "which may have caused the error: %s. The service %s throws a "
+                "404 instead of a 403, which is irregular.",
+                test_policy.__name__,
+                ', '.join(policy_names),
+                mock.sentinel.service)
 
             mock_log.warning.reset_mock()
             mock_log.error.reset_mock()
@@ -285,11 +289,11 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
         mock_authority.PolicyAuthority.return_value.allowed.return_value =\
             False
 
-        @rbac_rv.action(mock.sentinel.service, mock.sentinel.action)
+        @rbac_rv.action(mock.sentinel.service, rules=[mock.sentinel.action])
         def test_policy_expect_forbidden(*args):
             pass
 
-        @rbac_rv.action(mock.sentinel.service, mock.sentinel.action,
+        @rbac_rv.action(mock.sentinel.service, rules=[mock.sentinel.action],
                         expected_error_code=404)
         def test_policy_expect_not_found(*args):
             pass
@@ -327,9 +331,10 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
     def test_get_exception_type_404(self, _):
         """Test that getting a 404 exception type returns NotFound."""
         expected_exception = exceptions.NotFound
-        expected_irregular_msg = ("NotFound exception was caught for policy "
-                                  "action {0}. The service {1} throws a 404 "
-                                  "instead of a 403, which is irregular.")
+        expected_irregular_msg = (
+            "NotFound exception was caught for test %s. Expected policies "
+            "which may have caused the error: %s. The service %s throws a "
+            "404 instead of a 403, which is irregular.")
 
         actual_exception, actual_irregular_msg = \
             rbac_rv._get_exception_type(404)
@@ -374,6 +379,12 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
 
             mock_log.error.reset_mock()
 
+
+class RBACRuleValidationLoggingTest(BaseRBACRuleValidationTest):
+    """Test class for validating the RBAC log, dedicated to just logging
+    Patrole RBAC validation work flows.
+    """
+
     @mock.patch.object(rbac_rv, 'RBACLOG', autospec=True)
     @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
     def test_rbac_report_logging_disabled(self, mock_authority, mock_rbaclog):
@@ -385,7 +396,7 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
 
         mock_authority.PolicyAuthority.return_value.allowed.return_value = True
 
-        @rbac_rv.action(mock.sentinel.service, mock.sentinel.action)
+        @rbac_rv.action(mock.sentinel.service, rules=[mock.sentinel.action])
         def test_policy(*args):
             pass
 
@@ -402,17 +413,19 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
             fixtures.ConfPatcher(enable_reporting=True, group='patrole_log'))
 
         mock_authority.PolicyAuthority.return_value.allowed.return_value = True
+        policy_names = ['foo:bar', 'baz:qux']
 
-        @rbac_rv.action(mock.sentinel.service, mock.sentinel.action)
+        @rbac_rv.action(mock.sentinel.service, rules=policy_names)
         def test_policy(*args):
             pass
 
         test_policy(self.mock_test_args)
         mock_rbaclog.info.assert_called_once_with(
-            "[Service]: %s, [Test]: %s, [Rule]: %s, "
+            "[Service]: %s, [Test]: %s, [Rules]: %s, "
             "[Expected]: %s, [Actual]: %s",
-            mock.sentinel.service, 'test_policy',
-            mock.sentinel.action,
+            mock.sentinel.service,
+            'test_policy',
+            ', '.join(policy_names),
             "Allowed",
             "Allowed")
 
@@ -589,8 +602,8 @@ class RBACRuleValidationTestMultiPolicy(BaseRBACRuleValidationTest):
         """
 
         rules = [
-            mock.sentinel.action1, mock.sentinel.action2,
-            mock.sentinel.action3, mock.sentinel.action4
+            'mock.sentinel.action1', 'mock.sentinel.action2',
+            'mock.sentinel.action3', 'mock.sentinel.action4'
         ]
         exp_ecodes = [403, 404, 403, 403]
 
@@ -609,8 +622,8 @@ class RBACRuleValidationTestMultiPolicy(BaseRBACRuleValidationTest):
             mock_log.error.assert_not_called()
             self._assert_policy_authority_called_with(rules, mock_authority)
 
-        _do_test([True, False, False, True], mock.sentinel.action2)
-        _do_test([True, False, True, False], mock.sentinel.action2)
+        _do_test([True, False, False, True], 'mock.sentinel.action2')
+        _do_test([True, False, True, False], 'mock.sentinel.action2')
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
     def test_prepare_multi_policy_allowed_usages(self, mock_log):

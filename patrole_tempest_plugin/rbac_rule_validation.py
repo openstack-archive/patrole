@@ -195,7 +195,10 @@ def action(service, rule='', rules=None,
                     rbac_exceptions.RbacMalformedResponse) as e:
                 test_status = 'Denied'
                 if irregular_msg:
-                    LOG.warning(irregular_msg.format(rule, service))
+                    LOG.warning(irregular_msg,
+                                test_func.__name__,
+                                ', '.join(rules),
+                                service)
                 if allowed:
                     msg = ("Role %s was not allowed to perform the following "
                            "actions: %s. Expected allowed actions: %s. "
@@ -239,9 +242,9 @@ def action(service, rule='', rules=None,
             finally:
                 if CONF.patrole_log.enable_reporting:
                     RBACLOG.info(
-                        "[Service]: %s, [Test]: %s, [Rule]: %s, "
+                        "[Service]: %s, [Test]: %s, [Rules]: %s, "
                         "[Expected]: %s, [Actual]: %s",
-                        service, test_func.__name__, rule,
+                        service, test_func.__name__, ', '.join(rules),
                         "Allowed" if allowed else "Denied",
                         test_status)
 
@@ -344,16 +347,16 @@ def _is_authorized(test_obj, service, rule, extra_target_data):
     is_allowed = authority.allowed(rule, role)
 
     if is_allowed:
-        LOG.debug("[Action]: %s, [Role]: %s is allowed!", rule,
+        LOG.debug("[Policy action]: %s, [Role]: %s is allowed!", rule,
                   role)
     else:
-        LOG.debug("[Action]: %s, [Role]: %s is NOT allowed!",
+        LOG.debug("[Policy action]: %s, [Role]: %s is NOT allowed!",
                   rule, role)
 
     return is_allowed
 
 
-def _get_exception_type(expected_error_code=403):
+def _get_exception_type(expected_error_code=_DEFAULT_ERROR_CODE):
     """Dynamically calculate the expected exception to be caught.
 
     Dynamically calculate the expected exception to be caught by the test case.
@@ -382,9 +385,10 @@ def _get_exception_type(expected_error_code=403):
         expected_exception = exceptions.Forbidden
     elif expected_error_code == 404:
         expected_exception = exceptions.NotFound
-        irregular_msg = ("NotFound exception was caught for policy action "
-                         "{0}. The service {1} throws a 404 instead of a 403, "
-                         "which is irregular.")
+        irregular_msg = ("NotFound exception was caught for test %s. Expected "
+                         "policies which may have caused the error: %s. The "
+                         "service %s throws a 404 instead of a 403, which is "
+                         "irregular.")
 
     return expected_exception, irregular_msg
 
