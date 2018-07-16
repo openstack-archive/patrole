@@ -10,6 +10,14 @@ Overview
 
    overview
 
+RBAC Overview
+-------------
+
+.. toctree::
+   :maxdepth: 2
+
+   rbac-overview
+
 User's Guide
 ============
 

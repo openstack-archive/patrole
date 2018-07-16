@@ -31,6 +31,8 @@ documentation.
 * Bugs: https://bugs.launchpad.net/patrole
 * Release notes: https://docs.openstack.org/releasenotes/patrole/
 
+.. _design-principles:
+
 Design Principles
 -----------------
 
@@ -59,6 +61,9 @@ but not all, as its testing scope is confined to policies.
     Realistically this is not always possible because some services have
     not yet moved to policy in code.
 
+* *Customizable*. Patrole should be able to validate custom policy overrides to
+  ensure that those overrides enhance rather than undermine the cloud's RBAC
+  configuration. In addition, Patrole should be able to validate any role.
 * *Self-cleaning*. Patrole should attempt to clean up after itself; whenever
   possible we should tear down resources when done.
 
