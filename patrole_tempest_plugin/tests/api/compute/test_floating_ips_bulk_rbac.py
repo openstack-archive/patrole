@@ -27,12 +27,15 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 CONF = config.CONF
 
 
+# TODO(gmann): Remove this test class once the nova queens branch goes
+# into extended maintenance mode.
 class FloatingIpsBulkRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     # Tests will fail with a 404 starting from microversion 2.36:
     # See the following link for details:
     # https://developer.openstack.org/api-ref/compute/#floating-ips-bulk-os-floating-ips-bulk-deprecated
     max_microversion = '2.35'
+    depends_on_nova_network = True
 
     @classmethod
     def skip_checks(cls):
