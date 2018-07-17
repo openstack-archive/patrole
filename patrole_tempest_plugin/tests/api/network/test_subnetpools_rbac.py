@@ -65,7 +65,33 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
 
     @rbac_rule_validation.action(service="neutron",
                                  rules=["create_subnetpool",
-                                        "create_subnetpool:shared"])
+                                        "create_subnetpool:is_default"],
+                                 expected_error_codes=[403, 403])
+    @decorators.idempotent_id('1b5509fd-2c32-44a8-a786-1b6ca162dbd2')
+    def test_create_subnetpool_default(self):
+        """Create default subnetpool.
+
+        RBAC test for the neutron create_subnetpool:is_default policy
+        """
+        # Most likely we already have default subnetpools for ipv4 and ipv6,
+        # so we temporary mark them as is_default=False, to let this test pass.
+        def_pools = self.subnetpools_client.list_subnetpools(is_default=True)
+        for default_pool in def_pools["subnetpools"]:
+            self.subnetpools_client.update_subnetpool(default_pool["id"],
+                                                      is_default=False)
+
+            self.addCleanup(self.subnetpools_client.update_subnetpool,
+                            default_pool["id"], is_default=True)
+
+        with self.rbac_utils.override_role(self):
+            # It apparently only enforces the policy for is_default=True.
+            # It does nothing for is_default=False
+            self._create_subnetpool(is_default=True)
+
+    @rbac_rule_validation.action(service="neutron",
+                                 rules=["create_subnetpool",
+                                        "create_subnetpool:shared"],
+                                 expected_error_codes=[403, 403])
     @decorators.idempotent_id('cf730989-0d47-40bc-b39a-99e7de484723')
     def test_create_subnetpool_shared(self):
         """Create subnetpool shared.
