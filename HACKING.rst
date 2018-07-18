@@ -17,27 +17,28 @@ for more information:
     The original Tempest Commandments do not include Patrole-specific paths.
     Patrole-specific paths replace the Tempest-specific paths within Patrole's
     hacking checks.
-..
 
-- [T102] Cannot import OpenStack python clients in patrole_tempest_plugin/tests/api
+- [T102] Cannot import OpenStack python clients in
+  ``patrole_tempest_plugin/tests/api``
 - [T105] Tests cannot use setUpClass/tearDownClass
 - [T106] vim configuration should not be kept in source files.
 - [T107] Check that a service tag isn't in the module path
 - [T108] Check no hyphen at the end of rand_name() argument
 - [T109] Cannot use testtools.skip decorator; instead use
-         decorators.skip_because from tempest.lib
-- [T113] Check that tests use data_utils.rand_uuid() instead of uuid.uuid4()
+  ``decorators.skip_because`` from ``tempest.lib``
+- [T113] Check that tests use ``data_utils.rand_uuid()`` instead of
+  ``uuid.uuid4()``
 - [N322] Method's default argument shouldn't be mutable
 
 The following are Patrole's specific Commandments:
 
 - [P100] The ``rbac_rule_validation.action`` decorator must be applied to
-         an RBAC test
+  an RBAC test
 - [P101] RBAC test filenames must end with "_rbac.py"; for example,
-         test_servers_rbac.py, not test_servers.py
+  test_servers_rbac.py, not test_servers.py
 - [P102] RBAC test class names must end in 'RbacTest'
 - [P103] ``self.client`` must not be used as a client alias; this allows for
-         code that is more maintainable and easier to read
+  code that is more maintainable and easier to read
 
 Role Overriding
 ---------------
