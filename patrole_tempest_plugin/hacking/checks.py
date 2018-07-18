@@ -17,7 +17,7 @@
 import os
 import re
 
-import pep8
+import pycodestyle
 
 
 PYTHON_CLIENTS = ['cinder', 'glance', 'keystone', 'nova', 'swift', 'neutron',
@@ -59,7 +59,7 @@ def no_setup_teardown_class_for_tests(physical_line, filename):
 
     T105: Tests cannot use setUpClass/tearDownClass
     """
-    if pep8.noqa(physical_line):
+    if pycodestyle.noqa(physical_line):
         return
 
     if SETUP_TEARDOWN_CLASS_DEFINITION.match(physical_line):
