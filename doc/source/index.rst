@@ -45,6 +45,7 @@ Developer's Guide
    :maxdepth: 1
 
    HACKING
+   REVIEWING
 
 Framework
 ---------
