@@ -19,6 +19,7 @@ from tempest.common import utils
 from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
+from tempest.lib import exceptions as lib_exc
 
 from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
@@ -66,6 +67,9 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
                         shared_network=None,
                         router_external=None,
                         router_private=None,
+                        provider_network_type=None,
+                        provider_physical_network=None,
+                        provider_segmentation_id=None,
                         segments=None,
                         **kwargs):
         if not net_id:
@@ -73,13 +77,19 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
 
         if admin is not None:
             kwargs['admin_state_up'] = admin
-        elif shared_network is not None:
+        if shared_network is not None:
             kwargs['shared'] = shared_network
-        elif router_external is not None:
+        if router_external is not None:
             kwargs['router:external'] = router_external
-        elif router_private is not None:
+        if router_private is not None:
             kwargs['router:private'] = router_private
-        elif segments is not None:
+        if provider_network_type is not None:
+            kwargs['provider:network_type'] = provider_network_type
+        if provider_physical_network is not None:
+            kwargs['provider:physical_network'] = provider_physical_network
+        if provider_segmentation_id is not None:
+            kwargs['provider:segmentation_id'] = provider_segmentation_id
+        if segments is not None:
             kwargs['segments'] = segments
 
         updated_network = self.networks_client.update_network(
@@ -208,6 +218,81 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         network = self._create_network()
         with self.rbac_utils.override_role(self):
             self._update_network(net_id=network['id'], router_external=True)
+
+    @utils.requires_ext(extension='provider', service='network')
+    @rbac_rule_validation.action(
+        service="neutron",
+        rules=["get_network",
+               "update_network",
+               "update_network:provider:network_type"],
+        expected_error_codes=[404, 403, 403])
+    @decorators.idempotent_id('d064ef96-662b-47b6-94b7-9106dcd7ba8c')
+    def test_update_network_provider_network_type(self):
+
+        """Update Network Provider Network Type Test
+
+        RBAC test for neutron update_network:provider:network_type policy
+        """
+        try:
+            with self.rbac_utils.override_role(self):
+                self._update_network(self.network['id'],
+                                     provider_network_type='vxlan')
+        except lib_exc.BadRequest as exc:
+            # Per the api documentation, most plugins don't support updating
+            # provider attributes
+            self.assertIn(
+                "Plugin does not support updating provider attributes",
+                str(exc))
+
+    @utils.requires_ext(extension='provider', service='network')
+    @rbac_rule_validation.action(
+        service="neutron",
+        rules=["get_network",
+               "update_network",
+               "update_network:provider:physical_network"],
+        expected_error_codes=[404, 403, 403])
+    @decorators.idempotent_id('e3a55660-f75c-494e-a1b1-a8b36cc789ef')
+    def test_update_network_provider_physical_network(self):
+
+        """Update Network Provider Physical Network Test
+
+        RBAC test for neutron update_network:provider:physical_network policy
+        """
+        try:
+            with self.rbac_utils.override_role(self):
+                self._update_network(self.network['id'],
+                                     provider_physical_network='provider')
+        except lib_exc.BadRequest as exc:
+            # Per the api documenation, most plugins don't support updating
+            # provider attributes
+            self.assertIn(
+                "Plugin does not support updating provider attributes",
+                str(exc))
+
+    @utils.requires_ext(extension='provider', service='network')
+    @rbac_rule_validation.action(
+        service="neutron",
+        rules=["get_network",
+               "update_network",
+               "update_network:provider:segmentation_id"],
+        expected_error_codes=[404, 403, 403])
+    @decorators.idempotent_id('f6164228-b670-45fd-9ff9-b101930318c7')
+    def test_update_network_provider_segmentation_id(self):
+
+        """Update Network Provider Segmentation Id Test
+
+        RBAC test for neutron update_network:provider:segmentation_id policy
+        """
+        try:
+            with self.rbac_utils.override_role(self):
+                self._update_network(self.network['id'],
+                                     provider_segmentation_id=400)
+        except lib_exc.BadRequest as exc:
+            # Per the api documenation, most plugins don't support updating
+            # provider attributes
+            self.assertIn(
+                "Plugin does not support updating provider attributes",
+                str(exc))
 
     @rbac_rule_validation.action(service="neutron",
                                  rule="get_network",
