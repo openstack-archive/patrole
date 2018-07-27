@@ -110,6 +110,25 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
 
     @rbac_rule_validation.action(service="neutron",
                                  rules=["create_network",
+                                        "create_network:is_default"],
+                                 expected_error_codes=[403, 403])
+    @decorators.idempotent_id('28602661-5ac7-407e-b739-e393f619f5e3')
+    def test_create_network_is_default(self):
+
+        """Create Is Default Network Test
+
+        RBAC test for the neutron create_network:is_default policy
+        """
+        try:
+            with self.rbac_utils.override_role(self):
+                self._create_network(is_default=True)
+        except lib_exc.Conflict as exc:
+            # A default network might already exist
+            self.assertIn('A default external network already exists',
+                          str(exc))
+
+    @rbac_rule_validation.action(service="neutron",
+                                 rules=["create_network",
                                         "create_network:shared"],
                                  expected_error_codes=[403, 403])
     @decorators.idempotent_id('ccabf2a9-28c8-44b2-80e6-ffd65d43eef2')
@@ -136,6 +155,30 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         """
         with self.rbac_utils.override_role(self):
             self._create_network(router_external=True)
+
+    @utils.requires_ext(extension='provider', service='network')
+    @rbac_rule_validation.action(
+        service="neutron",
+        rules=["create_network",
+               "create_network:provider:physical_network"],
+        expected_error_codes=[403, 403])
+    @decorators.idempotent_id('76783fed-9ff3-4499-a0d1-82d99eec364e')
+    def test_create_network_provider_physical_network(self):
+
+        """Create Network Physical Network Provider Test
+
+        RBAC test for neutron create_network:provider:physical_network policy
+        """
+        try:
+            with self.rbac_utils.override_role(self):
+                self._create_network(provider_physical_network='provider',
+                                     provider_network_type='flat')
+        except lib_exc.BadRequest as exc:
+            # There probably won't be a physical network called 'provider', but
+            # we aren't testing state of the network
+            self.assertIn("Invalid input for operation: physical_network " +
+                          "'provider' unknown for flat provider network.",
+                          str(exc))
 
     @utils.requires_ext(extension='provider', service='network')
     @rbac_rule_validation.action(
