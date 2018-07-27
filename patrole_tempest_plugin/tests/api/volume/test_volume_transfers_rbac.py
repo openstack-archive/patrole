@@ -54,12 +54,17 @@ class VolumesTransfersV3RbacTest(rbac_base.BaseVolumeRbacTest):
     def test_create_volume_transfer(self):
         with self.rbac_utils.override_role(self):
             self._create_transfer()
+        waiters.wait_for_volume_resource_status(
+            self.volumes_client, self.volume['id'], 'awaiting-transfer')
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:get_transfer")
     @decorators.idempotent_id('7a0925d3-ed97-4c25-8299-e5cdabe2eb55')
     def test_get_volume_transfer(self):
         transfer = self._create_transfer()
+        waiters.wait_for_volume_resource_status(
+            self.volumes_client, self.volume['id'], 'awaiting-transfer')
+
         with self.rbac_utils.override_role(self):
             self.transfers_client.show_volume_transfer(transfer['id'])
 
@@ -82,15 +87,23 @@ class VolumesTransfersV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('987f2a11-d657-4984-a6c9-28f06c1cd014')
     def test_accept_volume_transfer(self):
         transfer = self._create_transfer()
+        waiters.wait_for_volume_resource_status(
+            self.volumes_client, self.volume['id'], 'awaiting-transfer')
+
         with self.rbac_utils.override_role(self):
             self.transfers_client.accept_volume_transfer(
                 transfer['id'], auth_key=transfer['auth_key'])
+        waiters.wait_for_volume_resource_status(self.volumes_client,
+                                                self.volume['id'], 'available')
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:delete_transfer")
     @decorators.idempotent_id('4672187e-7fff-454b-832a-5c8865dda868')
     def test_delete_volume_transfer(self):
         transfer = self._create_transfer()
+        waiters.wait_for_volume_resource_status(
+            self.volumes_client, self.volume['id'], 'awaiting-transfer')
+
         with self.rbac_utils.override_role(self):
             self.transfers_client.delete_volume_transfer(transfer['id'])
         waiters.wait_for_volume_resource_status(
