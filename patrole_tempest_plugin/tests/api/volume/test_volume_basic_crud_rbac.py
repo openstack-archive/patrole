@@ -41,6 +41,23 @@ class VolumesBasicCrudV3RbacTest(rbac_base.BaseVolumeRbacTest):
         with self.rbac_utils.override_role(self):
             volume = self.volumes_client.create_volume(name=name, size=size)[
                 'volume']
+        # Use helper in base Tempest volume class which waits for deletion.
+        self.addCleanup(self.delete_volume, self.volumes_client, volume['id'])
+        waiters.wait_for_volume_resource_status(self.volumes_client,
+                                                volume['id'], 'available')
+
+    @decorators.idempotent_id('a009e6dc-e8bf-4412-99f5-8e45cffcffec')
+    @rbac_rule_validation.action(service="cinder",
+                                 rules=["volume:create_from_image"])
+    def test_create_volume_from_image(self):
+        name = data_utils.rand_name(self.__class__.__name__ + '-Volume')
+        size = CONF.volume.volume_size
+        img_uuid = CONF.compute.image_ref
+
+        with self.rbac_utils.override_role(self):
+            volume = self.volumes_client.create_volume(
+                name=name, size=size, imageRef=img_uuid)['volume']
+        # Use helper in base Tempest volume class which waits for deletion.
         self.addCleanup(self.delete_volume, self.volumes_client, volume['id'])
         waiters.wait_for_volume_resource_status(self.volumes_client,
                                                 volume['id'], 'available')
