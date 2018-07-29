@@ -27,8 +27,6 @@ tests."""),
     cfg.BoolOpt('enable_rbac',
                 default=True,
                 help="Enables RBAC tests."),
-    # TODO(rb560u): There needs to be support for reading these JSON files from
-    # other hosts. It may be possible to leverage the v3 identity policy API.
     cfg.ListOpt('custom_policy_files',
                 default=['/etc/%s/policy.json'],
                 help="""List of the paths to search for policy files. Each
