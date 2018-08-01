@@ -57,7 +57,7 @@ the out-of-the-box defaults are sanity-checked, to ensure that OpenStack
 services are secure, from an RBAC perspective, for each release.
 
 Patrole strives to validate RBAC by using the policy in code documentation,
-wherever possible.
+wherever possible. See :ref:`validation-workflow-overview` for more details.
 
 .. _custom-policies:
 
@@ -85,8 +85,7 @@ specifications via policy overrides, without:
 
 This has implications on Patrole's :ref:`design-principles`: validating custom
 overrides requires the ability to handle arbitrary roles, which requires logic
-capable of dynamically determining expected test behavior. See
-:ref:`rbac-validation` for more details.
+capable of dynamically determining expected test behavior.
 
 Note that support for custom policies is limited. This is because custom
 policies can be arbitrarily complex, requiring that tests be very robust
@@ -139,6 +138,39 @@ Most OpenStack services raise a ``403 Forbidden`` following failed
 :term:`hard authorization`. Neutron, however, can raise a ``404 NotFound``
 as well. See Neutron's `authorization policy enforcement`_ documentation
 for more details.
+
+Admin Context Policy
+--------------------
+
+The so-called "admin context" policy refers to the following policy definition
+(using the legacy policy file syntax):
+
+.. code-block:: javascript
+
+  {
+    "context_is_admin": "role:admin"
+    ...
+  }
+
+Which is unfortunately used to bypass ``oslo.policy`` authorization checks,
+for example:
+
+.. code-block:: python
+
+  # This function is responsible for calling oslo.policy to check whether
+  # requests are authorized to perform an API action.
+  def enforce(context, action, target, [...]):
+    # Here this condition, if True, skips over the enforce call below which
+    # is what calls oslo.policy.
+    if context.is_admin:
+        return True
+    _ENFORCER.enforce([...])  # This is what can be skipped over.
+    [...]
+
+This type of behavior is currently present in many services. Unless such
+logic is removed in the future for services that implement it, Patrole
+won't really be able to validate that admin role works from an ``oslo.policy``
+perspective.
 
 Glossary
 --------
