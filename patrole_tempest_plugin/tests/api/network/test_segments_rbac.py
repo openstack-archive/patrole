@@ -78,7 +78,8 @@ class SegmentsPluginRbacTest(base.BaseNetworkPluginRbacTest):
 
     @decorators.idempotent_id('c02618e7-bb20-1a3a-83c8-6eec2af08127')
     @rbac_rule_validation.action(service="neutron",
-                                 rules=["get_segment"])
+                                 rules=["get_segment"],
+                                 expected_error_codes=[404])
     def test_show_segment(self):
         """Show segment.
 
@@ -92,7 +93,8 @@ class SegmentsPluginRbacTest(base.BaseNetworkPluginRbacTest):
     @decorators.idempotent_id('c02618e7-bb20-1a3a-83c8-6eec2af08128')
     @rbac_rule_validation.action(service="neutron",
                                  rules=["get_segment",
-                                        "update_segment"])
+                                        "update_segment"],
+                                 expected_error_codes=[404, 403])
     def test_update_segment(self):
         """Update segment.
 
@@ -107,7 +109,8 @@ class SegmentsPluginRbacTest(base.BaseNetworkPluginRbacTest):
     @decorators.idempotent_id('c02618e7-bb20-1a3a-83c8-6eec2af08129')
     @rbac_rule_validation.action(service="neutron",
                                  rules=["get_segment",
-                                        "delete_segment"])
+                                        "delete_segment"],
+                                 expected_error_codes=[404, 403])
     def test_delete_segment(self):
         """Delete segment.
 
