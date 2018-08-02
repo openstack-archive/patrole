@@ -33,3 +33,41 @@ class BaseNetworkRbacTest(rbac_utils.RbacUtilsMixin,
     def setup_clients(cls):
         super(BaseNetworkRbacTest, cls).setup_clients()
         cls.setup_rbac_utils()
+
+
+class BaseNetworkPluginRbacTest(BaseNetworkRbacTest):
+    """Base class to be used with tests that require neutron-tempest-plugin.
+    """
+
+    @classmethod
+    def skip_checks(cls):
+        super(BaseNetworkPluginRbacTest, cls).skip_checks()
+
+        if not cls.is_neutron_tempest_plugin_avaliable():
+            msg = ("neutron-tempest-plugin not installed.")
+            raise cls.skipException(msg)
+
+    @classmethod
+    def is_neutron_tempest_plugin_avaliable(cls):
+        try:
+            import neutron_tempest_plugin  # noqa
+            return True
+        except ImportError:
+            return False
+
+    @classmethod
+    def get_client_manager(cls, credential_type=None, roles=None,
+                           force_new=None):
+        manager = super(BaseNetworkPluginRbacTest, cls).get_client_manager(
+            credential_type=credential_type,
+            roles=roles,
+            force_new=force_new
+        )
+
+        # Import neutron-tempest-plugin clients
+        if cls.is_neutron_tempest_plugin_avaliable():
+            from neutron_tempest_plugin.api import clients
+            neutron_tempest_manager = clients.Manager(manager.credentials)
+            cls.ntp_client = neutron_tempest_manager.network_client
+
+        return manager
