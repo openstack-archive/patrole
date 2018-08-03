@@ -77,7 +77,9 @@ class RbacUtilsFixture(fixtures.Fixture):
         }
         self.mock_test_obj = mock.Mock(
             __name__='patrole_unit_test', spec=test.BaseTestCase,
-            os_primary=mock.Mock(), **test_obj_kwargs)
+            os_primary=mock.Mock(),
+            get_auth_providers=mock.Mock(return_value=[mock.Mock()]),
+            **test_obj_kwargs)
 
         # Mock out functionality that can't be used by unit tests. Mocking out
         # time.sleep is a test optimization.

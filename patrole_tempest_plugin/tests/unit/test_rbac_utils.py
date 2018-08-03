@@ -57,9 +57,9 @@ class RBACUtilsTest(base.TestCase):
 
         roles_client.create_user_role_on_project.assert_called_once_with(
             self.rbac_utils.PROJECT_ID, self.rbac_utils.USER_ID, 'admin_id')
-        mock_test_obj.os_primary.auth_provider.clear_auth\
+        mock_test_obj.get_auth_providers()[0].clear_auth\
             .assert_called_once_with()
-        mock_test_obj.os_primary.auth_provider.set_auth\
+        mock_test_obj.get_auth_providers()[0].set_auth\
             .assert_called_once_with()
         mock_time.sleep.assert_called_once_with(1)
 
@@ -86,9 +86,9 @@ class RBACUtilsTest(base.TestCase):
             mock.call(self.rbac_utils.PROJECT_ID, self.rbac_utils.USER_ID,
                       'member_id')
         ])
-        mock_test_obj.os_primary.auth_provider.clear_auth.assert_has_calls(
+        mock_test_obj.get_auth_providers()[0].clear_auth.assert_has_calls(
             [mock.call()] * 2)
-        mock_test_obj.os_primary.auth_provider.set_auth.assert_has_calls(
+        mock_test_obj.get_auth_providers()[0].set_auth.assert_has_calls(
             [mock.call()] * 2)
         mock_time.sleep.assert_has_calls([mock.call(1)] * 2)
 
@@ -120,9 +120,9 @@ class RBACUtilsTest(base.TestCase):
             mock.call(self.rbac_utils.PROJECT_ID, self.rbac_utils.USER_ID,
                       'admin_id')
         ])
-        mock_test_obj.os_primary.auth_provider.clear_auth.assert_has_calls(
+        mock_test_obj.get_auth_providers()[0].clear_auth.assert_has_calls(
             [mock.call()] * 3)
-        mock_test_obj.os_primary.auth_provider.set_auth.assert_has_calls(
+        mock_test_obj.get_auth_providers()[0].set_auth.assert_has_calls(
             [mock.call()] * 3)
         mock_time.sleep.assert_has_calls([mock.call(1)] * 3)
 

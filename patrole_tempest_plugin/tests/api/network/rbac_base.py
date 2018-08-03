@@ -40,6 +40,15 @@ class BaseNetworkPluginRbacTest(BaseNetworkRbacTest):
     """
 
     @classmethod
+    def get_auth_providers(cls):
+        """Register auth_provider from neutron-tempest-plugin.
+        """
+        providers = super(BaseNetworkPluginRbacTest, cls).get_auth_providers()
+        if cls.is_neutron_tempest_plugin_avaliable():
+            providers.append(cls.ntp_client.auth_provider)
+        return providers
+
+    @classmethod
     def skip_checks(cls):
         super(BaseNetworkPluginRbacTest, cls).skip_checks()
 

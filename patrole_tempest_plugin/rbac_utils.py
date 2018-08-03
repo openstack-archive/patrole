@@ -137,7 +137,9 @@ class RbacUtils(object):
             with excutils.save_and_reraise_exception():
                 LOG.exception(exp)
         finally:
-            test_obj.os_primary.auth_provider.clear_auth()
+            auth_providers = test_obj.get_auth_providers()
+            for provider in auth_providers:
+                provider.clear_auth()
             # Fernet tokens are not subsecond aware so sleep to ensure we are
             # passing the second boundary before attempting to authenticate.
             # Only sleep if a token revocation occurred as a result of role
@@ -145,7 +147,9 @@ class RbacUtils(object):
             # ``[identity] admin_role`` == ``[patrole] rbac_test_role``.
             if not role_already_present:
                 time.sleep(1)
-            test_obj.os_primary.auth_provider.set_auth()
+
+            for provider in auth_providers:
+                provider.set_auth()
 
     def _get_roles_by_name(self):
         available_roles = self.admin_roles_client.list_roles()['roles']
@@ -217,6 +221,15 @@ class RbacUtilsMixin(object):
                 super(BaseRbacTest, cls).setup_clients()
                 cls.setup_rbac_utils()
     """
+
+    @classmethod
+    def get_auth_providers(cls):
+        """Returns list of auth_providers used within test.
+
+        Tests may redefine this method to include their own or third party
+        client auth_providers.
+        """
+        return [cls.os_primary.auth_provider]
 
     @classmethod
     def skip_rbac_checks(cls):
