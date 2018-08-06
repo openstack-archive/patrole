@@ -14,6 +14,7 @@
 #    under the License.
 
 from contextlib import contextmanager
+import sys
 import time
 
 from oslo_log import log as logging
@@ -95,11 +96,17 @@ class RbacUtils(object):
                 # if the API call above threw an exception, any code below this
                 # point in the test is not executed.
         """
+        test_obj._set_override_role_called()
         self._override_role(test_obj, True)
         try:
             # Execute the test.
             yield
         finally:
+            # Check whether an exception was raised. If so, remember that
+            # for future validation.
+            exc = sys.exc_info()[0]
+            if exc is not None:
+                test_obj._set_override_role_caught_exc()
             # This code block is always executed, no matter the result of the
             # test. Automatically switch back to the admin role for test clean
             # up.
@@ -222,6 +229,11 @@ class RbacUtilsMixin(object):
                 cls.setup_rbac_utils()
     """
 
+    # Shows if override_role was called.
+    __override_role_called = False
+    # Shows if exception raised during override_role.
+    __override_role_caught_exc = False
+
     @classmethod
     def get_auth_providers(cls):
         """Returns list of auth_providers used within test.
@@ -238,7 +250,7 @@ class RbacUtilsMixin(object):
                                "deprecated and will be removed in the S "
                                "release. Patrole tests will always be enabled "
                                "following installation of the Patrole Tempest "
-                               "plugin. Use a regex to skip tests.")
+                               "plugin. Use a regex to skip tests")
             versionutils.report_deprecated_feature(LOG, deprecation_msg)
             raise cls.skipException(
                 'Patrole testing not enabled so skipping %s.' % cls.__name__)
@@ -246,6 +258,33 @@ class RbacUtilsMixin(object):
     @classmethod
     def setup_rbac_utils(cls):
         cls.rbac_utils = RbacUtils(cls)
+
+    def _set_override_role_called(self):
+        """Helper for tracking whether ``override_role`` was called."""
+        self.__override_role_called = True
+
+    def _set_override_role_caught_exc(self):
+        """Helper for tracking whether exception was thrown inside
+        ``override_role``.
+        """
+        self.__override_role_caught_exc = True
+
+    def _validate_override_role_called(self):
+        """Idempotently validate that ``override_role`` is called and reset
+        its value to False for sequential tests.
+        """
+        was_called = self.__override_role_called
+        self.__override_role_called = False
+        return was_called
+
+    def _validate_override_role_caught_exc(self):
+        """Idempotently validate that exception was caught inside
+        ``override_role``, so that, by process of elimination, it can be
+        determined whether one was thrown outside (which is invalid).
+        """
+        caught_exception = self.__override_role_caught_exc
+        self.__override_role_caught_exc = False
+        return caught_exception
 
 
 def is_admin():

@@ -16,6 +16,7 @@
 """Fixtures for Patrole tests."""
 from __future__ import absolute_import
 
+from contextlib import contextmanager
 import fixtures
 import mock
 import time
@@ -116,6 +117,17 @@ class RbacUtilsFixture(fixtures.Fixture):
             # assert that mock calls were called as expected.
             new_role = 'member' if role_toggle else 'admin'
             self.set_roles(['admin', 'member'], [new_role])
+
+    @contextmanager
+    def real_override_role(self, test_obj):
+        """Actual call to ``override_role``.
+
+        Useful for ensuring all the necessary mocks are performed before
+        the method in question is called.
+        """
+        _rbac_utils = rbac_utils.RbacUtils(test_obj)
+        with _rbac_utils.override_role(test_obj):
+            yield
 
     def set_roles(self, roles, roles_on_project=None):
         """Set the list of available roles in the system.

@@ -16,12 +16,16 @@
 from tempest.lib import exceptions
 
 
-class RbacConflictingPolicies(exceptions.TempestException):
+class BasePatroleException(exceptions.TempestException):
+    message = "An unknown RBAC exception occurred"
+
+
+class RbacConflictingPolicies(BasePatroleException):
     message = ("Conflicting policies preventing this action from being "
                "performed.")
 
 
-class RbacMalformedResponse(exceptions.TempestException):
+class RbacMalformedResponse(BasePatroleException):
     message = ("The response body is missing the expected %(attribute)s due "
                "to policy enforcement failure.")
 
@@ -37,25 +41,25 @@ class RbacMalformedResponse(exceptions.TempestException):
         super(RbacMalformedResponse, self).__init__(**kwargs)
 
 
-class RbacResourceSetupFailed(exceptions.TempestException):
+class RbacResourceSetupFailed(BasePatroleException):
     message = "RBAC resource setup failed"
 
 
-class RbacOverPermissionException(exceptions.TempestException):
+class RbacOverPermissionException(BasePatroleException):
     """Raised when the expected result is failure but the actual result is
     pass.
     """
     message = "Unauthorized action was allowed to be performed"
 
 
-class RbacUnderPermissionException(exceptions.TempestException):
+class RbacUnderPermissionException(BasePatroleException):
     """Raised when the expected result is pass but the actual result is
     failure.
     """
     message = "Authorized action was not allowed to be performed"
 
 
-class RbacExpectedWrongException(exceptions.TempestException):
+class RbacExpectedWrongException(BasePatroleException):
     """Raised when the expected exception does not match the actual exception
     raised, when both are instances of Forbidden or NotFound, indicating
     the test provides a wrong argument to `expected_error_codes`.
@@ -64,16 +68,30 @@ class RbacExpectedWrongException(exceptions.TempestException):
                "instead. Actual exception: %(exception)s")
 
 
-class RbacInvalidServiceException(exceptions.TempestException):
+class RbacInvalidServiceException(BasePatroleException):
     """Raised when an invalid service is passed to ``rbac_rule_validation``
     decorator.
     """
     message = "Attempted to test an invalid service"
 
 
-class RbacParsingException(exceptions.TempestException):
+class RbacParsingException(BasePatroleException):
     message = "Attempted to test an invalid policy file or action"
 
 
-class RbacInvalidErrorCode(exceptions.TempestException):
+class RbacInvalidErrorCode(BasePatroleException):
     message = "Unsupported error code passed in test"
+
+
+class RbacOverrideRoleException(BasePatroleException):
+    """Raised when override_role is used incorrectly or fails somehow.
+
+    Used for safeguarding against false positives that might occur when the
+    expected exception isn't raised inside the ``override_role`` context.
+    Specifically, when:
+
+    * ``override_role`` isn't called
+    * an exception is raised before ``override_role`` context
+    * an exception is raised after ``override_role`` context
+    """
+    message = "Override role failure or incorrect usage"

@@ -180,6 +180,7 @@ def action(service, rule='', rules=None,
             expected_exception, irregular_msg = _get_exception_type(
                 exp_error_code)
 
+            caught_exception = None
             test_status = 'Allowed'
 
             try:
@@ -193,13 +194,16 @@ def action(service, rule='', rules=None,
                     LOG.error(msg)
             except (expected_exception,
                     rbac_exceptions.RbacConflictingPolicies,
-                    rbac_exceptions.RbacMalformedResponse) as e:
+                    rbac_exceptions.RbacMalformedResponse) as actual_exception:
+                caught_exception = actual_exception
                 test_status = 'Denied'
+
                 if irregular_msg:
                     LOG.warning(irregular_msg,
                                 test_func.__name__,
                                 ', '.join(rules),
                                 service)
+
                 if allowed:
                     msg = ("Role %s was not allowed to perform the following "
                            "actions: %s. Expected allowed actions: %s. "
@@ -209,8 +213,10 @@ def action(service, rule='', rules=None,
                                sorted(disallowed_rules)))
                     LOG.error(msg)
                     raise rbac_exceptions.RbacUnderPermissionException(
-                        "%s Exception was: %s" % (msg, e))
+                        "%s Exception was: %s" % (msg, actual_exception))
             except Exception as actual_exception:
+                caught_exception = actual_exception
+
                 if _check_for_expected_mismatch_exception(expected_exception,
                                                           actual_exception):
                     LOG.error('Expected and actual exceptions do not match. '
@@ -248,6 +254,14 @@ def action(service, rule='', rules=None,
                         service, test_func.__name__, ', '.join(rules),
                         "Allowed" if allowed else "Denied",
                         test_status)
+
+                # Sanity-check that ``override_role`` was called to eliminate
+                # false-positives and bad test flows resulting from exceptions
+                # getting raised too early, too late or not at all, within
+                # the scope of an RBAC test.
+                _validate_override_role_called(
+                    test_obj,
+                    actual_exception=caught_exception)
 
         return wrapper
     return decorator
@@ -389,7 +403,7 @@ def _get_exception_type(expected_error_code=_DEFAULT_ERROR_CODE):
         irregular_msg = ("NotFound exception was caught for test %s. Expected "
                          "policies which may have caused the error: %s. The "
                          "service %s throws a 404 instead of a 403, which is "
-                         "irregular.")
+                         "irregular")
     return expected_exception, irregular_msg
 
 
@@ -431,8 +445,63 @@ def _format_extra_target_data(test_obj, extra_target_data):
 
 def _check_for_expected_mismatch_exception(expected_exception,
                                            actual_exception):
+    """Checks that ``expected_exception`` matches ``actual_exception``.
+
+    Since Patrole must handle 403/404 it is important that the expected and
+    actual error codes match.
+
+    :param excepted_exception: Expected exception for test.
+    :param actual_exception: Actual exception raised by test.
+    :returns: True if match, else False.
+    :rtype: boolean
+    """
     permission_exceptions = (lib_exc.Forbidden, lib_exc.NotFound)
     if isinstance(actual_exception, permission_exceptions):
         if not isinstance(actual_exception, expected_exception.__class__):
             return True
     return False
+
+
+def _validate_override_role_called(test_obj, actual_exception):
+    """Validates that :func:`rbac_utils.RbacUtils.override_role` is called
+    during each Patrole test.
+
+    Useful for validating that the expected exception isn't raised too early
+    (before ``override_role`` call) or too late (after ``override_call``) or
+    at all (which is a bad test).
+
+    :param test_obj: An instance or subclass of ``tempest.test.BaseTestCase``.
+    :param actual_exception: Actual exception raised by test.
+    :raises RbacOverrideRoleException: If ``override_role`` isn't called, is
+        called too early, or is called too late.
+    """
+    called = test_obj._validate_override_role_called()
+    base_msg = ('This error is unrelated to RBAC and is due to either '
+                'an API or override role failure. Exception: %s' %
+                actual_exception)
+
+    if not called:
+        if actual_exception is not None:
+            msg = ('Caught exception (%s) but it was raised before the '
+                   '`override_role` context. ' % actual_exception.__class__)
+        else:
+            msg = 'Test missing required `override_role` call. '
+        msg += base_msg
+        LOG.error(msg)
+        raise rbac_exceptions.RbacOverrideRoleException(msg)
+    else:
+        exc_caught_in_ctx = test_obj._validate_override_role_caught_exc()
+        # This block is only executed if ``override_role`` is called. If
+        # an exception is raised and the exception wasn't raised in the
+        # ``override_role`` context and if the exception isn't a valid
+        # exception type (instance of ``BasePatroleException``), then this is
+        # a legitimate error.
+        if (not exc_caught_in_ctx and
+            actual_exception is not None and
+            not isinstance(actual_exception,
+                           rbac_exceptions.BasePatroleException)):
+            msg = ('Caught exception (%s) but it was raised after the '
+                   '`override_role` context. ' % actual_exception.__class__)
+            msg += base_msg
+            LOG.error(msg)
+            raise rbac_exceptions.RbacOverrideRoleException(msg)

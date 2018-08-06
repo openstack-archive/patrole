@@ -12,9 +12,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from __future__ import absolute_import
+
 import mock
 from oslo_config import cfg
 
+import fixtures
 from tempest.lib import exceptions
 from tempest import manager
 from tempest import test
@@ -23,7 +26,7 @@ from tempest.tests import base
 from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation as rbac_rv
 from patrole_tempest_plugin import rbac_utils
-from patrole_tempest_plugin.tests.unit import fixtures
+from patrole_tempest_plugin.tests.unit import fixtures as patrole_fixtures
 
 CONF = cfg.CONF
 
@@ -43,16 +46,24 @@ class BaseRBACRuleValidationTest(base.TestCase):
         setattr(self.mock_test_args.os_primary, 'credentials', mock_creds)
 
         self.useFixture(
-            fixtures.ConfPatcher(rbac_test_role='Member', group='patrole'))
+            patrole_fixtures.ConfPatcher(rbac_test_role='Member',
+                                         group='patrole'))
         # Disable patrole log for unit tests.
         self.useFixture(
-            fixtures.ConfPatcher(enable_reporting=False, group='patrole_log'))
+            patrole_fixtures.ConfPatcher(enable_reporting=False,
+                                         group='patrole_log'))
 
 
 class RBACRuleValidationTest(BaseRBACRuleValidationTest):
     """Test suite for validating fundamental functionality for the
     ``rbac_rule_validation`` decorator.
     """
+
+    def setUp(self):
+        super(RBACRuleValidationTest, self).setUp()
+        # This behavior is tested in separate test class below.
+        self.useFixture(fixtures.MockPatchObject(
+            rbac_rv, '_validate_override_role_called'))
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
     @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
@@ -269,7 +280,7 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
             mock_log.warning.assert_called_with(
                 "NotFound exception was caught for test %s. Expected policies "
                 "which may have caused the error: %s. The service %s throws a "
-                "404 instead of a 403, which is irregular.",
+                "404 instead of a 403, which is irregular",
                 test_policy.__name__,
                 ', '.join(policy_names),
                 mock.sentinel.service)
@@ -334,7 +345,7 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
         expected_irregular_msg = (
             "NotFound exception was caught for test %s. Expected policies "
             "which may have caused the error: %s. The service %s throws a "
-            "404 instead of a 403, which is irregular.")
+            "404 instead of a 403, which is irregular")
 
         actual_exception, actual_irregular_msg = \
             rbac_rv._get_exception_type(404)
@@ -385,6 +396,12 @@ class RBACRuleValidationLoggingTest(BaseRBACRuleValidationTest):
     Patrole RBAC validation work flows.
     """
 
+    def setUp(self):
+        super(RBACRuleValidationLoggingTest, self).setUp()
+        # This behavior is tested in separate test class below.
+        self.useFixture(fixtures.MockPatchObject(
+            rbac_rv, '_validate_override_role_called'))
+
     @mock.patch.object(rbac_rv, 'RBACLOG', autospec=True)
     @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
     def test_rbac_report_logging_disabled(self, mock_authority, mock_rbaclog):
@@ -392,7 +409,8 @@ class RBACRuleValidationLoggingTest(BaseRBACRuleValidationTest):
         is False
         """
         self.useFixture(
-            fixtures.ConfPatcher(enable_reporting=False, group='patrole_log'))
+            patrole_fixtures.ConfPatcher(enable_reporting=False,
+                                         group='patrole_log'))
 
         mock_authority.PolicyAuthority.return_value.allowed.return_value = True
 
@@ -410,7 +428,8 @@ class RBACRuleValidationLoggingTest(BaseRBACRuleValidationTest):
         True
         """
         self.useFixture(
-            fixtures.ConfPatcher(enable_reporting=True, group='patrole_log'))
+            patrole_fixtures.ConfPatcher(enable_reporting=True,
+                                         group='patrole_log'))
 
         mock_authority.PolicyAuthority.return_value.allowed.return_value = True
         policy_names = ['foo:bar', 'baz:qux']
@@ -432,6 +451,12 @@ class RBACRuleValidationLoggingTest(BaseRBACRuleValidationTest):
 
 class RBACRuleValidationNegativeTest(BaseRBACRuleValidationTest):
 
+    def setUp(self):
+        super(RBACRuleValidationNegativeTest, self).setUp()
+        # This behavior is tested in separate test class below.
+        self.useFixture(fixtures.MockPatchObject(
+            rbac_rv, '_validate_override_role_called'))
+
     @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
     def test_rule_validation_invalid_service_raises_exc(self, mock_authority):
         """Test that invalid service raises the appropriate exception."""
@@ -450,6 +475,12 @@ class RBACRuleValidationTestMultiPolicy(BaseRBACRuleValidationTest):
     """Test suite for validating multi-policy support for the
     ``rbac_rule_validation`` decorator.
     """
+
+    def setUp(self):
+        super(RBACRuleValidationTestMultiPolicy, self).setUp()
+        # This behavior is tested in separate test class below.
+        self.useFixture(fixtures.MockPatchObject(
+            rbac_rv, '_validate_override_role_called'))
 
     def _assert_policy_authority_called_with(self, rules, mock_authority):
         m_authority = mock_authority.PolicyAuthority.return_value
@@ -708,3 +739,189 @@ class RBACRuleValidationTestMultiPolicy(BaseRBACRuleValidationTest):
         # When expected_error_codes is provided rules must be as well.
         self.assertRaisesRegex(ValueError, error_re, _do_test,
                                None, None, None, [404])
+
+
+class RBACOverrideRoleValidationTest(BaseRBACRuleValidationTest):
+    """Class for validating that untimely exceptions (outside
+    ``override_role`` is called) result in test failures.
+
+    This regression tests false positives caused by test exceptions matching
+    the expected exception before or after the ``override_role`` context is
+    called. Also tests case where ``override_role`` is never called which is
+    an invalid Patrole test.
+
+    """
+
+    def setUp(self):
+        super(RBACOverrideRoleValidationTest, self).setUp()
+
+        # Mixin automatically initializes __override_role_called to False.
+        class FakeRbacTest(rbac_utils.RbacUtilsMixin, test.BaseTestCase):
+            def runTest(self):
+                pass
+
+        # Stub out problematic function calls.
+        FakeRbacTest.os_primary = mock.Mock(spec=manager.Manager)
+        FakeRbacTest.rbac_utils = self.useFixture(
+            patrole_fixtures.RbacUtilsFixture())
+        mock_creds = mock.Mock(user_id=mock.sentinel.user_id,
+                               project_id=mock.sentinel.project_id)
+        setattr(FakeRbacTest.os_primary, 'credentials', mock_creds)
+        setattr(FakeRbacTest.os_primary, 'auth_provider', mock.Mock())
+
+        self.parent_class = FakeRbacTest
+
+    @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
+    def test_rule_validation_override_role_called_inside_ctx(self,
+                                                             mock_authority):
+        """Test success case when the expected exception is raised within the
+        override_role context.
+        """
+        mock_authority.PolicyAuthority.return_value.allowed.return_value =\
+            False
+
+        class ChildRbacTest(self.parent_class):
+
+            @rbac_rv.action(mock.sentinel.service, rules=["fake:rule"],
+                            expected_error_codes=[404])
+            def test_called(self_):
+                with self_.rbac_utils.real_override_role(self_):
+                    raise exceptions.NotFound()
+
+        child_test = ChildRbacTest()
+        child_test.test_called()
+
+    @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
+    def test_rule_validation_override_role_patrole_exception_ignored(
+            self, mock_authority):
+        """Test success case where Patrole exception is raised (which is
+        valid in case of e.g. RbacMalformedException) after override_role
+        passes.
+        """
+        mock_authority.PolicyAuthority.return_value.allowed.return_value =\
+            True
+
+        class ChildRbacTest(self.parent_class):
+
+            @rbac_rv.action(mock.sentinel.service, rules=["fake:rule"],
+                            expected_error_codes=[404])
+            def test_called(self_):
+                with self_.rbac_utils.real_override_role(self_):
+                    pass
+                # Instances of BasePatroleException don't count as they are
+                # part of the validation work flow.
+                raise rbac_exceptions.BasePatroleException()
+
+        child_test = ChildRbacTest()
+        self.assertRaises(rbac_exceptions.BasePatroleException,
+                          child_test.test_called)
+
+    @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
+    def test_rule_validation_override_role_called_before_ctx(self,
+                                                             mock_authority):
+        """Test failure case when an exception that happens before
+        ``override_role`` context, even if it is the expected exception,
+        raises ``RbacOverrideRoleException``.
+        """
+        mock_authority.PolicyAuthority.return_value.allowed.return_value =\
+            False
+
+        # This behavior should work for supported (NotFound/Forbidden) and
+        # miscellaneous exceptions alike.
+        for exception_type in (exceptions.NotFound,
+                               Exception):
+            class ChildRbacTest(self.parent_class):
+
+                @rbac_rv.action(mock.sentinel.service, rules=["fake:rule"],
+                                expected_error_codes=[404])
+                def test_called_before(self_):
+                    raise exception_type()
+
+            child_test = ChildRbacTest()
+            test_re = ".*before.*"
+            self.assertRaisesRegex(rbac_exceptions.RbacOverrideRoleException,
+                                   test_re, child_test.test_called_before)
+
+    @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
+    def test_rule_validation_override_role_called_after_ctx(self,
+                                                            mock_authority):
+        """Test failure case when an exception that happens before
+        ``override_role`` context, even if it is the expected exception,
+        raises ``RbacOverrideRoleException``.
+        """
+        mock_authority.PolicyAuthority.return_value.allowed.return_value =\
+            False
+
+        # This behavior should work for supported (NotFound/Forbidden) and
+        # miscellaneous exceptions alike.
+        for exception_type in (exceptions.NotFound,
+                               Exception):
+            class ChildRbacTest(self.parent_class):
+
+                @rbac_rv.action(mock.sentinel.service, rules=["fake:rule"],
+                                expected_error_codes=[404])
+                def test_called_after(self_):
+                    with self_.rbac_utils.real_override_role(self_):
+                        pass
+                    # Simulates a test tearDown failure or some such.
+                    raise exception_type()
+
+            child_test = ChildRbacTest()
+            test_re = ".*after.*"
+            self.assertRaisesRegex(rbac_exceptions.RbacOverrideRoleException,
+                                   test_re, child_test.test_called_after)
+
+    @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
+    def test_rule_validation_override_role_never_called(self, mock_authority):
+        """Test failure case where override_role is **never** called."""
+        mock_authority.PolicyAuthority.return_value.allowed.return_value =\
+            False
+
+        class ChildRbacTest(self.parent_class):
+
+            @rbac_rv.action(mock.sentinel.service, rules=["fake:rule"],
+                            expected_error_codes=[404])
+            def test_never_called(self_):
+                pass
+
+        child_test = ChildRbacTest()
+        test_re = ".*missing required `override_role` call.*"
+        self.assertRaisesRegex(rbac_exceptions.RbacOverrideRoleException,
+                               test_re, child_test.test_never_called)
+
+    @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
+    def test_rule_validation_override_role_sequential_test_calls(
+            self, mock_authority):
+        """Test success/failure scenarios above across sequential test calls.
+        """
+        mock_authority.PolicyAuthority.return_value.allowed.return_value =\
+            False
+
+        class ChildRbacTest(self.parent_class):
+
+            @rbac_rv.action(mock.sentinel.service, rules=["fake:rule1"],
+                            expected_error_codes=[404])
+            def test_called(self_):
+                with self_.rbac_utils.real_override_role(self_):
+                    raise exceptions.NotFound()
+
+            @rbac_rv.action(mock.sentinel.service, rules=["fake:rule2"],
+                            expected_error_codes=[404])
+            def test_called_before(self_):
+                raise exceptions.NotFound()
+
+        test_re = ".*before.*"
+
+        # Test case where override role is called in first test but *not* in
+        # second test.
+        child_test1 = ChildRbacTest()
+        child_test1.test_called()
+        self.assertRaisesRegex(rbac_exceptions.RbacOverrideRoleException,
+                               test_re, child_test1.test_called_before)
+
+        # Test case where override role is *not* called in first test but is
+        # in second test.
+        child_test2 = ChildRbacTest()
+        self.assertRaisesRegex(rbac_exceptions.RbacOverrideRoleException,
+                               test_re, child_test2.test_called_before)
+        child_test2.test_called()
