@@ -13,11 +13,15 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from tempest.common import waiters
+from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
+
+CONF = config.CONF
 
 
 class VolumesBasicCrudV3RbacTest(rbac_base.BaseVolumeRbacTest):
@@ -31,8 +35,15 @@ class VolumesBasicCrudV3RbacTest(rbac_base.BaseVolumeRbacTest):
                                  rule="volume:create")
     @decorators.idempotent_id('426b08ef-6394-4d06-9128-965d5a6c38ef')
     def test_create_volume(self):
+        name = data_utils.rand_name(self.__class__.__name__ + '-Volume')
+        size = CONF.volume.volume_size
+
         with self.rbac_utils.override_role(self):
-            self.create_volume()
+            volume = self.volumes_client.create_volume(name=name, size=size)[
+                'volume']
+        self.addCleanup(self.delete_volume, self.volumes_client, volume['id'])
+        waiters.wait_for_volume_resource_status(self.volumes_client,
+                                                volume['id'], 'available')
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:delete")
@@ -41,19 +52,27 @@ class VolumesBasicCrudV3RbacTest(rbac_base.BaseVolumeRbacTest):
         volume = self.create_volume()
         with self.rbac_utils.override_role(self):
             self.volumes_client.delete_volume(volume['id'])
+        self.volumes_client.wait_for_resource_deletion(volume['id'])
 
     @rbac_rule_validation.action(service="cinder", rule="volume:get")
     @decorators.idempotent_id('c4c3fdd5-b1b1-49c3-b977-a9f40ee9257a')
-    def test_get_volume(self):
+    def test_show_volume(self):
         with self.rbac_utils.override_role(self):
             self.volumes_client.show_volume(self.volume['id'])
 
     @rbac_rule_validation.action(service="cinder",
                                  rule="volume:get_all")
     @decorators.idempotent_id('e3ab7906-b04b-4c45-aa11-1104d302f940')
-    def test_volume_list(self):
+    def test_list_volumes(self):
         with self.rbac_utils.override_role(self):
             self.volumes_client.list_volumes()
+
+    @decorators.idempotent_id('9b6d5beb-254f-4f1b-9906-0bdce4042f53')
+    @rbac_rule_validation.action(service="cinder",
+                                 rule="volume:get_all")
+    def test_list_volumes_with_details(self):
+        with self.rbac_utils.override_role(self):
+            self.volumes_client.list_volumes(detail=True)
 
     @rbac_rule_validation.action(service="cinder", rule="volume:update")
     @decorators.idempotent_id('b751b889-9a9b-40d8-ae7d-4b0f65e71ac7')
