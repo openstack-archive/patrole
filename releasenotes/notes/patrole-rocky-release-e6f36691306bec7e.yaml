@@ -1,0 +1,14 @@
+---
+prelude: >
+    This release is to tag the Patrole for OpenStack Rocky release.
+    After this release, Patrole will support below OpenStack Releases:
+
+      * Rocky
+      * Queens
+      * Pike
+
+    Current development of Patrole is for OpenStack Stein development
+    cycle. Every Patrole commit is also tested against master during
+    the Stein cycle. However, this does not necessarily mean that using
+    Patrole as of this tag will work against a Stein (or future release)
+    cloud.
