@@ -151,6 +151,7 @@
         tempest: true
         neutron: true
         neutron-segments: true
+        neutron-qos: true
 
 - job:
     name: patrole-plugin-member
