@@ -36,7 +36,7 @@ documentation.
 Design Principles
 -----------------
 
-As a `Tempest plugin`_, Patrole borrows some `design principles`_ from Tempest,
+As a `Tempest plugin`_, Patrole borrows some design principles from `Tempest design principles`_,
 but not all, as its testing scope is confined to policies.
 
 * *Stability*. Patrole uses OpenStack public interfaces. Tests in Patrole
@@ -76,7 +76,7 @@ but not all, as its testing scope is confined to policies.
 * *Self-testing*. Patrole should be self-testing.
 
 .. _Tempest plugin: https://docs.openstack.org/tempest/latest/plugin.html
-.. _design principles: https://docs.openstack.org/tempest/latest/overview.html#design-principles
+.. _Tempest design principles: https://docs.openstack.org/tempest/latest/overview.html#design-principles
 .. _policy in code: https://specs.openstack.org/openstack/oslo-specs/specs/newton/policy-in-code.html
 .. _Nova repository: https://github.com/openstack/nova/tree/master/nova/policies
 .. _Keystone repository: https://github.com/openstack/keystone/tree/master/keystone/common/policies
@@ -120,7 +120,7 @@ Terminology
 Quickstart
 ----------
 To run Patrole, you must first have `Tempest`_ installed and configured
-properly. Please reference Tempest's `Quickstart`_ guide to do so. Follow all
+properly. Please reference `Tempest_quickstart`_ guide to do so. Follow all
 the steps outlined therein. Afterward, proceed with the steps below.
 
 #. You first need to install Patrole. This is done with pip after you check out
@@ -139,7 +139,7 @@ the steps outlined therein. Afterward, proceed with the steps below.
 
 #. Next you must properly configure Patrole, which is relatively
    straightforward. For details on configuring Patrole refer to the
-   :ref:`patrole-configuration`.
+   `Patrole Configuration <https://docs.openstack.org/patrole/latest/configuration.html#patrole-configuration>`_.
 
 #. Once the configuration is done you're now ready to run Patrole. This can
    be done using the `tempest_run`_ command. This can be done by running::
@@ -170,14 +170,14 @@ the steps outlined therein. Afterward, proceed with the steps below.
 
 #. Log information from tests is captured in ``tempest.log`` under the Tempest
    repository. Some Patrole debugging information is captured in that log
-   related to expected test results and :ref:`role-overriding`.
+   related to expected test results and `Role Overriding <https://docs.openstack.org/patrole/latest/framework/rbac_utils.html#role-overriding>`_.
 
    More detailed RBAC testing log output is emitted to ``patrole.log`` under
    the Patrole repository. To configure Patrole's logging, see the
-   :ref:`patrole-configuration` guide.
+   `Patrole Configuration Guide <https://docs.openstack.org/patrole/latest/configuration.html#patrole-configuration>`_.
 
 .. _Tempest: https://github.com/openstack/tempest
-.. _Quickstart: https://docs.openstack.org/tempest/latest/overview.html#quickstart
+.. _Tempest_quickstart: https://docs.openstack.org/tempest/latest/overview.html#quickstart
 .. _tempest_run: https://docs.openstack.org/tempest/latest/run.html
 .. _testr: https://testrepository.readthedocs.org/en/latest/MANUAL.html
 .. _ostestr: https://docs.openstack.org/os-testr/latest/
