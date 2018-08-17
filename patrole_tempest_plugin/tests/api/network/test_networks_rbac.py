@@ -110,8 +110,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
 
     @rbac_rule_validation.action(service="neutron",
                                  rules=["create_network",
-                                        "create_network:is_default"],
-                                 expected_error_codes=[403, 403])
+                                        "create_network:is_default"])
     @decorators.idempotent_id('28602661-5ac7-407e-b739-e393f619f5e3')
     def test_create_network_is_default(self):
 
@@ -129,8 +128,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
 
     @rbac_rule_validation.action(service="neutron",
                                  rules=["create_network",
-                                        "create_network:shared"],
-                                 expected_error_codes=[403, 403])
+                                        "create_network:shared"])
     @decorators.idempotent_id('ccabf2a9-28c8-44b2-80e6-ffd65d43eef2')
     def test_create_network_shared(self):
 
@@ -144,8 +142,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
     @utils.requires_ext(extension='external-net', service='network')
     @rbac_rule_validation.action(service="neutron",
                                  rules=["create_network",
-                                        "create_network:router:external"],
-                                 expected_error_codes=[403, 403])
+                                        "create_network:router:external"])
     @decorators.idempotent_id('51adf2a7-739c-41e0-8857-3b4c460cbd24')
     def test_create_network_router_external(self):
 
@@ -160,8 +157,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
     @rbac_rule_validation.action(
         service="neutron",
         rules=["create_network",
-               "create_network:provider:physical_network"],
-        expected_error_codes=[403, 403])
+               "create_network:provider:physical_network"])
     @decorators.idempotent_id('76783fed-9ff3-4499-a0d1-82d99eec364e')
     def test_create_network_provider_physical_network(self):
 
@@ -184,8 +180,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
     @rbac_rule_validation.action(
         service="neutron",
         rules=["create_network",
-               "create_network:provider:network_type"],
-        expected_error_codes=[403, 403])
+               "create_network:provider:network_type"])
     @decorators.idempotent_id('3c42f7b8-b80c-44ef-8fa4-69ec4b1836bc')
     def test_create_network_provider_network_type(self):
 
@@ -200,8 +195,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
     @rbac_rule_validation.action(
         service="neutron",
         rules=["create_network",
-               "create_network:provider:segmentation_id"],
-        expected_error_codes=[403, 403])
+               "create_network:provider:segmentation_id"])
     @decorators.idempotent_id('b9decb7b-68ef-4504-b99b-41edbf7d2af5')
     def test_create_network_provider_segmentation_id(self):
 

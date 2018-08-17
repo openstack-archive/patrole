@@ -65,8 +65,7 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
 
     @rbac_rule_validation.action(service="neutron",
                                  rules=["create_subnetpool",
-                                        "create_subnetpool:shared"],
-                                 expected_error_codes=[403, 403])
+                                        "create_subnetpool:shared"])
     @decorators.idempotent_id('cf730989-0d47-40bc-b39a-99e7de484723')
     def test_create_subnetpool_shared(self):
         """Create subnetpool shared.
@@ -107,8 +106,7 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
     @decorators.idempotent_id('a16f4e5c-0675-415f-b636-00af00638693')
     @rbac_rule_validation.action(service="neutron",
                                  rules=["update_subnetpool",
-                                        "update_subnetpool:is_default"],
-                                 expected_error_codes=[403, 403])
+                                        "update_subnetpool:is_default"])
     def test_update_subnetpool_is_default(self):
         """Update default subnetpool.
 

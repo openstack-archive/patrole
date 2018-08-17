@@ -110,7 +110,7 @@ def action(service, rule='', rules=None,
         c) if both api_action1 and api_action2 fail, then the expected error
            code is the first error seen (404).
 
-        If an error code is missing from the list, it is defaulted to 403.
+        If it is not passed, then it is defaulted to 403.
 
     :param dict extra_target_data: Dictionary, keyed with ``oslo.policy``
         generic check names, whose values are string literals that reference
