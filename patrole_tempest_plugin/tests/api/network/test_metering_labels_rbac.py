@@ -58,8 +58,8 @@ class MeteringLabelsRbacTest(base.BaseNetworkRbacTest):
             self._create_metering_label()
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_metering_label",
-                                 expected_error_code=404)
+                                 rules=["get_metering_label"],
+                                 expected_error_codes=[404])
     @decorators.idempotent_id('c57f6636-c702-4755-8eac-5e73bc1f7d14')
     def test_show_metering_label(self):
         """Show metering label.

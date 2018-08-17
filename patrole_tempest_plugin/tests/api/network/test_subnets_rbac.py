@@ -50,8 +50,8 @@ class SubnetsRbacTest(base.BaseNetworkRbacTest):
 
     @decorators.idempotent_id('c02618e7-bb20-4abd-83c8-6eec2af08752')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_subnet",
-                                 expected_error_code=404)
+                                 rules=["get_subnet"],
+                                 expected_error_codes=[404])
     def test_show_subnet(self):
         """Show subnet.
 

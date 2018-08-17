@@ -38,8 +38,8 @@ class AgentsRbacTest(base.BaseNetworkRbacTest):
 
     @decorators.idempotent_id('f88e38e0-ab52-4b97-8ffa-48a27f9d199b')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_agent",
-                                 expected_error_code=404)
+                                 rules=["get_agent"],
+                                 expected_error_codes=[404])
     def test_show_agent(self):
         """Show agent test.
 

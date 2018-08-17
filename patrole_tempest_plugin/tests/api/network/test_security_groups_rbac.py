@@ -78,8 +78,8 @@ class SecGroupRbacTest(base.BaseNetworkRbacTest):
             self._create_security_group()
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_security_group",
-                                 expected_error_code=404)
+                                 rules=["get_security_group"],
+                                 expected_error_codes=[404])
     @decorators.idempotent_id('56335e77-aef2-4b54-86c7-7f772034b585')
     def test_show_security_group(self):
 
@@ -149,8 +149,8 @@ class SecGroupRbacTest(base.BaseNetworkRbacTest):
                 sec_group_rule['id'])
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_security_group_rule",
-                                 expected_error_code=404)
+                                 rules=["get_security_group_rule"],
+                                 expected_error_codes=[404])
     @decorators.idempotent_id('84b4038c-261e-4a94-90d5-c885739ab0d5')
     def test_show_security_group_rule(self):
 

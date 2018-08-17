@@ -338,8 +338,8 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
                 str(exc))
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_network",
-                                 expected_error_code=404)
+                                 rules=["get_network"],
+                                 expected_error_codes=[404])
     @decorators.idempotent_id('0eb62d04-338a-4ff4-a8fa-534e52110534')
     def test_show_network(self):
 

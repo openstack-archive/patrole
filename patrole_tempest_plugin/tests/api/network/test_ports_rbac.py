@@ -166,8 +166,8 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
             self.create_port(**post_body)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_port",
-                                 expected_error_code=404)
+                                 rules=["get_port"],
+                                 expected_error_codes=[404])
     @decorators.idempotent_id('a9d41cb8-78a2-4b97-985c-44e4064416f4')
     def test_show_port(self):
         with self.rbac_utils.override_role(self):
