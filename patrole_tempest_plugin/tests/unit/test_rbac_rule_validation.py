@@ -641,6 +641,7 @@ class RBACRuleValidationTestMultiPolicy(BaseRBACRuleValidationTest):
         m_authority.allowed.assert_has_calls([
             mock.call(rule, CONF.patrole.rbac_test_roles) for rule in rules
         ])
+        m_authority.allowed.reset_mock()
 
     @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
     def test_rule_validation_multi_policy_have_permission_success(
@@ -825,6 +826,44 @@ class RBACRuleValidationTestMultiPolicy(BaseRBACRuleValidationTest):
 
         _do_test([True, False, False, True], 'mock.sentinel.action2')
         _do_test([True, False, True, False], 'mock.sentinel.action2')
+
+    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
+    @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
+    def test_rule_validation_multi_policy_defaults_to_correct_error_codes(
+            self, mock_authority, mock_log):
+        """Test omission of expected_error_codes defaults to [403] * len(rules)
+        """
+        mock_authority.PolicyAuthority.return_value.allowed.\
+            return_value = False
+        expected_log = "%s: Expecting %d to be raised for policy name: %s"
+
+        # Validate with single rule => expected_error_codes == [403].
+        rules = [mock.sentinel.action1]
+
+        @rbac_rv.action(mock.sentinel.service, rules=rules)
+        def test_policy(*args):
+            raise exceptions.Forbidden()
+
+        test_policy(self.mock_test_args)
+        self._assert_policy_authority_called_with(rules, mock_authority)
+        # Assert that 403 is expected.
+        mock_calls = [x[1] for x in mock_log.debug.mock_calls]
+        self.assertTrue(
+            any([(expected_log, 'test_policy', 403, rules[0]) in mock_calls]))
+
+        # Validate with multiple rules => expected_error_codes == [403, 403].
+        rules = [mock.sentinel.action1, mock.sentinel.action2]
+
+        @rbac_rv.action(mock.sentinel.service, rules=rules)
+        def test_policy(*args):
+            raise exceptions.Forbidden()
+
+        test_policy(self.mock_test_args)
+        self._assert_policy_authority_called_with(rules, mock_authority)
+        # Assert that 403 is expected.
+        mock_calls = [x[1] for x in mock_log.debug.mock_calls]
+        self.assertTrue(
+            any([(expected_log, 'test_policy', 403, rules[0]) in mock_calls]))
 
     def test_prepare_multi_policy_allowed_usages(self):
 
