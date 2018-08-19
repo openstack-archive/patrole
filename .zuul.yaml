@@ -172,6 +172,8 @@
       tempest_test_regex: (?=.*PluginRbacTest)(^patrole_tempest_plugin\.tests\.api)
 
 - project:
+    templates:
+      - openstack-python36-jobs
     check:
       jobs:
         - patrole-admin
