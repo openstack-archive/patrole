@@ -129,6 +129,8 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         waiters.wait_for_server_status(
             self.servers_client, self.server['id'], 'ACTIVE')
 
+    @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
+                      "This API extension policy was removed in Stein")
     @utils.requires_ext(extension='os-config-drive', service='compute')
     @decorators.idempotent_id('2c82e819-382d-4d6f-87f0-a45954cbbc64')
     @rbac_rule_validation.action(
@@ -144,6 +146,8 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             raise rbac_exceptions.RbacMalformedResponse(
                 attribute=expected_attr)
 
+    @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
+                      "This API extension policy was removed in Stein")
     @utils.requires_ext(extension='os-config-drive', service='compute')
     @decorators.idempotent_id('55c62ef7-b72b-4970-acc6-05b0a4316e5d')
     @rbac_rule_validation.action(
@@ -169,6 +173,8 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             # Force-deleting a server enforces os-deferred-delete.
             self.servers_client.force_delete_server(self.server['id'])
 
+    @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
+                      "This API extension policy was removed in Stein")
     @decorators.idempotent_id('d873740a-7b10-40a9-943d-7cc18115370e')
     @utils.requires_ext(extension='OS-EXT-AZ', service='compute')
     @rbac_rule_validation.action(
@@ -185,6 +191,8 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             raise rbac_exceptions.RbacMalformedResponse(
                 attribute=expected_attr)
 
+    @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
+                      "This API extension policy was removed in Stein")
     @decorators.idempotent_id('727e5360-770a-4b9c-8015-513a40216635')
     @utils.requires_ext(extension='OS-EXT-AZ', service='compute')
     @rbac_rule_validation.action(
@@ -200,6 +208,8 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             raise rbac_exceptions.RbacMalformedResponse(
                 attribute=expected_attr)
 
+    @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
+                      "This API extension policy was removed in Stein")
     @decorators.idempotent_id('4aa5d93e-4887-468a-8eb4-b6eca0ca6437')
     @utils.requires_ext(extension='OS-EXT-SRV-ATTR', service='compute')
     @rbac_rule_validation.action(
@@ -222,6 +232,8 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                 raise rbac_exceptions.RbacMalformedResponse(
                     attribute=whole_attr)
 
+    @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
+                      "This API extension policy was removed in Stein")
     @decorators.idempotent_id('2ed7aee2-94b2-4a9f-ae63-a51b7f94fe30')
     @utils.requires_ext(extension='OS-EXT-SRV-ATTR', service='compute')
     @rbac_rule_validation.action(
@@ -244,6 +256,8 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                 raise rbac_exceptions.RbacMalformedResponse(
                     attribute=whole_attr)
 
+    @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
+                      "This API extension policy was removed in Stein")
     @decorators.idempotent_id('82053c27-3134-4003-9b55-bc9fafdb0e3b')
     @utils.requires_ext(extension='OS-EXT-STS', service='compute')
     @rbac_rule_validation.action(
@@ -261,6 +275,8 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                 raise rbac_exceptions.RbacMalformedResponse(
                     attribute=attr)
 
+    @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
+                      "This API extension policy was removed in Stein")
     @decorators.idempotent_id('7d2620a5-eea1-4a8b-96ea-86ad77a73fc8')
     @utils.requires_ext(extension='OS-EXT-STS', service='compute')
     @rbac_rule_validation.action(
@@ -278,6 +294,8 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                 raise rbac_exceptions.RbacMalformedResponse(
                     attribute=attr)
 
+    @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
+                      "This API extension policy was removed in Stein")
     @decorators.idempotent_id('21e39cbe-6c32-48fc-80dd-3e1fece6053f')
     @utils.requires_ext(extension='os-extended-volumes', service='compute')
     @rbac_rule_validation.action(
@@ -295,6 +313,8 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             raise rbac_exceptions.RbacMalformedResponse(
                 attribute=expected_attr)
 
+    @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
+                      "This API extension policy was removed in Stein")
     @decorators.idempotent_id('7f163708-0d25-4138-8512-dfdd72a92989')
     @utils.requires_ext(extension='os-extended-volumes', service='compute')
     @rbac_rule_validation.action(
@@ -348,6 +368,8 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             raise rbac_exceptions.RbacMalformedResponse(
                 attribute='events.traceback')
 
+    @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
+                      "This API extension policy was removed in Stein")
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-keypairs")
@@ -360,6 +382,8 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             raise rbac_exceptions.RbacMalformedResponse(
                 attribute='key_name')
 
+    @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
+                      "This API extension policy was removed in Stein")
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:os-keypairs")
@@ -469,6 +493,8 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         with self.rbac_utils.override_role(self):
             self.servers_client.show_password(self.server['id'])
 
+    @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
+                      "This API extension policy was removed in Stein")
     @utils.requires_ext(extension='OS-SRV-USG', service='compute')
     @rbac_rule_validation.action(
         service="nova",

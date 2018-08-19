@@ -13,6 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import testtools
+
 from tempest.common import image as common_image
 from tempest import config
 from tempest.lib.common.utils import data_utils
@@ -20,6 +22,7 @@ from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 from tempest.lib import exceptions as lib_exc
 
+from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
 
@@ -245,18 +248,67 @@ class ImageSizeRbacTest(rbac_base.BaseV2ComputeRbacTest):
     # https://developer.openstack.org/api-ref/compute/#images-deprecated
     max_microversion = '2.35'
 
+    @classmethod
+    def skip_checks(cls):
+        super(ImageSizeRbacTest, cls).skip_checks()
+        if not CONF.service_available.glance:
+            skip_msg = ("%s skipped as glance is not available" % cls.__name__)
+            raise cls.skipException(skip_msg)
+
+    @classmethod
+    def setup_clients(cls):
+        super(ImageSizeRbacTest, cls).setup_clients()
+        if CONF.image_feature_enabled.api_v2:
+            cls.glance_image_client = cls.os_primary.image_client_v2
+        elif CONF.image_feature_enabled.api_v1:
+            cls.glance_image_client = cls.os_primary.image_client
+        else:
+            raise lib_exc.InvalidConfiguration(
+                'Either api_v1 or api_v2 must be True in '
+                '[image-feature-enabled].')
+
+    @classmethod
+    def resource_setup(cls):
+        super(ImageSizeRbacTest, cls).resource_setup()
+        params = {'name': data_utils.rand_name(cls.__name__ + '-image')}
+        if CONF.image_feature_enabled.api_v1:
+            params = {'headers': common_image.image_meta_to_headers(**params)}
+
+        cls.image = cls.glance_image_client.create_image(**params)
+        cls.addClassResourceCleanup(
+            cls.glance_image_client.wait_for_resource_deletion,
+            cls.image['id'])
+        cls.addClassResourceCleanup(
+            cls.glance_image_client.delete_image, cls.image['id'])
+
+    @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
+                      "This API extension policy was removed in Stein")
     @decorators.idempotent_id('fe34d2a6-5743-45bf-8f92-a1d703d7c7ab')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:image-size")
-    def test_list_images(self):
+    def test_show_image_includes_image_size(self):
         with self.rbac_utils.override_role(self):
-            self.compute_images_client.list_images()
+            body = self.compute_images_client.show_image(self.image['id'])[
+                'image']
 
+        expected_attr = 'OS-EXT-IMG-SIZE:size'
+        if expected_attr not in body:
+            raise rbac_exceptions.RbacMalformedResponse(
+                attribute=expected_attr)
+
+    @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
+                      "This API extension policy was removed in Stein")
     @decorators.idempotent_id('08342c7d-297d-42ee-b398-90fce2443792')
     @rbac_rule_validation.action(
         service="nova",
         rule="os_compute_api:image-size")
-    def test_list_images_with_details(self):
+    def test_list_images_with_details_includes_image_size(self):
         with self.rbac_utils.override_role(self):
-            self.compute_images_client.list_images(detail=True)
+            body = self.compute_images_client.list_images(detail=True)[
+                'images']
+
+        expected_attr = 'OS-EXT-IMG-SIZE:size'
+        if expected_attr not in body[0]:
+            raise rbac_exceptions.RbacMalformedResponse(
+                attribute=expected_attr)

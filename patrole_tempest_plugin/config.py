@@ -160,7 +160,17 @@ was changed in a backwards-incompatible way."""),
                 default=True,
                 help="""Is the Cinder policy
 "volume_extension:volume_actions:unreserve" available in the cloud? This policy
-was changed in a backwards-incompatible way.""")
+was changed in a backwards-incompatible way."""),
+    # *** Include feature flags for groups of policies below. ***
+    # Best practice is to capture new policies, removed policies, renamed
+    # policies in a group, per release.
+    #
+    # TODO(felipemonteiro): Remove these feature flags once Stein is EOL.
+    cfg.BoolOpt('removed_nova_policies_stein',
+                default=True,
+                help="""Are the Nova API extension policies available in the
+cloud (e.g. os_compute_api:os-extended-availability-zone)? These policies were
+removed in Stein because Nova API extension concept was removed in Pike."""),
 ]
 
 

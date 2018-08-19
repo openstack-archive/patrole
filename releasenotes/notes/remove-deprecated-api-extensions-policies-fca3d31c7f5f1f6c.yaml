@@ -1,0 +1,23 @@
+---
+features:
+  - |
+    A new policy feature flag called
+    ``[policy_feature_flag].removed_nova_policies_stein`` has been added to
+    Patrole's config to handle Nova API extension policies removed in Stein.
+
+    The policy feature flag is applied to tests that validate response bodies
+    for expected attributes previously returned for the following policies
+    that passed authorization:
+
+      - os_compute_api:os-config-drive
+      - os_compute_api:os-extended-availability-zone
+      - os_compute_api:os-extended-status
+      - os_compute_api:os-extended-volumes
+      - os_compute_api:os-keypairs
+      - os_compute_api:os-server-usage
+      - os_compute_api:os-flavor-rxtx
+      - os_compute_api:os-flavor-access (only from /flavors APIs)
+      - os_compute_api:image-size
+
+    Note that not all removed policies are included above because test coverage
+    is missing for them (like os_compute_api:os-security-groups).
