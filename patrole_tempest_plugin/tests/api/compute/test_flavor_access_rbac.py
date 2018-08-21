@@ -13,8 +13,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from tempest import config
+import testtools
 
+from tempest import config
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
@@ -34,6 +35,8 @@ class FlavorAccessRbacTest(rbac_base.BaseV2ComputeRbacTest):
         cls.public_flavor_id = CONF.compute.flavor_ref
         cls.tenant_id = cls.os_primary.credentials.tenant_id
 
+    @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
+                      "This API extension policy was removed in Stein")
     @decorators.idempotent_id('a2bd3740-765d-4c95-ac98-9e027378c75e')
     @rbac_rule_validation.action(
         service="nova",
@@ -50,6 +53,8 @@ class FlavorAccessRbacTest(rbac_base.BaseV2ComputeRbacTest):
             raise rbac_exceptions.RbacMalformedResponse(
                 attribute=expected_attr)
 
+    @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
+                      "This API extension policy was removed in Stein")
     @decorators.idempotent_id('dd388146-9750-4124-82ba-62deff1052bb')
     @rbac_rule_validation.action(
         service="nova",

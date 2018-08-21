@@ -13,6 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import testtools
+
 from tempest.common import utils
 from tempest import config
 from tempest.lib import decorators
@@ -33,6 +35,8 @@ class FlavorRxtxRbacTest(rbac_base.BaseV2ComputeRbacTest):
             msg = "os-flavor-rxtx extension not enabled."
             raise cls.skipException(msg)
 
+    @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
+                      "This API extension policy was removed in Stein")
     @decorators.idempotent_id('5e1fd9f0-9a08-485a-ad9c-0fc66e4d64b7')
     @rbac_rule_validation.action(
         service="nova",
@@ -44,6 +48,8 @@ class FlavorRxtxRbacTest(rbac_base.BaseV2ComputeRbacTest):
             raise rbac_exceptions.RbacMalformedResponse(
                 attribute='rxtx_factor')
 
+    @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
+                      "This API extension policy was removed in Stein")
     @decorators.idempotent_id('70c55a07-c843-4627-a29d-ba78673c1e63')
     @rbac_rule_validation.action(
         service="nova",

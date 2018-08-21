@@ -26,12 +26,18 @@ function install_patrole_tempest_plugin {
         iniset $TEMPEST_CONFIG policy-feature-enabled volume_extension_volume_actions_attach_policy False
         iniset $TEMPEST_CONFIG policy-feature-enabled volume_extension_volume_actions_reserve_policy False
         iniset $TEMPEST_CONFIG policy-feature-enabled volume_extension_volume_actions_unreserve_policy False
+
+        # These policies were removed in Stein but are available in Pike.
+        iniset $TEMPEST_CONFIG policy-feature-enabled removed_nova_policies_stein False
     fi
 
     if [[ ${DEVSTACK_SERIES} == 'queens' ]]; then
         if [[ "$RBAC_TEST_ROLE" == "member" ]]; then
             RBAC_TEST_ROLE="Member"
         fi
+
+        # These policies were removed in Stein but are available in Queens.
+        iniset $TEMPEST_CONFIG policy-feature-enabled removed_nova_policies_stein False
     fi
 
     iniset $TEMPEST_CONFIG patrole enable_rbac True
