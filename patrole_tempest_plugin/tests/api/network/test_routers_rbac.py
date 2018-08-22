@@ -72,8 +72,7 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
     @utils.requires_ext(extension='l3-ha', service='network')
     @rbac_rule_validation.action(service="neutron",
                                  rules=["create_router",
-                                        "create_router:ha"],
-                                 expected_error_codes=[403, 403])
+                                        "create_router:ha"])
     def test_create_high_availability_router(self):
         """Create high-availability router
 
@@ -88,8 +87,7 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
     @utils.requires_ext(extension='dvr', service='network')
     @rbac_rule_validation.action(service="neutron",
                                  rules=["create_router",
-                                        "create_router:distributed"],
-                                 expected_error_codes=[403, 403])
+                                        "create_router:distributed"])
     def test_create_distributed_router(self):
         """Create distributed router
 
@@ -104,8 +102,7 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
     @rbac_rule_validation.action(
         service="neutron",
         rules=["create_router",
-               "create_router:external_gateway_info:enable_snat"],
-        expected_error_codes=[403, 403])
+               "create_router:external_gateway_info:enable_snat"])
     @decorators.idempotent_id('3c5acd49-0ec7-4109-ab51-640557b48ebc')
     def test_create_router_enable_snat(self):
         """Create Router Snat
@@ -126,8 +123,7 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
     @rbac_rule_validation.action(
         service="neutron",
         rules=["create_router",
-               "create_router:external_gateway_info:external_fixed_ips"],
-        expected_error_codes=[403, 403])
+               "create_router:external_gateway_info:external_fixed_ips"])
     @decorators.idempotent_id('d0354369-a040-4349-b869-645c8aed13cd')
     def test_create_router_external_fixed_ips(self):
         """Create Router Fixed IPs

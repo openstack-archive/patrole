@@ -67,8 +67,7 @@ class NetworkSegmentsRbacTest(base.BaseNetworkRbacTest):
 
     @rbac_rule_validation.action(service="neutron",
                                  rules=["create_network",
-                                        "create_network:segments"],
-                                 expected_error_codes=[403, 403])
+                                        "create_network:segments"])
     @decorators.idempotent_id('9e1d0c3d-92e3-40e3-855e-bfbb72ea6e0b')
     def test_create_network_segments(self):
         """Create network with segments.

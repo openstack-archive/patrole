@@ -76,8 +76,7 @@ class FloatingIpsRbacTest(base.BaseNetworkRbacTest):
     @rbac_rule_validation.action(
         service="neutron",
         rules=["create_floatingip",
-               "create_floatingip:floating_ip_address"],
-        expected_error_codes=[403, 403])
+               "create_floatingip:floating_ip_address"])
     @decorators.idempotent_id('a8bb826a-403d-4130-a55d-120a0a660806')
     def test_create_floating_ip_floatingip_address(self):
         """Create floating IP with address.
