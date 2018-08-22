@@ -105,8 +105,8 @@ class FloatingIpsRbacTest(base.BaseNetworkRbacTest):
                 floating_ip['id'], port_id=None)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_floatingip",
-                                 expected_error_code=404)
+                                 rules=["get_floatingip"],
+                                 expected_error_codes=[404])
     @decorators.idempotent_id('f8846fd0-c976-48fe-a148-105303931b32')
     def test_show_floating_ip(self):
         """Show floating IP.

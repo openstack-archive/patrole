@@ -77,8 +77,8 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
             self._create_subnetpool(shared=True)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_subnetpool",
-                                 expected_error_code=404)
+                                 rules=["get_subnetpool"],
+                                 expected_error_codes=[404])
     @decorators.idempotent_id('4f5aee26-0507-4b6d-b44c-3128a25094d2')
     def test_show_subnetpool(self):
         """Show subnetpool.

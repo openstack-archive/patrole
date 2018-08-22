@@ -151,8 +151,8 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
                         router['router']['id'])
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_router",
-                                 expected_error_code=404)
+                                 rules=["get_router"],
+                                 expected_error_codes=[404])
     @decorators.idempotent_id('bfbdbcff-f115-4d3e-8cd5-6ada33fd0e21')
     def test_show_router(self):
         """Get Router

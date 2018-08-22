@@ -68,8 +68,8 @@ class ImagesMemberRbacTest(base.BaseV2ImageRbacTest):
                                                          self.alt_tenant_id)
 
     @rbac_rule_validation.action(service="glance",
-                                 rule="get_member",
-                                 expected_error_code=404)
+                                 rules=["get_member"],
+                                 expected_error_codes=[404])
     @decorators.idempotent_id('c01fd308-6484-11e6-881e-080027d0d606')
     def test_show_image_member(self):
 
