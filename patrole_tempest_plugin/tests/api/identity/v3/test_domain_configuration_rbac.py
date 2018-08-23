@@ -53,14 +53,14 @@ class DomainConfigurationV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         return domain_config
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:create_domain_config")
+                                 rules=["identity:create_domain_config"])
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd115')
     def test_create_domain_config(self):
         with self.rbac_utils.override_role(self):
             self._create_domain_config(self.domain_id)
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:get_domain_config")
+                                 rules=["identity:get_domain_config"])
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd118')
     def test_show_domain_config(self):
         with self.rbac_utils.override_role(self):
@@ -68,7 +68,7 @@ class DomainConfigurationV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     @decorators.idempotent_id('1b539f95-4991-4e09-960f-fa771e1007d7')
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:get_domain_config")
+                                 rules=["identity:get_domain_config"])
     def test_show_domain_group_config(self):
         with self.rbac_utils.override_role(self):
             self.domain_config_client.show_domain_group_config(
@@ -76,7 +76,7 @@ class DomainConfigurationV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     @decorators.idempotent_id('590c774d-a294-44f8-866e-aac9f4ab3809')
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:get_domain_config")
+                                 rules=["identity:get_domain_config"])
     def test_show_domain_group_option_config(self):
         with self.rbac_utils.override_role(self):
             self.domain_config_client.show_domain_group_option_config(
@@ -85,7 +85,7 @@ class DomainConfigurationV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @decorators.idempotent_id('21053885-1ce3-4167-b5e3-e470253481da')
     @rbac_rule_validation.action(
         service="keystone",
-        rule="identity:get_security_compliance_domain_config")
+        rules=["identity:get_security_compliance_domain_config"])
     def test_show_security_compliance_domain_config(self):
         # The "security_compliance" group can only be shown for the default
         # domain.
@@ -95,28 +95,28 @@ class DomainConfigurationV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     @decorators.idempotent_id('d1addd10-9ae4-4360-9961-47324fd22f23')
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:get_domain_config_default")
+                                 rules=["identity:get_domain_config_default"])
     def test_show_default_config_settings(self):
         with self.rbac_utils.override_role(self):
             self.domain_config_client.show_default_config_settings()
 
     @decorators.idempotent_id('63183377-251f-4622-81f0-6b58a8a285c9')
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:get_domain_config_default")
+                                 rules=["identity:get_domain_config_default"])
     def test_show_default_group_config(self):
         with self.rbac_utils.override_role(self):
             self.domain_config_client.show_default_group_config('identity')
 
     @decorators.idempotent_id('6440e9c1-e8da-474d-9118-89996fffe5f8')
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:get_domain_config_default")
+                                 rules=["identity:get_domain_config_default"])
     def test_show_default_group_option(self):
         with self.rbac_utils.override_role(self):
             self.domain_config_client.show_default_group_option('identity',
                                                                 'driver')
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:update_domain_config")
+                                 rules=["identity:update_domain_config"])
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd116')
     def test_update_domain_config(self):
         updated_config = {'ldap': {'url': data_utils.rand_url()}}
@@ -126,7 +126,7 @@ class DomainConfigurationV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     @decorators.idempotent_id('6e32bf96-dbe9-4ac8-b814-0e79fa948285')
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:update_domain_config")
+                                 rules=["identity:update_domain_config"])
     def test_update_domain_group_config(self):
         with self.rbac_utils.override_role(self):
             self.domain_config_client.update_domain_group_config(
@@ -134,14 +134,14 @@ class DomainConfigurationV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     @decorators.idempotent_id('d2c510da-a077-4c67-9522-27745ef2812b')
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:update_domain_config")
+                                 rules=["identity:update_domain_config"])
     def test_update_domain_group_option_config(self):
         with self.rbac_utils.override_role(self):
             self.domain_config_client.update_domain_group_option_config(
                 self.domain_id, 'identity', 'driver', driver='ldap')
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:delete_domain_config")
+                                 rules=["identity:delete_domain_config"])
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd117')
     def test_delete_domain_config(self):
         with self.rbac_utils.override_role(self):
@@ -149,7 +149,7 @@ class DomainConfigurationV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     @decorators.idempotent_id('f479694b-df02-4d5a-88b6-c8b52f9341eb')
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:delete_domain_config")
+                                 rules=["identity:delete_domain_config"])
     def test_delete_domain_group_config(self):
         with self.rbac_utils.override_role(self):
             self.domain_config_client.delete_domain_group_config(
@@ -157,7 +157,7 @@ class DomainConfigurationV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     @decorators.idempotent_id('f594bde3-31c9-414f-922d-0ddafdc0ca40')
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:delete_domain_config")
+                                 rules=["identity:delete_domain_config"])
     def test_delete_domain_group_option_config(self):
         with self.rbac_utils.override_role(self):
             self.domain_config_client.delete_domain_group_option_config(

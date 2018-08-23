@@ -89,7 +89,7 @@ class GroupSnaphotsV314RbacTest(BaseGroupSnapshotsRbacTest):
     @decorators.idempotent_id('653df0e8-d90a-474a-a5ce-3c2339aff7ba')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="group:create_group_snapshot"
+        rules=["group:create_group_snapshot"]
     )
     def test_create_group_snapshot(self):
         with self.rbac_utils.override_role(self):
@@ -112,7 +112,7 @@ class GroupSnaphotsV314RbacTest(BaseGroupSnapshotsRbacTest):
     @decorators.idempotent_id('8b966844-4421-4f73-940b-9157cb878331')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="group:get_group_snapshot"
+        rules=["group:get_group_snapshot"]
     )
     def test_show_group_snapshot_rbac(self):
         group_snapshot_name = data_utils.rand_name('group_snapshot')
@@ -125,7 +125,7 @@ class GroupSnaphotsV314RbacTest(BaseGroupSnapshotsRbacTest):
     @decorators.idempotent_id('e9de6dae-1efb-47cd-a3a8-d1f4b8f9f3ff')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="group:get_all_group_snapshots"
+        rules=["group:get_all_group_snapshots"]
     )
     def test_list_group_snapshot_rbac(self):
         with self.rbac_utils.override_role(self):
@@ -134,7 +134,7 @@ class GroupSnaphotsV314RbacTest(BaseGroupSnapshotsRbacTest):
     @decorators.idempotent_id('cf2e25ee-ca58-4ad6-b98d-33235c77db7b')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="group:delete_group_snapshot"
+        rules=["group:delete_group_snapshot"]
         )
     def test_delete_group_snapshot_rbac(self):
         group_snapshot_name = data_utils.rand_name('group_snapshot')
@@ -186,7 +186,7 @@ class GroupSnaphotsV319RbacTest(BaseGroupSnapshotsRbacTest):
     @decorators.idempotent_id('3f0c842e-0c72-4f5e-a9c2-281070be3e2c')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="group:reset_group_snapshot_status"
+        rules=["group:reset_group_snapshot_status"]
         )
     def test_reset_group_snapshot_rbac(self):
         group_snapshot_name = data_utils.rand_name('group_snapshot')

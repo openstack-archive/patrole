@@ -23,14 +23,14 @@ from patrole_tempest_plugin.tests.api.identity import rbac_base
 class IdentitySericesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:create_service")
+                                 rules=["identity:create_service"])
     @decorators.idempotent_id('9a4bb317-f0bb-4005-8df0-4b672885b7c8')
     def test_create_service(self):
         with self.rbac_utils.override_role(self):
             self.setup_test_service()
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:update_service")
+                                 rules=["identity:update_service"])
     @decorators.idempotent_id('b39447d1-2cf6-40e5-a899-46f287f2ecf0')
     def test_update_service(self):
         service = self.setup_test_service()
@@ -43,7 +43,7 @@ class IdentitySericesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                                                 type=service['type'])
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:delete_service")
+                                 rules=["identity:delete_service"])
     @decorators.idempotent_id('177b991a-438d-4bef-8e9f-9c6cc5a1c9e8')
     def test_delete_service(self):
         service = self.setup_test_service()
@@ -52,7 +52,7 @@ class IdentitySericesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
             self.services_client.delete_service(service['id'])
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:get_service")
+                                 rules=["identity:get_service"])
     @decorators.idempotent_id('d89a9ac6-cd53-428d-84c0-5bc71f4a432d')
     def test_show_service(self):
         service = self.setup_test_service()
@@ -61,7 +61,7 @@ class IdentitySericesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
             self.services_client.show_service(service['id'])
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:list_services")
+                                 rules=["identity:list_services"])
     @decorators.idempotent_id('706e6bea-3385-4718-919c-0b5121395806')
     def test_list_services(self):
         with self.rbac_utils.override_role(self):

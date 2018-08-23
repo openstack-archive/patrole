@@ -32,7 +32,7 @@ class MigrationsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('5795231c-3729-448c-a072-9a225db1a328')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-migrations:index")
+        rules=["os_compute_api:os-migrations:index"])
     def test_list_services(self):
         with self.rbac_utils.override_role(self):
             self.migrations_client.list_migrations()

@@ -36,7 +36,7 @@ class ImagesMemberRbacTest(base.BaseV2ImageRbacTest):
         cls.image_member_client = cls.os_primary.image_member_client_v2
 
     @rbac_rule_validation.action(service="glance",
-                                 rule="add_member")
+                                 rules=["add_member"])
     @decorators.idempotent_id('b1b85ace-6484-11e6-881e-080027d0d606')
     def test_add_image_member(self):
 
@@ -51,7 +51,7 @@ class ImagesMemberRbacTest(base.BaseV2ImageRbacTest):
                 image_id, member=self.alt_tenant_id)
 
     @rbac_rule_validation.action(service="glance",
-                                 rule="delete_member")
+                                 rules=["delete_member"])
     @decorators.idempotent_id('ba075234-6484-11e6-881e-080027d0d606')
     def test_delete_image_member(self):
 
@@ -88,7 +88,7 @@ class ImagesMemberRbacTest(base.BaseV2ImageRbacTest):
                                                        self.alt_tenant_id)
 
     @rbac_rule_validation.action(service="glance",
-                                 rule="modify_member")
+                                 rules=["modify_member"])
     @decorators.idempotent_id('ca448bb2-6484-11e6-881e-080027d0d606')
     def test_update_image_member(self):
 
@@ -110,7 +110,7 @@ class ImagesMemberRbacTest(base.BaseV2ImageRbacTest):
                 status='pending')
 
     @rbac_rule_validation.action(service="glance",
-                                 rule="get_members")
+                                 rules=["get_members"])
     @decorators.idempotent_id('d0a2dc20-6484-11e6-881e-080027d0d606')
     def test_list_image_members(self):
 

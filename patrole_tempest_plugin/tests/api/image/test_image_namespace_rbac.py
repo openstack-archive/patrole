@@ -24,7 +24,7 @@ from patrole_tempest_plugin.tests.api.image import rbac_base
 class ImageNamespacesRbacTest(rbac_base.BaseV2ImageRbacTest):
 
     @rbac_rule_validation.action(service="glance",
-                                 rule="add_metadef_namespace")
+                                 rules=["add_metadef_namespace"])
     @decorators.idempotent_id('e0730ead-b824-4ffc-b774-9469df0e4da6')
     def test_create_metadef_namespace(self):
         """Create Image Metadef Namespace Test
@@ -43,7 +43,7 @@ class ImageNamespacesRbacTest(rbac_base.BaseV2ImageRbacTest):
             namespace_name)
 
     @rbac_rule_validation.action(service="glance",
-                                 rule="get_metadef_namespaces")
+                                 rules=["get_metadef_namespaces"])
     @decorators.idempotent_id('f0b12538-9047-489e-98a5-2d78f48ce789')
     def test_list_metadef_namespaces(self):
         """List Image Metadef Namespace Test
@@ -54,7 +54,7 @@ class ImageNamespacesRbacTest(rbac_base.BaseV2ImageRbacTest):
             self.namespaces_client.list_namespaces()
 
     @rbac_rule_validation.action(service="glance",
-                                 rule="modify_metadef_namespace")
+                                 rules=["modify_metadef_namespace"])
     @decorators.idempotent_id('72c14a7e-927d-4f1a-9e1f-25475552922b')
     def test_modify_metadef_namespace(self):
         """Modify Image Metadef Namespace Test

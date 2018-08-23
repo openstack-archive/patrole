@@ -24,7 +24,7 @@ class VolumeTypesRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('e2bbf968-d947-4a15-a4da-a98c3069731e')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="volume_extension:types_manage")
+        rules=["volume_extension:types_manage"])
     def test_create_volume_type(self):
         with self.rbac_utils.override_role(self):
             self.create_volume_type()
@@ -32,7 +32,7 @@ class VolumeTypesRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('2b74ac82-e03e-4801-86f3-d05c9acfd66b')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="volume_extension:types_manage")
+        rules=["volume_extension:types_manage"])
     def test_update_volume_type(self):
         volume_type = self.create_volume_type()
         with self.rbac_utils.override_role(self):
@@ -42,7 +42,7 @@ class VolumeTypesRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('90aec0ef-4f9b-4170-be6b-a392c12540be')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="volume_extension:types_manage")
+        rules=["volume_extension:types_manage"])
     def test_delete_volume_type(self):
         volume_type = self.create_volume_type()
         with self.rbac_utils.override_role(self):

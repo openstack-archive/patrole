@@ -56,7 +56,7 @@ class FixedIpsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('c89391f7-4844-4a70-a116-37c1336efb99')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-fixed-ips")
+        rules=["os_compute_api:os-fixed-ips"])
     def test_show_fixed_ip_details(self):
         with self.rbac_utils.override_role(self):
             self.fixed_ips_client.show_fixed_ip(self.ip)
@@ -64,7 +64,7 @@ class FixedIpsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('f0314501-735d-4315-9856-959e01e82f0d')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-fixed-ips")
+        rules=["os_compute_api:os-fixed-ips"])
     def test_set_reserve(self):
         with self.rbac_utils.override_role(self):
             self.fixed_ips_client.reserve_fixed_ip(self.ip, reserve="None")
@@ -72,7 +72,7 @@ class FixedIpsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('866a6fdc-a237-4502-9bf2-52fe82aba356')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-fixed-ips")
+        rules=["os_compute_api:os-fixed-ips"])
     def test_set_unreserve(self):
         with self.rbac_utils.override_role(self):
             self.fixed_ips_client.reserve_fixed_ip(self.ip, unreserve="None")

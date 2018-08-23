@@ -42,7 +42,7 @@ class AgentsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         return kwargs
 
     @rbac_rule_validation.action(
-        service="nova", rule="os_compute_api:os-agents")
+        service="nova", rules=["os_compute_api:os-agents"])
     @decorators.idempotent_id('d1bc6d97-07f5-4f45-ac29-1c619a6a7e27')
     def test_list_agents_rbac(self):
         with self.rbac_utils.override_role(self):
@@ -50,7 +50,7 @@ class AgentsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-agents")
+        rules=["os_compute_api:os-agents"])
     @decorators.idempotent_id('77d6cae4-1ced-47f7-af2e-3d6a45958fd6')
     def test_create_agent(self):
         params = {'hypervisor': 'kvm', 'os': 'win', 'architecture': 'x86',
@@ -63,7 +63,7 @@ class AgentsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-agents")
+        rules=["os_compute_api:os-agents"])
     @decorators.idempotent_id('b22f2681-9ffb-439b-b240-dae503e41020')
     def test_update_agent(self):
         params = self._param_helper(
@@ -84,7 +84,7 @@ class AgentsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-agents")
+        rules=["os_compute_api:os-agents"])
     @decorators.idempotent_id('c5042af8-0682-43b0-abc4-bf33349e23dd')
     def test_delete_agent(self):
         params = self._param_helper(

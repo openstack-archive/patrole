@@ -1,0 +1,13 @@
+---
+upgrade:
+  - |
+    The following deprecated parameters in ``rbac_rule_validation.action``
+    decorator:
+
+    * ``rule``
+    * ``expected_error_code``
+
+    have been removed. Use the non-deprecated versions instead:
+
+    * ``rules``
+    * ``expected_error_codes``

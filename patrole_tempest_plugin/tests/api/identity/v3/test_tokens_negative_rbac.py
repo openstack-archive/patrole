@@ -43,7 +43,7 @@ class IdentityTokenV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @decorators.attr(type=['negative'])
     @rbac_rule_validation.action(
         service="keystone",
-        rule="identity:validate_token",
+        rules=["identity:validate_token"],
         extra_target_data={
             "target.token.user_id":
             "os_alt.auth_provider.credentials.user_id"
@@ -62,7 +62,7 @@ class IdentityTokenV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @decorators.attr(type=['negative'])
     @rbac_rule_validation.action(
         service="keystone",
-        rule="identity:revoke_token",
+        rules=["identity:revoke_token"],
         extra_target_data={
             "target.token.user_id":
             "os_alt.auth_provider.credentials.user_id"
@@ -81,7 +81,7 @@ class IdentityTokenV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @decorators.attr(type=['negative'])
     @rbac_rule_validation.action(
         service="keystone",
-        rule="identity:check_token",
+        rules=["identity:check_token"],
         extra_target_data={
             "target.token.user_id":
             "os_alt.auth_provider.credentials.user_id"

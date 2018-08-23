@@ -23,14 +23,14 @@ from patrole_tempest_plugin.tests.api.identity import rbac_base
 class IdentityRegionsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:create_region")
+                                 rules=["identity:create_region"])
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd119')
     def test_create_region(self):
         with self.rbac_utils.override_role(self):
             self.setup_test_region()
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:update_region")
+                                 rules=["identity:update_region"])
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd120')
     def test_update_region(self):
         region = self.setup_test_region()
@@ -42,7 +42,7 @@ class IdentityRegionsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                                               description=new_description)
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:delete_region")
+                                 rules=["identity:delete_region"])
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd121')
     def test_delete_region(self):
         region = self.setup_test_region()
@@ -51,7 +51,7 @@ class IdentityRegionsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
             self.regions_client.delete_region(region['id'])
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:get_region")
+                                 rules=["identity:get_region"])
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd122')
     def test_show_region(self):
         region = self.setup_test_region()
@@ -60,7 +60,7 @@ class IdentityRegionsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
             self.regions_client.show_region(region['id'])
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:list_regions")
+                                 rules=["identity:list_regions"])
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd123')
     def test_list_regions(self):
         with self.rbac_utils.override_role(self):

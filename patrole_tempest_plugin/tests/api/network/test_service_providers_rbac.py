@@ -22,7 +22,7 @@ from patrole_tempest_plugin.tests.api.network import rbac_base as base
 class ServiceProvidersRbacTest(base.BaseNetworkRbacTest):
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_service_provider")
+                                 rules=["get_service_provider"])
     @decorators.idempotent_id('15f573b7-474a-4b37-8629-7fac86553ce5')
     def test_list_service_providers(self):
         with self.rbac_utils.override_role(self):

@@ -52,7 +52,7 @@ class VolumeTypesAccessRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('af70e6ad-e931-419f-9200-8bcc284e4e47')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="volume_extension:volume_type_access")
+        rules=["volume_extension:volume_type_access"])
     def test_list_type_access(self):
         self._add_type_access()
 
@@ -63,7 +63,7 @@ class VolumeTypesAccessRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('b462eeba-45d0-4d6e-945a-a1d27708d367')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="volume_extension:volume_type_access:addProjectAccess")
+        rules=["volume_extension:volume_type_access:addProjectAccess"])
     def test_add_type_access(self):
         with self.rbac_utils.override_role(self):
             self._add_type_access(ignore_not_found=True)
@@ -71,7 +71,7 @@ class VolumeTypesAccessRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('8f848aeb-636a-46f1-aeeb-e2a60e9d2bfe')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="volume_extension:volume_type_access:removeProjectAccess")
+        rules=["volume_extension:volume_type_access:removeProjectAccess"])
     def test_remove_type_access(self):
         self._add_type_access(ignore_not_found=True)
 

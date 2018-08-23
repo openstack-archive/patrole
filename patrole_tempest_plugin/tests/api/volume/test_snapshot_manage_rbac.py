@@ -51,7 +51,7 @@ class SnapshotManageRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('bd7d62f2-e485-4626-87ef-03b7f19ee1d0')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="snapshot_extension:snapshot_manage")
+        rules=["snapshot_extension:snapshot_manage"])
     def test_manage_snapshot_rbac(self):
         name = data_utils.rand_name(self.__class__.__name__ +
                                     '-Managed-Snapshot')
@@ -73,7 +73,7 @@ class SnapshotManageRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('4a2e8934-9c0b-434e-8f0b-e18b9aff126f')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="snapshot_extension:snapshot_unmanage")
+        rules=["snapshot_extension:snapshot_unmanage"])
     def test_unmanage_snapshot_rbac(self):
         with self.rbac_utils.override_role(self):
             self.snapshots_client.unmanage_snapshot(self.snapshot['id'])

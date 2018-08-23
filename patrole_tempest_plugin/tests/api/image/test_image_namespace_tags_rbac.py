@@ -67,14 +67,14 @@ class NamespaceTagsRbacTest(base.BaseV2ImageRbacTest):
 
     @decorators.idempotent_id('50bedccb-9d0b-4138-8d95-31a89250edf6')
     @rbac_rule_validation.action(service="glance",
-                                 rule="add_metadef_tag")
+                                 rules=["add_metadef_tag"])
     def test_create_namespace_tag(self):
         with self.rbac_utils.override_role(self):
             self._create_namespace_tag()
 
     @decorators.idempotent_id('4acf70cc-05da-4b1e-87b2-d5e4475164e7')
     @rbac_rule_validation.action(service="glance",
-                                 rule="get_metadef_tag")
+                                 rules=["get_metadef_tag"])
     def test_show_namespace_tag(self):
         tag_name = self._create_namespace_tag()
         with self.rbac_utils.override_role(self):
@@ -83,7 +83,7 @@ class NamespaceTagsRbacTest(base.BaseV2ImageRbacTest):
 
     @decorators.idempotent_id('01593828-3edb-461e-8abc-8fdeb3927e37')
     @rbac_rule_validation.action(service="glance",
-                                 rule="modify_metadef_tag")
+                                 rules=["modify_metadef_tag"])
     def test_update_namespace_tag(self):
         tag_name = self._create_namespace_tag()
         updated_tag_name = data_utils.rand_name(
@@ -95,14 +95,14 @@ class NamespaceTagsRbacTest(base.BaseV2ImageRbacTest):
 
     @decorators.idempotent_id('20ffaf76-ebdc-4267-a1ad-194346f5cc91')
     @rbac_rule_validation.action(service="glance",
-                                 rule="add_metadef_tags")
+                                 rules=["add_metadef_tags"])
     def test_create_namespace_tags(self):
         with self.rbac_utils.override_role(self):
             self._create_namespace_tag(multiple=True)
 
     @decorators.idempotent_id('d37c1501-e787-449d-89b3-754a942a459a')
     @rbac_rule_validation.action(service="glance",
-                                 rule="get_metadef_tags")
+                                 rules=["get_metadef_tags"])
     def test_list_namespace_tags(self):
         with self.rbac_utils.override_role(self):
             self.namespace_tags_client.list_namespace_tags(self.namespace)

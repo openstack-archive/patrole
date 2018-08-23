@@ -28,7 +28,7 @@ class LimitsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             raise cls.skipException(msg)
 
     @rbac_rule_validation.action(service="nova",
-                                 rule="os_compute_api:limits")
+                                 rules=["os_compute_api:limits"])
     @decorators.idempotent_id('3fb60f83-9a5f-4fdd-89d9-26c3710844a1')
     def test_show_limits(self):
         with self.rbac_utils.override_role(self):

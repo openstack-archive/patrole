@@ -76,7 +76,7 @@ class VolumesActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="volume_extension:volume_actions:attach")
+        rules=["volume_extension:volume_actions:attach"])
     @decorators.idempotent_id('f97b10e4-2eed-4f8b-8632-71c02cb9fe42')
     def test_attach_volume_to_instance(self):
         server = self._create_server()
@@ -94,7 +94,7 @@ class VolumesActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="volume_extension:volume_actions:detach")
+        rules=["volume_extension:volume_actions:detach"])
     @decorators.idempotent_id('5a042f6a-688b-42e6-a02e-fe5c47b89b07')
     def test_detach_volume_from_instance(self):
         server = self._create_server()
@@ -107,7 +107,7 @@ class VolumesActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
             self.volumes_client, volume_id, 'available')
 
     @rbac_rule_validation.action(service="cinder",
-                                 rule="volume:update_readonly_flag")
+                                 rules=["volume:update_readonly_flag"])
     @decorators.idempotent_id('2750717a-f250-4e41-9e09-02624aad6ff8')
     def test_volume_readonly_update(self):
         with self.rbac_utils.override_role(self):
@@ -118,7 +118,7 @@ class VolumesActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @decorators.idempotent_id('59b783c0-f4ef-430c-8a90-1bad97d4ec5c')
     @rbac_rule_validation.action(service="cinder",
-                                 rule="volume:update")
+                                 rules=["volume:update"])
     def test_volume_set_bootable(self):
         with self.rbac_utils.override_role(self):
             self.volumes_client.set_bootable_volume(self.volume['id'],
@@ -132,7 +132,7 @@ class VolumesActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('41566922-75a1-4484-99c7-9c8782ee99ac')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="volume_extension:volume_actions:reserve")
+        rules=["volume_extension:volume_actions:reserve"])
     def test_volume_reserve(self):
         with self.rbac_utils.override_role(self):
             self.volumes_client.reserve_volume(self.volume['id'])
@@ -145,14 +145,14 @@ class VolumesActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('e5fa9564-77d9-4e57-b0c0-3e0ae4d08535')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="volume_extension:volume_actions:unreserve")
+        rules=["volume_extension:volume_actions:unreserve"])
     def test_volume_unreserve(self):
         with self.rbac_utils.override_role(self):
             self.volumes_client.unreserve_volume(self.volume['id'])
 
     @decorators.idempotent_id('c015c82f-7010-48cc-bd71-4ef542046f20')
     @rbac_rule_validation.action(service="cinder",
-                                 rule="volume:retype")
+                                 rules=["volume:retype"])
     def test_volume_retype(self):
         vol_type = self.create_volume_type()['name']
         volume = self.create_volume()
@@ -164,7 +164,7 @@ class VolumesActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @rbac_rule_validation.action(
         service="cinder",
-        rule="volume_extension:volume_admin_actions:reset_status")
+        rules=["volume_extension:volume_admin_actions:reset_status"])
     @decorators.idempotent_id('4b3dad7d-0e73-4839-8781-796dd3d7af1d')
     def test_volume_reset_status(self):
         volume = self.create_volume()
@@ -175,7 +175,7 @@ class VolumesActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @rbac_rule_validation.action(
         service="cinder",
-        rule="volume_extension:volume_admin_actions:force_delete")
+        rules=["volume_extension:volume_admin_actions:force_delete"])
     @decorators.idempotent_id('a312a937-6abf-4b91-a950-747086cbce48')
     def test_volume_force_delete(self):
         volume = self.create_volume()
@@ -189,7 +189,7 @@ class VolumesActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @utils.services('compute')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="volume_extension:volume_admin_actions:force_detach")
+        rules=["volume_extension:volume_admin_actions:force_detach"])
     def test_force_detach_volume_from_instance(self):
         volume = self.create_volume()
         server = self._create_server()
@@ -227,7 +227,7 @@ class VolumesActionsV310RbacTest(rbac_base.BaseVolumeRbacTest):
     @utils.services('image')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="volume_extension:volume_actions:upload_image")
+        rules=["volume_extension:volume_actions:upload_image"])
     @decorators.idempotent_id('b0d0da46-903c-4445-893e-20e680d68b50')
     def test_volume_upload_image(self):
         # TODO(felipemonteiro): The ``upload_volume`` endpoint also enforces
@@ -251,7 +251,7 @@ class VolumesActionsV310RbacTest(rbac_base.BaseVolumeRbacTest):
     @utils.services('image')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="volume_extension:volume_actions:upload_public")
+        rules=["volume_extension:volume_actions:upload_public"])
     @decorators.idempotent_id('578a84dd-a6bd-4f97-a418-4a0c3c272c08')
     def test_volume_upload_public(self):
         # This also enforces "volume_extension:volume_actions:upload_image".
@@ -277,7 +277,7 @@ class VolumesActionsV312RbacTest(rbac_base.BaseVolumeRbacTest):
     max_microversion = 'latest'
 
     @decorators.idempotent_id('a654833d-4811-4acd-93ef-5ac4a34c75bc')
-    @rbac_rule_validation.action(service="cinder", rule="volume:get_all")
+    @rbac_rule_validation.action(service="cinder", rules=["volume:get_all"])
     def test_show_volume_summary(self):
         with self.rbac_utils.override_role(self):
             self.volumes_client.show_volume_summary()

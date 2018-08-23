@@ -39,7 +39,7 @@ class QuotaClassesV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @decorators.idempotent_id('1a060def-2b43-4534-97f5-5eadbbe8c726')
     @rbac_rule_validation.action(service="cinder",
-                                 rule="volume_extension:quota_classes")
+                                 rules=["volume_extension:quota_classes"])
     def test_show_quota_class_set(self):
         with self.rbac_utils.override_role(self):
             self.quota_classes_client.show_quota_class_set(
@@ -47,7 +47,7 @@ class QuotaClassesV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @decorators.idempotent_id('72159478-23a7-4c75-989f-6bac609eca62')
     @rbac_rule_validation.action(service="cinder",
-                                 rule="volume_extension:quota_classes")
+                                 rules=["volume_extension:quota_classes"])
     def test_update_quota_class_set(self):
         quota_class_set = self.quota_classes_client.show_quota_class_set(
             self.quota_name)['quota_class_set']

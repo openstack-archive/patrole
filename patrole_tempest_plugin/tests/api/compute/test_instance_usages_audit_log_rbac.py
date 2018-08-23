@@ -36,7 +36,7 @@ class InstanceUsagesAuditLogRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @decorators.idempotent_id('c80246c0-5c13-4ab0-97ba-91551cd53dc1')
     @rbac_rule_validation.action(
-        service="nova", rule="os_compute_api:os-instance-usage-audit-log")
+        service="nova", rules=["os_compute_api:os-instance-usage-audit-log"])
     def test_list_instance_usage_audit_logs(self):
         with self.rbac_utils.override_role(self):
             (self.instance_usages_audit_log_client
@@ -44,7 +44,7 @@ class InstanceUsagesAuditLogRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @decorators.idempotent_id('ded8bfbd-5d90-4a58-aee0-d31231bf3c9b')
     @rbac_rule_validation.action(
-        service="nova", rule="os_compute_api:os-instance-usage-audit-log")
+        service="nova", rules=["os_compute_api:os-instance-usage-audit-log"])
     def test_show_instance_usage_audit_log(self):
         now = datetime.datetime.now()
 

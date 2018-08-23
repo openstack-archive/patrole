@@ -30,14 +30,14 @@ class IdentityGroupsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         return (group['id'], user['id'])
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:create_group")
+                                 rules=["identity:create_group"])
     @decorators.idempotent_id('88377f51-9074-4d64-a22f-f8931d048c9a')
     def test_create_group(self):
         with self.rbac_utils.override_role(self):
             self.setup_test_group()
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:update_group")
+                                 rules=["identity:update_group"])
     @decorators.idempotent_id('790fb7be-a657-4a64-9b83-c43425cf180b')
     def test_update_group(self):
         group = self.setup_test_group()
@@ -48,7 +48,7 @@ class IdentityGroupsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
             self.groups_client.update_group(group['id'], name=new_group_name)
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:delete_group")
+                                 rules=["identity:delete_group"])
     @decorators.idempotent_id('646b52da-2a5f-486a-afb0-51fdc86a6c12')
     def test_delete_group(self):
         group = self.setup_test_group()
@@ -57,7 +57,7 @@ class IdentityGroupsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
             self.groups_client.delete_group(group['id'])
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:get_group")
+                                 rules=["identity:get_group"])
     @decorators.idempotent_id('d530f0ad-42b9-429b-ad05-e53ac95a040e')
     def test_show_group(self):
         group = self.setup_test_group()
@@ -66,14 +66,14 @@ class IdentityGroupsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
             self.groups_client.show_group(group['id'])
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:list_groups")
+                                 rules=["identity:list_groups"])
     @decorators.idempotent_id('c4d0f76b-735f-4fd0-868b-0006bc420ff4')
     def test_list_groups(self):
         with self.rbac_utils.override_role(self):
             self.groups_client.list_groups()
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:add_user_to_group")
+                                 rules=["identity:add_user_to_group"])
     @decorators.idempotent_id('fdd49b74-3ed3-4736-9f0e-9027a32017ac')
     def test_add_user_group(self):
         group = self.setup_test_group()
@@ -83,7 +83,7 @@ class IdentityGroupsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
             self.groups_client.add_group_user(group['id'], user['id'])
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:remove_user_from_group")
+                                 rules=["identity:remove_user_from_group"])
     @decorators.idempotent_id('8a60d11c-7d2b-47e5-a0f3-9ea900ca66fe')
     def test_remove_user_group(self):
         group_id, user_id = self._create_user_and_add_to_new_group()
@@ -92,7 +92,7 @@ class IdentityGroupsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
             self.groups_client.delete_group_user(group_id, user_id)
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:list_users_in_group")
+                                 rules=["identity:list_users_in_group"])
     @decorators.idempotent_id('b3e394a7-079e-4a0d-a4ff-9b266293d1ee')
     def test_list_user_group(self):
         group = self.setup_test_group()
@@ -101,7 +101,7 @@ class IdentityGroupsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
             self.groups_client.list_group_users(group['id'])
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:check_user_in_group")
+                                 rules=["identity:check_user_in_group"])
     @decorators.idempotent_id('d3603241-fd87-4a2d-94f9-f32469d1aaba')
     def test_check_user_group(self):
         group_id, user_id = self._create_user_and_add_to_new_group()

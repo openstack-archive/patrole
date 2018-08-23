@@ -44,7 +44,7 @@ class EndpointFilterProjectsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     @rbac_rule_validation.action(
         service="keystone",
-        rule="identity:add_endpoint_to_project")
+        rules=["identity:add_endpoint_to_project"])
     @decorators.idempotent_id('9199ec13-816d-4efe-b8b1-e1cd026b9747')
     def test_add_endpoint_to_project(self):
         # Adding endpoints to projects
@@ -53,7 +53,7 @@ class EndpointFilterProjectsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     @rbac_rule_validation.action(
         service="keystone",
-        rule="identity:list_projects_for_endpoint")
+        rules=["identity:list_projects_for_endpoint"])
     @decorators.idempotent_id('f53dca42-ec8a-48e9-924b-0bbe6c99727f')
     def test_list_projects_for_endpoint(self):
         with self.rbac_utils.override_role(self):
@@ -62,7 +62,7 @@ class EndpointFilterProjectsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     @rbac_rule_validation.action(
         service="keystone",
-        rule="identity:check_endpoint_in_project")
+        rules=["identity:check_endpoint_in_project"])
     @decorators.idempotent_id('0c1425eb-833c-4aa1-a21d-52ffa41fdc6a')
     def test_check_endpoint_in_project(self):
         self._add_endpoint_to_project()
@@ -72,7 +72,7 @@ class EndpointFilterProjectsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     @rbac_rule_validation.action(
         service="keystone",
-        rule="identity:list_endpoints_for_project")
+        rules=["identity:list_endpoints_for_project"])
     @decorators.idempotent_id('5d86c659-c6ad-41e0-854e-3823e95c7cc2')
     def test_list_endpoints_in_project(self):
         with self.rbac_utils.override_role(self):
@@ -81,7 +81,7 @@ class EndpointFilterProjectsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     @rbac_rule_validation.action(
         service="keystone",
-        rule="identity:remove_endpoint_from_project")
+        rules=["identity:remove_endpoint_from_project"])
     @decorators.idempotent_id('b4e21c10-4f47-427b-9b8a-f5b5601adfda')
     def test_remove_endpoint_from_project(self):
         self._add_endpoint_to_project(ignore_not_found=True)

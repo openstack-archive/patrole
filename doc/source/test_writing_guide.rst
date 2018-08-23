@@ -83,7 +83,7 @@ Example::
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-aggregates:show")
+        rules=["os_compute_api:os-aggregates:show"])
     def test_show_aggregate_rbac(self):
         # Do test setup before the ``override_role`` call.
         aggregate_id = self._create_aggregate()
@@ -106,7 +106,7 @@ Example using waiter::
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-admin-password")
+        rules=["os_compute_api:os-admin-password"])
     def test_change_server_password(self):
         original_password = self.servers_client.show_password(
             self.server['id'])
@@ -140,7 +140,7 @@ Incorrect::
 
     @rbac_rule_validation.action(
         service="example-service",
-        rule="example-rule")
+        rules=["example-rule"])
     def test_change_server_password(self):
         # Never call a helper function inside the contextmanager that calls a
         # bunch of APIs. Only call the API that enforces the policy action

@@ -65,7 +65,7 @@ class MessagesV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('bf7f31a1-509b-4a7d-a8a8-ad6ce68229c7')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="message:get_all")
+        rules=["message:get_all"])
     def test_list_messages(self):
         with self.rbac_utils.override_role(self):
             self.messages_client.list_messages()['messages']
@@ -73,7 +73,7 @@ class MessagesV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('9cc1ad1e-68a2-4407-8b60-ea77909bce08')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="message:get")
+        rules=["message:get"])
     def test_show_message(self):
         message_id = self._create_user_message()
 
@@ -83,7 +83,7 @@ class MessagesV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('65ca7fb7-7f2c-443e-b144-ac86973a97be')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="message:delete")
+        rules=["message:delete"])
     def test_delete_message(self):
         message_id = self._create_user_message()
 

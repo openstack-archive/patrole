@@ -39,31 +39,32 @@ class VolumeQOSV3RbacTest(rbac_base.BaseVolumeRbacTest):
         return qos_specs
 
     @rbac_rule_validation.action(
-        service="cinder", rule="volume_extension:qos_specs_manage:create")
+        service="cinder", rules=["volume_extension:qos_specs_manage:create"])
     @decorators.idempotent_id('4f9f45f0-b379-4577-a279-cec3e917cbec')
     def test_create_qos_with_consumer(self):
         with self.rbac_utils.override_role(self):
             self._create_test_qos_specs()
 
     @rbac_rule_validation.action(
-        service="cinder", rule="volume_extension:qos_specs_manage:delete")
+        service="cinder", rules=["volume_extension:qos_specs_manage:delete"])
     @decorators.idempotent_id('fbc8a77e-6b6d-45ae-bebe-c496eb8f06f7')
     def test_delete_qos_with_consumer(self):
         qos = self._create_test_qos_specs()
         with self.rbac_utils.override_role(self):
             self.qos_client.delete_qos(qos['id'])
 
-    @rbac_rule_validation.action(service="cinder",
-                                 rule="volume_extension:qos_specs_manage:get")
+    @rbac_rule_validation.action(
+        service="cinder",
+        rules=["volume_extension:qos_specs_manage:get"])
     @decorators.idempotent_id('22aff0dd-0343-408d-ae80-e77551956e14')
     def test_show_qos(self):
         qos = self._create_test_qos_specs()
         with self.rbac_utils.override_role(self):
             self.qos_client.show_qos(qos['id'])['qos_specs']
 
-    @rbac_rule_validation.action(service="cinder",
-                                 rule="volume_extension:"
-                                      "qos_specs_manage:get_all")
+    @rbac_rule_validation.action(
+        service="cinder",
+        rules=["volume_extension:qos_specs_manage:get_all"])
     @decorators.idempotent_id('ff1e98f3-d456-40a9-96d4-c7e4a55dcffa')
     def test_get_association_qos(self):
         qos = self._create_test_qos_specs()
@@ -76,14 +77,14 @@ class VolumeQOSV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @rbac_rule_validation.action(
         service="cinder",
-        rule="volume_extension:qos_specs_manage:get_all")
+        rules=["volume_extension:qos_specs_manage:get_all"])
     @decorators.idempotent_id('546b8bb1-04a4-4387-9506-a538a7f3cd6a')
     def test_list_qos(self):
         with self.rbac_utils.override_role(self):
             self.qos_client.list_qos()['qos_specs']
 
     @rbac_rule_validation.action(
-        service="cinder", rule="volume_extension:qos_specs_manage:update")
+        service="cinder", rules=["volume_extension:qos_specs_manage:update"])
     @decorators.idempotent_id('89b630b7-c170-47c3-ac80-50ed425c2d98')
     def test_set_qos_key(self):
         qos = self._create_test_qos_specs()
@@ -92,7 +93,7 @@ class VolumeQOSV3RbacTest(rbac_base.BaseVolumeRbacTest):
                 qos['id'], iops_bytes='500')['qos_specs']
 
     @rbac_rule_validation.action(
-        service="cinder", rule="volume_extension:qos_specs_manage:update")
+        service="cinder", rules=["volume_extension:qos_specs_manage:update"])
     @decorators.idempotent_id('6c50c837-de77-4dae-a2ec-30e05c62969c')
     def test_unset_qos_key(self):
         qos = self._create_test_qos_specs()
@@ -104,7 +105,7 @@ class VolumeQOSV3RbacTest(rbac_base.BaseVolumeRbacTest):
                                         'qos-key-unset', args=['iops_bytes'])
 
     @rbac_rule_validation.action(
-        service="cinder", rule="volume_extension:qos_specs_manage:update")
+        service="cinder", rules=["volume_extension:qos_specs_manage:update"])
     @decorators.idempotent_id('2047b347-8bbe-405e-bf5a-c75a0d7e3930')
     def test_associate_qos(self):
         qos = self._create_test_qos_specs()
@@ -117,7 +118,7 @@ class VolumeQOSV3RbacTest(rbac_base.BaseVolumeRbacTest):
             self.qos_client.disassociate_qos, qos['id'], vol_type)
 
     @rbac_rule_validation.action(
-        service="cinder", rule="volume_extension:qos_specs_manage:update")
+        service="cinder", rules=["volume_extension:qos_specs_manage:update"])
     @decorators.idempotent_id('f12aeca1-0c02-4f33-b805-014171e5b2d4')
     def test_disassociate_qos(self):
         qos = self._create_test_qos_specs()
@@ -132,7 +133,7 @@ class VolumeQOSV3RbacTest(rbac_base.BaseVolumeRbacTest):
                                         'disassociate', args=vol_type)
 
     @rbac_rule_validation.action(
-        service="cinder", rule="volume_extension:qos_specs_manage:update")
+        service="cinder", rules=["volume_extension:qos_specs_manage:update"])
     @decorators.idempotent_id('9f6e664d-a5d9-4e71-b122-73a3086be1b9')
     def test_disassociate_all_qos(self):
         qos = self._create_test_qos_specs()

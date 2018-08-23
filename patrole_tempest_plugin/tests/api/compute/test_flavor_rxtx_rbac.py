@@ -40,7 +40,7 @@ class FlavorRxtxRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('5e1fd9f0-9a08-485a-ad9c-0fc66e4d64b7')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-flavor-rxtx")
+        rules=["os_compute_api:os-flavor-rxtx"])
     def test_list_flavors_details_rxtx(self):
         with self.rbac_utils.override_role(self):
             result = self.flavors_client.list_flavors(detail=True)['flavors']
@@ -53,7 +53,7 @@ class FlavorRxtxRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('70c55a07-c843-4627-a29d-ba78673c1e63')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-flavor-rxtx")
+        rules=["os_compute_api:os-flavor-rxtx"])
     def test_get_flavor_rxtx(self):
         with self.rbac_utils.override_role(self):
             result = self.flavors_client.show_flavor(

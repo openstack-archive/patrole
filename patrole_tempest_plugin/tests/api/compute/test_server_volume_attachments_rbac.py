@@ -51,7 +51,7 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-volumes-attachments:index")
+        rules=["os_compute_api:os-volumes-attachments:index"])
     @decorators.idempotent_id('529b668b-6edb-41d5-8886-d7dbd0614678')
     def test_list_volume_attachments(self):
         with self.rbac_utils.override_role(self):
@@ -60,7 +60,7 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-volumes-attachments:create")
+        rules=["os_compute_api:os-volumes-attachments:create"])
     @decorators.idempotent_id('21c2c3fd-fbe8-41b1-8ef8-115ec47d54c1')
     def test_create_volume_attachment(self):
         with self.rbac_utils.override_role(self):
@@ -69,7 +69,7 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-volumes-attachments:show")
+        rules=["os_compute_api:os-volumes-attachments:show"])
     @decorators.idempotent_id('997df9c2-6e54-47b6-ab74-e4fdb500f385')
     def test_show_volume_attachment(self):
         attachment = self.attach_volume(self.server, self.volume)
@@ -83,7 +83,7 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
                           'In-place swapping of volumes not supported.')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-volumes-attachments:update")
+        rules=["os_compute_api:os-volumes-attachments:update"])
     @decorators.idempotent_id('bd667186-eca6-4b78-ab6a-3e2fabcb971f')
     def test_update_volume_attachment(self):
         attachment = self.attach_volume(self.server, self.volume)
@@ -108,7 +108,7 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-volumes-attachments:delete")
+        rules=["os_compute_api:os-volumes-attachments:delete"])
     @decorators.idempotent_id('12b03e90-d087-46af-9c4d-507d021c4984')
     def test_delete_volume_attachment(self):
         self.attach_volume(self.server, self.volume)

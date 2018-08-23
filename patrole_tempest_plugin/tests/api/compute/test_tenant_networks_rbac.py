@@ -54,7 +54,7 @@ class TenantNetworksRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('42b39ba1-14aa-4799-9518-34367d0da67a')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-tenant-networks")
+        rules=["os_compute_api:os-tenant-networks"])
     def test_list_show_tenant_networks(self):
         with self.rbac_utils.override_role(self):
             self.tenant_networks_client.list_tenant_networks()

@@ -48,7 +48,7 @@ class SnapshotMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
             self.snapshot_id, metadata)['metadata']
 
     @rbac_rule_validation.action(service="cinder",
-                                 rule="volume:get_snapshot_metadata")
+                                 rules=["volume:get_snapshot_metadata"])
     @decorators.idempotent_id('f6912bb1-62e6-483d-bcd0-e98c1641f4c3')
     def test_get_snapshot_metadata(self):
         # Create volume and snapshot metadata
@@ -60,7 +60,7 @@ class SnapshotMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @rbac_rule_validation.action(
         service="cinder",
-        rule="volume_extension:volume_tenant_attribute")
+        rules=["volume_extension:volume_tenant_attribute"])
     @decorators.idempotent_id('e2c73b00-0c19-4bb7-8c61-d84b1a223ed1')
     def test_get_snapshot_metadata_for_volume_tenant(self):
         # Create volume and snapshot metadata
@@ -72,7 +72,7 @@ class SnapshotMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @decorators.idempotent_id('7ea597f6-c544-4b10-aab0-ff68f595fb06')
     @rbac_rule_validation.action(service="cinder",
-                                 rule="volume:update_snapshot_metadata")
+                                 rules=["volume:update_snapshot_metadata"])
     def test_update_snapshot_metadata(self):
         self._create_test_snapshot_metadata()
         with self.rbac_utils.override_role(self):
@@ -83,7 +83,7 @@ class SnapshotMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @decorators.idempotent_id('93068d02-0131-4dd3-af16-fc40d7128d93')
     @rbac_rule_validation.action(service="cinder",
-                                 rule="volume:get_snapshot_metadata")
+                                 rules=["volume:get_snapshot_metadata"])
     def test_show_snapshot_metadata_item(self):
         self._create_test_snapshot_metadata()
         with self.rbac_utils.override_role(self):
@@ -92,7 +92,7 @@ class SnapshotMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @decorators.idempotent_id('1f8f43e7-da31-4128-bb3c-73fc548650e3')
     @rbac_rule_validation.action(service="cinder",
-                                 rule="volume:update_snapshot_metadata")
+                                 rules=["volume:update_snapshot_metadata"])
     def test_update_snapshot_metadata_item(self):
         update_item = {"key3": "value3_update"}
         self._create_test_snapshot_metadata()
@@ -102,7 +102,7 @@ class SnapshotMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @decorators.idempotent_id('3ec32516-f7cd-4f88-b78a-ddee67492071')
     @rbac_rule_validation.action(service="cinder",
-                                 rule="volume:delete_snapshot_metadata")
+                                 rules=["volume:delete_snapshot_metadata"])
     def test_delete_snapshot_metadata_item(self):
         self._create_test_snapshot_metadata()
         with self.rbac_utils.override_role(self):

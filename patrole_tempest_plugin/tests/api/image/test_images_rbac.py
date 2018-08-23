@@ -42,7 +42,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         return self.image_client.store_image_file(image_id, image_file)
 
     @rbac_rule_validation.action(service="glance",
-                                 rule="add_image")
+                                 rules=["add_image"])
     @decorators.idempotent_id('0f148510-63bf-11e6-b348-080027d0d606')
     def test_create_image(self):
 
@@ -54,7 +54,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
             self._create_image()
 
     @rbac_rule_validation.action(service="glance",
-                                 rule="upload_image")
+                                 rules=["upload_image"])
     @decorators.idempotent_id('fdc0c7e2-ad58-4c5a-ba9d-1f6046a5b656')
     def test_upload_image(self):
 
@@ -69,7 +69,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
 
     @decorators.idempotent_id('f0c268f3-cb51-49aa-9bd5-d30cf647322f')
     @rbac_rule_validation.action(service="glance",
-                                 rule="download_image")
+                                 rules=["download_image"])
     def test_download_image(self):
 
         """Download Image Test
@@ -83,7 +83,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
             self.image_client.show_image_file(image['id'])
 
     @rbac_rule_validation.action(service="glance",
-                                 rule="delete_image")
+                                 rules=["delete_image"])
     @decorators.idempotent_id('3b5c341e-645b-11e6-ac4f-080027d0d606')
     def test_delete_image(self):
 
@@ -98,7 +98,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
         self.image_client.wait_for_resource_deletion(image['id'])
 
     @rbac_rule_validation.action(service="glance",
-                                 rule="get_image")
+                                 rules=["get_image"])
     @decorators.idempotent_id('3085c7c6-645b-11e6-ac4f-080027d0d606')
     def test_show_image(self):
 
@@ -112,7 +112,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
             self.image_client.show_image(image['id'])
 
     @rbac_rule_validation.action(service="glance",
-                                 rule="get_images")
+                                 rules=["get_images"])
     @decorators.idempotent_id('bf1a4e94-645b-11e6-ac4f-080027d0d606')
     def test_list_images(self):
 
@@ -124,7 +124,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
             self.image_client.list_images()['images']
 
     @rbac_rule_validation.action(service="glance",
-                                 rule="modify_image")
+                                 rules=["modify_image"])
     @decorators.idempotent_id('32ecf48c-645e-11e6-ac4f-080027d0d606')
     def test_update_image(self):
 
@@ -142,7 +142,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
 
     @decorators.idempotent_id('244050d9-1b9a-446a-b3c5-f26f3ba8eb75')
     @rbac_rule_validation.action(service="glance",
-                                 rule="modify_image")
+                                 rules=["modify_image"])
     def test_create_image_tag(self):
 
         """Create image tag
@@ -158,7 +158,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
 
     @decorators.idempotent_id('c4a0bf9c-b78b-48c6-a31f-72c95f943c6e')
     @rbac_rule_validation.action(service="glance",
-                                 rule="modify_image")
+                                 rules=["modify_image"])
     def test_delete_image_tag(self):
 
         """Delete image tag
@@ -173,7 +173,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
             self.image_client.delete_image_tag(image['id'], tag_name)
 
     @rbac_rule_validation.action(service="glance",
-                                 rule="publicize_image")
+                                 rules=["publicize_image"])
     @decorators.idempotent_id('0ea4809c-6461-11e6-ac4f-080027d0d606')
     def test_publicize_image(self):
 
@@ -186,7 +186,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
 
     @decorators.idempotent_id('0f2d8427-134a-4d3c-a102-5fcdf5443d09')
     @rbac_rule_validation.action(service="glance",
-                                 rule="communitize_image")
+                                 rules=["communitize_image"])
     def test_communitize_image(self):
 
         """Communitize Image Test
@@ -197,7 +197,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
             self._create_image(visibility='community')
 
     @rbac_rule_validation.action(service="glance",
-                                 rule="deactivate")
+                                 rules=["deactivate"])
     @decorators.idempotent_id('b488458c-65df-11e6-9947-080027824017')
     def test_deactivate_image(self):
 
@@ -212,7 +212,7 @@ class BasicOperationsImagesRbacTest(rbac_base.BaseV2ImageRbacTest):
             self.image_client.deactivate_image(image['id'])
 
     @rbac_rule_validation.action(service="glance",
-                                 rule="reactivate")
+                                 rules=["reactivate"])
     @decorators.idempotent_id('d3fa28b8-65df-11e6-9947-080027824017')
     def test_reactivate_image(self):
 

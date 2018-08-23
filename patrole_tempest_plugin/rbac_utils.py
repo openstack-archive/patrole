@@ -83,7 +83,7 @@ class RbacUtils(object):
         Example::
 
             @rbac_rule_validation.action(service='test',
-                                         rule='a:test:rule')
+                                         rules=['a:test:rule'])
             def test_foo(self):
                 # Allocate test-level resources here.
                 with self.rbac_utils.override_role(self):

@@ -36,7 +36,7 @@ class ImageResourceTypesRbacTest(rbac_base.BaseV2ImageRbacTest):
             cls.namespaces_client.delete_namespace, cls.namespace_name)
 
     @rbac_rule_validation.action(service="glance",
-                                 rule="list_metadef_resource_types")
+                                 rules=["list_metadef_resource_types"])
     @decorators.idempotent_id('0416fc4d-cfdc-447b-88b6-d9f1dd0382f7')
     def test_list_metadef_resource_types(self):
         """List Metadef Resource Type Image Test
@@ -47,7 +47,7 @@ class ImageResourceTypesRbacTest(rbac_base.BaseV2ImageRbacTest):
             self.resource_types_client.list_resource_types()
 
     @rbac_rule_validation.action(service="glance",
-                                 rule="get_metadef_resource_type")
+                                 rules=["get_metadef_resource_type"])
     @decorators.idempotent_id('3698d53c-71ae-4803-a2c3-c272c054f25c')
     def test_get_metadef_resource_type(self):
         """Get Metadef Resource Type Image Test
@@ -58,8 +58,9 @@ class ImageResourceTypesRbacTest(rbac_base.BaseV2ImageRbacTest):
             self.resource_types_client.list_resource_type_association(
                 self.namespace_name)
 
-    @rbac_rule_validation.action(service="glance",
-                                 rule="add_metadef_resource_type_association")
+    @rbac_rule_validation.action(
+        service="glance",
+        rules=["add_metadef_resource_type_association"])
     @decorators.idempotent_id('ef9fbc60-3e28-4164-a25c-d30d892f7939')
     def test_add_metadef_resource_type(self):
         type_name = data_utils.rand_name()

@@ -42,7 +42,7 @@ class ProjectTagsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     @decorators.idempotent_id('acbd7b2d-0a4d-4990-9fab-eccad69d4238')
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:create_project_tag")
+                                 rules=["identity:create_project_tag"])
     def test_update_project_tag(self):
         tag = data_utils.rand_name(self.__class__.__name__ + '-Tag')
         with self.rbac_utils.override_role(self):
@@ -50,14 +50,14 @@ class ProjectTagsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     @decorators.idempotent_id('e122d7d1-bb6d-43af-b489-afa8c609b9ae')
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:list_project_tags")
+                                 rules=["identity:list_project_tags"])
     def test_list_project_tags(self):
         with self.rbac_utils.override_role(self):
             self.project_tags_client.list_project_tags(self.project_id)
 
     @decorators.idempotent_id('716f9081-4626-4594-a82c-e7dc037464ac')
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:update_project_tags")
+                                 rules=["identity:update_project_tags"])
     def test_update_all_project_tags(self):
         tags = [
             data_utils.rand_name(self.__class__.__name__ + '-Tag')
@@ -69,7 +69,7 @@ class ProjectTagsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     @decorators.idempotent_id('974cb1da-d7d4-4863-99da-4a3f0c801729')
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:get_project_tag")
+                                 rules=["identity:get_project_tag"])
     def test_check_project_tag_existence(self):
         tag = data_utils.rand_name(self.__class__.__name__ + '-Tag')
         self.project_tags_client.update_project_tag(self.project_id, tag)
@@ -80,7 +80,7 @@ class ProjectTagsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     @decorators.idempotent_id('ffe0c8e1-f9eb-43c5-8097-1e938fc08e07')
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:delete_project_tag")
+                                 rules=["identity:delete_project_tag"])
     def test_delete_project_tag(self):
         tag = data_utils.rand_name(self.__class__.__name__ + '-Tag')
         self.project_tags_client.update_project_tag(self.project_id, tag)
@@ -90,7 +90,7 @@ class ProjectTagsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     @decorators.idempotent_id('94d0ef63-e9e3-4287-9c5e-bd5464467d77')
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:delete_project_tags")
+                                 rules=["identity:delete_project_tags"])
     def test_delete_all_project_tags(self):
         with self.rbac_utils.override_role(self):
             self.project_tags_client.delete_all_project_tags(self.project_id)

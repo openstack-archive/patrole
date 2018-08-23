@@ -62,7 +62,7 @@ class MigrateServerV225RbacTest(base.BaseV2ComputeRbacTest):
                           'Cold migration not available.')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-migrate-server:migrate")
+        rules=["os_compute_api:os-migrate-server:migrate"])
     @decorators.idempotent_id('c6f1607c-9fed-4c00-807e-9ba675b98b1b')
     def test_cold_migration(self):
         server = self.create_test_server(wait_until="ACTIVE")
@@ -76,7 +76,7 @@ class MigrateServerV225RbacTest(base.BaseV2ComputeRbacTest):
                           'Live migration feature is not enabled.')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-migrate-server:migrate_live")
+        rules=["os_compute_api:os-migrate-server:migrate_live"])
     @decorators.idempotent_id('33520834-72c8-4edb-a189-a2e0fc9eb0d3')
     def test_migration_live(self):
         server_id = self.create_test_server(wait_until="ACTIVE",

@@ -53,7 +53,7 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
         return subnetpool
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="create_subnetpool")
+                                 rules=["create_subnetpool"])
     @decorators.idempotent_id('1b5509fd-2c32-44a8-a786-1b6ca162dbd1')
     def test_create_subnetpool(self):
         """Create subnetpool.

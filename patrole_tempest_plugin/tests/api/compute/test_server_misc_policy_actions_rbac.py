@@ -81,7 +81,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @utils.requires_ext(extension='os-admin-actions', service='compute')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-admin-actions:reset_state")
+        rules=["os_compute_api:os-admin-actions:reset_state"])
     @decorators.idempotent_id('ae84dd0b-f364-462e-b565-3457f9c019ef')
     def test_reset_server_state(self):
         """Test reset server state, part of os-admin-actions."""
@@ -93,7 +93,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @utils.requires_ext(extension='os-admin-actions', service='compute')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-admin-actions:inject_network_info")
+        rules=["os_compute_api:os-admin-actions:inject_network_info"])
     @decorators.idempotent_id('ce48c340-51c1-4cff-9b6e-0cc5ef008630')
     def test_inject_network_info(self):
         """Test inject network info, part of os-admin-actions."""
@@ -103,7 +103,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @utils.requires_ext(extension='os-admin-actions', service='compute')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-admin-actions:reset_network")
+        rules=["os_compute_api:os-admin-actions:reset_network"])
     @decorators.idempotent_id('2911a242-15c4-4fcb-80d5-80a8930661b0')
     def test_reset_network(self):
         """Test reset network, part of os-admin-actions."""
@@ -114,7 +114,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                           'Change password not available.')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-admin-password")
+        rules=["os_compute_api:os-admin-password"])
     @decorators.idempotent_id('908a7d59-3a66-441c-94cf-38e57ed14956')
     def test_change_server_password(self):
         """Test change admin password, part of os-admin-password."""
@@ -135,7 +135,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('2c82e819-382d-4d6f-87f0-a45954cbbc64')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-config-drive")
+        rules=["os_compute_api:os-config-drive"])
     def test_list_servers_with_details_config_drive(self):
         """Test list servers with config_drive property in response body."""
         with self.rbac_utils.override_role(self):
@@ -152,7 +152,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('55c62ef7-b72b-4970-acc6-05b0a4316e5d')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-config-drive")
+        rules=["os_compute_api:os-config-drive"])
     def test_show_server_config_drive(self):
         """Test show server with config_drive property in response body."""
         with self.rbac_utils.override_role(self):
@@ -166,7 +166,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('189bfed4-1e6d-475c-bb8c-d57e60895391')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-deferred-delete")
+        rules=["os_compute_api:os-deferred-delete"])
     def test_force_delete_server(self):
         """Test force delete server, part of os-deferred-delete."""
         with self.rbac_utils.override_role(self):
@@ -179,7 +179,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @utils.requires_ext(extension='OS-EXT-AZ', service='compute')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-extended-availability-zone")
+        rules=["os_compute_api:os-extended-availability-zone"])
     def test_list_servers_with_details_extended_availability_zone(self):
         """Test list servers OS-EXT-AZ:availability_zone attr in resp body."""
         expected_attr = 'OS-EXT-AZ:availability_zone'
@@ -197,7 +197,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @utils.requires_ext(extension='OS-EXT-AZ', service='compute')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-extended-availability-zone")
+        rules=["os_compute_api:os-extended-availability-zone"])
     def test_show_server_extended_availability_zone(self):
         """Test show server OS-EXT-AZ:availability_zone attr in resp body."""
         expected_attr = 'OS-EXT-AZ:availability_zone'
@@ -214,7 +214,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @utils.requires_ext(extension='OS-EXT-SRV-ATTR', service='compute')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-extended-server-attributes")
+        rules=["os_compute_api:os-extended-server-attributes"])
     def test_list_servers_extended_server_attributes(self):
         """Test list servers with details, with extended server attributes in
         response body.
@@ -238,7 +238,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @utils.requires_ext(extension='OS-EXT-SRV-ATTR', service='compute')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-extended-server-attributes")
+        rules=["os_compute_api:os-extended-server-attributes"])
     def test_show_server_extended_server_attributes(self):
         """Test show server with extended server attributes in response
         body.
@@ -262,7 +262,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @utils.requires_ext(extension='OS-EXT-STS', service='compute')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-extended-status")
+        rules=["os_compute_api:os-extended-status"])
     def test_list_servers_extended_status(self):
         """Test list servers with extended properties in response body."""
         with self.rbac_utils.override_role(self):
@@ -281,7 +281,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @utils.requires_ext(extension='OS-EXT-STS', service='compute')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-extended-status")
+        rules=["os_compute_api:os-extended-status"])
     def test_show_server_extended_status(self):
         """Test show server with extended properties in response body."""
         with self.rbac_utils.override_role(self):
@@ -300,7 +300,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @utils.requires_ext(extension='os-extended-volumes', service='compute')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-extended-volumes")
+        rules=["os_compute_api:os-extended-volumes"])
     def test_list_servers_with_details_extended_volumes(self):
         """Test list servers os-extended-volumes:volumes_attached attr in resp
         body.
@@ -319,7 +319,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @utils.requires_ext(extension='os-extended-volumes', service='compute')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-extended-volumes")
+        rules=["os_compute_api:os-extended-volumes"])
     def test_show_server_extended_volumes(self):
         """Test show server os-extended-volumes:volumes_attached attr in resp
         body.
@@ -336,7 +336,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('9d1b131d-407e-4fa3-8eef-eb2c4526f1da')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-instance-actions")
+        rules=["os_compute_api:os-instance-actions"])
     def test_list_instance_actions(self):
         """Test list instance actions, part of os-instance-actions."""
         with self.rbac_utils.override_role(self):
@@ -346,7 +346,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('eb04c439-4215-4029-9ccb-5b3c041bfc25')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-instance-actions:events")
+        rules=["os_compute_api:os-instance-actions:events"])
     def test_show_instance_action(self):
         """Test show instance action, part of os-instance-actions.
 
@@ -372,7 +372,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                       "This API extension policy was removed in Stein")
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-keypairs")
+        rules=["os_compute_api:os-keypairs"])
     @decorators.idempotent_id('81e6fa34-c06b-42ca-b195-82bf8699b940')
     def test_show_server_keypair(self):
         with self.rbac_utils.override_role(self):
@@ -386,7 +386,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                       "This API extension policy was removed in Stein")
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-keypairs")
+        rules=["os_compute_api:os-keypairs"])
     @decorators.idempotent_id('41ca4280-ec59-4b80-a9b1-6bc6366faf39')
     def test_list_servers_keypairs(self):
         with self.rbac_utils.override_role(self):
@@ -397,7 +397,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-lock-server:lock")
+        rules=["os_compute_api:os-lock-server:lock"])
     @decorators.idempotent_id('b81e10fb-1864-498f-8c1d-5175c6fec5fb')
     def test_lock_server(self):
         """Test lock server, part of os-lock-server."""
@@ -407,7 +407,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-lock-server:unlock")
+        rules=["os_compute_api:os-lock-server:unlock"])
     @decorators.idempotent_id('d50ef8e8-4bce-11e7-b114-b2f933d5fe66')
     def test_unlock_server(self):
         """Test unlock server, part of os-lock-server."""
@@ -438,7 +438,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @utils.requires_ext(extension='os-rescue', service='compute')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-rescue")
+        rules=["os_compute_api:os-rescue"])
     @decorators.idempotent_id('fbbb2afc-ed0e-4552-887d-ac00fb5d436e')
     def test_rescue_server(self):
         """Test rescue server, part of os-rescue."""
@@ -451,7 +451,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @utils.requires_ext(extension='os-rescue', service='compute')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-rescue")
+        rules=["os_compute_api:os-rescue"])
     def test_unrescue_server(self):
         """Test unrescue server, part of os-rescue."""
         self.servers_client.rescue_server(self.server['id'])
@@ -466,7 +466,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @utils.requires_ext(extension='os-server-diagnostics', service='compute')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-server-diagnostics")
+        rules=["os_compute_api:os-server-diagnostics"])
     @decorators.idempotent_id('5dabfcc4-bedb-417b-8247-b3ee7c5c0f3e')
     def test_show_server_diagnostics(self):
         """Test show server diagnostics, part of os-server-diagnostics."""
@@ -477,7 +477,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('aaf43f78-c178-4581-ac18-14afd3f1f6ba')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-server-password")
+        rules=["os_compute_api:os-server-password"])
     def test_delete_server_password(self):
         """Test delete server password, part of os-server-password."""
         with self.rbac_utils.override_role(self):
@@ -486,7 +486,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @utils.requires_ext(extension='os-server-password', service='compute')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-server-password")
+        rules=["os_compute_api:os-server-password"])
     @decorators.idempotent_id('f677971a-7d20-493c-977f-6ff0a74b5b2c')
     def test_get_server_password(self):
         """Test show server password, part of os-server-password."""
@@ -498,7 +498,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @utils.requires_ext(extension='OS-SRV-USG', service='compute')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-server-usage")
+        rules=["os_compute_api:os-server-usage"])
     @decorators.idempotent_id('f0437ead-b9fb-462a-9f3d-ce53fac9d57a')
     def test_show_server_usage(self):
         """Test show server usage, part of os-server-usage.
@@ -520,7 +520,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @utils.requires_ext(extension='os-simple-tenant-usage', service='compute')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-simple-tenant-usage:list")
+        rules=["os_compute_api:os-simple-tenant-usage:list"])
     @decorators.idempotent_id('2aef094f-0452-4df6-a66a-0ec22a92b16e')
     def test_list_simple_tenant_usages(self):
         """Test list tenant usages, part of os-simple-tenant-usage."""
@@ -530,7 +530,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @utils.requires_ext(extension='os-simple-tenant-usage', service='compute')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-simple-tenant-usage:show")
+        rules=["os_compute_api:os-simple-tenant-usage:show"])
     @decorators.idempotent_id('fe7eacda-15c4-4bf7-93ef-1091c4546a9d')
     def test_show_simple_tenant_usage(self):
         """Test show tenant usage, part of os-simple-tenant-usage."""
@@ -544,7 +544,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('b775930f-237c-431c-83ae-d33ed1b9700b')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-suspend-server:suspend")
+        rules=["os_compute_api:os-suspend-server:suspend"])
     def test_suspend_server(self):
         """Test suspend server, part of os-suspend-server."""
         with self.rbac_utils.override_role(self):
@@ -558,7 +558,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('4d90bd02-11f8-45b1-a8a1-534665584675')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-suspend-server:resume")
+        rules=["os_compute_api:os-suspend-server:resume"])
     def test_resume_server(self):
         """Test resume server, part of os-suspend-server."""
         self.servers_client.suspend_server(self.server['id'])
@@ -654,7 +654,7 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('ddf53cb6-4a0a-4e5a-91e3-6c32aaa3b9b6')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-attach-interfaces")
+        rules=["os_compute_api:os-attach-interfaces"])
     def test_list_interfaces(self):
         """Test list interfaces, part of os-attach-interfaces."""
         with self.rbac_utils.override_role(self):
@@ -666,7 +666,7 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @utils.requires_ext(extension='os-attach-interfaces', service='compute')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-attach-interfaces")
+        rules=["os_compute_api:os-attach-interfaces"])
     def test_show_interface(self):
         """Test show interfaces, part of os-attach-interfaces."""
         interface = self._attach_interface_to_server()
@@ -680,7 +680,7 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('d2d3a24d-4738-4bce-a287-36d664746cde')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-attach-interfaces:create")
+        rules=["os_compute_api:os-attach-interfaces:create"])
     def test_create_interface(self):
         """Test create interface, part of os-attach-interfaces."""
         network_id = self.network['id']
@@ -704,7 +704,7 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('55b05692-ed44-4608-a84c-cd4219c82799')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-attach-interfaces:delete")
+        rules=["os_compute_api:os-attach-interfaces:delete"])
     def test_delete_interface(self):
         """Test delete interface, part of os-attach-interfaces."""
         interface = self._attach_interface_to_server()
@@ -719,7 +719,7 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @utils.requires_ext(extension='os-ips', service='compute')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:ips:index")
+        rules=["os_compute_api:ips:index"])
     def test_list_addresses(self):
         """Test list server addresses, part of ips policy family."""
         with self.rbac_utils.override_role(self):
@@ -729,7 +729,7 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @utils.requires_ext(extension='os-ips', service='compute')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:ips:show")
+        rules=["os_compute_api:ips:show"])
     def test_list_addresses_by_network(self):
         """Test list server addresses by network, part of ips policy family."""
         addresses = self.servers_client.list_addresses(self.server['id'])[
@@ -744,7 +744,7 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
                           "Interface attachment is not available.")
     @utils.requires_ext(extension='os-multinic', service='compute')
     @rbac_rule_validation.action(
-        service="nova", rule="os_compute_api:os-multinic")
+        service="nova", rules=["os_compute_api:os-multinic"])
     @decorators.idempotent_id('bd3e2c74-130a-40f0-8085-124d93fe67da')
     def test_add_fixed_ip(self):
         """Test add fixed ip to server network, part of os-multinic."""

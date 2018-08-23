@@ -45,21 +45,21 @@ class VolumeQuotasV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @decorators.idempotent_id('427c9f0c-982e-403d-ae45-c05f4d6322ff')
     @rbac_rule_validation.action(service="cinder",
-                                 rule="volume_extension:quotas:show")
+                                 rules=["volume_extension:quotas:show"])
     def test_list_quotas(self):
         with self.rbac_utils.override_role(self):
             self.quotas_client.show_quota_set(self.demo_tenant_id)
 
     @decorators.idempotent_id('e47cf444-2753-4983-be6d-fc0d6523720f')
     @rbac_rule_validation.action(service="cinder",
-                                 rule="volume_extension:quotas:show")
+                                 rules=["volume_extension:quotas:show"])
     def test_list_quotas_usage_true(self):
         with self.rbac_utils.override_role(self):
             self.quotas_client.show_quota_set(self.demo_tenant_id,
                                               params={'usage': True})
 
     @rbac_rule_validation.action(service="cinder",
-                                 rule="volume_extension:quotas:show")
+                                 rules=["volume_extension:quotas:show"])
     @decorators.idempotent_id('b3c7177e-b6b1-4d0f-810a-fc95606964dd')
     def test_list_default_quotas(self):
         with self.rbac_utils.override_role(self):
@@ -67,7 +67,7 @@ class VolumeQuotasV3RbacTest(rbac_base.BaseVolumeRbacTest):
                 self.demo_tenant_id)
 
     @rbac_rule_validation.action(service="cinder",
-                                 rule="volume_extension:quotas:update")
+                                 rules=["volume_extension:quotas:update"])
     @decorators.idempotent_id('60f8f421-1630-4953-b449-b22af32265c7')
     def test_update_quota_set(self):
         self._restore_default_quota_set()
@@ -81,7 +81,7 @@ class VolumeQuotasV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @decorators.idempotent_id('329bdb88-5132-4810-b1fc-350d181577e3')
     @rbac_rule_validation.action(service="cinder",
-                                 rule="volume_extension:quotas:delete")
+                                 rules=["volume_extension:quotas:delete"])
     def test_delete_quota_set(self):
         self._restore_default_quota_set()
 

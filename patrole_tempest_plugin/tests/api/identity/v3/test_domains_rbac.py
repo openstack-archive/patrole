@@ -23,14 +23,14 @@ from patrole_tempest_plugin.tests.api.identity import rbac_base
 class IdentityDomainsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:create_domain")
+                                 rules=["identity:create_domain"])
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd110')
     def test_create_domain(self):
         with self.rbac_utils.override_role(self):
             self.setup_test_domain()
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:update_domain")
+                                 rules=["identity:update_domain"])
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd111')
     def test_update_domain(self):
         domain = self.setup_test_domain()
@@ -42,7 +42,7 @@ class IdentityDomainsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                                               name=new_domain_name)
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:delete_domain")
+                                 rules=["identity:delete_domain"])
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd112')
     def test_delete_domain(self):
         domain = self.setup_test_domain()
@@ -54,7 +54,7 @@ class IdentityDomainsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
             self.domains_client.delete_domain(domain['id'])
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:get_domain")
+                                 rules=["identity:get_domain"])
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd113')
     def test_show_domain(self):
         domain = self.setup_test_domain()
@@ -62,7 +62,7 @@ class IdentityDomainsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
             self.domains_client.show_domain(domain['id'])
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:list_domains")
+                                 rules=["identity:list_domains"])
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd114')
     def test_list_domains(self):
         with self.rbac_utils.override_role(self):

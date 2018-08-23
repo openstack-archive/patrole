@@ -50,7 +50,7 @@ class FlavorExtraSpecsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('daee891d-dfe9-4501-a39c-29f2371bec3c')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-flavor-extra-specs:show")
+        rules=["os_compute_api:os-flavor-extra-specs:show"])
     def test_show_flavor_extra_spec(self):
         key = self._set_flavor_extra_spec()
         with self.rbac_utils.override_role(self):
@@ -59,7 +59,7 @@ class FlavorExtraSpecsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('fcffeca2-ed04-4e85-bf93-02fb5643f22b')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-flavor-extra-specs:create")
+        rules=["os_compute_api:os-flavor-extra-specs:create"])
     def test_set_flavor_extra_spec(self):
         with self.rbac_utils.override_role(self):
             self._set_flavor_extra_spec()
@@ -67,7 +67,7 @@ class FlavorExtraSpecsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('42b85279-6bfa-4f58-b7a2-258c284f03c5')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-flavor-extra-specs:update")
+        rules=["os_compute_api:os-flavor-extra-specs:update"])
     def test_update_flavor_extra_spec(self):
         key = self._set_flavor_extra_spec()
         update_val = data_utils.rand_name(self.__class__.__name__ + '-val')
@@ -78,7 +78,7 @@ class FlavorExtraSpecsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('4b0e5471-e010-4c09-8965-80898e6760a3')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-flavor-extra-specs:delete")
+        rules=["os_compute_api:os-flavor-extra-specs:delete"])
     def test_unset_flavor_extra_spec(self):
         key = self._set_flavor_extra_spec()
         with self.rbac_utils.override_role(self):
@@ -87,7 +87,7 @@ class FlavorExtraSpecsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('02c3831a-3ce9-476e-a722-d805ac2da621')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-flavor-extra-specs:index")
+        rules=["os_compute_api:os-flavor-extra-specs:index"])
     def test_list_flavor_extra_specs(self):
         self._set_flavor_extra_spec()
         with self.rbac_utils.override_role(self):

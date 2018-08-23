@@ -56,7 +56,7 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
         return unused_ip[0]
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="create_router")
+                                 rules=["create_router"])
     @decorators.idempotent_id('acc5005c-bdb6-4192-bc9f-ece9035bb488')
     def test_create_router(self):
         """Create Router

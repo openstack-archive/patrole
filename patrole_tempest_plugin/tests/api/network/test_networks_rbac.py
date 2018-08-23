@@ -97,7 +97,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         return updated_network
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="create_network")
+                                 rules=["create_network"])
     @decorators.idempotent_id('95b9baab-1ece-4e2b-89c8-8d671d974e54')
     def test_create_network(self):
 
@@ -447,7 +447,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
     @utils.requires_ext(extension='dhcp_agent_scheduler', service='network')
     @decorators.idempotent_id('b524f19f-fbb4-4d11-a85d-03bfae17bf0e')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_dhcp-agents")
+                                 rules=["get_dhcp-agents"])
     def test_list_dhcp_agents_on_hosting_network(self):
 
         """List DHCP Agents on Hosting Network Test

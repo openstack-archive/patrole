@@ -22,7 +22,7 @@ from patrole_tempest_plugin.tests.api.volume import rbac_base
 class VolumeHostsV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @rbac_rule_validation.action(service="cinder",
-                                 rule="volume_extension:hosts")
+                                 rules=["volume_extension:hosts"])
     @decorators.idempotent_id('64e837f5-5452-4e26-b934-c721ea7a8644')
     def test_list_hosts(self):
         with self.rbac_utils.override_role(self):
@@ -30,7 +30,7 @@ class VolumeHostsV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @decorators.idempotent_id('9ddf321e-788f-4787-b8cc-dfa59e264143')
     @rbac_rule_validation.action(service="cinder",
-                                 rule="volume_extension:hosts")
+                                 rules=["volume_extension:hosts"])
     def test_show_host(self):
         hosts = self.volume_hosts_client.list_hosts()['hosts']
         host_names = [host['host_name'] for host in hosts]

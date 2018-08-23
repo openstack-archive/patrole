@@ -33,7 +33,7 @@ class LimitsV3RbacTest(rbac_base.BaseVolumeRbacTest):
         '"limits_extension:used_limits" must be available in the cloud.')
     @decorators.idempotent_id('dab04510-5b86-4479-a633-6e496ff405af')
     @rbac_rule_validation.action(service="cinder",
-                                 rule="limits_extension:used_limits")
+                                 rules=["limits_extension:used_limits"])
     def test_show_limits(self):
         # It is enough to check whether any of the following keys below
         # are in the response body under ['limits']['absolute'], but no harm

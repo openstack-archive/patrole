@@ -58,7 +58,7 @@ class IdentityPolicyAssociationRbacTest(
 
     @rbac_rule_validation.action(
         service="keystone",
-        rule="identity:create_policy_association_for_endpoint")
+        rules=["identity:create_policy_association_for_endpoint"])
     @decorators.idempotent_id('1b3f4f62-4f4a-4d27-be27-9a113058597f')
     def test_update_policy_association_for_endpoint(self):
         with self.rbac_utils.override_role(self):
@@ -67,7 +67,7 @@ class IdentityPolicyAssociationRbacTest(
 
     @rbac_rule_validation.action(
         service="keystone",
-        rule="identity:check_policy_association_for_endpoint")
+        rules=["identity:check_policy_association_for_endpoint"])
     @decorators.idempotent_id('25ce8c89-e751-465c-8d35-52bacd774beb')
     def test_show_policy_association_for_endpoint(self):
         self._update_policy_association_for_endpoint(
@@ -78,7 +78,7 @@ class IdentityPolicyAssociationRbacTest(
 
     @rbac_rule_validation.action(
         service="keystone",
-        rule="identity:delete_policy_association_for_endpoint")
+        rules=["identity:delete_policy_association_for_endpoint"])
     @decorators.idempotent_id('95cad2d8-bcd0-4c4e-a8f7-cc80601e43a1')
     def test_delete_policy_association_for_endpoint(self):
         self._update_policy_association_for_endpoint(
@@ -89,7 +89,7 @@ class IdentityPolicyAssociationRbacTest(
 
     @rbac_rule_validation.action(
         service="keystone",
-        rule="identity:create_policy_association_for_service")
+        rules=["identity:create_policy_association_for_service"])
     @decorators.idempotent_id('57fb80fe-6ce2-4995-b710-4692b3fc3cdc')
     def test_update_policy_association_for_service(self):
         with self.rbac_utils.override_role(self):
@@ -98,7 +98,7 @@ class IdentityPolicyAssociationRbacTest(
 
     @rbac_rule_validation.action(
         service="keystone",
-        rule="identity:check_policy_association_for_service")
+        rules=["identity:check_policy_association_for_service"])
     @decorators.idempotent_id('5cbe285f-4888-4f98-978f-30210ff28b74')
     def test_show_policy_association_for_service(self):
         self._update_policy_association_for_service(
@@ -109,7 +109,7 @@ class IdentityPolicyAssociationRbacTest(
 
     @rbac_rule_validation.action(
         service="keystone",
-        rule="identity:delete_policy_association_for_service")
+        rules=["identity:delete_policy_association_for_service"])
     @decorators.idempotent_id('f754455c-02a4-4fb6-8c73-64ef453f955f')
     def test_delete_policy_association_for_service(self):
         self._update_policy_association_for_service(
@@ -120,7 +120,7 @@ class IdentityPolicyAssociationRbacTest(
 
     @rbac_rule_validation.action(
         service="keystone",
-        rule="identity:create_policy_association_for_region_and_service")
+        rules=["identity:create_policy_association_for_region_and_service"])
     @decorators.idempotent_id('54d2a93e-c84d-4079-8ea9-2fb227c262a1')
     def test_update_policy_association_for_region_and_service(self):
         with self.rbac_utils.override_role(self):
@@ -129,7 +129,7 @@ class IdentityPolicyAssociationRbacTest(
 
     @rbac_rule_validation.action(
         service="keystone",
-        rule="identity:check_policy_association_for_region_and_service")
+        rules=["identity:check_policy_association_for_region_and_service"])
     @decorators.idempotent_id('0763b780-52c1-47bc-9316-1fe12a2ab0bc')
     def test_show_policy_association_for_region_and_service(self):
         self._update_policy_association_for_region_and_service(
@@ -141,7 +141,7 @@ class IdentityPolicyAssociationRbacTest(
 
     @rbac_rule_validation.action(
         service="keystone",
-        rule="identity:delete_policy_association_for_region_and_service")
+        rules=["identity:delete_policy_association_for_region_and_service"])
     @decorators.idempotent_id('9c956888-81d4-4a24-8203-bff7b8a7834c')
     def test_delete_policy_association_for_region_and_service(self):
         self._update_policy_association_for_region_and_service(

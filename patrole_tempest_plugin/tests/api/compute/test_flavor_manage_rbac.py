@@ -32,7 +32,7 @@ class FlavorManageRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('a4e7faec-7a4b-4809-9856-90d5b747ca35')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-flavor-manage:create")
+        rules=["os_compute_api:os-flavor-manage:create"])
     def test_create_flavor_manage(self):
         with self.rbac_utils.override_role(self):
             self.create_flavor()
@@ -40,7 +40,7 @@ class FlavorManageRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('782e988e-061b-4c40-896f-a77c70c2b057')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-flavor-manage:delete")
+        rules=["os_compute_api:os-flavor-manage:delete"])
     def test_delete_flavor_manage(self):
         flavor_id = self.create_flavor()['id']
 

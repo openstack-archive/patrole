@@ -63,7 +63,7 @@ class FloatingIpsRbacTest(base.BaseNetworkRbacTest):
         return floating_ip
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="create_floatingip")
+                                 rules=["create_floatingip"])
     @decorators.idempotent_id('f8f7474c-b8a5-4174-af84-73097d6ced38')
     def test_create_floating_ip(self):
         """Create floating IP.

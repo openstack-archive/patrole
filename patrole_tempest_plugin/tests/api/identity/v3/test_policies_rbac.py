@@ -23,14 +23,14 @@ from patrole_tempest_plugin.tests.api.identity import rbac_base
 class IdentityPoliciesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:create_policy")
+                                 rules=["identity:create_policy"])
     @decorators.idempotent_id('de2f7ecb-fbf0-41f3-abf4-b97b5e082fd5')
     def test_create_policy(self):
         with self.rbac_utils.override_role(self):
             self.setup_test_policy()
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:update_policy")
+                                 rules=["identity:update_policy"])
     @decorators.idempotent_id('9cfed3c6-0b27-4d15-be67-e06e0cfb01b9')
     def test_update_policy(self):
         policy = self.setup_test_policy()
@@ -42,7 +42,7 @@ class IdentityPoliciesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                                                type=updated_policy_type)
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:delete_policy")
+                                 rules=["identity:delete_policy"])
     @decorators.idempotent_id('dcd93f75-1e1b-4fbe-bee0-9c4c7b201735')
     def test_delete_policy(self):
         policy = self.setup_test_policy()
@@ -51,7 +51,7 @@ class IdentityPoliciesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
             self.policies_client.delete_policy(policy['id'])
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:get_policy")
+                                 rules=["identity:get_policy"])
     @decorators.idempotent_id('d7e415c2-945a-4504-9571-0e2d0dd8594b')
     def test_show_policy(self):
         policy = self.setup_test_policy()
@@ -60,7 +60,7 @@ class IdentityPoliciesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
             self.policies_client.show_policy(policy['id'])
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:list_policies")
+                                 rules=["identity:list_policies"])
     @decorators.idempotent_id('35a56161-4054-4237-8a78-7ce805dce202')
     def test_list_policies(self):
         with self.rbac_utils.override_role(self):

@@ -30,7 +30,7 @@ class IdentityTokenV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @decorators.idempotent_id('201e2fe5-2023-4bce-9189-78b51520a91e')
     @rbac_rule_validation.action(
         service="keystone",
-        rule="identity:validate_token",
+        rules=["identity:validate_token"],
         extra_target_data={
             "target.token.user_id":
             "os_primary.auth_provider.credentials.user_id"
@@ -43,7 +43,7 @@ class IdentityTokenV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @decorators.idempotent_id('42a299db-fe0a-4ea0-9824-0bfd13155886')
     @rbac_rule_validation.action(
         service="keystone",
-        rule="identity:revoke_token",
+        rules=["identity:revoke_token"],
         extra_target_data={
             "target.token.user_id":
             "os_primary.auth_provider.credentials.user_id"
@@ -56,7 +56,7 @@ class IdentityTokenV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @decorators.idempotent_id('3554d218-8cd6-4730-a1b2-0e22f9b78f45')
     @rbac_rule_validation.action(
         service="keystone",
-        rule="identity:check_token",
+        rules=["identity:check_token"],
         extra_target_data={
             "target.token.user_id":
             "os_primary.auth_provider.credentials.user_id"

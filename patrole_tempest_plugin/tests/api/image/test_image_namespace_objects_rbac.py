@@ -24,7 +24,7 @@ from patrole_tempest_plugin.tests.api.image import rbac_base
 class ImageNamespacesObjectsRbacTest(rbac_base.BaseV2ImageRbacTest):
 
     @rbac_rule_validation.action(service="glance",
-                                 rule="add_metadef_object")
+                                 rules=["add_metadef_object"])
     @decorators.idempotent_id("772156f2-e33d-432e-8521-12385746c2f0")
     def test_create_metadef_object_in_namespace(self):
         """Create Metadef Object Namespace Test
@@ -45,7 +45,7 @@ class ImageNamespacesObjectsRbacTest(rbac_base.BaseV2ImageRbacTest):
                         namespace['namespace'], object_name)
 
     @rbac_rule_validation.action(service="glance",
-                                 rule="get_metadef_objects")
+                                 rules=["get_metadef_objects"])
     @decorators.idempotent_id("48b50ecb-237d-4909-be62-b6a05c47b64d")
     def test_list_metadef_objects_in_namespace(self):
         """List Metadef Object Namespace Test
@@ -59,7 +59,7 @@ class ImageNamespacesObjectsRbacTest(rbac_base.BaseV2ImageRbacTest):
                 namespace['namespace'])
 
     @rbac_rule_validation.action(service="glance",
-                                 rule="modify_metadef_object")
+                                 rules=["modify_metadef_object"])
     @decorators.idempotent_id("cd130b1d-89fa-479c-a90e-498d895fb455")
     def test_update_metadef_object_in_namespace(self):
         """Update Metadef Object Namespace Test
@@ -83,7 +83,7 @@ class ImageNamespacesObjectsRbacTest(rbac_base.BaseV2ImageRbacTest):
                 namespace['namespace'], object_name, name=new_name)
 
     @rbac_rule_validation.action(service="glance",
-                                 rule="get_metadef_object")
+                                 rules=["get_metadef_object"])
     @decorators.idempotent_id("93c61420-5b80-4a0e-b6f3-4ccc6e90b865")
     def test_show_metadef_object_in_namespace(self):
         """Show Metadef Object Namespace Test

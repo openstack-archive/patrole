@@ -63,7 +63,7 @@ class MeteringLabelRulesRbacTest(base.BaseNetworkRbacTest):
         return label_rule
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="create_metering_label_rule")
+                                 rules=["create_metering_label_rule"])
     @decorators.idempotent_id('81e81776-9d41-4d5e-b5c4-59d5c54a31ad')
     def test_create_metering_label_rule(self):
         """Create metering label rule.

@@ -59,7 +59,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
         return ip_list
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="create_port")
+                                 rules=["create_port"])
     @decorators.idempotent_id('0ec8c551-625c-4864-8a52-85baa7c40f22')
     def test_create_port(self):
 

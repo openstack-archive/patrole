@@ -48,7 +48,7 @@ class FloatingIpPoolsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('c1a17153-b25d-4444-a721-5897d7737482')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-floating-ip-pools")
+        rules=["os_compute_api:os-floating-ip-pools"])
     def test_list_floating_ip_pools(self):
         with self.rbac_utils.override_role(self):
             self.fip_pools_client.list_floating_ip_pools()

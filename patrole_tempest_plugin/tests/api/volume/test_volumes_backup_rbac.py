@@ -57,7 +57,7 @@ class VolumesBackupsV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(service="cinder",
-                                 rule="backup:create")
+                                 rules=["backup:create"])
     @decorators.idempotent_id('6887ec94-0bcf-4ab7-b30f-3808a4b5a2a5')
     def test_create_backup(self):
         backup_name = data_utils.rand_name(self.__class__.__name__ + '-Backup')
@@ -73,14 +73,14 @@ class VolumesBackupsV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(service="cinder",
-                                 rule="backup:get")
+                                 rules=["backup:get"])
     @decorators.idempotent_id('abd92bdd-b0fb-4dc4-9cfc-de9e968f8c8a')
     def test_show_backup(self):
         with self.rbac_utils.override_role(self):
             self.backups_client.show_backup(self.backup['id'])
 
     @rbac_rule_validation.action(service="cinder",
-                                 rule="backup:get_all")
+                                 rules=["backup:get_all"])
     @decorators.idempotent_id('4d18f0f0-7e01-4007-b622-dedc859b22f6')
     def test_list_backups(self):
         with self.rbac_utils.override_role(self):
@@ -88,7 +88,7 @@ class VolumesBackupsV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @decorators.idempotent_id('dbd69865-876f-4835-b70e-7341153fb162')
     @rbac_rule_validation.action(service="cinder",
-                                 rule="backup:get_all")
+                                 rules=["backup:get_all"])
     def test_list_backups_with_details(self):
         with self.rbac_utils.override_role(self):
             self.backups_client.list_backups(detail=True)
@@ -97,7 +97,7 @@ class VolumesBackupsV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('50f43bde-205e-438e-9a05-5eac07fc3d63')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="volume_extension:backup_admin_actions:reset_status")
+        rules=["volume_extension:backup_admin_actions:reset_status"])
     def test_reset_backup_status(self):
         # Use instance-level create_backup for easier debugging.
         backup = self.create_backup(volume_id=self.volume['id'])
@@ -112,7 +112,7 @@ class VolumesBackupsV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(service="cinder",
-                                 rule="backup:restore")
+                                 rules=["backup:restore"])
     @decorators.idempotent_id('9c794bf9-2446-4f41-8fe0-80b71e757f9d')
     def test_restore_backup(self):
         with self.rbac_utils.override_role(self):
@@ -125,7 +125,7 @@ class VolumesBackupsV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(service="cinder",
-                                 rule="backup:delete")
+                                 rules=["backup:delete"])
     @decorators.idempotent_id('d5d0c6a2-413d-437e-a73f-4bf2b41a20ed')
     def test_delete_backup(self):
         # Do not call the create_backup in Tempest's base volume class, because
@@ -147,7 +147,7 @@ class VolumesBackupsV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(service="cinder",
-                                 rule="backup:export-import")
+                                 rules=["backup:export-import"])
     @decorators.idempotent_id('e984ec8d-e8eb-485c-98bc-f1856020303c')
     def test_export_backup(self):
         with self.rbac_utils.override_role(self):
@@ -156,7 +156,7 @@ class VolumesBackupsV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(service="cinder",
-                                 rule="backup:backup-import")
+                                 rules=["backup:backup-import"])
     @decorators.idempotent_id('1e70f039-4556-44cc-9cc1-edf2b7ed648b')
     def test_import_backup(self):
         export_backup = self.backups_client.export_backup(
@@ -202,7 +202,7 @@ class VolumesBackupsV318RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @decorators.idempotent_id('69801485-d5be-4e75-bbb4-168d50b5a8c2')
     @rbac_rule_validation.action(service="cinder",
-                                 rule="backup:backup_project_attribute")
+                                 rules=["backup:backup_project_attribute"])
     def test_show_backup_project_attribute(self):
         with self.rbac_utils.override_role(self):
             body = self.backups_client.show_backup(self.backup['id'])['backup']
@@ -215,7 +215,7 @@ class VolumesBackupsV318RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @decorators.idempotent_id('aa40b7c0-5974-48be-8cbc-e23cc61c4c68')
     @rbac_rule_validation.action(service="cinder",
-                                 rule="backup:backup_project_attribute")
+                                 rules=["backup:backup_project_attribute"])
     def test_list_backup_details_project_attribute(self):
         with self.rbac_utils.override_role(self):
             body = self.backups_client.list_backups(detail=True)['backups']
@@ -246,7 +246,7 @@ class VolumesBackupsV39RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('b45b0e98-6eb8-4c62-aa53-0f8c7c09faa6')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="backup:update")
+        rules=["backup:update"])
     def test_backup_update(self):
         update_kwargs = {
             'name': data_utils.rand_name(self.__class__.__name__ + '-Backup'),

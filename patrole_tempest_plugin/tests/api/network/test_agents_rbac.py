@@ -100,7 +100,7 @@ class L3AgentSchedulerRbacTest(base.BaseNetworkRbacTest):
 
     @decorators.idempotent_id('5d2bbdbc-40a5-43d2-828a-84dc93fcc453')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_l3-routers")
+                                 rules=["get_l3-routers"])
     def test_list_routers_on_l3_agent(self):
         """List routers on L3 agent test.
 
@@ -111,7 +111,7 @@ class L3AgentSchedulerRbacTest(base.BaseNetworkRbacTest):
 
     @decorators.idempotent_id('466b2a10-8747-4c09-855a-bd90a1c86ce7')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="create_l3-router")
+                                 rules=["create_l3-router"])
     def test_create_router_on_l3_agent(self):
         """Create router on L3 agent test.
 
@@ -127,7 +127,7 @@ class L3AgentSchedulerRbacTest(base.BaseNetworkRbacTest):
 
     @decorators.idempotent_id('8138cfc9-3e48-4a34-adf6-894077aa1be4')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="delete_l3-router")
+                                 rules=["delete_l3-router"])
     def test_delete_router_from_l3_agent(self):
         """Delete router from L3 agent test.
 
@@ -193,7 +193,7 @@ class DHCPAgentSchedulersRbacTest(base.BaseNetworkRbacTest):
 
     @decorators.idempotent_id('dc84087b-4c2a-4878-8ed0-40370e19da17')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_dhcp-networks")
+                                 rules=["get_dhcp-networks"])
     def test_list_networks_hosted_by_one_dhcp_agent(self):
         """List networks hosted by one DHCP agent test.
 
@@ -205,7 +205,7 @@ class DHCPAgentSchedulersRbacTest(base.BaseNetworkRbacTest):
 
     @decorators.idempotent_id('14e014ac-f355-46d3-b6d8-98f2c9ec1610')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="create_dhcp-network")
+                                 rules=["create_dhcp-network"])
     def test_add_dhcp_agent_to_network(self):
         """Add DHCP agent to network test.
 
@@ -221,7 +221,7 @@ class DHCPAgentSchedulersRbacTest(base.BaseNetworkRbacTest):
 
     @decorators.idempotent_id('937a4302-4b49-407d-9980-5843d7badc38')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="delete_dhcp-network")
+                                 rules=["delete_dhcp-network"])
     def test_delete_network_from_dhcp_agent(self):
         """Delete DHCP agent from network test.
 
@@ -255,7 +255,7 @@ class L3AgentsPluginRbacTest(base.BaseNetworkPluginRbacTest):
 
     @decorators.idempotent_id('5d2bbdbc-40a5-43d2-828a-84dc93bcd321')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_l3-agents")
+                                 rules=["get_l3-agents"])
     def test_list_l3_agents_on_router(self):
         """List L3 agents on router test.
 

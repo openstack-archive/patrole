@@ -35,7 +35,7 @@ class ServerMetadataRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('b07bbc27-58e2-4581-869d-ad228cec5d9a')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:server-metadata:index")
+        rules=["os_compute_api:server-metadata:index"])
     def test_list_server_metadata(self):
         with self.rbac_utils.override_role(self):
             self.servers_client.list_server_metadata(self.server['id'])
@@ -43,7 +43,7 @@ class ServerMetadataRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('6e76748b-2417-4fa2-b41a-c0cc4bff356b')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:server-metadata:update_all")
+        rules=["os_compute_api:server-metadata:update_all"])
     def test_set_server_metadata(self):
         with self.rbac_utils.override_role(self):
             self.servers_client.set_server_metadata(self.server['id'], {})
@@ -51,7 +51,7 @@ class ServerMetadataRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('1060bac4-fe16-4a77-be64-d8e482a06eab')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:server-metadata:create")
+        rules=["os_compute_api:server-metadata:create"])
     def test_update_server_metadata(self):
         with self.rbac_utils.override_role(self):
             self.servers_client.update_server_metadata(self.server['id'], {})
@@ -59,7 +59,7 @@ class ServerMetadataRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('93dd8323-d3fa-48d1-8bd6-91c1b62fc341')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:server-metadata:show")
+        rules=["os_compute_api:server-metadata:show"])
     def test_show_server_metadata_item(self):
         with self.rbac_utils.override_role(self):
             self.servers_client.show_server_metadata_item(
@@ -68,7 +68,7 @@ class ServerMetadataRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('79511293-4bd7-447d-ba7e-634d0f4da70c')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:server-metadata:update")
+        rules=["os_compute_api:server-metadata:update"])
     def test_set_server_metadata_item(self):
         with self.rbac_utils.override_role(self):
             self.servers_client.set_server_metadata_item(
@@ -77,7 +77,7 @@ class ServerMetadataRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('feec5064-678d-40bc-a88f-c856e18d1e31')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:server-metadata:delete")
+        rules=["os_compute_api:server-metadata:delete"])
     def test_delete_server_metadata_item(self):
         with self.rbac_utils.override_role(self):
             self.servers_client.delete_server_metadata_item(

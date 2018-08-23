@@ -41,7 +41,7 @@ class VolumeServicesV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('b9134f01-97c0-4abd-9455-fe2f03e3f966')
     @rbac_rule_validation.action(
         service="cinder",
-        rule="volume_extension:services:index")
+        rules=["volume_extension:services:index"])
     def test_list_services(self):
         with self.rbac_utils.override_role(self):
             self.services_client.list_services()['services']

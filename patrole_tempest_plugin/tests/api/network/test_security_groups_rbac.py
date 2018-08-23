@@ -70,7 +70,7 @@ class SecGroupRbacTest(base.BaseNetworkRbacTest):
         return sec_group_rule
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="create_security_group")
+                                 rules=["create_security_group"])
     @decorators.idempotent_id('db7003ce-5717-4e5b-afc7-befa35e8c67f')
     def test_create_security_group(self):
 
@@ -116,7 +116,7 @@ class SecGroupRbacTest(base.BaseNetworkRbacTest):
                 description="test description")
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_security_group")
+                                 rules=["get_security_group"])
     @decorators.idempotent_id('fbaf8d96-ed3e-49af-b24c-5fb44f05bbb7')
     def test_list_security_groups(self):
 
@@ -129,7 +129,7 @@ class SecGroupRbacTest(base.BaseNetworkRbacTest):
             raise rbac_exceptions.RbacMalformedResponse(empty=True)
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="create_security_group_rule")
+                                 rules=["create_security_group_rule"])
     @decorators.idempotent_id('953d78df-00cd-416f-9cbd-b7cb4ea65772')
     def test_create_security_group_rule(self):
 
@@ -160,7 +160,7 @@ class SecGroupRbacTest(base.BaseNetworkRbacTest):
                 sec_group_rule['id'])
 
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_security_group_rule")
+                                 rules=["get_security_group_rule"])
     @decorators.idempotent_id('05739ab6-fa35-11e6-bc64-92361f002671')
     def test_list_security_group_rules(self):
 

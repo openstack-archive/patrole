@@ -52,23 +52,26 @@ class ApplicationCredentialsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         return application_credential
 
     @decorators.idempotent_id('b53bee14-e9df-4929-b257-6def76c12e4d')
-    @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:create_application_credential")
+    @rbac_rule_validation.action(
+        service="keystone",
+        rules=["identity:create_application_credential"])
     def test_create_application_credential(self):
         with self.rbac_utils.override_role(self):
             self._create_application_credential()
 
     @decorators.idempotent_id('58b3c3a0-5ad0-44f7-8da7-0736f71f7168')
-    @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:list_application_credentials")
+    @rbac_rule_validation.action(
+        service="keystone",
+        rules=["identity:list_application_credentials"])
     def test_list_application_credentials(self):
         with self.rbac_utils.override_role(self):
             self.application_credentials_client.list_application_credentials(
                 user_id=self.user_id)
 
     @decorators.idempotent_id('d7b13968-a8a6-47fd-8e1d-7cc7f565c7f8')
-    @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:get_application_credential")
+    @rbac_rule_validation.action(
+        service="keystone",
+        rules=["identity:get_application_credential"])
     def test_show_application_credential(self):
         app_cred = self._create_application_credential()
         with self.rbac_utils.override_role(self):
@@ -76,8 +79,9 @@ class ApplicationCredentialsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                 user_id=self.user_id, application_credential_id=app_cred['id'])
 
     @decorators.idempotent_id('521b7c0f-1dd5-47a6-ae95-95c0323d7735')
-    @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:delete_application_credential")
+    @rbac_rule_validation.action(
+        service="keystone",
+        rules=["identity:delete_application_credential"])
     def test_delete_application_credential(self):
         app_cred = self._create_application_credential()
         with self.rbac_utils.override_role(self):

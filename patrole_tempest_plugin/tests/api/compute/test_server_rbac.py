@@ -47,7 +47,7 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:servers:create")
+        rules=["os_compute_api:servers:create"])
     @decorators.idempotent_id('4f34c73a-6ddc-4677-976f-71320fa855bd')
     def test_create_server(self):
         with self.rbac_utils.override_role(self):
@@ -61,7 +61,7 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:servers:create:forced_host")
+        rules=["os_compute_api:servers:create:forced_host"])
     @decorators.idempotent_id('0ae3c401-52ab-41bc-ab96-c598a65d9ae5')
     def test_create_server_forced_host(self):
         # Retrieve 'nova' zone host information from availiability_zone_list
@@ -88,7 +88,7 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
     @utils.services('volume')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:servers:create:attach_volume")
+        rules=["os_compute_api:servers:create:attach_volume"])
     @decorators.idempotent_id('eeddac5e-15aa-454f-838d-db608aae4dd8')
     def test_create_server_attach_volume(self):
         # To create a bootable volume, the UUID of the image from which
@@ -126,7 +126,7 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
     @utils.services('network')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:servers:create:attach_network")
+        rules=["os_compute_api:servers:create:attach_network"])
     @decorators.idempotent_id('b44cd4ff-50a4-42ce-ada3-724e213cd540')
     def test_create_server_attach_network(self):
         def _create_network_resources():
@@ -165,7 +165,7 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:servers:delete")
+        rules=["os_compute_api:servers:delete"])
     @decorators.idempotent_id('062e3440-e873-4b41-9317-bf6d8be50c12')
     def test_delete_server(self):
         server = self.create_test_server(wait_until='ACTIVE')
@@ -177,7 +177,7 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:servers:update")
+        rules=["os_compute_api:servers:update"])
     @decorators.idempotent_id('077b17cb-5621-43b9-8adf-5725f0d7a863')
     def test_update_server(self):
         new_name = data_utils.rand_name(self.__class__.__name__ + '-server')

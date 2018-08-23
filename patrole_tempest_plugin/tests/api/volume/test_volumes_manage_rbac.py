@@ -66,7 +66,7 @@ class VolumesManageV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @rbac_rule_validation.action(
         service="cinder",
-        rule="volume_extension:volume_manage")
+        rules=["volume_extension:volume_manage"])
     @decorators.idempotent_id('114f9708-939b-407e-aeac-d21ebfabaad3')
     def test_volume_manage(self):
         volume_id = self.create_volume()['id']
@@ -108,7 +108,7 @@ class VolumesManageV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
     @rbac_rule_validation.action(
         service="cinder",
-        rule="volume_extension:volume_unmanage")
+        rules=["volume_extension:volume_unmanage"])
     @decorators.idempotent_id('d5d72abe-60bc-45ac-a8f2-c21b24f0b5d6')
     def test_volume_unmanage(self):
         volume_id = self.create_volume()['id']

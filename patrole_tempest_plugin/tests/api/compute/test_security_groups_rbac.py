@@ -55,7 +55,7 @@ class SecurtiyGroupsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-security-groups")
+        rules=["os_compute_api:os-security-groups"])
     @decorators.idempotent_id('3db159c6-a467-469f-9a25-574197885520')
     def test_list_security_groups_by_server(self):
         with self.rbac_utils.override_role(self):
@@ -64,7 +64,7 @@ class SecurtiyGroupsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-security-groups")
+        rules=["os_compute_api:os-security-groups"])
     @decorators.idempotent_id('ea1ca73f-2d1d-43cb-9a46-900d7927b357')
     def test_create_security_group_for_server(self):
         sg_name = self.create_security_group()['name']
@@ -78,7 +78,7 @@ class SecurtiyGroupsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-security-groups")
+        rules=["os_compute_api:os-security-groups"])
     @decorators.idempotent_id('0ad2e856-e2d3-4ac5-a620-f93d0d3d2626')
     def test_remove_security_group_from_server(self):
         sg_name = self.create_security_group()['name']
@@ -116,7 +116,7 @@ class SecurityGroupsRbacMaxV235Test(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-security-groups")
+        rules=["os_compute_api:os-security-groups"])
     @decorators.idempotent_id('4ac58e49-48c1-4fca-a6c3-3f95fb99eb77')
     def test_list_security_groups(self):
         with self.rbac_utils.override_role(self):
@@ -124,7 +124,7 @@ class SecurityGroupsRbacMaxV235Test(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-security-groups")
+        rules=["os_compute_api:os-security-groups"])
     @decorators.idempotent_id('e8fe7f5a-69ee-412d-81d3-a8c7a488b54d')
     def test_create_security_groups(self):
         with self.rbac_utils.override_role(self):
@@ -132,7 +132,7 @@ class SecurityGroupsRbacMaxV235Test(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-security-groups")
+        rules=["os_compute_api:os-security-groups"])
     @decorators.idempotent_id('59127e8e-302d-11e7-93ae-92361f002671')
     def test_delete_security_groups(self):
         sec_group_id = self.create_security_group()['id']
@@ -141,7 +141,7 @@ class SecurityGroupsRbacMaxV235Test(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-security-groups")
+        rules=["os_compute_api:os-security-groups"])
     @decorators.idempotent_id('3de5c6bc-b822-469e-a627-82427d38b067')
     def test_update_security_groups(self):
         sec_group_id = self.create_security_group()['id']
@@ -154,7 +154,7 @@ class SecurityGroupsRbacMaxV235Test(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-security-groups")
+        rules=["os_compute_api:os-security-groups"])
     @decorators.idempotent_id('6edc0320-302d-11e7-93ae-92361f002671')
     def test_show_security_groups(self):
         sec_group_id = self.create_security_group()['id']

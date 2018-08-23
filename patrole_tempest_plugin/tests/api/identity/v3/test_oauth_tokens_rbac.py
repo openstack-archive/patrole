@@ -80,7 +80,7 @@ class IdentityOAuthTokensV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         return access_key
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:authorize_request_token")
+                                 rules=["identity:authorize_request_token"])
     @decorators.idempotent_id('0f148510-63bf-11e6-4522-080044d0d976')
     def test_authorize_request_token(self):
         _, request_token = self._create_consumer_and_request_token()
@@ -91,7 +91,7 @@ class IdentityOAuthTokensV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                 self.role_ids)
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:get_access_token")
+                                 rules=["identity:get_access_token"])
     @decorators.idempotent_id('0f148510-63bf-11e6-4522-080044d0d977')
     def test_get_access_token(self):
         access_token = self._create_access_token()
@@ -101,7 +101,7 @@ class IdentityOAuthTokensV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                                                      access_token)
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:get_access_token_role")
+                                 rules=["identity:get_access_token_role"])
     @decorators.idempotent_id('0f148510-63bf-11e6-4522-080044d0d980')
     def test_get_access_token_role(self):
         access_token = self._create_access_token()
@@ -111,14 +111,14 @@ class IdentityOAuthTokensV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                 self.user_id, access_token, self.role_ids[0])
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:list_access_tokens")
+                                 rules=["identity:list_access_tokens"])
     @decorators.idempotent_id('0f148510-63bf-11e6-4522-080044d0d979')
     def test_list_access_tokens(self):
         with self.rbac_utils.override_role(self):
             self.oauth_token_client.list_access_tokens(self.user_id)
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:list_access_token_roles")
+                                 rules=["identity:list_access_token_roles"])
     @decorators.idempotent_id('0f148510-63bf-11e6-4522-080044d0d978')
     def test_list_access_token_roles(self):
         access_token = self._create_access_token()
@@ -128,7 +128,7 @@ class IdentityOAuthTokensV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                 self.user_id, access_token)
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:delete_access_token")
+                                 rules=["identity:delete_access_token"])
     @decorators.idempotent_id('0f148510-63bf-11e6-4522-080044d0d981')
     def test_revoke_access_token(self):
         access_token = self._create_access_token()

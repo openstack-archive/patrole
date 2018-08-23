@@ -57,7 +57,7 @@ class QuotaClassesRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('c10198ed-9df2-440e-a49b-367dadc6de94')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-quota-class-sets:show")
+        rules=["os_compute_api:os-quota-class-sets:show"])
     def test_show_quota_class_set(self):
         with self.rbac_utils.override_role(self):
             self.quota_classes_client.show_quota_class_set('default')
@@ -65,7 +65,7 @@ class QuotaClassesRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('81889e69-efd2-4e96-bb4c-ee3b646b9755')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-quota-class-sets:update")
+        rules=["os_compute_api:os-quota-class-sets:update"])
     def test_update_quota_class_set(self):
         # Update the pre-existing quotas for the project_id.
         quota_class_set = self.quota_classes_client.show_quota_class_set(

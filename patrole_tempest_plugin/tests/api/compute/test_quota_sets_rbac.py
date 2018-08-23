@@ -52,7 +52,7 @@ class QuotaSetsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('8229ceb0-db6a-4a2c-99c2-de226905d8b6')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-quota-sets:update")
+        rules=["os_compute_api:os-quota-sets:update"])
     def test_update_quota_set(self):
         default_quota_set = self.quotas_client.show_default_quota_set(
             self.tenant_id)['quota_set']
@@ -69,7 +69,7 @@ class QuotaSetsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('58df5613-8f3c-400a-8b4b-2bae624d05e9')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-quota-sets:defaults")
+        rules=["os_compute_api:os-quota-sets:defaults"])
     def test_show_default_quota_set(self):
         with self.rbac_utils.override_role(self):
             self.quotas_client.show_default_quota_set(self.tenant_id)
@@ -77,7 +77,7 @@ class QuotaSetsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('e8169ac4-c402-4864-894e-aba74e3a459c')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-quota-sets:show")
+        rules=["os_compute_api:os-quota-sets:show"])
     def test_show_quota_set(self):
         with self.rbac_utils.override_role(self):
             self.quotas_client.show_quota_set(self.tenant_id)
@@ -85,7 +85,7 @@ class QuotaSetsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('4e240644-bf61-4872-9c32-8289ee2fdbbd')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-quota-sets:delete")
+        rules=["os_compute_api:os-quota-sets:delete"])
     def test_delete_quota_set(self):
         project_name = data_utils.rand_name(
             self.__class__.__name__ + '-project')
@@ -100,7 +100,7 @@ class QuotaSetsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('ac9184b6-f3b3-4e17-a632-4b92c6500f86')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-quota-sets:detail")
+        rules=["os_compute_api:os-quota-sets:detail"])
     def test_show_quota_set_details(self):
         with self.rbac_utils.override_role(self):
             self.quotas_client.show_quota_set(self.tenant_id,

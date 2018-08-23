@@ -17,7 +17,6 @@ import functools
 import logging
 import sys
 
-from oslo_log import versionutils
 from oslo_utils import excutils
 import six
 
@@ -39,9 +38,7 @@ RBACLOG = logging.getLogger('rbac_reporting')
 
 
 def action(service,
-           rule='',
            rules=None,
-           expected_error_code=_DEFAULT_ERROR_CODE,
            expected_error_codes=None,
            extra_target_data=None):
     """A decorator for verifying OpenStack policy enforcement.
@@ -75,11 +72,8 @@ def action(service,
     As such, negative and positive testing can be applied using this decorator.
 
     :param str service: An OpenStack service. Examples: "nova" or "neutron".
-    :param rule: (DEPRECATED) A policy action defined in a policy.json file
-        or in code. Also accepts a callable that returns a policy action.
-    :type rule: str or callable
-    :param rules: A list of policy actions defined in a policy.json file
-        or in code. The rules are logical-ANDed together to derive the expected
+    :param list rules: A list of policy actions defined in a policy file or in
+        code. The rules are logical-ANDed together to derive the expected
         result. Also accepts list of callables that return a policy action.
 
         .. note::
@@ -87,16 +81,6 @@ def action(service,
             Patrole currently only supports custom JSON policy files.
 
     :type rules: list[str] or list[callable]
-    :param int expected_error_code: (DEPRECATED) Overrides default value of 403
-        (Forbidden) with endpoint-specific error code. Currently only supports
-        403 and 404. Support for 404 is needed because some services, like
-        Neutron, intentionally throw a 404 for security reasons.
-
-        .. warning::
-
-            A 404 should not be provided *unless* the endpoint masks a
-            ``Forbidden`` exception as a ``NotFound`` exception.
-
     :param list expected_error_codes: When the ``rules`` list parameter is
         used, then this list indicates the expected error code to use if one
         of the rules does not allow the role being tested. This list must
@@ -117,6 +101,12 @@ def action(service,
 
         If it is not passed, then it is defaulted to 403.
 
+        .. warning::
+
+            A 404 should not be provided *unless* the endpoint masks a
+            ``Forbidden`` exception as a ``NotFound`` exception.
+
+    :type expected_error_codes: list[int]
     :param dict extra_target_data: Dictionary, keyed with ``oslo.policy``
         generic check names, whose values are string literals that reference
         nested ``tempest.test.BaseTestCase`` attributes. Used by
@@ -137,7 +127,8 @@ def action(service,
     Examples::
 
         @rbac_rule_validation.action(
-            service="nova", rule="os_compute_api:os-agents")
+            service="nova",
+            rules=["os_compute_api:os-agents"])
         def test_list_agents_rbac(self):
             # The call to `override_role` is mandatory.
             with self.rbac_utils.override_role(self):
@@ -147,8 +138,7 @@ def action(service,
     if extra_target_data is None:
         extra_target_data = {}
 
-    rules, expected_error_codes = _prepare_multi_policy(rule, rules,
-                                                        expected_error_code,
+    rules, expected_error_codes = _prepare_multi_policy(rules,
                                                         expected_error_codes)
 
     def decorator(test_func):
@@ -172,7 +162,6 @@ def action(service,
                     disallowed_rules.append(rule)
                 allowed = allowed and _allowed
 
-            exp_error_code = expected_error_code
             if disallowed_rules:
                 # Choose the first disallowed rule and expect the error
                 # code corresponding to it.
@@ -181,6 +170,8 @@ def action(service,
                 LOG.debug("%s: Expecting %d to be raised for policy name: %s",
                           test_func.__name__, exp_error_code,
                           disallowed_rules[0])
+            else:
+                exp_error_code = expected_error_codes[0]
 
             expected_exception, irregular_msg = _get_exception_type(
                 exp_error_code)
@@ -272,7 +263,7 @@ def action(service,
     return decorator
 
 
-def _prepare_multi_policy(rule, rules, exp_error_code, exp_error_codes):
+def _prepare_multi_policy(rules, exp_error_codes):
     if exp_error_codes:
         if not rules:
             msg = ("The `rules` list must be provided if using the "
@@ -282,34 +273,15 @@ def _prepare_multi_policy(rule, rules, exp_error_code, exp_error_codes):
             msg = ("The `expected_error_codes` list is not the same length "
                    "as the `rules` list.")
             raise ValueError(msg)
-        if exp_error_code:
-            deprecation_msg = (
-                "The `exp_error_code` argument has been deprecated in favor "
-                "of `exp_error_codes` and will be removed in a future "
-                "version.")
-            versionutils.report_deprecated_feature(LOG, deprecation_msg)
-            LOG.debug("The `exp_error_codes` argument will be used instead of "
-                      "`exp_error_code`.")
         if not isinstance(exp_error_codes, (tuple, list)):
             exp_error_codes = [exp_error_codes]
     else:
         exp_error_codes = []
-        if exp_error_code:
-            exp_error_codes.append(exp_error_code)
 
     if rules is None:
         rules = []
     elif not isinstance(rules, (tuple, list)):
         rules = [rules]
-    if rule:
-        deprecation_msg = (
-            "The `rule` argument has been deprecated in favor of `rules` "
-            "and will be removed in a future version.")
-        versionutils.report_deprecated_feature(LOG, deprecation_msg)
-        if rules:
-            LOG.debug("The `rules` argument will be used instead of `rule`.")
-        else:
-            rules.append(rule)
 
     # Fill in the exp_error_codes if needed. This is needed for the scenarios
     # where no exp_error_codes array is provided, so the error codes must be

@@ -23,7 +23,7 @@ from patrole_tempest_plugin.tests.api.identity import rbac_base
 class IdentityEndpointsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:create_endpoint")
+                                 rules=["identity:create_endpoint"])
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd127')
     def test_create_endpoint(self):
         service = self.setup_test_service()
@@ -31,7 +31,7 @@ class IdentityEndpointsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
             self.setup_test_endpoint(service=service)
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:update_endpoint")
+                                 rules=["identity:update_endpoint"])
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd128')
     def test_update_endpoint(self):
         endpoint = self.setup_test_endpoint()
@@ -43,7 +43,7 @@ class IdentityEndpointsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                 url=new_url)
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:delete_endpoint")
+                                 rules=["identity:delete_endpoint"])
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd129')
     def test_delete_endpoint(self):
         endpoint = self.setup_test_endpoint()
@@ -52,7 +52,7 @@ class IdentityEndpointsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
             self.endpoints_client.delete_endpoint(endpoint['id'])
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:get_endpoint")
+                                 rules=["identity:get_endpoint"])
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd130')
     def test_show_endpoint(self):
         endpoint = self.setup_test_endpoint()
@@ -61,7 +61,7 @@ class IdentityEndpointsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
             self.endpoints_client.show_endpoint(endpoint['id'])
 
     @rbac_rule_validation.action(service="keystone",
-                                 rule="identity:list_endpoints")
+                                 rules=["identity:list_endpoints"])
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd131')
     def test_list_endpoints(self):
         with self.rbac_utils.override_role(self):

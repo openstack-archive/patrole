@@ -65,7 +65,7 @@ class IdentityTrustV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @decorators.idempotent_id('7ab595a7-9b71-45fe-91d8-2793b0292f72')
     @rbac_rule_validation.action(
         service="keystone",
-        rule="identity:create_trust",
+        rules=["identity:create_trust"],
         extra_target_data={
             "trust.trustor_user_id": "os_primary.credentials.user_id"
         })
@@ -78,7 +78,7 @@ class IdentityTrustV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @decorators.attr(type=['negative'])
     @rbac_rule_validation.action(
         service="keystone",
-        rule="identity:create_trust",
+        rules=["identity:create_trust"],
         extra_target_data={
             "trust.trustor_user_id": "os_alt.credentials.user_id"
         })
@@ -94,7 +94,7 @@ class IdentityTrustV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @decorators.idempotent_id('d9a6fd06-08f6-462c-a86c-ce009adf1230')
     @rbac_rule_validation.action(
         service="keystone",
-        rule="identity:delete_trust")
+        rules=["identity:delete_trust"])
     def test_delete_trust(self):
         trust = self.setup_test_trust(trustor_user_id=self.trustor_user_id,
                                       trustee_user_id=self.trustee_user_id)
@@ -105,7 +105,7 @@ class IdentityTrustV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @decorators.idempotent_id('f2e32896-bf66-4f4e-89cf-e7fba0ef1f38')
     @rbac_rule_validation.action(
         service="keystone",
-        rule="identity:list_trusts")
+        rules=["identity:list_trusts"])
     def test_list_trusts(self):
         with self.rbac_utils.override_role(self):
             self.trusts_client.list_trusts(
@@ -114,7 +114,7 @@ class IdentityTrustV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @decorators.idempotent_id('3c9ff92f-a73e-4f9b-8865-e017f38c70f5')
     @rbac_rule_validation.action(
         service="keystone",
-        rule="identity:list_roles_for_trust")
+        rules=["identity:list_roles_for_trust"])
     def test_list_roles_for_trust(self):
         with self.rbac_utils.override_role(self):
             self.trusts_client.list_trust_roles(self.trust['id'])
@@ -122,7 +122,7 @@ class IdentityTrustV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @decorators.idempotent_id('3bb4f97b-cecd-4c7d-ad10-b88ee6c5d573')
     @rbac_rule_validation.action(
         service="keystone",
-        rule="identity:get_role_for_trust")
+        rules=["identity:get_role_for_trust"])
     def test_show_trust_role(self):
         with self.rbac_utils.override_role(self):
             self.trusts_client.show_trust_role(
@@ -131,7 +131,7 @@ class IdentityTrustV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @decorators.idempotent_id('0184e0fb-641e-4b52-ab73-81c1ce6ca5c1')
     @rbac_rule_validation.action(
         service="keystone",
-        rule="identity:get_trust")
+        rules=["identity:get_trust"])
     def test_show_trust(self):
         with self.rbac_utils.override_role(self):
             self.trusts_client.show_trust(self.trust['id'])

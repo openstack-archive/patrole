@@ -34,7 +34,7 @@ class KeypairsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('16e0ae81-e05f-48cd-b253-cf31ab0732f0')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-keypairs:create")
+        rules=["os_compute_api:os-keypairs:create"])
     def test_create_keypair(self):
         with self.rbac_utils.override_role(self):
             self._create_keypair()
@@ -42,7 +42,7 @@ class KeypairsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('85a5eb99-40ec-4e77-9358-bee2cdf9d7df')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-keypairs:show")
+        rules=["os_compute_api:os-keypairs:show"])
     def test_show_keypair(self):
         kp_name = self._create_keypair()['keypair']['name']
         with self.rbac_utils.override_role(self):
@@ -51,7 +51,7 @@ class KeypairsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('6bff9f1c-b809-43c1-8d63-61fbd19d49d3')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-keypairs:delete")
+        rules=["os_compute_api:os-keypairs:delete"])
     def test_delete_keypair(self):
         kp_name = self._create_keypair()['keypair']['name']
         with self.rbac_utils.override_role(self):
@@ -60,7 +60,7 @@ class KeypairsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('6bb31346-ff7f-4b10-978e-170ac5fcfa3e')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-keypairs:index")
+        rules=["os_compute_api:os-keypairs:index"])
     def test_index_keypair(self):
         with self.rbac_utils.override_role(self):
             self.keypairs_client.list_keypairs()

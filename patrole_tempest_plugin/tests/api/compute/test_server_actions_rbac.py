@@ -119,7 +119,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                           'Pause is not available.')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-pause-server:pause")
+        rules=["os_compute_api:os-pause-server:pause"])
     def test_pause_server(self):
         with self.rbac_utils.override_role(self):
             self._pause_server()
@@ -129,7 +129,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                           'Pause is not available.')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-pause-server:unpause")
+        rules=["os_compute_api:os-pause-server:unpause"])
     def test_unpause_server(self):
         self._pause_server()
         with self.rbac_utils.override_role(self):
@@ -139,7 +139,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:servers:stop")
+        rules=["os_compute_api:servers:stop"])
     @decorators.idempotent_id('ab4a17d2-166f-4a6d-9944-f17baa576cf2')
     def test_stop_server(self):
         with self.rbac_utils.override_role(self):
@@ -148,7 +148,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:servers:start")
+        rules=["os_compute_api:servers:start"])
     @decorators.idempotent_id('8876bfa9-4d10-406e-a335-a57e451abb12')
     def test_start_server(self):
         self._stop_server()
@@ -161,7 +161,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:servers:resize")
+        rules=["os_compute_api:servers:resize"])
     @decorators.idempotent_id('0546fbdd-2d8f-4ce8-ac00-f1e2129d0765')
     @testtools.skipUnless(CONF.compute_feature_enabled.resize,
                           'Resize is not available.')
@@ -172,7 +172,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:servers:revert_resize")
+        rules=["os_compute_api:servers:revert_resize"])
     @decorators.idempotent_id('d41b64b8-a72d-414a-a4c5-94e1eb5e5a96')
     @testtools.skipUnless(CONF.compute_feature_enabled.resize,
                           'Resize is not available.')
@@ -187,7 +187,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.attr(type='slow')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:servers:confirm_resize")
+        rules=["os_compute_api:servers:confirm_resize"])
     @decorators.idempotent_id('f51620cb-dfcb-4e5d-b421-2e0edaa1316e')
     @testtools.skipUnless(CONF.compute_feature_enabled.resize,
                           'Resize is not available.')
@@ -202,7 +202,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:servers:rebuild")
+        rules=["os_compute_api:servers:rebuild"])
     @decorators.idempotent_id('54b1a30b-c96c-472c-9c83-ccaf6ec7e20b')
     def test_rebuild_server(self):
         with self.rbac_utils.override_role(self):
@@ -212,7 +212,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:servers:reboot")
+        rules=["os_compute_api:servers:reboot"])
     @decorators.idempotent_id('19f27856-56e1-44f8-8615-7257f6b85cbb')
     def test_reboot_server(self):
         with self.rbac_utils.override_role(self):
@@ -222,7 +222,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:servers:index")
+        rules=["os_compute_api:servers:index"])
     @decorators.idempotent_id('631f0d86-7607-4198-8312-9da2f05464a4')
     def test_server_index(self):
         with self.rbac_utils.override_role(self):
@@ -230,7 +230,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:servers:detail")
+        rules=["os_compute_api:servers:detail"])
     @decorators.idempotent_id('96093480-3ce5-4a8b-b569-aed870379c24')
     def test_server_detail(self):
         with self.rbac_utils.override_role(self):
@@ -238,7 +238,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:servers:detail:get_all_tenants")
+        rules=["os_compute_api:servers:detail:get_all_tenants"])
     @decorators.idempotent_id('a9e5a1c0-acfe-49a2-b2b1-fd8b19d61f71')
     def test_server_detail_all_tenants(self):
         with self.rbac_utils.override_role(self):
@@ -246,7 +246,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:servers:index:get_all_tenants")
+        rules=["os_compute_api:servers:index:get_all_tenants"])
     @decorators.idempotent_id('4b93ba56-69e6-41f5-82c4-84a5c4c42091')
     def test_server_index_all_tenants(self):
         with self.rbac_utils.override_role(self):
@@ -254,7 +254,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:servers:show")
+        rules=["os_compute_api:servers:show"])
     @decorators.idempotent_id('eaaf4f51-31b5-497f-8f0f-f527e5f70b83')
     def test_show_server(self):
         with self.rbac_utils.override_role(self):
@@ -263,7 +263,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @utils.services('image')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:servers:create_image")
+        rules=["os_compute_api:servers:create_image"])
     @decorators.idempotent_id('ba0ac859-99f4-4055-b5e0-e0905a44d331')
     def test_create_image(self):
         with self.rbac_utils.override_role(self):
@@ -273,7 +273,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @utils.services('image', 'volume')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:servers:create_image:allow_volume_backed")
+        rules=["os_compute_api:servers:create_image:allow_volume_backed"])
     @decorators.idempotent_id('8b869f73-49b3-4cc4-a0ce-ef64f8e1d6f9')
     def test_create_image_from_volume_backed_server(self):
         # volume_backed=True creates a volume and create server will be
@@ -299,7 +299,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @utils.services('image')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-create-backup")
+        rules=["os_compute_api:os-create-backup"])
     def test_create_backup(self):
         # Prioritize glance v2 over v1 for deleting/waiting for image status.
         if CONF.image_feature_enabled.api_v2:
@@ -334,7 +334,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('0b70c527-af75-4bed-9ccf-4f1310a8b60f')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-shelve:shelve")
+        rules=["os_compute_api:os-shelve:shelve"])
     def test_shelve_server(self):
         with self.rbac_utils.override_role(self):
             self._shelve_server()
@@ -343,7 +343,7 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('4b6e849a-9182-49ff-9257-e97e751b475e')
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-shelve:unshelve")
+        rules=["os_compute_api:os-shelve:unshelve"])
     def test_unshelve_server(self):
         self._shelve_server()
         with self.rbac_utils.override_role(self):
@@ -364,7 +364,7 @@ class ServerActionsV214RbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-evacuate")
+        rules=["os_compute_api:os-evacuate"])
     @decorators.idempotent_id('78ecef3c-faff-412a-83be-47651963eb21')
     def test_evacuate_server(self):
         fake_host_name = data_utils.rand_name(
@@ -396,7 +396,7 @@ class ServerActionsV216RbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:servers:show:host_status")
+        rules=["os_compute_api:servers:show:host_status"])
     @decorators.idempotent_id('736da575-86f8-4b2a-9902-dd37dc9a409b')
     def test_show_server_host_status(self):
         with self.rbac_utils.override_role(self):

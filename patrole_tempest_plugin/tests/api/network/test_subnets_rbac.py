@@ -39,7 +39,7 @@ class SubnetsRbacTest(base.BaseNetworkRbacTest):
 
     @decorators.idempotent_id('0481adeb-4301-44d5-851c-35910cc18a6b')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="create_subnet")
+                                 rules=["create_subnet"])
     def test_create_subnet(self):
         """Create subnet.
 
@@ -62,7 +62,7 @@ class SubnetsRbacTest(base.BaseNetworkRbacTest):
 
     @decorators.idempotent_id('e2ddc415-5cab-43f4-9b61-166aed65d637')
     @rbac_rule_validation.action(service="neutron",
-                                 rule="get_subnet")
+                                 rules=["get_subnet"])
     def test_list_subnets(self):
         """List subnets.
 

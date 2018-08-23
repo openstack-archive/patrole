@@ -29,7 +29,7 @@ class NamespacesPropertyRbacTest(rbac_base.BaseV2ImageRbacTest):
         cls.resource_name = body['resource_types'][0]['name']
 
     @rbac_rule_validation.action(service="glance",
-                                 rule="add_metadef_property")
+                                 rules=["add_metadef_property"])
     @decorators.idempotent_id('383555ca-677b-43e9-b809-acc2b5a0176c')
     def test_add_md_properties(self):
         """Create Image Metadef Namespace Property Test
@@ -45,7 +45,7 @@ class NamespacesPropertyRbacTest(rbac_base.BaseV2ImageRbacTest):
                 title=property_name, name=self.resource_name)
 
     @rbac_rule_validation.action(service="glance",
-                                 rule="get_metadef_properties")
+                                 rules=["get_metadef_properties"])
     @decorators.idempotent_id('d5177611-c2b5-4000-bd9c-1987af9222ea')
     def test_get_md_properties(self):
         """List Image Metadef Namespace Properties Test
@@ -58,7 +58,7 @@ class NamespacesPropertyRbacTest(rbac_base.BaseV2ImageRbacTest):
                 namespace=namespace['namespace'])
 
     @rbac_rule_validation.action(service="glance",
-                                 rule="get_metadef_property")
+                                 rules=["get_metadef_property"])
     @decorators.idempotent_id('cfeda2af-bcab-433e-80c7-4b40c774aed5')
     def test_get_md_property(self):
         """Get Image Metadef Namespace Property Test
@@ -77,7 +77,7 @@ class NamespacesPropertyRbacTest(rbac_base.BaseV2ImageRbacTest):
                 namespace['namespace'], self.resource_name)
 
     @rbac_rule_validation.action(service="glance",
-                                 rule="modify_metadef_property")
+                                 rules=["modify_metadef_property"])
     @decorators.idempotent_id('fdaf9363-4010-4f2f-8192-1b28f6b22e69')
     def test_modify_md_properties(self):
         """Modify Image Metadef Namespace Policy Test

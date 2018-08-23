@@ -28,7 +28,7 @@ class VolumesExtendV3RbacTest(rbac_base.BaseVolumeRbacTest):
         # Create a test shared volume for tests
         cls.volume = cls.create_volume()
 
-    @rbac_rule_validation.action(service="cinder", rule="volume:extend")
+    @rbac_rule_validation.action(service="cinder", rules=["volume:extend"])
     @decorators.idempotent_id('1627b065-4081-4e14-8340-8e4fb02ceaf2')
     def test_volume_extend(self):
         # Extend volume test

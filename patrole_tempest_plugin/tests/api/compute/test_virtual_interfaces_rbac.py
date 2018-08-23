@@ -45,7 +45,7 @@ class VirtualInterfacesRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rule="os_compute_api:os-virtual-interfaces")
+        rules=["os_compute_api:os-virtual-interfaces"])
     @decorators.idempotent_id('fc719ae3-0f73-4689-8378-1b841f0f2818')
     def test_list_virtual_interfaces(self):
         """Test list virtual interfaces, part of os-virtual-interfaces.
