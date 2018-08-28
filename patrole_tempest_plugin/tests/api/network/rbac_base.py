@@ -13,7 +13,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from oslo_serialization import jsonutils as json
+
 from tempest.api.network import base as network_base
+from tempest.lib.common.utils import test_utils
 
 from patrole_tempest_plugin import rbac_utils
 
@@ -72,3 +75,13 @@ class BaseNetworkExtRbacTest(BaseNetworkRbacTest):
             cls.ntp_client = neutron_tempest_manager.network_client
 
         return manager
+
+    @classmethod
+    def create_service_profile(cls):
+        service_profile = cls.ntp_client.create_service_profile(
+            metainfo=json.dumps({'foo': 'bar'}))
+        service_profile_id = service_profile["service_profile"]["id"]
+        cls.addClassResourceCleanup(
+            test_utils.call_and_ignore_notfound_exc,
+            cls.ntp_client.delete_service_profile, service_profile_id)
+        return service_profile_id
