@@ -196,3 +196,8 @@
       jobs:
         - patrole-admin
         - patrole-member
+    periodic-stable:
+      jobs:
+        - patrole-member-rocky
+        - patrole-member-queens
+        - patrole-member-pike
