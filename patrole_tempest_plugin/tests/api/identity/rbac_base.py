@@ -16,13 +16,11 @@
 from oslo_log import log as logging
 
 from tempest.api.identity import base
-from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 
 from patrole_tempest_plugin import rbac_utils
 
-CONF = config.CONF
 LOG = logging.getLogger(__name__)
 
 

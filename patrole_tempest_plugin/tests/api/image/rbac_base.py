@@ -12,11 +12,8 @@
 #    under the License.
 
 from tempest.api.image import base as image_base
-from tempest import config
 
 from patrole_tempest_plugin import rbac_utils
-
-CONF = config.CONF
 
 
 class BaseV2ImageRbacTest(rbac_utils.RbacUtilsMixin,

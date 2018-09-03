@@ -12,13 +12,10 @@
 #    under the License.
 
 from tempest.api.compute import base as compute_base
-from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 
 from patrole_tempest_plugin import rbac_utils
-
-CONF = config.CONF
 
 
 class BaseV2ComputeRbacTest(rbac_utils.RbacUtilsMixin,

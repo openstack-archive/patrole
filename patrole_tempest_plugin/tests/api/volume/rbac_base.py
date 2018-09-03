@@ -13,13 +13,10 @@
 
 from tempest.api.volume import base as vol_base
 from tempest.common import waiters
-from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 
 from patrole_tempest_plugin import rbac_utils
-
-CONF = config.CONF
 
 
 class BaseVolumeRbacTest(rbac_utils.RbacUtilsMixin,

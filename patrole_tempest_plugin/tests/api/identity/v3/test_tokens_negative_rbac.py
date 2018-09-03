@@ -13,15 +13,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from tempest import config
 from tempest.lib import decorators
 from tempest.lib import exceptions as lib_exc
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin import rbac_utils
 from patrole_tempest_plugin.tests.api.identity import rbac_base
-
-CONF = config.CONF
 
 
 class IdentityTokenV3RbacTest(rbac_base.BaseIdentityV3RbacTest):

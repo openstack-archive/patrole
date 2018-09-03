@@ -14,11 +14,8 @@
 #    under the License.
 
 from tempest.api.network import base as network_base
-from tempest import config
 
 from patrole_tempest_plugin import rbac_utils
-
-CONF = config.CONF
 
 
 class BaseNetworkRbacTest(rbac_utils.RbacUtilsMixin,
