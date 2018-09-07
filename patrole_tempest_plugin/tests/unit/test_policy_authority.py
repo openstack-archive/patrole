@@ -270,9 +270,9 @@ class PolicyAuthorityTest(base.TestCase):
 
         fake_rule = 'fake_rule'
         expected_message = (
-            "Policy action \"{0}\" not found in policy file: {1} or among "
-            "registered policy in code defaults for service.").format(
-            fake_rule, self.custom_policy_file)
+            'Policy action "{0}" not found in policy files: {1} or among '
+            'registered policy in code defaults for {2} service.').format(
+            fake_rule, [self.custom_policy_file], "custom_rbac_policy")
 
         e = self.assertRaises(rbac_exceptions.RbacParsingException,
                               authority.allowed, fake_rule, None)
@@ -292,9 +292,10 @@ class PolicyAuthorityTest(base.TestCase):
                mock.sentinel.error)})
 
         expected_message = (
-            "Policy action \"{0}\" not found in policy file: {1} or among "
-            "registered policy in code defaults for service.").format(
-            mock.sentinel.rule, self.custom_policy_file)
+            'Policy action "{0}" not found in policy files: {1} or among '
+            'registered policy in code defaults for {2} service.').format(
+            mock.sentinel.rule, [self.custom_policy_file],
+            "custom_rbac_policy")
 
         e = self.assertRaises(rbac_exceptions.RbacParsingException,
                               authority.allowed, mock.sentinel.rule, None)
@@ -313,7 +314,7 @@ class PolicyAuthorityTest(base.TestCase):
         ]
 
         mock_manager = mock.Mock(obj=fake_policy_rules, __name__='foo')
-        mock_manager.configure_mock(name='fake_service')
+        mock_manager.configure_mock(name='tenant_rbac_policy')
         mock_stevedore.named.NamedExtensionManager.return_value = [
             mock_manager
         ]
@@ -323,7 +324,7 @@ class PolicyAuthorityTest(base.TestCase):
         authority = policy_authority.PolicyAuthority(
             test_tenant_id, test_user_id, "tenant_rbac_policy")
 
-        policy_data = authority._get_policy_data('fake_service')
+        policy_data = authority._get_policy_data()
         self.assertIsInstance(policy_data, str)
 
         actual_policy_data = json.loads(policy_data)
@@ -354,7 +355,7 @@ class PolicyAuthorityTest(base.TestCase):
         ]
 
         mock_manager = mock.Mock(obj=fake_policy_rules, __name__='foo')
-        mock_manager.configure_mock(name='fake_service')
+        mock_manager.configure_mock(name='tenant_rbac_policy')
         mock_stevedore.named.NamedExtensionManager.return_value = [
             mock_manager
         ]
@@ -364,7 +365,7 @@ class PolicyAuthorityTest(base.TestCase):
 
         authority = policy_authority.PolicyAuthority(
             test_tenant_id, test_user_id, 'tenant_rbac_policy')
-        policy_data = authority._get_policy_data('fake_service')
+        policy_data = authority._get_policy_data()
         self.assertIsInstance(policy_data, str)
 
         actual_policy_data = json.loads(policy_data)
@@ -388,7 +389,7 @@ class PolicyAuthorityTest(base.TestCase):
                               None, None, 'test_service')
 
         expected_error = (
-            'Policy file for {0} service was not found among the registered '
+            'Policy files for {0} service were not found among the registered '
             'in-code policies or in any of the possible policy files: {1}.'
             .format('test_service',
                     [CONF.patrole.custom_policy_files[0] % 'test_service']))
@@ -413,7 +414,7 @@ class PolicyAuthorityTest(base.TestCase):
                               policy_authority.PolicyAuthority,
                               None, None, 'test_service')
 
-        expected_error = "Policy file for {0} service is invalid."\
+        expected_error = "Policy files for {0} service are invalid."\
                          .format("test_service")
         self.assertIn(expected_error, str(e))
 
@@ -435,7 +436,7 @@ class PolicyAuthorityTest(base.TestCase):
                               None, None, 'tenant_rbac_policy')
 
         expected_error = (
-            'Policy file for {0} service was not found among the registered '
+            'Policy files for {0} service were not found among the registered '
             'in-code policies or in any of the possible policy files: {1}.'
             .format('tenant_rbac_policy', [CONF.patrole.custom_policy_files[0]
                                            % 'tenant_rbac_policy']))
@@ -450,7 +451,7 @@ class PolicyAuthorityTest(base.TestCase):
                       dir(policy_authority.PolicyAuthority))
         self.assertIn('policy_files', dir(policy_parser))
         self.assertIn('tenant_rbac_policy', policy_parser.policy_files)
-        self.assertEqual(self.conf_policy_path % 'tenant_rbac_policy',
+        self.assertEqual([self.conf_policy_path % 'tenant_rbac_policy'],
                          policy_parser.policy_files['tenant_rbac_policy'])
 
     @mock.patch.object(policy_authority, 'policy', autospec=True)
@@ -458,35 +459,40 @@ class PolicyAuthorityTest(base.TestCase):
                        autospec=True)
     @mock.patch.object(policy_authority, 'clients', autospec=True)
     @mock.patch.object(policy_authority, 'os', autospec=True)
-    def test_discover_policy_files_with_many_invalid_one_valid(self, m_os,
-                                                               m_creds, *args):
+    @mock.patch.object(policy_authority, 'glob', autospec=True)
+    def test_discover_policy_files_with_many_invalid_one_valid(self, m_glob,
+                                                               m_os, m_creds,
+                                                               *args):
+        service = 'test_service'
+        custom_policy_files = ['foo/%s', 'bar/%s', 'baz/%s']
+        m_glob.iglob.side_effect = [iter([path % service])
+                                    for path in custom_policy_files]
         # Only the 3rd path is valid.
-        m_os.path.isfile.side_effect = [False, False, True, False]
+        m_os.path.isfile.side_effect = [False, False, True]
 
         # Ensure the outer for loop runs only once in `discover_policy_files`.
         m_creds.Manager().identity_services_v3_client.\
             list_services.return_value = {
-                'services': [{'name': 'test_service'}]}
+                'services': [{'name': service}]}
 
         # The expected policy will be 'baz/test_service'.
         self.useFixture(fixtures.ConfPatcher(
-            custom_policy_files=['foo/%s', 'bar/%s', 'baz/%s'],
+            custom_policy_files=custom_policy_files,
             group='patrole'))
 
         policy_parser = policy_authority.PolicyAuthority(
-            None, None, 'test_service')
+            None, None, service)
 
         # Ensure that "policy_files" is set at class and instance levels.
-        self.assertIn('policy_files',
-                      dir(policy_authority.PolicyAuthority))
-        self.assertIn('policy_files', dir(policy_parser))
-        self.assertIn('test_service', policy_parser.policy_files)
-        self.assertEqual('baz/test_service',
-                         policy_parser.policy_files['test_service'])
+        self.assertTrue(hasattr(policy_authority.PolicyAuthority,
+                                'policy_files'))
+        self.assertTrue(hasattr(policy_parser, 'policy_files'))
+        self.assertEqual(['baz/%s' % service],
+                         policy_parser.policy_files[service])
 
     def test_discover_policy_files_with_no_valid_files(self):
         expected_error = (
-            'Policy file for {0} service was not found among the registered '
+            'Policy files for {0} service were not found among the registered '
             'in-code policies or in any of the possible policy files: {1}.'
             .format('test_service', [self.conf_policy_path % 'test_service']))
 
@@ -495,11 +501,11 @@ class PolicyAuthorityTest(base.TestCase):
                               None, None, 'test_service')
         self.assertIn(expected_error, str(e))
 
-        self.assertIn('policy_files',
-                      dir(policy_authority.PolicyAuthority))
-        self.assertNotIn(
-            'test_service',
-            policy_authority.PolicyAuthority.policy_files.keys())
+        self.assertTrue(hasattr(policy_authority.PolicyAuthority,
+                                'policy_files'))
+        self.assertEqual(
+            [],
+            policy_authority.PolicyAuthority.policy_files['test_service'])
 
     def _test_validate_service(self, v2_services, v3_services,
                                expected_failure=False, expected_services=None):
