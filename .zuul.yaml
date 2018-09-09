@@ -2,8 +2,8 @@
     name: patrole-base
     parent: devstack-tempest
     description: |
-       Patrole base job for admin and member roles. This job executes RBAC tests
-       for all the "core" services that Tempest covers, excluding Swift.
+      Patrole base job for admin and member roles. This job executes RBAC tests
+      for all the "core" services that Tempest covers, excluding Swift.
     required-projects:
       - name: openstack/tempest
       - name: openstack/patrole
@@ -134,16 +134,15 @@
     name: patrole-plugin-base
     parent: patrole-base
     description: |
-         Patrole plugin job for admin and member roles which
-         runs RBAC tests for neutron-tempest-plugin APIs (if the plugin is installed).
+      Patrole plugin job for admin and member roles which
+      runs RBAC tests for neutron-tempest-plugin APIs (if the plugin is installed).
     required-projects:
       - name: openstack/tempest
       - name: openstack/patrole
       - name: openstack/neutron-tempest-plugin
     vars:
       devstack_localrc:
-        TEMPEST_PLUGINS: "'/opt/stack/patrole
-                           /opt/stack/neutron-tempest-plugin'"
+        TEMPEST_PLUGINS: "'/opt/stack/patrole /opt/stack/neutron-tempest-plugin'"
       devstack_plugins:
         neutron: git://git.openstack.org/openstack/neutron.git
         patrole: git://git.openstack.org/openstack/patrole.git
@@ -174,6 +173,11 @@
 - project:
     templates:
       - openstack-python36-jobs
+      - openstack-python-jobs
+      - openstack-python35-jobs
+      - check-requirements
+      - publish-openstack-sphinx-docs
+      - release-notes-jobs
     check:
       jobs:
         - patrole-admin
@@ -186,6 +190,9 @@
         - openstack-tox-lower-constraints
         - patrole-plugin-admin
         - patrole-plugin-member
+        - openstack-tox-cover:
+            voting: false
+
     gate:
       jobs:
         - patrole-admin
