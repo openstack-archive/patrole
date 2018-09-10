@@ -40,7 +40,6 @@ function install_patrole_tempest_plugin {
         iniset $TEMPEST_CONFIG policy-feature-enabled removed_nova_policies_stein False
     fi
 
-    iniset $TEMPEST_CONFIG patrole enable_rbac True
     iniset $TEMPEST_CONFIG patrole rbac_test_role $RBAC_TEST_ROLE
 }
 

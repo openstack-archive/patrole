@@ -208,11 +208,6 @@ class RBACUtilsMixinTest(base.TestCase):
         class FakeRbacTest(rbac_utils.RbacUtilsMixin, test.BaseTestCase):
 
             @classmethod
-            def skip_checks(cls):
-                super(FakeRbacTest, cls).skip_checks()
-                cls.skip_rbac_checks()
-
-            @classmethod
             def setup_clients(cls):
                 super(FakeRbacTest, cls).setup_clients()
                 cls.setup_rbac_utils()
@@ -237,21 +232,3 @@ class RBACUtilsMixinTest(base.TestCase):
 
         self.assertTrue(hasattr(child_test, 'rbac_utils'))
         self.assertIsInstance(child_test.rbac_utils, rbac_utils.RbacUtils)
-
-    def test_skip_rbac_checks(self):
-        """Validate that the child class is skipped if `[patrole] enable_rbac`
-        is False and that the child class's name is in the skip message.
-        """
-        self.useFixture(patrole_fixtures.ConfPatcher(enable_rbac=False,
-                                                     group='patrole'))
-
-        class ChildRbacTest(self.parent_class):
-            pass
-
-        child_test = ChildRbacTest()
-
-        with testtools.ExpectedException(
-                testtools.TestCase.skipException,
-                value_re=('Patrole testing not enabled so skipping %s.'
-                          % ChildRbacTest.__name__)):
-            child_test.setUpClass()

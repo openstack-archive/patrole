@@ -24,16 +24,6 @@ PatroleGroup = [
                default='admin',
                help="""The current RBAC role against which to run
 Patrole tests."""),
-    cfg.BoolOpt('enable_rbac',
-                default=True,
-                deprecated_for_removal=True,
-                deprecated_reason="""This is a legacy option that was
-meaningful when Patrole existed downstream as a suite of tests inside Tempest.
-Installing the Patrole plugin necessarily means that RBAC tests should be run.
-This option is paradoxical with the Tempest plugin architecture.
-""",
-                deprecated_since='R',
-                help="Enables Patrole RBAC tests."),
     cfg.ListOpt('custom_policy_files',
                 default=['/etc/%s/policy.json'],
                 help="""List of the paths to search for policy files. Each

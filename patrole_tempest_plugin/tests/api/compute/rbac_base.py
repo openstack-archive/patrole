@@ -22,11 +22,6 @@ class BaseV2ComputeRbacTest(rbac_utils.RbacUtilsMixin,
                             compute_base.BaseV2ComputeTest):
 
     @classmethod
-    def skip_checks(cls):
-        super(BaseV2ComputeRbacTest, cls).skip_checks()
-        cls.skip_rbac_checks()
-
-    @classmethod
     def setup_clients(cls):
         super(BaseV2ComputeRbacTest, cls).setup_clients()
         cls.setup_rbac_utils()

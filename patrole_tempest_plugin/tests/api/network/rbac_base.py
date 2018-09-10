@@ -22,11 +22,6 @@ class BaseNetworkRbacTest(rbac_utils.RbacUtilsMixin,
                           network_base.BaseNetworkTest):
 
     @classmethod
-    def skip_checks(cls):
-        super(BaseNetworkRbacTest, cls).skip_checks()
-        cls.skip_rbac_checks()
-
-    @classmethod
     def setup_clients(cls):
         super(BaseNetworkRbacTest, cls).setup_clients()
         cls.setup_rbac_utils()
