@@ -13,7 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import json
 import mock
 import os
 
@@ -61,11 +60,14 @@ class PolicyAuthorityTest(base.TestCase):
         self.tenant_policy_file = os.path.join(current_directory,
                                                'resources',
                                                'tenant_rbac_policy.json')
-        self.conf_policy_path = os.path.join(
+        self.conf_policy_path_json = os.path.join(
             current_directory, 'resources', '%s.json')
 
+        self.conf_policy_path_yaml = os.path.join(
+            current_directory, 'resources', '%s.yaml')
+
         self.useFixture(fixtures.ConfPatcher(
-            custom_policy_files=[self.conf_policy_path], group='patrole'))
+            custom_policy_files=[self.conf_policy_path_json], group='patrole'))
         self.useFixture(fixtures.ConfPatcher(
             api_v3=True, api_v2=False, group='identity-feature-enabled'))
 
@@ -74,13 +76,18 @@ class PolicyAuthorityTest(base.TestCase):
             if attr in dir(policy_authority.PolicyAuthority):
                 delattr(policy_authority.PolicyAuthority, attr)
 
-    def _get_fake_policy_rule(self, name, rule):
-        fake_rule = mock.Mock(check=rule, __name__='foo')
-        fake_rule.name = name
-        return fake_rule
+    @staticmethod
+    def _get_fake_policies(rules):
+        fake_rules = []
+        rules = policy_authority.policy.Rules.from_dict(rules)
+        for name, check in rules.items():
+            fake_rule = mock.Mock(check=check, __name__='foo')
+            fake_rule.name = name
+            fake_rules.append(fake_rule)
+        return fake_rules
 
     @mock.patch.object(policy_authority, 'LOG', autospec=True)
-    def test_custom_policy(self, m_log):
+    def _test_custom_policy(self, *args):
         default_roles = ['zero', 'one', 'two', 'three', 'four',
                          'five', 'six', 'seven', 'eight', 'nine']
 
@@ -104,6 +111,16 @@ class PolicyAuthorityTest(base.TestCase):
                 self.assertTrue(authority.allowed(rule, role))
             for role in set(default_roles) - set(role_list):
                 self.assertFalse(authority.allowed(rule, role))
+
+    def test_custom_policy_json(self):
+        # The CONF.patrole.custom_policy_files has a path to JSON file by
+        # default, so we don't need to use ConfPatcher here.
+        self._test_custom_policy()
+
+    def test_custom_policy_yaml(self):
+        self.useFixture(fixtures.ConfPatcher(
+            custom_policy_files=[self.conf_policy_path_yaml], group='patrole'))
+        self._test_custom_policy()
 
     def test_admin_policy_file_with_admin_role(self):
         test_tenant_id = mock.sentinel.tenant_id
@@ -303,15 +320,12 @@ class PolicyAuthorityTest(base.TestCase):
         m_log.debug.assert_called_once_with(expected_message)
 
     @mock.patch.object(policy_authority, 'stevedore', autospec=True)
-    def test_get_policy_data_from_file_and_from_code(self, mock_stevedore):
-        fake_policy_rules = [
-            self._get_fake_policy_rule('code_policy_action_1',
-                                       'rule:code_rule_1'),
-            self._get_fake_policy_rule('code_policy_action_2',
-                                       'rule:code_rule_2'),
-            self._get_fake_policy_rule('code_policy_action_3',
-                                       'rule:code_rule_3'),
-        ]
+    def test_get_rules_from_file_and_from_code(self, mock_stevedore):
+        fake_policy_rules = self._get_fake_policies({
+            'code_policy_action_1': 'rule:code_rule_1',
+            'code_policy_action_2': 'rule:code_rule_2',
+            'code_policy_action_3': 'rule:code_rule_3',
+        })
 
         mock_manager = mock.Mock(obj=fake_policy_rules, __name__='foo')
         mock_manager.configure_mock(name='tenant_rbac_policy')
@@ -324,10 +338,10 @@ class PolicyAuthorityTest(base.TestCase):
         authority = policy_authority.PolicyAuthority(
             test_tenant_id, test_user_id, "tenant_rbac_policy")
 
-        policy_data = authority._get_policy_data()
-        self.assertIsInstance(policy_data, str)
+        rules = authority.get_rules()
+        self.assertIsInstance(rules, policy_authority.policy.Rules)
 
-        actual_policy_data = json.loads(policy_data)
+        actual_policy_data = {k: str(v) for k, v in rules.items()}
         expected_policy_data = {
             "code_policy_action_1": "rule:code_rule_1",
             "code_policy_action_2": "rule:code_rule_2",
@@ -336,23 +350,22 @@ class PolicyAuthorityTest(base.TestCase):
             "rule2": "tenant_id:%(tenant_id)s",
             "rule3": "project_id:%(project_id)s",
             "rule4": "user_id:%(user_id)s",
-            "admin_tenant_rule": "role:admin and tenant_id:%(tenant_id)s",
-            "admin_user_rule": "role:admin and user_id:%(user_id)s"
+            "admin_tenant_rule": "(role:admin and tenant_id:%(tenant_id)s)",
+            "admin_user_rule": "(role:admin and user_id:%(user_id)s)"
         }
 
         self.assertEqual(expected_policy_data, actual_policy_data)
 
     @mock.patch.object(policy_authority, 'stevedore', autospec=True)
-    def test_get_policy_data_from_file_and_from_code_with_overwrite(
+    def test_get_rules_from_file_and_from_code_with_overwrite(
             self, mock_stevedore):
         # The custom policy file should overwrite default rules rule1 and rule2
         # that are defined in code.
-        fake_policy_rules = [
-            self._get_fake_policy_rule('rule1', 'rule:code_rule_1'),
-            self._get_fake_policy_rule('rule2', 'rule:code_rule_2'),
-            self._get_fake_policy_rule('code_policy_action_3',
-                                       'rule:code_rule_3'),
-        ]
+        fake_policy_rules = self._get_fake_policies({
+            'rule1': 'rule:code_rule_1',
+            'rule2': 'rule:code_rule_2',
+            'code_policy_action_3': 'rule:code_rule_3',
+        })
 
         mock_manager = mock.Mock(obj=fake_policy_rules, __name__='foo')
         mock_manager.configure_mock(name='tenant_rbac_policy')
@@ -365,24 +378,24 @@ class PolicyAuthorityTest(base.TestCase):
 
         authority = policy_authority.PolicyAuthority(
             test_tenant_id, test_user_id, 'tenant_rbac_policy')
-        policy_data = authority._get_policy_data()
-        self.assertIsInstance(policy_data, str)
+        rules = authority.get_rules()
+        self.assertIsInstance(rules, policy_authority.policy.Rules)
 
-        actual_policy_data = json.loads(policy_data)
+        actual_policy_data = {k: str(v) for k, v in rules.items()}
         expected_policy_data = {
             "code_policy_action_3": "rule:code_rule_3",
             "rule1": "tenant_id:%(network:tenant_id)s",
             "rule2": "tenant_id:%(tenant_id)s",
             "rule3": "project_id:%(project_id)s",
             "rule4": "user_id:%(user_id)s",
-            "admin_tenant_rule": "role:admin and tenant_id:%(tenant_id)s",
-            "admin_user_rule": "role:admin and user_id:%(user_id)s"
+            "admin_tenant_rule": "(role:admin and tenant_id:%(tenant_id)s)",
+            "admin_user_rule": "(role:admin and user_id:%(user_id)s)"
         }
 
         self.assertEqual(expected_policy_data, actual_policy_data)
 
     @mock.patch.object(policy_authority, 'stevedore', autospec=True)
-    def test_get_policy_data_cannot_find_policy(self, mock_stevedore):
+    def test_get_rules_cannot_find_policy(self, mock_stevedore):
         mock_stevedore.named.NamedExtensionManager.return_value = None
         e = self.assertRaises(rbac_exceptions.RbacParsingException,
                               policy_authority.PolicyAuthority,
@@ -395,51 +408,21 @@ class PolicyAuthorityTest(base.TestCase):
                     [CONF.patrole.custom_policy_files[0] % 'test_service']))
         self.assertIn(expected_error, str(e))
 
-    @mock.patch.object(policy_authority, 'json', autospec=True)
+    @mock.patch.object(policy_authority.policy, 'parse_file_contents',
+                       autospec=True)
     @mock.patch.object(policy_authority, 'stevedore', autospec=True)
-    def test_get_policy_data_without_valid_policy(self, mock_stevedore,
-                                                  mock_json):
-        test_policy_action = mock.Mock(check='rule:bar', __name__='foo')
-        test_policy_action.configure_mock(name='foo')
-
-        test_policy = mock.Mock(obj=[test_policy_action], __name__='foo')
-        test_policy.configure_mock(name='test_service')
-
-        mock_stevedore.named.NamedExtensionManager\
-            .return_value = [test_policy]
-
-        mock_json.dumps.side_effect = ValueError
-
-        e = self.assertRaises(rbac_exceptions.RbacParsingException,
-                              policy_authority.PolicyAuthority,
-                              None, None, 'test_service')
-
-        expected_error = "Policy files for {0} service are invalid."\
-                         .format("test_service")
-        self.assertIn(expected_error, str(e))
-
-        mock_stevedore.named.NamedExtensionManager.assert_called_once_with(
-            'oslo.policy.policies',
-            names=['test_service'],
-            on_load_failure_callback=None,
-            invoke_on_load=True,
-            warn_on_missing_entrypoint=False)
-
-    @mock.patch.object(policy_authority, 'json', autospec=True)
-    @mock.patch.object(policy_authority, 'stevedore', autospec=True)
-    def test_get_policy_data_from_file_not_json(self, mock_stevedore,
-                                                mock_json):
+    def test_get_rules_without_valid_policy(self, mock_stevedore,
+                                            mock_parse_file_contents):
         mock_stevedore.named.NamedExtensionManager.return_value = None
-        mock_json.loads.side_effect = ValueError
+        mock_parse_file_contents.side_effect = ValueError
         e = self.assertRaises(rbac_exceptions.RbacParsingException,
                               policy_authority.PolicyAuthority,
                               None, None, 'tenant_rbac_policy')
 
         expected_error = (
             'Policy files for {0} service were not found among the registered '
-            'in-code policies or in any of the possible policy files: {1}.'
-            .format('tenant_rbac_policy', [CONF.patrole.custom_policy_files[0]
-                                           % 'tenant_rbac_policy']))
+            'in-code policies or in any of the possible policy files:'
+            .format('tenant_rbac_policy'))
         self.assertIn(expected_error, str(e))
 
     def test_discover_policy_files(self):
@@ -451,11 +434,11 @@ class PolicyAuthorityTest(base.TestCase):
                       dir(policy_authority.PolicyAuthority))
         self.assertIn('policy_files', dir(policy_parser))
         self.assertIn('tenant_rbac_policy', policy_parser.policy_files)
-        self.assertEqual([self.conf_policy_path % 'tenant_rbac_policy'],
+        self.assertEqual([self.conf_policy_path_json % 'tenant_rbac_policy'],
                          policy_parser.policy_files['tenant_rbac_policy'])
 
     @mock.patch.object(policy_authority, 'policy', autospec=True)
-    @mock.patch.object(policy_authority.PolicyAuthority, '_get_policy_data',
+    @mock.patch.object(policy_authority.PolicyAuthority, 'get_rules',
                        autospec=True)
     @mock.patch.object(policy_authority, 'clients', autospec=True)
     @mock.patch.object(policy_authority, 'os', autospec=True)
@@ -494,7 +477,8 @@ class PolicyAuthorityTest(base.TestCase):
         expected_error = (
             'Policy files for {0} service were not found among the registered '
             'in-code policies or in any of the possible policy files: {1}.'
-            .format('test_service', [self.conf_policy_path % 'test_service']))
+            .format('test_service',
+                    [self.conf_policy_path_json % 'test_service']))
 
         e = self.assertRaises(rbac_exceptions.RbacParsingException,
                               policy_authority.PolicyAuthority,
