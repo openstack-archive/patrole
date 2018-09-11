@@ -20,11 +20,6 @@ class BaseV2ImageRbacTest(rbac_utils.RbacUtilsMixin,
                           image_base.BaseV2ImageTest):
 
     @classmethod
-    def skip_checks(cls):
-        super(BaseV2ImageRbacTest, cls).skip_checks()
-        cls.skip_rbac_checks()
-
-    @classmethod
     def setup_clients(cls):
         super(BaseV2ImageRbacTest, cls).setup_clients()
         cls.setup_rbac_utils()

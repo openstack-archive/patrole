@@ -28,11 +28,6 @@ class BaseIdentityRbacTest(rbac_utils.RbacUtilsMixin,
                            base.BaseIdentityTest):
 
     @classmethod
-    def skip_checks(cls):
-        super(BaseIdentityRbacTest, cls).skip_checks()
-        cls.skip_rbac_checks()
-
-    @classmethod
     def setup_clients(cls):
         super(BaseIdentityRbacTest, cls).setup_clients()
         cls.setup_rbac_utils()

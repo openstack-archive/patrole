@@ -29,11 +29,6 @@ class BaseVolumeRbacTest(rbac_utils.RbacUtilsMixin,
     _api_version = 3
 
     @classmethod
-    def skip_checks(cls):
-        super(BaseVolumeRbacTest, cls).skip_checks()
-        cls.skip_rbac_checks()
-
-    @classmethod
     def setup_clients(cls):
         super(BaseVolumeRbacTest, cls).setup_clients()
         cls.setup_rbac_utils()
