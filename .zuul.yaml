@@ -87,6 +87,11 @@
         RBAC_TEST_ROLE: member
 
 - job:
+    name: patrole-member-rocky
+    parent: patrole-member
+    override-checkout: stable/rocky
+
+- job:
     name: patrole-member-queens
     parent: patrole-member
     override-checkout: stable/queens
@@ -184,6 +189,7 @@
       jobs:
         - patrole-admin
         - patrole-member
+        - patrole-member-rocky
         - patrole-member-queens
         - patrole-member-pike
         - patrole-py35-member
