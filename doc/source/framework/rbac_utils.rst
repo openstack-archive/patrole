@@ -176,3 +176,4 @@ Implementation
 .. automodule:: patrole_tempest_plugin.rbac_utils
    :members:
    :private-members:
+   :special-members:

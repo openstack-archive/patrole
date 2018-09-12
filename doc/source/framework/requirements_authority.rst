@@ -103,3 +103,4 @@ Implementation
 .. automodule:: patrole_tempest_plugin.requirements_authority
    :members:
    :undoc-members:
+   :special-members:
