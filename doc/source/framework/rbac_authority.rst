@@ -35,3 +35,4 @@ Implementation
 .. automodule:: patrole_tempest_plugin.rbac_authority
    :members:
    :undoc-members:
+   :special-members:

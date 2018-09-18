@@ -60,3 +60,4 @@ Implementation
 .. automodule:: patrole_tempest_plugin.policy_authority
    :members:
    :undoc-members:
+   :special-members:
