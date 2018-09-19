@@ -29,8 +29,9 @@ Patrole tests."""),
                 help="""List of the paths to search for policy files. Each
 policy path assumes that the service name is included in the path once. Also
 assumes Patrole is on the same host as the policy files. The paths should be
-ordered by precedence, with high-priority paths before low-priority paths. The
-first path that is found to contain the service's policy file will be used.
+ordered by precedence, with high-priority paths before low-priority paths. All
+the paths that are found to contain the service's policy file will be used and
+all policy files will be merged.
 """),
     cfg.BoolOpt('test_custom_requirements',
                 default=False,

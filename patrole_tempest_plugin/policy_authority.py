@@ -13,7 +13,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import collections
 import copy
+import glob
 import json
 import os
 
@@ -103,17 +105,14 @@ class PolicyAuthority(RbacAuthority):
         if extra_target_data is None:
             extra_target_data = {}
 
-        self.validate_service(service)
+        self.service = self.validate_service(service)
 
         # Prioritize dynamically searching for policy files over relying on
         # deprecated service-specific policy file locations.
-        self.path = None
         if CONF.patrole.custom_policy_files:
             self.discover_policy_files()
-            self.path = self.policy_files.get(service)
 
-        self.rules = policy.Rules.load(self._get_policy_data(service),
-                                       'default')
+        self.rules = policy.Rules.load(self._get_policy_data(), 'default')
         self.project_id = project_id
         self.user_id = user_id
         self.extra_target_data = extra_target_data
@@ -139,19 +138,22 @@ class PolicyAuthority(RbacAuthority):
             raise rbac_exceptions.RbacInvalidServiceException(
                 "%s is NOT a valid service." % service)
 
+        return service
+
     @classmethod
     def discover_policy_files(cls):
         """Dynamically discover the policy file for each service in
-        ``cls.available_services``. Pick the first candidate path found
+        ``cls.available_services``. Pick all candidate paths found
         out of the potential paths in ``[patrole] custom_policy_files``.
         """
         if not hasattr(cls, 'policy_files'):
-            cls.policy_files = {}
+            cls.policy_files = collections.defaultdict(list)
             for service in cls.available_services:
                 for candidate_path in CONF.patrole.custom_policy_files:
-                    if os.path.isfile(candidate_path % service):
-                        cls.policy_files.setdefault(service,
-                                                    candidate_path % service)
+                    path = candidate_path % service
+                    for filename in glob.iglob(path):
+                        if os.path.isfile(filename):
+                            cls.policy_files[service].append(filename)
 
     def allowed(self, rule_name, role):
         """Checks if a given rule in a policy is allowed with given role.
@@ -168,17 +170,28 @@ class PolicyAuthority(RbacAuthority):
             is_admin=is_admin_context)
         return is_allowed
 
-    def _get_policy_data(self, service):
+    def _get_policy_data(self):
         file_policy_data = {}
         mgr_policy_data = {}
         policy_data = {}
 
         # Check whether policy file exists and attempt to read it.
-        if self.path and os.path.isfile(self.path):
+        for path in self.policy_files[self.service]:
             try:
-                with open(self.path, 'r') as policy_file:
-                    file_policy_data = policy_file.read()
-                file_policy_data = json.loads(file_policy_data)
+                with open(path, 'r') as fp:
+                    for k, v in json.load(fp).items():
+                        if k not in file_policy_data:
+                            file_policy_data[k] = v
+                        else:
+                            # If the policy name and rule are the same, no
+                            # ambiguity, so no reason to warn.
+                            if v != file_policy_data[k]:
+                                LOG.warning(
+                                    "The same policy name: %s was found in "
+                                    "multiple policies files for service %s. "
+                                    "This can lead to policy rule ambiguity. "
+                                    "Using rule: %s", k, self.service,
+                                    file_policy_data[k])
             except (IOError, ValueError) as e:
                 msg = "Failed to read policy file for service. "
                 if isinstance(e, IOError):
@@ -186,21 +199,20 @@ class PolicyAuthority(RbacAuthority):
                 else:
                     msg += "JSON may be improperly formatted."
                 LOG.debug(msg)
-                file_policy_data = {}
 
         # Check whether policy actions are defined in code. Nova and Keystone,
         # for example, define their default policy actions in code.
         mgr = stevedore.named.NamedExtensionManager(
             'oslo.policy.policies',
-            names=[service],
+            names=[self.service],
             on_load_failure_callback=None,
             invoke_on_load=True,
             warn_on_missing_entrypoint=False)
 
         if mgr:
-            policy_generator = {policy.name: policy.obj for policy in mgr}
-            if policy_generator and service in policy_generator:
-                for rule in policy_generator[service]:
+            policy_generator = {plc.name: plc.obj for plc in mgr}
+            if policy_generator and self.service in policy_generator:
+                for rule in policy_generator[self.service]:
                     mgr_policy_data[rule.name] = str(rule.check)
 
         # If data from both file and code exist, combine both together.
@@ -217,10 +229,10 @@ class PolicyAuthority(RbacAuthority):
             policy_data = mgr_policy_data
         else:
             error_message = (
-                'Policy file for {0} service was not found among the '
+                'Policy files for {0} service were not found among the '
                 'registered in-code policies or in any of the possible policy '
-                'files: {1}.'.format(service,
-                                     [loc % service for loc in
+                'files: {1}.'.format(self.service,
+                                     [loc % self.service for loc in
                                       CONF.patrole.custom_policy_files])
             )
             raise rbac_exceptions.RbacParsingException(error_message)
@@ -228,8 +240,8 @@ class PolicyAuthority(RbacAuthority):
         try:
             policy_data = json.dumps(policy_data)
         except (TypeError, ValueError):
-            error_message = 'Policy file for {0} service is invalid.'.format(
-                service)
+            error_message = 'Policy files for {0} service are invalid.'.format(
+                self.service)
             raise rbac_exceptions.RbacParsingException(error_message)
 
         return policy_data
@@ -296,9 +308,11 @@ class PolicyAuthority(RbacAuthority):
 
     def _try_rule(self, apply_rule, target, access_data, o):
         if apply_rule not in self.rules:
-            message = ("Policy action \"{0}\" not found in policy file: {1} or"
-                       " among registered policy in code defaults for service."
-                       ).format(apply_rule, self.path)
+            message = ('Policy action "{0}" not found in policy files: '
+                       '{1} or among registered policy in code defaults for '
+                       '{2} service.').format(apply_rule,
+                                              self.policy_files[self.service],
+                                              self.service)
             LOG.debug(message)
             raise rbac_exceptions.RbacParsingException(message)
         else:
