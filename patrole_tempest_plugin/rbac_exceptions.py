@@ -29,14 +29,10 @@ class RbacMalformedResponse(BasePatroleException):
     message = ("The response body is missing the expected %(attribute)s due "
                "to policy enforcement failure.")
 
-    def __init__(self, empty=False, extra_attr=False, **kwargs):
+    def __init__(self, empty=False, **kwargs):
         if empty:
             self.message = ("The response body is empty due to policy "
                             "enforcement failure.")
-            kwargs = {}
-        if extra_attr:
-            self.message = ("The response body contained an unexpected "
-                            "attribute due to policy enforcement failure.")
             kwargs = {}
         super(RbacMalformedResponse, self).__init__(**kwargs)
 
