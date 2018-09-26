@@ -66,7 +66,8 @@ class RbacUtilsFixture(fixtures.Fixture):
     def setUp(self):
         super(RbacUtilsFixture, self).setUp()
 
-        self.useFixture(ConfPatcher(rbac_test_role='member', group='patrole'))
+        self.useFixture(ConfPatcher(rbac_test_roles=['member'],
+                                    group='patrole'))
         self.useFixture(ConfPatcher(
             admin_role='admin', auth_version='v3', group='identity'))
         self.useFixture(ConfPatcher(
@@ -92,7 +93,7 @@ class RbacUtilsFixture(fixtures.Fixture):
         mock_admin_mgr = mock.patch.object(
             clients, 'Manager', spec=clients.Manager,
             roles_v3_client=mock.Mock(), roles_client=mock.Mock()).start()
-        self.roles_v3_client = mock_admin_mgr.return_value.roles_v3_client
+        self.admin_roles_client = mock_admin_mgr.return_value.roles_v3_client
 
         self.set_roles(['admin', 'member'], [])
 
@@ -153,6 +154,6 @@ class RbacUtilsFixture(fixtures.Fixture):
                       for role in roles_on_project]
         }
 
-        self.roles_v3_client.list_roles.return_value = available_roles
-        self.roles_v3_client.list_user_roles_on_project.return_value = (
+        self.admin_roles_client.list_roles.return_value = available_roles
+        self.admin_roles_client.list_user_roles_on_project.return_value = (
             available_project_roles)

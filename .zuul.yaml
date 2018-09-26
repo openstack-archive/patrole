@@ -71,7 +71,7 @@
     description: Patrole job for admin role.
     vars:
       devstack_localrc:
-        RBAC_TEST_ROLE: admin
+        RBAC_TEST_ROLES: admin
 
 - job:
     name: patrole-member
@@ -84,7 +84,7 @@
       - stable/pike
     vars:
       devstack_localrc:
-        RBAC_TEST_ROLE: member
+        RBAC_TEST_ROLES: member
 
 - job:
     name: patrole-member-rocky
@@ -107,7 +107,7 @@
     voting: false
     vars:
       devstack_localrc:
-        RBAC_TEST_ROLE: admin
+        RBAC_TEST_ROLES: admin
 
 - job:
     name: patrole-multinode-member
@@ -115,7 +115,7 @@
     voting: false
     vars:
       devstack_localrc:
-        RBAC_TEST_ROLE: member
+        RBAC_TEST_ROLES: member
 
 - job:
     name: patrole-py35-member
@@ -125,7 +125,7 @@
       devstack_localrc:
         # Use member for py35 because arguably negative testing is more
         # important than admin, which is already covered by patrole-admin job.
-        RBAC_TEST_ROLE: member
+        RBAC_TEST_ROLES: member
         USE_PYTHON3: true
       devstack_services:
         s-account: false
@@ -164,7 +164,7 @@
     voting: false
     vars:
       devstack_localrc:
-        RBAC_TEST_ROLE: member
+        RBAC_TEST_ROLES: member
       tempest_test_regex: (?=.*PluginRbacTest)(^patrole_tempest_plugin\.tests\.api)
 
 - job:
@@ -173,7 +173,7 @@
     voting: false
     vars:
       devstack_localrc:
-        RBAC_TEST_ROLE: admin
+        RBAC_TEST_ROLES: admin
       tempest_test_regex: (?=.*PluginRbacTest)(^patrole_tempest_plugin\.tests\.api)
 
 - project:

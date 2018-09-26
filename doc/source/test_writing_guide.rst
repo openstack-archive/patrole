@@ -23,8 +23,8 @@ Role Overriding
 Role overriding is the way Patrole is able to create resources and delete
 resources -- including those that require admin credentials -- while still
 being able to exercise the same set of Tempest credentials to perform the API
-action that authorizes the policy under test, by manipulating the role of
-the Tempest credentials.
+action that authorizes the policy under test, by manipulating roles of the
+Tempest credentials.
 
 Patrole implicitly splits up each test into 3 stages: set up, test execution,
 and teardown.
@@ -33,10 +33,10 @@ The role workflow is as follows:
 
 #. Setup: Admin role is used automatically. The primary credentials are
    overridden with the admin role.
-#. Test execution: ``[patrole] rbac_test_role`` is used manually via the
+#. Test execution: ``[patrole] rbac_test_roles`` is used manually via the
    call to ``with rbac_utils.override_role(self)``. Everything that
    is executed within this contextmanager uses the primary
-   credentials overridden with the ``[patrole] rbac_test_role``.
+   credentials overridden with the ``[patrole] rbac_test_roles``.
 #. Teardown: Admin role is used automatically. The primary credentials have
    been overridden with the admin role.
 

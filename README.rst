@@ -186,20 +186,20 @@ the steps outlined therein. Afterward, proceed with the steps below.
 RBAC Tests
 ----------
 
-To change the role that the patrole tests are being run as, edit
-``rbac_test_role`` in the ``patrole`` section of tempest.conf: ::
+To change the roles that the patrole tests are being run as, edit
+``rbac_test_roles`` in the ``patrole`` section of tempest.conf: ::
 
     [patrole]
-    rbac_test_role = member
+    rbac_test_role = member,reader
     ...
 
 .. note::
 
-  The ``rbac_test_role`` is service-specific. member, for example,
+  The ``rbac_test_roles`` is service-specific. member, for example,
   is an arbitrary role, but by convention is used to designate the default
   non-admin role in the system. Most Patrole tests should be run with
   **admin** and **member** roles. However, other services may use entirely
-  different roles.
+  different roles or role combinations.
 
 For more information about the member role and its nomenclature,
 please see: `<https://ask.openstack.org/en/question/4759/member-vs-_member_/>`__.

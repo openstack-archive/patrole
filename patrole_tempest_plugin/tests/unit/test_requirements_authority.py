@@ -38,11 +38,11 @@ class RequirementsAuthorityTest(base.TestCase):
     def test_auth_allowed_empty_roles(self):
         self.rbac_auth.roles_dict = None
         self.assertRaises(exceptions.InvalidConfiguration,
-                          self.rbac_auth.allowed, "", "")
+                          self.rbac_auth.allowed, "", [""])
 
     def test_auth_allowed_role_in_api(self):
         self.rbac_auth.roles_dict = {'api': ['_member_']}
-        self.assertTrue(self.rbac_auth.allowed("api", "_member_"))
+        self.assertTrue(self.rbac_auth.allowed("api", ["_member_"]))
 
     def test_auth_allowed_role_not_in_api(self):
         self.rbac_auth.roles_dict = {'api': ['_member_']}
@@ -64,7 +64,8 @@ class RequirementsAuthorityTest(base.TestCase):
         self.rbac_auth.roles_dict = req_auth.RequirementsParser.parse("Test")
 
         self.assertEqual(self.expected_result, self.rbac_auth.roles_dict)
-        self.assertTrue(self.rbac_auth.allowed("test:create2", "test_member"))
+        self.assertTrue(
+            self.rbac_auth.allowed("test:create2", ["test_member"]))
 
     def test_parser_role_not_in_api(self):
         req_auth.RequirementsParser.Inner._rbac_map = \
@@ -82,4 +83,4 @@ class RequirementsAuthorityTest(base.TestCase):
 
         self.assertIsNone(self.rbac_auth.roles_dict)
         self.assertRaises(exceptions.InvalidConfiguration,
-                          self.rbac_auth.allowed, "", "")
+                          self.rbac_auth.allowed, "", [""])

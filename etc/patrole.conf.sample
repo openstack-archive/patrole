@@ -7,12 +7,17 @@
 # From patrole.config
 #
 
-# The current RBAC role against which to run Patrole
-# tests. (string value)
-#rbac_test_role = admin
+# DEPRECATED: The current RBAC role against which to run
+# Patrole tests. (string value)
+# This option is deprecated for removal.
+# Its value may be silently ignored in the future.
+# Reason: This option is deprecated and being
+# replaced with ``rbac_test_roles``.
+#rbac_test_role =
 
-# Enables RBAC tests. (boolean value)
-#enable_rbac = true
+# The current RBAC roles to be assigned to Keystone
+# Group against which to run Patrole tests. (list value)
+#rbac_test_roles = admin
 
 # List of the paths to search for policy files. Each
 # policy path assumes that the service name is included in the path
@@ -20,9 +25,11 @@
 # assumes Patrole is on the same host as the policy files. The paths
 # should be
 # ordered by precedence, with high-priority paths before low-priority
-# paths. The
-# first path that is found to contain the service's policy file will
-# be used.
+# paths. All
+# the paths that are found to contain the service's policy file will
+# be used and
+# all policy files will be merged. Allowed ``json`` or ``yaml``
+# formats.
 #  (list value)
 #custom_policy_files = /etc/%s/policy.json
 
@@ -150,3 +157,16 @@
 # This policy
 # was changed in a backwards-incompatible way. (boolean value)
 #volume_extension_volume_actions_unreserve_policy = true
+
+# Are the Nova API extension policies available in the
+# cloud (e.g. os_compute_api:os-extended-availability-zone)? These
+# policies were
+# removed in Stein because Nova API extension concept was removed in
+# Pike. (boolean value)
+#removed_nova_policies_stein = true
+
+# Are the Cinder API extension policies available in the
+# cloud (e.g. [create|update|get|delete]_encryption_policy)? These
+# policies are
+# added in Stein. (boolean value)
+#added_cinder_policies_stein = true
