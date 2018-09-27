@@ -31,7 +31,7 @@ policy path assumes that the service name is included in the path once. Also
 assumes Patrole is on the same host as the policy files. The paths should be
 ordered by precedence, with high-priority paths before low-priority paths. All
 the paths that are found to contain the service's policy file will be used and
-all policy files will be merged.
+all policy files will be merged. Allowed ``json`` or ``yaml`` formats.
 """),
     cfg.BoolOpt('test_custom_requirements',
                 default=False,

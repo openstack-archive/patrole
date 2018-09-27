@@ -16,7 +16,6 @@
 import collections
 import copy
 import glob
-import json
 import os
 
 from oslo_log import log as logging
@@ -112,7 +111,7 @@ class PolicyAuthority(RbacAuthority):
         if CONF.patrole.custom_policy_files:
             self.discover_policy_files()
 
-        self.rules = policy.Rules.load(self._get_policy_data(), 'default')
+        self.rules = self.get_rules()
         self.project_id = project_id
         self.user_id = user_id
         self.extra_target_data = extra_target_data
@@ -170,81 +169,60 @@ class PolicyAuthority(RbacAuthority):
             is_admin=is_admin_context)
         return is_allowed
 
-    def _get_policy_data(self):
-        file_policy_data = {}
-        mgr_policy_data = {}
-        policy_data = {}
-
+    def get_rules(self):
+        rules = policy.Rules()
         # Check whether policy file exists and attempt to read it.
         for path in self.policy_files[self.service]:
             try:
                 with open(path, 'r') as fp:
-                    for k, v in json.load(fp).items():
-                        if k not in file_policy_data:
-                            file_policy_data[k] = v
-                        else:
-                            # If the policy name and rule are the same, no
-                            # ambiguity, so no reason to warn.
-                            if v != file_policy_data[k]:
-                                LOG.warning(
-                                    "The same policy name: %s was found in "
-                                    "multiple policies files for service %s. "
-                                    "This can lead to policy rule ambiguity. "
-                                    "Using rule: %s", k, self.service,
-                                    file_policy_data[k])
-            except (IOError, ValueError) as e:
-                msg = "Failed to read policy file for service. "
-                if isinstance(e, IOError):
-                    msg += "Please check that policy path exists."
-                else:
-                    msg += "JSON may be improperly formatted."
-                LOG.debug(msg)
+                    for k, v in policy.Rules.load(fp.read()).items():
+                        if k not in rules:
+                            rules[k] = v
+                        # If the policy name and rule are the same, no
+                        # ambiguity, so no reason to warn.
+                        elif str(v) != str(rules[k]):
+                            msg = ("The same policy name: %s was found in "
+                                   "multiple policies files for service %s. "
+                                   "This can lead to policy rule ambiguity. "
+                                   "Using rule: %s; Rule from file: %s")
+                            LOG.warning(msg, k, self.service, rules[k], v)
+            except (ValueError, IOError):
+                LOG.warning("Failed to read policy file '%s' for service %s.",
+                            path, self.service)
 
         # Check whether policy actions are defined in code. Nova and Keystone,
         # for example, define their default policy actions in code.
         mgr = stevedore.named.NamedExtensionManager(
             'oslo.policy.policies',
             names=[self.service],
-            on_load_failure_callback=None,
             invoke_on_load=True,
             warn_on_missing_entrypoint=False)
 
         if mgr:
             policy_generator = {plc.name: plc.obj for plc in mgr}
-            if policy_generator and self.service in policy_generator:
+            if self.service in policy_generator:
                 for rule in policy_generator[self.service]:
-                    mgr_policy_data[rule.name] = str(rule.check)
+                    if rule.name not in rules:
+                        rules[rule.name] = rule.check
+                    elif str(rule.check) != str(rules[rule.name]):
+                        msg = ("The same policy name: %s was found in the "
+                               "policies files and in the code for service "
+                               "%s. This can lead to policy rule ambiguity. "
+                               "Using rule: %s; Rule from code: %s")
+                        LOG.warning(msg, rule.name, self.service,
+                                    rules[rule.name], rule.check)
 
-        # If data from both file and code exist, combine both together.
-        if file_policy_data and mgr_policy_data:
-            # Add the policy actions from code first.
-            for action, rule in mgr_policy_data.items():
-                policy_data[action] = rule
-            # Overwrite with any custom policy actions defined in policy.json.
-            for action, rule in file_policy_data.items():
-                policy_data[action] = rule
-        elif file_policy_data:
-            policy_data = file_policy_data
-        elif mgr_policy_data:
-            policy_data = mgr_policy_data
-        else:
-            error_message = (
+        if not rules:
+            msg = (
                 'Policy files for {0} service were not found among the '
                 'registered in-code policies or in any of the possible policy '
-                'files: {1}.'.format(self.service,
-                                     [loc % self.service for loc in
-                                      CONF.patrole.custom_policy_files])
-            )
-            raise rbac_exceptions.RbacParsingException(error_message)
+                'files: {1}.'.format(
+                    self.service,
+                    [loc % self.service
+                     for loc in CONF.patrole.custom_policy_files]))
+            raise rbac_exceptions.RbacParsingException(msg)
 
-        try:
-            policy_data = json.dumps(policy_data)
-        except (TypeError, ValueError):
-            error_message = 'Policy files for {0} service are invalid.'.format(
-                self.service)
-            raise rbac_exceptions.RbacParsingException(error_message)
-
-        return policy_data
+        return rules
 
     def _is_admin_context(self, role):
         """Checks whether a role has admin context.
