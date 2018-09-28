@@ -54,6 +54,7 @@ Developer's Guide
 
    HACKING
    REVIEWING
+   test_writing_guide
 
 Framework
 ---------
