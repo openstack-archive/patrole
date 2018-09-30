@@ -45,7 +45,7 @@ class FlavorRxtxRbacTest(rbac_base.BaseV2ComputeRbacTest):
         with self.rbac_utils.override_role(self):
             result = self.flavors_client.list_flavors(detail=True)['flavors']
         if 'rxtx_factor' not in result[0]:
-            raise rbac_exceptions.RbacMalformedResponse(
+            raise rbac_exceptions.RbacMissingAttributeResponseBody(
                 attribute='rxtx_factor')
 
     @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
@@ -59,5 +59,5 @@ class FlavorRxtxRbacTest(rbac_base.BaseV2ComputeRbacTest):
             result = self.flavors_client.show_flavor(
                 CONF.compute.flavor_ref)['flavor']
         if 'rxtx_factor' not in result:
-            raise rbac_exceptions.RbacMalformedResponse(
+            raise rbac_exceptions.RbacMissingAttributeResponseBody(
                 attribute='rxtx_factor')

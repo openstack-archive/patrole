@@ -50,7 +50,7 @@ class FlavorAccessRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
         expected_attr = 'os-flavor-access:is_public'
         if expected_attr not in body:
-            raise rbac_exceptions.RbacMalformedResponse(
+            raise rbac_exceptions.RbacMissingAttributeResponseBody(
                 attribute=expected_attr)
 
     @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
@@ -71,7 +71,7 @@ class FlavorAccessRbacTest(rbac_base.BaseV2ComputeRbacTest):
         # If the `expected_attr` was not found in any flavor, then policy
         # enforcement failed.
         if not public_flavors:
-            raise rbac_exceptions.RbacMalformedResponse(
+            raise rbac_exceptions.RbacMissingAttributeResponseBody(
                 attribute=expected_attr)
 
     @decorators.idempotent_id('39cb5c8f-9990-436f-9282-fc76a41d9bac')

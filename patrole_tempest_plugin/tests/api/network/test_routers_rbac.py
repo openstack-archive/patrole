@@ -179,7 +179,7 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
 
         # Rather than throwing a 403, the field is not present, so raise exc.
         if 'distributed' not in retrieved_fields:
-            raise rbac_exceptions.RbacMalformedResponse(
+            raise rbac_exceptions.RbacMissingAttributeResponseBody(
                 attribute='distributed')
 
     @decorators.idempotent_id('defc502c-4159-4824-b4d9-3cdcc39015b2')
@@ -201,7 +201,7 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
 
         # Rather than throwing a 403, the field is not present, so raise exc.
         if 'ha' not in retrieved_fields:
-            raise rbac_exceptions.RbacMalformedResponse(
+            raise rbac_exceptions.RbacMissingAttributeResponseBody(
                 attribute='ha')
 
     @rbac_rule_validation.action(service="neutron",

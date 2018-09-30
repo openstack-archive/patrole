@@ -210,7 +210,7 @@ class VolumesBackupsV318RbacTest(rbac_base.BaseVolumeRbacTest):
         # Show backup API attempts to inject the attribute below into the
         # response body but only if policy enforcement succeeds.
         if self.expected_attr not in body:
-            raise rbac_exceptions.RbacMalformedResponse(
+            raise rbac_exceptions.RbacMissingAttributeResponseBody(
                 attribute=self.expected_attr)
 
     @decorators.idempotent_id('aa40b7c0-5974-48be-8cbc-e23cc61c4c68')
@@ -221,7 +221,7 @@ class VolumesBackupsV318RbacTest(rbac_base.BaseVolumeRbacTest):
             body = self.backups_client.list_backups(detail=True)['backups']
 
         if self.expected_attr not in body[0]:
-            raise rbac_exceptions.RbacMalformedResponse(
+            raise rbac_exceptions.RbacMissingAttributeResponseBody(
                 attribute=self.expected_attr)
 
 

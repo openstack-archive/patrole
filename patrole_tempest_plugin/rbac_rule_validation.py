@@ -198,7 +198,8 @@ def action(service,
                     test_status = ('Error, %s' % (msg))
                     LOG.error(msg)
             except (expected_exception,
-                    rbac_exceptions.RbacMalformedResponse) as actual_exception:
+                    rbac_exceptions.BasePatroleResponseBodyException) \
+                    as actual_exception:
                 caught_exception = actual_exception
                 test_status = 'Denied'
 

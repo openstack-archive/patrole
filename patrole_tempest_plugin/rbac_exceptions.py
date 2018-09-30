@@ -20,16 +20,34 @@ class BasePatroleException(exceptions.TempestException):
     message = "An unknown RBAC exception occurred"
 
 
-class RbacMalformedResponse(BasePatroleException):
-    message = ("The response body is missing the expected %(attribute)s due "
-               "to policy enforcement failure.")
+class BasePatroleResponseBodyException(BasePatroleException):
+    message = "Response body incomplete due to RBAC authorization failure"
 
-    def __init__(self, empty=False, **kwargs):
-        if empty:
-            self.message = ("The response body is empty due to policy "
-                            "enforcement failure.")
-            kwargs = {}
-        super(RbacMalformedResponse, self).__init__(**kwargs)
+
+class RbacMissingAttributeResponseBody(BasePatroleResponseBodyException):
+    """Raised when a list or show action is missing an attribute following
+    RBAC authorization failure.
+    """
+    message = ("The response body is missing the expected %(attribute)s due "
+               "to policy enforcement failure")
+
+
+class RbacPartialResponseBody(BasePatroleResponseBodyException):
+    """Raised when a list action only returns a subset of the available
+    resources.
+
+    For example, admin can return more resources than member for a list action.
+    """
+    message = ("The response body only lists a subset of the available "
+               "resources due to partial policy enforcement failure. Response "
+               "body: %(body)s")
+
+
+class RbacEmptyResponseBody(BasePatroleResponseBodyException):
+    """Raised when a list or show action is empty following RBAC authorization
+    failure.
+    """
+    message = ("The response body is empty due to policy enforcement failure.")
 
 
 class RbacResourceSetupFailed(BasePatroleException):

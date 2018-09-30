@@ -76,7 +76,7 @@ class VolumesSnapshotV3RbacTest(rbac_base.BaseVolumeRbacTest):
                 self.snapshot['id'])['snapshot']
         for expected_attr in expected_attrs:
             if expected_attr not in resp:
-                raise rbac_exceptions.RbacMalformedResponse(
+                raise rbac_exceptions.RbacMissingAttributeResponseBody(
                     attribute=expected_attr)
 
     @rbac_rule_validation.action(service="cinder",
@@ -136,5 +136,5 @@ class VolumesSnapshotV3RbacTest(rbac_base.BaseVolumeRbacTest):
             resp = self._list_by_param_values(with_detail=True, **params)
         for expected_attr in expected_attrs:
             if expected_attr not in resp[0]:
-                raise rbac_exceptions.RbacMalformedResponse(
+                raise rbac_exceptions.RbacMissingAttributeResponseBody(
                     attribute=expected_attr)

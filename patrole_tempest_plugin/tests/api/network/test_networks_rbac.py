@@ -363,7 +363,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
                 self.network['id'], **kwargs)['network']
 
         if len(retrieved_network) == 0:
-            raise rbac_exceptions.RbacMalformedResponse(empty=True)
+            raise rbac_exceptions.RbacEmptyResponseBody()
 
     @utils.requires_ext(extension='provider', service='network')
     @rbac_rule_validation.action(service="neutron",
@@ -384,7 +384,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
                 self.network['id'], **kwargs)['network']
 
         if len(retrieved_network) == 0:
-            raise rbac_exceptions.RbacMalformedResponse(empty=True)
+            raise rbac_exceptions.RbacEmptyResponseBody()
 
     @utils.requires_ext(extension='provider', service='network')
     @rbac_rule_validation.action(
@@ -406,7 +406,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
                 self.network['id'], **kwargs)['network']
 
         if len(retrieved_network) == 0:
-            raise rbac_exceptions.RbacMalformedResponse(empty=True)
+            raise rbac_exceptions.RbacEmptyResponseBody()
 
     @utils.requires_ext(extension='provider', service='network')
     @rbac_rule_validation.action(
@@ -428,7 +428,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
                 self.network['id'], **kwargs)['network']
 
         if len(retrieved_network) == 0:
-            raise rbac_exceptions.RbacMalformedResponse(empty=True)
+            raise rbac_exceptions.RbacEmptyResponseBody()
 
     @rbac_rule_validation.action(service="neutron",
                                  rules=["get_network", "delete_network"],

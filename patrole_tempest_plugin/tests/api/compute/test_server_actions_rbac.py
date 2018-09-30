@@ -403,5 +403,5 @@ class ServerActionsV216RbacTest(rbac_base.BaseV2ComputeRbacTest):
             server = self.servers_client.show_server(self.server_id)['server']
 
         if 'host_status' not in server:
-            raise rbac_exceptions.RbacMalformedResponse(
+            raise rbac_exceptions.RbacMissingAttributeResponseBody(
                 attribute='host_status')
