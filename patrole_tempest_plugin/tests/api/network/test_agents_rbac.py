@@ -14,6 +14,7 @@
 #    under the License.
 
 from tempest.common import utils
+from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
@@ -235,3 +236,32 @@ class DHCPAgentSchedulersRbacTest(base.BaseNetworkRbacTest):
         with self.rbac_utils.override_role(self):
             self.agents_client.delete_network_from_dhcp_agent(
                 self.agent['id'], network_id=network_id)
+
+
+class L3AgentsPluginRbacTest(base.BaseNetworkPluginRbacTest):
+
+    @classmethod
+    def skip_checks(cls):
+        super(L3AgentsPluginRbacTest, cls).skip_checks()
+        if not utils.is_extension_enabled('l3_agent_scheduler', 'network'):
+            msg = "l3_agent_scheduler extension not enabled."
+            raise cls.skipException(msg)
+
+    @classmethod
+    def resource_setup(cls):
+        super(L3AgentsPluginRbacTest, cls).resource_setup()
+        name = data_utils.rand_name(cls.__name__ + '-Router')
+        cls.router = cls.ntp_client.create_router(name)['router']
+
+    @decorators.idempotent_id('5d2bbdbc-40a5-43d2-828a-84dc93bcd321')
+    @rbac_rule_validation.action(service="neutron",
+                                 rule="get_l3-agents")
+    def test_list_l3_agents_on_router(self):
+        """List L3 agents on router test.
+
+        RBAC test for the neutron get_l3-agents policy
+        """
+        with self.rbac_utils.override_role(self):
+            # NOTE: It is not empty list since it's a special case where
+            # policy.enforce is called from the controller.
+            self.ntp_client.list_l3_agents_hosting_router(self.router['id'])
