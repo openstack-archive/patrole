@@ -69,12 +69,13 @@ class RbacUtilsFixture(fixtures.Fixture):
         self.useFixture(ConfPatcher(rbac_test_role='member', group='patrole'))
         self.useFixture(ConfPatcher(
             admin_role='admin', auth_version='v3', group='identity'))
+        self.useFixture(ConfPatcher(
+            api_v3=True, group='identity-feature-enabled'))
 
         test_obj_kwargs = {
             'os_primary.credentials.user_id': self.USER_ID,
             'os_primary.credentials.tenant_id': self.PROJECT_ID,
             'os_primary.credentials.project_id': self.PROJECT_ID,
-            'get_identity_version.return_value': 'v3'
         }
         self.mock_test_obj = mock.Mock(
             __name__='patrole_unit_test', spec=test.BaseTestCase,
