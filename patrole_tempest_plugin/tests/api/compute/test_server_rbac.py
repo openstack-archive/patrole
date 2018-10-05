@@ -21,9 +21,7 @@ from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
-from tempest.lib import exceptions
 
-from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base as base
 
@@ -182,13 +180,7 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
     def test_update_server(self):
         new_name = data_utils.rand_name(self.__class__.__name__ + '-server')
         with self.rbac_utils.override_role(self):
-            try:
-                self.servers_client.update_server(self.server['id'],
-                                                  name=new_name)
-                waiters.wait_for_server_status(self.servers_client,
-                                               self.server['id'], 'ACTIVE')
-            except exceptions.ServerFault as e:
-                # Some other policy may have blocked it.
-                LOG.info("ServerFault exception caught. Some other policy "
-                         "blocked updating of server")
-                raise rbac_exceptions.RbacConflictingPolicies(e)
+            self.servers_client.update_server(self.server['id'],
+                                              name=new_name)
+        waiters.wait_for_server_status(self.servers_client,
+                                       self.server['id'], 'ACTIVE')

@@ -20,11 +20,6 @@ class BasePatroleException(exceptions.TempestException):
     message = "An unknown RBAC exception occurred"
 
 
-class RbacConflictingPolicies(BasePatroleException):
-    message = ("Conflicting policies preventing this action from being "
-               "performed.")
-
-
 class RbacMalformedResponse(BasePatroleException):
     message = ("The response body is missing the expected %(attribute)s due "
                "to policy enforcement failure.")

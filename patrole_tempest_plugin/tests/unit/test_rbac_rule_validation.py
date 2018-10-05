@@ -168,48 +168,6 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
     @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
-    def test_rule_validation_rbac_conflicting_policies_positive(
-            self, mock_authority, mock_log):
-        """Test RbacConflictingPolicies error is thrown without permission
-        passes.
-
-        Positive test case: if RbacConflictingPolicies is thrown and the user
-        is not allowed to perform the action, then this is a success.
-        """
-        mock_authority.PolicyAuthority.return_value.allowed.return_value =\
-            False
-
-        @rbac_rv.action(mock.sentinel.service, rules=[mock.sentinel.action])
-        def test_policy(*args):
-            raise rbac_exceptions.RbacConflictingPolicies()
-
-        mock_log.error.assert_not_called()
-
-    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
-    @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
-    def test_rule_validation_rbac_conflicting_policies_negative(self,
-                                                                mock_authority,
-                                                                mock_log):
-        """Test RbacConflictingPolicies error is thrown with permission fails.
-
-        Negative test case: if RbacConflictingPolicies is thrown and the user
-        is allowed to perform the action, then this is an expected failure.
-        """
-        mock_authority.PolicyAuthority.return_value.allowed.return_value = True
-
-        @rbac_rv.action(mock.sentinel.service, rules=[mock.sentinel.action])
-        def test_policy(*args):
-            raise rbac_exceptions.RbacConflictingPolicies()
-
-        test_re = ("Role Member was not allowed to perform the following "
-                   "actions: \[%s\].*" % (mock.sentinel.action))
-        self.assertRaisesRegex(
-            rbac_exceptions.RbacUnderPermissionException, test_re, test_policy,
-            self.mock_test_args)
-        self.assertRegex(mock_log.error.mock_calls[0][1][0], test_re)
-
-    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
-    @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
     def test_expect_not_found_but_raises_forbidden(self, mock_authority,
                                                    mock_log):
         """Test that expecting 404 but getting 403 works for all scenarios.
