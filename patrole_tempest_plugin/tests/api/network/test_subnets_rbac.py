@@ -17,7 +17,6 @@ from tempest.common import utils
 from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
 
-from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.network import rbac_base as base
 
@@ -61,19 +60,18 @@ class SubnetsRbacTest(base.BaseNetworkRbacTest):
             self.subnets_client.show_subnet(self.subnet['id'])
 
     @decorators.idempotent_id('e2ddc415-5cab-43f4-9b61-166aed65d637')
-    @rbac_rule_validation.action(service="neutron",
-                                 rules=["get_subnet"])
+    @rbac_rule_validation.action(service="neutron", rules=["get_subnet"])
     def test_list_subnets(self):
         """List subnets.
 
-        RBAC test for the neutron "get_subnet" policy
+        RBAC test for the neutron ``list_subnets`` function and
+        the ``get_subnet`` policy
         """
-        with self.rbac_utils.override_role(self):
-            subnets = self.subnets_client.list_subnets()
-
-        # Neutron may return an empty list if access is denied.
-        if not subnets['subnets']:
-            raise rbac_exceptions.RbacEmptyResponseBody()
+        admin_resource_id = self.subnet['id']
+        with (self.rbac_utils.override_role_and_validate_list(
+                self, admin_resource_id=admin_resource_id)) as ctx:
+            ctx.resources = self.subnets_client.list_subnets(
+                id=admin_resource_id)["subnets"]
 
     @decorators.idempotent_id('f36cd821-dd22-4bd0-b43d-110fc4b553eb')
     @rbac_rule_validation.action(service="neutron",

@@ -101,3 +101,20 @@ class MeteringLabelRulesRbacTest(base.BaseNetworkRbacTest):
         with self.rbac_utils.override_role(self):
             self.metering_label_rules_client.delete_metering_label_rule(
                 label_rule['id'])
+
+    @rbac_rule_validation.action(service="neutron",
+                                 rules=["get_metering_label_rule"])
+    @decorators.idempotent_id('eaaf9eb5-ee53-4b6b-a4d3-a721dd39bc40')
+    def test_list_metering_label_rules(self):
+        """List metering label rules.
+
+        RBAC test for the neutron ``list_metering_label_rules`` function and
+        the ``get_metering_label_rule`` policy
+        """
+        admin_resource_id = self._create_metering_label_rule(self.label)['id']
+        with (self.rbac_utils.override_role_and_validate_list(
+                self, admin_resource_id=admin_resource_id)) as ctx:
+            ctx.resources = (
+                self.metering_label_rules_client.
+                list_metering_label_rules(id=admin_resource_id)
+                ["metering_label_rules"])

@@ -65,6 +65,20 @@ class AgentsRbacTest(base.BaseNetworkRbacTest):
             self.agents_client.update_agent(agent_id=self.agent['id'],
                                             agent=agent_status)
 
+    @decorators.idempotent_id('f7a085e2-71b1-4d39-be3e-fea4bc10ccb8')
+    @rbac_rule_validation.action(service="neutron", rules=["get_agent"])
+    def test_list_agents(self):
+        """List agents test.
+
+        RBAC test for the neutron ``list_agents`` function and
+        the ``get_agent`` policy
+        """
+        admin_resource_id = self.agent['id']
+        with (self.rbac_utils.override_role_and_validate_list(
+                self, admin_resource_id=admin_resource_id)) as ctx:
+            ctx.resources = self.agents_client.list_agents(
+                id=admin_resource_id)["agents"]
+
 
 class L3AgentSchedulerRbacTest(base.BaseNetworkRbacTest):
 

@@ -388,3 +388,17 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
         port = self.create_port(self.network)
         with self.rbac_utils.override_role(self):
             self.ports_client.delete_port(port['id'])
+
+    @rbac_rule_validation.action(service="neutron", rules=["get_port"])
+    @decorators.idempotent_id('877ea70d-b000-4af4-9322-0a76b47b7890')
+    def test_list_ports(self):
+        """List Ports
+
+        RBAC test for the neutron ``list_ports`` function and
+        the ``get_port`` policy
+        """
+        admin_resource_id = self.port['id']
+        with (self.rbac_utils.override_role_and_validate_list(
+                self, admin_resource_id=admin_resource_id)) as ctx:
+            ctx.resources = self.ports_client.list_ports(
+                id=admin_resource_id)["ports"]

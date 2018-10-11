@@ -164,3 +164,17 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
         subnetpool = self._create_subnetpool()
         with self.rbac_utils.override_role(self):
             self.subnetpools_client.delete_subnetpool(subnetpool['id'])
+
+    @rbac_rule_validation.action(service="neutron", rules=["get_subnetpool"])
+    @decorators.idempotent_id('f1caf0f6-bde5-11e8-a355-529269fb1459')
+    def test_list_subnetpools(self):
+        """List subnetpools.
+
+        RBAC test for the neutron ``list_subnetpools`` function and
+        the ``get_subnetpool`` policy
+        """
+        admin_resource_id = self._create_subnetpool()['id']
+        with (self.rbac_utils.override_role_and_validate_list(
+                self, admin_resource_id=admin_resource_id)) as ctx:
+            ctx.resources = self.subnetpools_client.list_subnetpools(
+                id=admin_resource_id)["subnetpools"]

@@ -120,3 +120,17 @@ class SegmentsExtRbacTest(base.BaseNetworkExtRbacTest):
 
         with self.rbac_utils.override_role(self):
             self.ntp_client.delete_segment(segment['segment']['id'])
+
+    @decorators.idempotent_id('d68a0578-36ae-435e-8aaa-508ee96bdfae')
+    @rbac_rule_validation.action(service="neutron", rules=["get_segment"])
+    def test_list_segments(self):
+        """List segments.
+
+        RBAC test for the neutron ``list_segments`` function and
+        the``get_segment`` policy
+        """
+        admin_resource_id = self.create_segment(self.network)['segment']['id']
+        with (self.rbac_utils.override_role_and_validate_list(
+                self, admin_resource_id=admin_resource_id)) as ctx:
+            ctx.resources = self.ntp_client.list_segments(
+                id=admin_resource_id)["segments"]

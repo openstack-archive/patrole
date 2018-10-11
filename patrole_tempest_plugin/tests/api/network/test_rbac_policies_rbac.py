@@ -109,3 +109,18 @@ class RbacPoliciesExtRbacTest(base.BaseNetworkExtRbacTest):
 
         with self.rbac_utils.override_role(self):
             self.ntp_client.delete_rbac_policy(policy_id)
+
+    @decorators.idempotent_id('5337d95a-2e75-47bb-a0ea-0a082be930bf')
+    @rbac_rule_validation.action(service="neutron", rules=["get_rbac_policy"])
+    def test_list_rbac_policies(self):
+        """List RBAC policies.
+
+        RBAC test for the neutron ``list_rbac_policies`` function and
+        the ``get_rbac_policy`` policy
+        """
+        admin_resource_id = self.create_rbac_policy(self.tenant_id,
+                                                    self.network_id)
+        with (self.rbac_utils.override_role_and_validate_list(
+                self, admin_resource_id=admin_resource_id)) as ctx:
+            ctx.resources = self.ntp_client.list_rbac_policies(
+                id=admin_resource_id)["rbac_policies"]

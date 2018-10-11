@@ -401,3 +401,18 @@ class RouterRbacTest(base.BaseNetworkRbacTest):
             self.routers_client.remove_router_interface(
                 router['id'],
                 subnet_id=subnet['id'])
+
+    @rbac_rule_validation.action(service="neutron", rules=["get_router"])
+    @decorators.idempotent_id('86816700-12d1-4173-a50f-34bd137f47e6')
+    def test_list_routers(self):
+        """List Routers
+
+        RBAC test for the neutron ``get_router policy`` and
+        the ``get_router`` policy
+        """
+
+        admin_resource_id = self.router['id']
+        with (self.rbac_utils.override_role_and_validate_list(
+                self, admin_resource_id=admin_resource_id)) as ctx:
+            ctx.resources = self.routers_client.list_routers(
+                id=admin_resource_id)["routers"]

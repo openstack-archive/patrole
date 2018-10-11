@@ -104,3 +104,18 @@ class DscpMarkingRuleExtRbacTest(base.BaseNetworkExtRbacTest):
 
         with self.rbac_utils.override_role(self):
             self.ntp_client.delete_dscp_marking_rule(self.policy_id, rule_id)
+
+    @decorators.idempotent_id('c012fd4f-3a3e-4af4-9075-dd3e170daecd')
+    @rbac_rule_validation.action(service="neutron",
+                                 rules=["get_policy_dscp_marking_rule"])
+    def test_list_policy_dscp_marking_rules(self):
+        """List policy_dscp_marking_rules.
+
+        RBAC test for the neutron ``list_dscp_marking_rules`` function and
+        the ``get_policy_dscp_marking_rule`` policy
+        """
+        admin_resource_id = self.create_policy_dscp_marking_rule()
+        with (self.rbac_utils.override_role_and_validate_list(
+                self, admin_resource_id=admin_resource_id)) as ctx:
+            ctx.resources = self.ntp_client.list_dscp_marking_rules(
+                policy_id=self.policy_id)["dscp_marking_rules"]

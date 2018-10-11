@@ -457,3 +457,18 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         with self.rbac_utils.override_role(self):
             self.networks_client.list_dhcp_agents_on_hosting_network(
                 self.network['id'])
+
+    @rbac_rule_validation.action(service="neutron", rules=["get_network"])
+    @decorators.idempotent_id('53d6d826-ec9a-4407-9362-b474187fae6d')
+    def test_list_networks(self):
+        """List Networks
+
+        RBAC test for the neutron ``list_networks`` function and
+        the ``get_network`` policy
+        """
+
+        admin_resource_id = self.network['id']
+        with (self.rbac_utils.override_role_and_validate_list(
+                self, admin_resource_id=admin_resource_id)) as ctx:
+            ctx.resources = self.networks_client.list_networks(
+                id=admin_resource_id)["networks"]

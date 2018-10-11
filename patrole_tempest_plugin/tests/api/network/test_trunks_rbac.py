@@ -84,6 +84,20 @@ class TrunksExtRbacTest(base.BaseNetworkExtRbacTest):
         with self.rbac_utils.override_role(self):
             self.ntp_client.delete_trunk(trunk['trunk']['id'])
 
+    @decorators.idempotent_id('047badd1-e4ff-40c5-9929-99ffcb8750a7')
+    @rbac_rule_validation.action(service="neutron", rules=["get_trunk"])
+    def test_list_trunks(self):
+        """Show trunk.
+
+        RBAC test for the neutron ``list_trunks``` function and
+        the ``get_trunk`` policy
+        """
+        admin_resource_id = self.create_trunk(self.port_id)["trunk"]['id']
+        with (self.rbac_utils.override_role_and_validate_list(
+                self, admin_resource_id=admin_resource_id)) as ctx:
+            ctx.resources = self.ntp_client.list_trunks(
+                id=admin_resource_id)["trunks"]
+
 
 class TrunksSubportsExtRbacTest(base.BaseNetworkExtRbacTest):
 

@@ -119,14 +119,16 @@ class SecGroupRbacTest(base.BaseNetworkRbacTest):
                                  rules=["get_security_group"])
     @decorators.idempotent_id('fbaf8d96-ed3e-49af-b24c-5fb44f05bbb7')
     def test_list_security_groups(self):
+        """List Security Groups
 
-        with self.rbac_utils.override_role(self):
-            security_groups = self.security_groups_client.\
-                list_security_groups()
-
-        # Neutron may return an empty list if access is denied.
-        if not security_groups['security_groups']:
-            raise rbac_exceptions.RbacEmptyResponseBody()
+        RBAC test for the neutron ``list_security_groups`` function and
+        the ``get_security_group`` policy
+        """
+        admin_resource_id = self.secgroup['id']
+        with (self.rbac_utils.override_role_and_validate_list(
+                self, admin_resource_id=admin_resource_id)) as ctx:
+            ctx.resources = self.security_groups_client.list_security_groups(
+                id=admin_resource_id)["security_groups"]
 
     @rbac_rule_validation.action(service="neutron",
                                  rules=["create_security_group_rule"])

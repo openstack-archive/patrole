@@ -130,3 +130,17 @@ class FloatingIpsRbacTest(base.BaseNetworkRbacTest):
         with self.rbac_utils.override_role(self):
             # Delete the floating IP
             self.floating_ips_client.delete_floatingip(floating_ip['id'])
+
+    @rbac_rule_validation.action(service="neutron", rules=["get_floatingip"])
+    @decorators.idempotent_id('824965e3-8be8-46e2-be64-0d793533ad20')
+    def test_list_floating_ips(self):
+        """List Floating IPs.
+
+        RBAC test for the neutron ``list_floatingips`` function and
+        the ``get_floatingip`` policy
+        """
+        admin_resource_id = self._create_floatingip()['id']
+        with (self.rbac_utils.override_role_and_validate_list(
+                self, admin_resource_id=admin_resource_id)) as ctx:
+            ctx.resources = self.floating_ips_client.list_floatingips(
+                id=admin_resource_id)["floatingips"]

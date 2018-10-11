@@ -98,3 +98,17 @@ class QosExtRbacTest(base.BaseNetworkExtRbacTest):
         policy = self.create_policy()
         with self.rbac_utils.override_role(self):
             self.ntp_client.delete_qos_policy(policy['id'])
+
+    @rbac_rule_validation.action(service="neutron", rules=["get_policy"])
+    @decorators.idempotent_id('e84cec88-8478-4787-b603-5fcdd8ed7bd5')
+    def test_list_policies(self):
+        """List Policies Test
+
+        RBAC test for the neutron ``list_qos_policies`` function and
+        the ``get_policy``
+        """
+        admin_resource_id = self.create_policy()['id']
+        with (self.rbac_utils.override_role_and_validate_list(
+                self, admin_resource_id=admin_resource_id)) as ctx:
+            ctx.resources = self.ntp_client.list_qos_policies(
+                id=admin_resource_id)["policies"]
