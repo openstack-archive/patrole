@@ -10,8 +10,8 @@ Patrole tests are broken up into 3 stages:
 #. :ref:`rbac-test-execution`
 #. :ref:`rbac-test-cleanup`
 
-See the :ref:`framework overview documentation <framework-overview>` for a
-high-level explanation of the entire testing work flow and framework
+See the :ref:`framework overview documentation <validation-workflow-overview>`
+for a high-level explanation of the entire testing work flow and framework
 implementation. The guide that follows is concerned with helping developers
 know how to write Patrole tests.
 

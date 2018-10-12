@@ -1,11 +1,11 @@
 RBAC Testing Validation
 =======================
 
-.. _framework-overview:
+.. _validation-workflow-overview:
 
---------
-Overview
---------
+----------------------------
+Validation Workflow Overview
+----------------------------
 
 RBAC testing validation is broken up into 3 stages:
 
@@ -37,6 +37,16 @@ RBAC testing validation is broken up into 3 stages:
    For example, a 200 from the API call and a ``False`` result from
    ``oslo.policy`` or a 403 from the API call and a ``True`` result from
    ``oslo.policy`` are failing results.
+
+.. warning::
+
+  Note that Patrole cannot currently derive the expected policy result for
+  service-specific ``oslo.policy`` `checks`_, like Neutron's `FieldCheck`_,
+  because such checks are contained within the service's code base itself,
+  which Patrole cannot import.
+
+.. _checks: https://docs.openstack.org/oslo.policy/latest/reference/api/oslo_policy.policy.html#generic-checks
+.. _FieldCheck: https://docs.openstack.org/neutron/pike/contributor/internals/policy.html#fieldcheck-verify-resource-attributes
 
 -------------------------------
 The RBAC Rule Validation Module
