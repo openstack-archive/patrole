@@ -30,9 +30,9 @@ class RbacPoliciesPluginRbacTest(base.BaseNetworkPluginRbacTest):
 
     def create_rbac_policy(self, tenant_id, network_id):
         policy = self.ntp_client.create_rbac_policy(
-            target_tenant=self.tenant_id,
+            target_tenant=tenant_id,
             object_type="network",
-            object_id=self.network_id,
+            object_id=network_id,
             action="access_as_shared"
         )
         self.addCleanup(
