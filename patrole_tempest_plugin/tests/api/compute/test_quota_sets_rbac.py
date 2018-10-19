@@ -13,9 +13,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from tempest.common import identity
 from tempest.common import utils
 from tempest.lib.common.utils import data_utils
-from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
@@ -23,6 +23,8 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 
 class QuotaSetsRbacTest(rbac_base.BaseV2ComputeRbacTest):
+
+    credentials = ['primary', 'admin']
 
     @classmethod
     def setup_clients(cls):
@@ -89,10 +91,13 @@ class QuotaSetsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_delete_quota_set(self):
         project_name = data_utils.rand_name(
             self.__class__.__name__ + '-project')
-        project = self.projects_client.create_project(name=project_name)
-        project_id = project['project']['id']
-        self.addCleanup(test_utils.call_and_ignore_notfound_exc,
-                        self.projects_client.delete_project, project_id)
+        project_desc = project_name + '-desc'
+        project = identity.identity_utils(self.os_admin).create_project(
+            name=project_name, description=project_desc)
+        project_id = project['id']
+        self.addCleanup(
+            identity.identity_utils(self.os_admin).delete_project,
+            project_id)
 
         with self.rbac_utils.override_role(self):
             self.quotas_client.delete_quota_set(project_id)

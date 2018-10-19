@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from tempest.common import identity
 from tempest.common import tempest_fixtures as fixtures
 from tempest.common import utils
 from tempest.lib.common.utils import data_utils
@@ -23,6 +24,8 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 
 class QuotaClassesRbacTest(rbac_base.BaseV2ComputeRbacTest):
+
+    credentials = ['primary', 'admin']
 
     def setUp(self):
         # All test cases in this class need to externally lock on doing
@@ -48,11 +51,14 @@ class QuotaClassesRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def resource_setup(cls):
         super(QuotaClassesRbacTest, cls).resource_setup()
         # Create a project with its own quota.
-        project_name = data_utils.rand_name(cls.__name__ + '-Project')
-        cls.project_id = cls.identity_projects_client.create_project(
-            project_name)['project']['id']
+        project_name = data_utils.rand_name(cls.__name__ + '-project')
+        project_desc = project_name + '-desc'
+        project = identity.identity_utils(cls.os_admin).create_project(
+            name=project_name, description=project_desc)
+        cls.project_id = project['id']
         cls.addClassResourceCleanup(
-            cls.identity_projects_client.delete_project, cls.project_id)
+            identity.identity_utils(cls.os_admin).delete_project,
+            cls.project_id)
 
     @decorators.idempotent_id('c10198ed-9df2-440e-a49b-367dadc6de94')
     @rbac_rule_validation.action(
