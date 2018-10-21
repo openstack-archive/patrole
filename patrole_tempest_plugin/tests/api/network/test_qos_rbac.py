@@ -22,18 +22,18 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.network import rbac_base as base
 
 
-class QosRbacTest(base.BaseNetworkPluginRbacTest):
+class QosPluginRbacTest(base.BaseNetworkPluginRbacTest):
 
     @classmethod
     def skip_checks(cls):
-        super(QosRbacTest, cls).skip_checks()
+        super(QosPluginRbacTest, cls).skip_checks()
         if not utils.is_extension_enabled('qos', 'network'):
             msg = "qos extension not enabled."
             raise cls.skipException(msg)
 
     @classmethod
     def resource_setup(cls):
-        super(QosRbacTest, cls).resource_setup()
+        super(QosPluginRbacTest, cls).resource_setup()
         cls.network = cls.create_network()
 
     def create_policy(self, name=None):
