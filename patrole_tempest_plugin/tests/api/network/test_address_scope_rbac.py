@@ -121,7 +121,7 @@ class AddressScopeRbacTest(base.BaseNetworkPluginRbacTest):
         address_scope = self._create_address_scope(shared=True)
         with self.rbac_utils.override_role(self):
             self.ntp_client.update_address_scope(address_scope['id'],
-                                                 shared=False)
+                                                 shared=True)
 
     @rbac_rule_validation.action(service="neutron",
                                  rules=["get_address_scope",
