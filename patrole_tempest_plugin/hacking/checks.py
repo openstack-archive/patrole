@@ -36,6 +36,7 @@ RBAC_CLASS_NAME_RE = re.compile(r'class .+RbacTest')
 RULE_VALIDATION_DECORATOR = re.compile(
     r'\s*@rbac_rule_validation.action\(.*')
 IDEMPOTENT_ID_DECORATOR = re.compile(r'\s*@decorators\.idempotent_id\((.*)\)')
+PLUGIN_RBAC_TEST = re.compile(r"class .+\(.+PluginRbacTest\)")
 
 have_rbac_decorator = False
 
@@ -211,6 +212,20 @@ def no_client_alias_in_test_cases(logical_line, filename):
             return 0, "Do not use 'self.client' as a service client alias"
 
 
+def no_plugin_rbac_test_suffix_in_plugin_test_class_name(physical_line,
+                                                         filename):
+    """Check that Plugin RBAC class names end with "PluginRbacTest"
+
+    P104
+    """
+    if "patrole_tempest_plugin/tests/api" in filename:
+        if PLUGIN_RBAC_TEST.match(physical_line):
+            subclass = physical_line.split('(')[0]
+            if not subclass.endswith("PluginRbacTest"):
+                error = "Plugin RBAC test classes must end in 'PluginRbacTest'"
+                return len(subclass) - 1, error
+
+
 def factory(register):
     register(import_no_clients_in_api_tests)
     register(no_setup_teardown_class_for_tests)
@@ -223,3 +238,4 @@ def factory(register):
     register(no_rbac_rule_validation_decorator)
     register(no_rbac_suffix_in_test_filename)
     register(no_rbac_test_suffix_in_test_class_name)
+    register(no_plugin_rbac_test_suffix_in_plugin_test_class_name)

@@ -33,12 +33,15 @@ for more information:
 The following are Patrole's specific Commandments:
 
 - [P100] The ``rbac_rule_validation.action`` decorator must be applied to
-  an RBAC test
+  all RBAC tests
 - [P101] RBAC test filenames must end with "_rbac.py"; for example,
   test_servers_rbac.py, not test_servers.py
 - [P102] RBAC test class names must end in 'RbacTest'
 - [P103] ``self.client`` must not be used as a client alias; this allows for
   code that is more maintainable and easier to read
+- [P104] RBAC `plugin test class`_ names must end in 'PluginRbacTest'
+
+.. _plugin test class: https://github.com/openstack/patrole/tree/master/patrole_tempest_plugin/tests/api/network#neutron-plugin-tests
 
 Role Overriding
 ---------------
