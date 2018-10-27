@@ -23,6 +23,7 @@ from oslo_utils import excutils
 from tempest import clients
 from tempest.common import credentials_factory as credentials
 from tempest import config
+from tempest.lib import exceptions as lib_exc
 
 from patrole_tempest_plugin import rbac_exceptions
 
@@ -50,10 +51,11 @@ class RbacUtils(object):
         # Intialize the admin roles_client to perform role switching.
         admin_mgr = clients.Manager(
             credentials.get_configured_admin_credentials())
-        if test_obj.get_identity_version() == 'v3':
+        if CONF.identity_feature_enabled.api_v3:
             admin_roles_client = admin_mgr.roles_v3_client
         else:
-            admin_roles_client = admin_mgr.roles_client
+            raise lib_exc.InvalidConfiguration(
+                "Patrole role overriding only supports v3 identity API.")
 
         self.admin_roles_client = admin_roles_client
         self._override_role(test_obj, False)
