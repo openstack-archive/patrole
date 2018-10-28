@@ -153,10 +153,11 @@ the steps outlined therein. Afterward, proceed with the steps below.
 
    will run the same set of tests as the default gate jobs.
 
-   You can also run Patrole tests using `tox`_. To do so, ``cd`` into the
+   You can also run Patrole tests using `tox`_, but as Patrole needs access to
+   global packages use ``--sitepackages`` argument. To do so, ``cd`` into the
    **Tempest** directory and run::
 
-     $ tox -eall-plugin -- patrole_tempest_plugin.tests.api
+     $ tox -eall --sitepackages -- patrole_tempest_plugin.tests.api
 
    .. note::
 
