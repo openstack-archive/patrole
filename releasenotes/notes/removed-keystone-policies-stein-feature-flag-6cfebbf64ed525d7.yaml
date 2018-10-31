@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Added new feature flag called ``removed_keystone_policies_stein`` under
+    the configuration group ``[policy-feature-enabled]`` for skipping Keystone
+    tests whose policies were removed in Stein. This feature flag is currently
+    applied to credentials-related policies, e.g.:
+    identity:[create|update|get|delete]_credential

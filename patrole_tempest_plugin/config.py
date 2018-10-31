@@ -162,11 +162,16 @@ was changed in a backwards-incompatible way."""),
                 help="""Are the Nova API extension policies available in the
 cloud (e.g. os_compute_api:os-extended-availability-zone)? These policies were
 removed in Stein because Nova API extension concept was removed in Pike."""),
+    cfg.BoolOpt('removed_keystone_policies_stein',
+                default=True,
+                help="""Are the obsolete Keystone policies available in the
+cloud (e.g. identity:[create|update|get|delete]_credential)? These policies
+were removed in Stein."""),
     cfg.BoolOpt('added_cinder_policies_stein',
                 default=True,
-                help="""Are the Cinder API extension policies available in the
-cloud (e.g. [create|update|get|delete]_encryption_policy)? These policies are
-added in Stein.""")
+                help="""Are the Cinder Stein policies available in the cloud
+(e.g. [create|update|get|delete]_encryption_policy)? These policies are added
+in Stein.""")
 ]
 
 

@@ -13,13 +13,21 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import testtools
+
+from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.identity import rbac_base
 
+CONF = config.CONF
 
+
+@testtools.skipIf(
+    CONF.policy_feature_enabled.removed_keystone_policies_stein,
+    "This policy is unavailable in Stein so cannot be tested.")
 class IdentityCredentialsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     def _create_user_project_and_credential(self):
