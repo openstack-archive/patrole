@@ -12,6 +12,7 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+import copy
 import yaml
 
 from oslo_log import log as logging
@@ -50,7 +51,7 @@ class RequirementsParser(object):
             <service_foo>:
               <api_action_a>:
                 - <allowed_role_1>
-                - <allowed_role_2>
+                - <allowed_role_2>,<allowed_role_3>
                 - <allowed_role_3>
               <api_action_b>:
                 - <allowed_role_2>
@@ -67,7 +68,16 @@ class RequirementsParser(object):
         try:
             for section in RequirementsParser.Inner._rbac_map:
                 if component in section:
-                    return section[component]
+                    rules = copy.copy(section[component])
+
+                    for rule in rules:
+                        rules[rule] = [
+                            roles.split(',') for roles in rules[rule]]
+
+                        for i, role_pack in enumerate(rules[rule]):
+                            rules[rule][i] = [r.strip() for r in role_pack]
+
+                    return rules
         except yaml.parser.ParserError:
             LOG.error("Error while parsing the requirements YAML file. Did "
                       "you pass a valid component name from the test case?")
@@ -115,8 +125,24 @@ class RequirementsAuthority(RbacAuthority):
                 "empty. Ensure the requirements YAML file is correctly "
                 "formatted.")
         try:
-            _api = self.roles_dict[rule_name]
-            return all(role in _api for role in roles)
+            requirement_roles = self.roles_dict[rule_name]
+
+            for role_reqs in requirement_roles:
+                required_roles = [
+                    role for role in role_reqs if not role.startswith("!")]
+                forbidden_roles = [
+                    role[1:] for role in role_reqs if role.startswith("!")]
+
+                # User must have all required roles
+                required_passed = all([r in roles for r in required_roles])
+                # User must not have any forbidden roles
+                forbidden_passed = all([r not in forbidden_roles
+                                        for r in roles])
+
+                if required_passed and forbidden_passed:
+                    return True
+
+            return False
         except KeyError:
             raise KeyError("'%s' API is not defined in the requirements YAML "
                            "file" % rule_name)
