@@ -23,18 +23,18 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.network import rbac_base as base
 
 
-class AddressScopePluginRbacTest(base.BaseNetworkPluginRbacTest):
+class AddressScopeExtRbacTest(base.BaseNetworkExtRbacTest):
 
     @classmethod
     def skip_checks(cls):
-        super(AddressScopePluginRbacTest, cls).skip_checks()
+        super(AddressScopeExtRbacTest, cls).skip_checks()
         if not utils.is_extension_enabled('address-scope', 'network'):
             msg = "address-scope extension not enabled."
             raise cls.skipException(msg)
 
     @classmethod
     def resource_setup(cls):
-        super(AddressScopePluginRbacTest, cls).resource_setup()
+        super(AddressScopeExtRbacTest, cls).resource_setup()
         cls.network = cls.create_network()
 
     def _create_address_scope(self, name=None, **kwargs):

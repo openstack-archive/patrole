@@ -23,11 +23,11 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.network import rbac_base as base
 
 
-class FlavorsPluginRbacTest(base.BaseNetworkPluginRbacTest):
+class FlavorsExtRbacTest(base.BaseNetworkExtRbacTest):
 
     @classmethod
     def resource_setup(cls):
-        super(FlavorsPluginRbacTest, cls).resource_setup()
+        super(FlavorsExtRbacTest, cls).resource_setup()
         providers = cls.ntp_client.list_service_providers()
         if not providers["service_providers"]:
             raise cls.skipException("No service_providers available.")
@@ -120,10 +120,10 @@ class FlavorsPluginRbacTest(base.BaseNetworkPluginRbacTest):
             self.ntp_client.list_flavors()
 
 
-class FlavorsServiceProfilePluginRbacTest(base.BaseNetworkPluginRbacTest):
+class FlavorsServiceProfileExtRbacTest(base.BaseNetworkExtRbacTest):
     @classmethod
     def resource_setup(cls):
-        super(FlavorsServiceProfilePluginRbacTest, cls).resource_setup()
+        super(FlavorsServiceProfileExtRbacTest, cls).resource_setup()
         providers = cls.ntp_client.list_service_providers()
         if not providers["service_providers"]:
             raise cls.skipException("No service_providers available.")

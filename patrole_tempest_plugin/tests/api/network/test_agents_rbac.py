@@ -238,18 +238,18 @@ class DHCPAgentSchedulersRbacTest(base.BaseNetworkRbacTest):
                 self.agent['id'], network_id=network_id)
 
 
-class L3AgentsPluginRbacTest(base.BaseNetworkPluginRbacTest):
+class L3AgentsExtRbacTest(base.BaseNetworkExtRbacTest):
 
     @classmethod
     def skip_checks(cls):
-        super(L3AgentsPluginRbacTest, cls).skip_checks()
+        super(L3AgentsExtRbacTest, cls).skip_checks()
         if not utils.is_extension_enabled('l3_agent_scheduler', 'network'):
             msg = "l3_agent_scheduler extension not enabled."
             raise cls.skipException(msg)
 
     @classmethod
     def resource_setup(cls):
-        super(L3AgentsPluginRbacTest, cls).resource_setup()
+        super(L3AgentsExtRbacTest, cls).resource_setup()
         name = data_utils.rand_name(cls.__name__ + '-Router')
         cls.router = cls.ntp_client.create_router(name)['router']
 

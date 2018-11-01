@@ -39,9 +39,9 @@ The following are Patrole's specific Commandments:
 - [P102] RBAC test class names must end in 'RbacTest'
 - [P103] ``self.client`` must not be used as a client alias; this allows for
   code that is more maintainable and easier to read
-- [P104] RBAC `plugin test class`_ names must end in 'PluginRbacTest'
+- [P104] RBAC `extension test class`_ names must end in 'ExtRbacTest'
 
-.. _plugin test class: https://github.com/openstack/patrole/tree/master/patrole_tempest_plugin/tests/api/network#neutron-plugin-tests
+.. _extension test class: https://github.com/openstack/patrole/tree/master/patrole_tempest_plugin/tests/api/network#neutron-extension-rbac-tests
 
 Role Overriding
 ---------------
