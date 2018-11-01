@@ -256,3 +256,30 @@ class RBACHackingTestCase(base.TestCase):
         self.assertTrue(checks.no_client_alias_in_test_cases(
             "  cls.client",
             "./patrole_tempest_plugin/tests/api/fake_test_rbac.py"))
+
+    def test_no_plugin_rbac_test_suffix_in_plugin_test_class_name(self):
+        check = checks.no_plugin_rbac_test_suffix_in_plugin_test_class_name
+
+        # Passing cases: these do not inherit from "PluginRbacTest" base class.
+        self.assertFalse(check(
+            "class FakeRbacTest",
+            "./patrole_tempest_plugin/tests/api/fake_test_rbac.py"))
+        self.assertFalse(check(
+            "class FakeRbacTest(base.BaseFakeRbacTest)",
+            "./patrole_tempest_plugin/tests/api/fake_test_rbac.py"))
+
+        # Passing cases: these **do** end in correct test class suffix.
+        self.assertFalse(check(
+            "class FakePluginRbacTest",
+            "./patrole_tempest_plugin/tests/api/fake_test_rbac.py"))
+        self.assertFalse(check(
+            "class FakePluginRbacTest(base.BaseFakeRbacTest)",
+            "./patrole_tempest_plugin/tests/api/fake_test_rbac.py"))
+
+        # Failing cases: these **do not** end in correct test class suffix.
+        self.assertTrue(check(
+            "class FakeRbacTest(BaseFakePluginRbacTest)",
+            "./patrole_tempest_plugin/tests/api/fake_test_rbac.py"))
+        self.assertTrue(check(
+            "class FakeRbacTest(BaseFakeNetworkPluginRbacTest)",
+            "./patrole_tempest_plugin/tests/api/network/fake_test_rbac.py"))
