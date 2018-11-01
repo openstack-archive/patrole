@@ -262,7 +262,7 @@ class RBACHackingTestCase(base.TestCase):
 
         # Passing cases: these do not inherit from "PluginRbacTest" base class.
         self.assertFalse(check(
-            "class FakeRbacTest",
+            "class FakeRbacTest(BaseFakeRbacTest)",
             "./patrole_tempest_plugin/tests/api/fake_test_rbac.py"))
         self.assertFalse(check(
             "class FakeRbacTest(base.BaseFakeRbacTest)",
@@ -270,16 +270,39 @@ class RBACHackingTestCase(base.TestCase):
 
         # Passing cases: these **do** end in correct test class suffix.
         self.assertFalse(check(
-            "class FakePluginRbacTest",
+            "class FakePluginRbacTest(BaseFakePluginRbacTest)",
             "./patrole_tempest_plugin/tests/api/fake_test_rbac.py"))
         self.assertFalse(check(
-            "class FakePluginRbacTest(base.BaseFakeRbacTest)",
+            "class FakePluginRbacTest(base.BaseFakePluginRbacTest)",
+            "./patrole_tempest_plugin/tests/api/fake_test_rbac.py"))
+
+        # Passing cases: plugin base class inherits from another base class.
+        self.assertFalse(check(
+            "class BaseFakePluginRbacTest(base.BaseFakeRbacTest)",
+            "./patrole_tempest_plugin/tests/api/fake_test_rbac.py"))
+        self.assertFalse(check(
+            "class BaseFakePluginRbacTest(BaseFakeRbacTest)",
             "./patrole_tempest_plugin/tests/api/fake_test_rbac.py"))
 
         # Failing cases: these **do not** end in correct test class suffix.
+        # Case 1: RbacTest subclass doesn't end in PluginRbacTest.
+        self.assertTrue(check(
+            "class FakeRbacTest(base.BaseFakePluginRbacTest)",
+            "./patrole_tempest_plugin/tests/api/fake_test_rbac.py"))
         self.assertTrue(check(
             "class FakeRbacTest(BaseFakePluginRbacTest)",
             "./patrole_tempest_plugin/tests/api/fake_test_rbac.py"))
         self.assertTrue(check(
             "class FakeRbacTest(BaseFakeNetworkPluginRbacTest)",
             "./patrole_tempest_plugin/tests/api/network/fake_test_rbac.py"))
+        # Case 2: PluginRbacTest subclass doesn't inherit from
+        # BasePluginRbacTest.
+        self.assertTrue(check(
+            "class FakePluginRbacTest(base.BaseFakeRbacTest)",
+            "./patrole_tempest_plugin/tests/api/fake_test_rbac.py"))
+        self.assertTrue(check(
+            "class FakePluginRbacTest(BaseFakeRbacTest)",
+            "./patrole_tempest_plugin/tests/api/fake_test_rbac.py"))
+        self.assertTrue(check(
+            "class FakeNeutronPluginRbacTest(BaseFakeNeutronRbacTest)",
+            "./patrole_tempest_plugin/tests/api/fake_test_rbac.py"))
