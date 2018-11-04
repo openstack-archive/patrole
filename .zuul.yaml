@@ -10,7 +10,8 @@
     timeout: 7800
     roles:
       - zuul: openstack-dev/devstack
-    irrelevant-files:
+    # Define common irrelevant files to use everywhere else
+    irrelevant-files: &patrole-irrelevant-files
       - ^(test-|)requirements.txt$
       - ^.*\.rst$
       - ^doc/.*
@@ -48,15 +49,7 @@
       - openstack-infra/devstack-gate
       - openstack/tempest
       - openstack/patrole
-    irrelevant-files:
-      - ^(test-|)requirements.txt$
-      - ^.*\.rst$
-      - ^doc/.*
-      - ^etc/.*$
-      - ^patrole/patrole_tempest_plugin/tests/unit/.*$
-      - ^patrole/patrole_tempest_plugin/hacking/.*$
-      - ^releasenotes/.*
-      - ^setup.cfg$
+    irrelevant-files: *patrole-irrelevant-files
     vars:
       devstack_localrc:
         TEMPEST_PLUGINS: "'{{ ansible_user_dir }}/src/git.openstack.org/openstack/patrole'"
