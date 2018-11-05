@@ -36,7 +36,8 @@ RBAC_CLASS_NAME_RE = re.compile(r'class .+RbacTest')
 RULE_VALIDATION_DECORATOR = re.compile(
     r'\s*@rbac_rule_validation.action\(.*')
 IDEMPOTENT_ID_DECORATOR = re.compile(r'\s*@decorators\.idempotent_id\((.*)\)')
-PLUGIN_RBAC_TEST = re.compile(r"class .+\(.+PluginRbacTest\)")
+PLUGIN_RBAC_TEST = re.compile(
+    r"class .+\(.+PluginRbacTest\)|class .+PluginRbacTest\(.+\)")
 
 have_rbac_decorator = False
 
@@ -218,12 +219,36 @@ def no_plugin_rbac_test_suffix_in_plugin_test_class_name(physical_line,
 
     P104
     """
+    suffix = "PluginRbacTest"
     if "patrole_tempest_plugin/tests/api" in filename:
         if PLUGIN_RBAC_TEST.match(physical_line):
-            subclass = physical_line.split('(')[0]
-            if not subclass.endswith("PluginRbacTest"):
-                error = "Plugin RBAC test classes must end in 'PluginRbacTest'"
-                return len(subclass) - 1, error
+            subclass, superclass = physical_line.split('(')
+            subclass = subclass.split('class')[1].strip()
+            superclass = superclass.split(')')[0].strip()
+            if "." in superclass:
+                superclass = superclass.split(".")[1]
+
+            both_have = all(
+                clazz.endswith(suffix) for clazz in [subclass, superclass])
+            none_have = not any(
+                clazz.endswith(suffix) for clazz in [subclass, superclass])
+
+            if not (both_have or none_have):
+                if (subclass.startswith("Base") and
+                        superclass.startswith("Base")):
+                    return
+
+                # Case 1: Subclass of "BasePluginRbacTest" must end in `suffix`
+                # Case 2: Subclass that ends in `suffix` must inherit from base
+                # class ending in `suffix`.
+                if not subclass.endswith(suffix):
+                    error = ("Plugin RBAC test subclasses must end in "
+                             "'PluginRbacTest'")
+                    return len(subclass) - 1, error
+                elif not superclass.endswith(suffix):
+                    error = ("Plugin RBAC test subclasses must inherit from a "
+                             "'PluginRbacTest' base class")
+                    return len(superclass) - 1, error
 
 
 def factory(register):
