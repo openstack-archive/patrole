@@ -100,7 +100,4 @@ allowed_role = the ``oslo.policy`` role that is allowed to perform the API.
 Implementation
 --------------
 
-.. automodule:: patrole_tempest_plugin.requirements_authority
-   :members:
-   :undoc-members:
-   :special-members:
+:py:mod:`Requirements Authority Module <patrole_tempest_plugin.requirements_authority>`

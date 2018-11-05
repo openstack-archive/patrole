@@ -14,7 +14,4 @@ policy name defined by the ``service``).
 Implementation
 --------------
 
-.. automodule:: patrole_tempest_plugin.rbac_rule_validation
-   :members:
-   :private-members:
-   :special-members:
+:py:mod:`RBAC Rule Validation Module <patrole_tempest_plugin.rbac_rule_validation>`

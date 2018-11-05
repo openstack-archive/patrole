@@ -32,7 +32,4 @@ requirements-driven approach to validating RBAC in Patrole.
 Implementation
 --------------
 
-.. automodule:: patrole_tempest_plugin.rbac_authority
-   :members:
-   :undoc-members:
-   :special-members:
+:py:mod:`RBAC Authority Module <patrole_tempest_plugin.rbac_authority>`
