@@ -35,10 +35,44 @@ class AutoAllocationTopologyPluginRbacTest(base.BaseNetworkPluginRbacTest):
                                  rules=["get_auto_allocated_topology"],
                                  expected_error_codes=[404])
     def test_show_auto_allocated_topology(self):
-        """Show auto_allocated_topology.
+        """Test show auto_allocated_topology.
 
         RBAC test for the neutron "get_auto_allocated_topology" policy
         """
         with self.rbac_utils.override_role(self):
             self.ntp_client.get_auto_allocated_topology(
+                tenant_id=self.os_primary.credentials.tenant_id)
+
+    def _ensure_network_not_in_use(cls, network_id):
+        ports = cls.ntp_client.list_ports(network_id=network_id)["ports"]
+
+        # Every subnet within network should have a router interface
+        expected_ports_count = len(
+            cls.ntp_client.show_network(network_id)["network"]["subnets"])
+        # Every network should have a single dhcp interface
+        expected_ports_count += 1
+
+        if len(ports) != expected_ports_count:
+            msg = "Auto Allocated Topology in use."
+            cls.skipException(msg)
+
+    @decorators.idempotent_id('A0606AFE-065E-4C09-8E51-58EE7FBA30A2')
+    @decorators.attr(type='slow')
+    @rbac_rule_validation.action(service="neutron",
+                                 rules=["get_auto_allocated_topology",
+                                        "delete_auto_allocated_topology"],
+                                 expected_error_codes=[404, 403])
+    def test_delete_auto_allocated_topology(self):
+        """Test delete auto_allocated_topology.
+
+        RBAC test for the neutron "delete_auto_allocated_topology" policy
+        """
+        tenant_id = self.os_primary.credentials.tenant_id
+        net_id = self.ntp_client.get_auto_allocated_topology(
+            tenant_id=tenant_id)["auto_allocated_topology"]["id"]
+
+        self._ensure_network_not_in_use(net_id)
+
+        with self.rbac_utils.override_role(self):
+            self.ntp_client.delete_auto_allocated_topology(
                 tenant_id=self.os_primary.credentials.tenant_id)
