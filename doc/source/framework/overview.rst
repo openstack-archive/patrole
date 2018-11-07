@@ -10,10 +10,10 @@ Validation Workflow Overview
 RBAC testing validation is broken up into 3 stages:
 
 #. "Expected" stage. Determine whether the test should be able to succeed
-   or fail based on the test role defined by ``[patrole] rbac_test_role``)
+   or fail based on the test roles defined by ``[patrole] rbac_test_roles``)
    and the policy action that the test enforces.
 #. "Actual" stage. Run the test by calling the API endpoint that enforces
-   the expected policy action using the test role.
+   the expected policy action using the test roles.
 #. Comparing the outputs from both stages for consistency. A "consistent"
    result is treated as a pass and an "inconsistent" result is treated
    as a failure. "Consistent" (or successful) cases include:
@@ -63,7 +63,7 @@ The Policy Authority Module
 ---------------------------
 
 Module called by :ref:`rbac-validation` to verify whether the test
-role is allowed to execute a policy action by querying ``oslo.policy`` with
+roles are allowed to execute a policy action by querying ``oslo.policy`` with
 required test data. The result is used by :ref:`rbac-validation` as the
 "Expected" result.
 

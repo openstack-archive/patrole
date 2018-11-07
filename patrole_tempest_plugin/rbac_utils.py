@@ -40,7 +40,7 @@ class RbacUtils(object):
     up, and primary credentials, needed to perform the API call which does
     policy enforcement. The primary credentials always cycle between roles
     defined by ``CONF.identity.admin_role`` and
-    ``CONF.patrole.rbac_test_role``.
+    ``CONF.patrole.rbac_test_roles``.
     """
 
     def __init__(self, test_obj):
@@ -58,10 +58,15 @@ class RbacUtils(object):
                 "Patrole role overriding only supports v3 identity API.")
 
         self.admin_roles_client = admin_roles_client
+
+        self.user_id = test_obj.os_primary.credentials.user_id
+        self.project_id = test_obj.os_primary.credentials.tenant_id
+
+        # Change default role to admin
         self._override_role(test_obj, False)
 
     admin_role_id = None
-    rbac_role_id = None
+    rbac_role_ids = None
 
     @contextmanager
     def override_role(self, test_obj):
@@ -69,7 +74,7 @@ class RbacUtils(object):
 
         Temporarily change the role used by ``os_primary`` credentials to:
 
-        * ``[patrole] rbac_test_role`` before test execution
+        * ``[patrole] rbac_test_roles`` before test execution
         * ``[identity] admin_role`` after test execution
 
         Automatically switches to admin role after test execution.
@@ -122,25 +127,21 @@ class RbacUtils(object):
             * If True: role is set to ``[patrole] rbac_test_role``
             * If False: role is set to ``[identity] admin_role``
         """
-        self.user_id = test_obj.os_primary.credentials.user_id
-        self.project_id = test_obj.os_primary.credentials.tenant_id
-        self.token = test_obj.os_primary.auth_provider.get_token()
-
         LOG.debug('Overriding role to: %s.', toggle_rbac_role)
-        role_already_present = False
+        roles_already_present = False
 
         try:
-            if not all([self.admin_role_id, self.rbac_role_id]):
+            if not all([self.admin_role_id, self.rbac_role_ids]):
                 self._get_roles_by_name()
 
-            target_role = (
-                self.rbac_role_id if toggle_rbac_role else self.admin_role_id)
-            role_already_present = self._list_and_clear_user_roles_on_project(
-                target_role)
+            target_roles = (self.rbac_role_ids
+                            if toggle_rbac_role else [self.admin_role_id])
+            roles_already_present = self._list_and_clear_user_roles_on_project(
+                target_roles)
 
             # Do not override roles if `target_role` already exists.
-            if not role_already_present:
-                self._create_user_role_on_project(target_role)
+            if not roles_already_present:
+                self._create_user_role_on_project(target_roles)
         except Exception as exp:
             with excutils.save_and_reraise_exception():
                 LOG.exception(exp)
@@ -152,8 +153,8 @@ class RbacUtils(object):
             # passing the second boundary before attempting to authenticate.
             # Only sleep if a token revocation occurred as a result of role
             # overriding. This will optimize test runtime in the case where
-            # ``[identity] admin_role`` == ``[patrole] rbac_test_role``.
-            if not role_already_present:
+            # ``[identity] admin_role`` == ``[patrole] rbac_test_roles``.
+            if not roles_already_present:
                 time.sleep(1)
 
             for provider in auth_providers:
@@ -164,41 +165,53 @@ class RbacUtils(object):
         role_map = {r['name']: r['id'] for r in available_roles}
         LOG.debug('Available roles: %s', list(role_map.keys()))
 
-        admin_role_id = role_map.get(CONF.identity.admin_role)
-        rbac_role_id = role_map.get(CONF.patrole.rbac_test_role)
+        rbac_role_ids = []
+        roles = CONF.patrole.rbac_test_roles
+        # TODO(vegasq) drop once CONF.patrole.rbac_test_role is removed
+        if CONF.patrole.rbac_test_role:
+            if not roles:
+                roles.append(CONF.patrole.rbac_test_role)
 
-        if not all([admin_role_id, rbac_role_id]):
+        for role_name in roles:
+            rbac_role_ids.append(role_map.get(role_name))
+
+        admin_role_id = role_map.get(CONF.identity.admin_role)
+
+        if not all([admin_role_id, all(rbac_role_ids)]):
             missing_roles = []
-            msg = ("Could not find `[patrole] rbac_test_role` or "
+            msg = ("Could not find `[patrole] rbac_test_roles` or "
                    "`[identity] admin_role`, both of which are required for "
                    "RBAC testing.")
             if not admin_role_id:
                 missing_roles.append(CONF.identity.admin_role)
-            if not rbac_role_id:
-                missing_roles.append(CONF.patrole.rbac_test_role)
+            if not all(rbac_role_ids):
+                missing_roles += [role_name for role_name in roles
+                                  if not role_map.get(role_name)]
+
             msg += " Following roles were not found: %s." % (
                 ", ".join(missing_roles))
             msg += " Available roles: %s." % ", ".join(list(role_map.keys()))
             raise rbac_exceptions.RbacResourceSetupFailed(msg)
 
         self.admin_role_id = admin_role_id
-        self.rbac_role_id = rbac_role_id
+        self.rbac_role_ids = rbac_role_ids
 
-    def _create_user_role_on_project(self, role_id):
-        self.admin_roles_client.create_user_role_on_project(
-            self.project_id, self.user_id, role_id)
+    def _create_user_role_on_project(self, role_ids):
+        for role_id in role_ids:
+            self.admin_roles_client.create_user_role_on_project(
+                self.project_id, self.user_id, role_id)
 
-    def _list_and_clear_user_roles_on_project(self, role_id):
+    def _list_and_clear_user_roles_on_project(self, role_ids):
         roles = self.admin_roles_client.list_user_roles_on_project(
             self.project_id, self.user_id)['roles']
-        role_ids = [role['id'] for role in roles]
+        all_role_ids = [role['id'] for role in roles]
 
-        # NOTE(felipemonteiro): We do not use ``role_id in role_ids`` here to
-        # avoid over-permission errors: if the current list of roles on the
+        # NOTE(felipemonteiro): We do not use ``role_id in all_role_ids`` here
+        # to avoid over-permission errors: if the current list of roles on the
         # project includes "admin" and "Member", and we are switching to the
         # "Member" role, then we must delete the "admin" role. Thus, we only
         # return early if the user's roles on the project are an exact match.
-        if [role_id] == role_ids:
+        if set(role_ids) == set(all_role_ids):
             return True
 
         for role in roles:
@@ -279,8 +292,14 @@ class RbacUtilsMixin(object):
 def is_admin():
     """Verifies whether the current test role equals the admin role.
 
-    :returns: True if ``rbac_test_role`` is the admin role.
+    :returns: True if ``rbac_test_roles`` contain the admin role.
     """
+    roles = CONF.patrole.rbac_test_roles
+    # TODO(vegasq) drop once CONF.patrole.rbac_test_role is removed
+    if CONF.patrole.rbac_test_role:
+        roles.append(CONF.patrole.rbac_test_role)
+        roles = list(set(roles))
+
     # TODO(felipemonteiro): Make this more robust via a context is admin
     # lookup.
-    return CONF.patrole.rbac_test_role == CONF.identity.admin_role
+    return CONF.identity.admin_role in roles

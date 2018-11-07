@@ -22,8 +22,16 @@ patrole_group = cfg.OptGroup(name='patrole', title='Patrole Testing Options')
 PatroleGroup = [
     cfg.StrOpt('rbac_test_role',
                default='admin',
+               deprecated_for_removal=True,
+               deprecated_reason="""This option is deprecated and being
+replaced with ``rbac_test_roles``.
+""",
                help="""The current RBAC role against which to run
 Patrole tests."""),
+    cfg.ListOpt('rbac_test_roles',
+                help="""List of the RBAC roles against which to run
+Patrole tests.""",
+                default=['admin']),
     cfg.ListOpt('custom_policy_files',
                 default=['/etc/%s/policy.json'],
                 help="""List of the paths to search for policy files. Each

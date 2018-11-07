@@ -95,13 +95,14 @@ class RequirementsAuthority(RbacAuthority):
         else:
             self.roles_dict = None
 
-    def allowed(self, rule_name, role):
+    def allowed(self, rule_name, roles):
         """Checks if a given rule in a policy is allowed with given role.
 
         :param string rule_name: Rule to be checked using provided requirements
             file specified by ``[patrole].custom_requirements_file``. Must be
             a key present in this file, under the appropriate component.
-        :param string role: Role to validate against custom requirements file.
+        :param List[string] roles: Roles to validate against custom
+            requirements file.
         :returns: True if ``role`` is allowed to perform ``rule_name``, else
             False.
         :rtype: bool
@@ -115,8 +116,7 @@ class RequirementsAuthority(RbacAuthority):
                 "formatted.")
         try:
             _api = self.roles_dict[rule_name]
-            return role in _api
+            return all(role in _api for role in roles)
         except KeyError:
             raise KeyError("'%s' API is not defined in the requirements YAML "
                            "file" % rule_name)
-        return False

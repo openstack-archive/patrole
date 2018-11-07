@@ -108,9 +108,60 @@ class PolicyAuthorityTest(base.TestCase):
 
         for rule, role_list in expected.items():
             for role in role_list:
-                self.assertTrue(authority.allowed(rule, role))
+                self.assertTrue(authority.allowed(rule, [role]))
             for role in set(default_roles) - set(role_list):
-                self.assertFalse(authority.allowed(rule, role))
+                self.assertFalse(authority.allowed(rule, [role]))
+
+    @mock.patch.object(policy_authority, 'LOG', autospec=True)
+    def _test_custom_multi_roles_policy(self, *args):
+        default_roles = ['zero', 'one', 'two', 'three', 'four',
+                         'five', 'six', 'seven', 'eight', 'nine']
+
+        test_tenant_id = mock.sentinel.tenant_id
+        test_user_id = mock.sentinel.user_id
+        authority = policy_authority.PolicyAuthority(
+            test_tenant_id, test_user_id, "custom_rbac_policy")
+
+        expected = {
+            'policy_action_1': ['two', 'four', 'six', 'eight'],
+            'policy_action_2': ['one', 'three', 'five', 'seven', 'nine'],
+            'policy_action_4': ['one', 'two', 'three', 'five', 'seven'],
+            'policy_action_5': ['zero', 'one', 'two', 'three', 'four', 'five',
+                                'six', 'seven', 'eight', 'nine'],
+        }
+
+        for rule, role_list in expected.items():
+            allowed_roles_lists = [roles for roles in [
+                role_list[len(role_list) // 2:],
+                role_list[:len(role_list) // 2]] if roles]
+            for test_roles in allowed_roles_lists:
+                self.assertTrue(authority.allowed(rule, test_roles))
+
+            disallowed_roles = list(set(default_roles) - set(role_list))
+            disallowed_roles_lists = [roles for roles in [
+                disallowed_roles[len(disallowed_roles) // 2:],
+                disallowed_roles[:len(disallowed_roles) // 2]] if roles]
+            for test_roles in disallowed_roles_lists:
+                self.assertFalse(authority.allowed(rule, test_roles))
+
+    def test_empty_rbac_test_roles(self):
+        test_tenant_id = mock.sentinel.tenant_id
+        test_user_id = mock.sentinel.user_id
+        authority = policy_authority.PolicyAuthority(
+            test_tenant_id, test_user_id, "custom_rbac_policy")
+
+        disallowed_for_empty_roles = ['policy_action_1', 'policy_action_2',
+                                      'policy_action_3', 'policy_action_4',
+                                      'policy_action_6']
+
+        # Due to "policy_action_5": "rule:all_rule" / "all_rule": ""
+        allowed_for_empty_roles = ['policy_action_5']
+
+        for rule in disallowed_for_empty_roles:
+            self.assertFalse(authority.allowed(rule, []))
+
+        for rule in allowed_for_empty_roles:
+            self.assertTrue(authority.allowed(rule, []))
 
     def test_custom_policy_json(self):
         # The CONF.patrole.custom_policy_files has a path to JSON file by
@@ -122,24 +173,34 @@ class PolicyAuthorityTest(base.TestCase):
             custom_policy_files=[self.conf_policy_path_yaml], group='patrole'))
         self._test_custom_policy()
 
+    def test_custom_multi_roles_policy_json(self):
+        # The CONF.patrole.custom_policy_files has a path to JSON file by
+        # default, so we don't need to use ConfPatcher here.
+        self._test_custom_multi_roles_policy()
+
+    def test_custom_multi_roles_policy_yaml(self):
+        self.useFixture(fixtures.ConfPatcher(
+            custom_policy_files=[self.conf_policy_path_yaml], group='patrole'))
+        self._test_custom_multi_roles_policy()
+
     def test_admin_policy_file_with_admin_role(self):
         test_tenant_id = mock.sentinel.tenant_id
         test_user_id = mock.sentinel.user_id
         authority = policy_authority.PolicyAuthority(
             test_tenant_id, test_user_id, "admin_rbac_policy")
 
-        role = 'admin'
+        roles = ['admin']
         allowed_rules = [
             'admin_rule', 'is_admin_rule', 'alt_admin_rule'
         ]
         disallowed_rules = ['non_admin_rule']
 
         for rule in allowed_rules:
-            allowed = authority.allowed(rule, role)
+            allowed = authority.allowed(rule, roles)
             self.assertTrue(allowed)
 
         for rule in disallowed_rules:
-            allowed = authority.allowed(rule, role)
+            allowed = authority.allowed(rule, roles)
             self.assertFalse(allowed)
 
     def test_admin_policy_file_with_member_role(self):
@@ -148,7 +209,7 @@ class PolicyAuthorityTest(base.TestCase):
         authority = policy_authority.PolicyAuthority(
             test_tenant_id, test_user_id, "admin_rbac_policy")
 
-        role = 'Member'
+        roles = ['Member']
         allowed_rules = [
             'non_admin_rule'
         ]
@@ -156,11 +217,11 @@ class PolicyAuthorityTest(base.TestCase):
             'admin_rule', 'is_admin_rule', 'alt_admin_rule']
 
         for rule in allowed_rules:
-            allowed = authority.allowed(rule, role)
+            allowed = authority.allowed(rule, roles)
             self.assertTrue(allowed)
 
         for rule in disallowed_rules:
-            allowed = authority.allowed(rule, role)
+            allowed = authority.allowed(rule, roles)
             self.assertFalse(allowed)
 
     def test_alt_admin_policy_file_with_context_is_admin(self):
@@ -169,28 +230,28 @@ class PolicyAuthorityTest(base.TestCase):
         authority = policy_authority.PolicyAuthority(
             test_tenant_id, test_user_id, "alt_admin_rbac_policy")
 
-        role = 'fake_admin'
+        roles = ['fake_admin']
         allowed_rules = ['non_admin_rule']
         disallowed_rules = ['admin_rule']
 
         for rule in allowed_rules:
-            allowed = authority.allowed(rule, role)
+            allowed = authority.allowed(rule, roles)
             self.assertTrue(allowed)
 
         for rule in disallowed_rules:
-            allowed = authority.allowed(rule, role)
+            allowed = authority.allowed(rule, roles)
             self.assertFalse(allowed)
 
-        role = 'super_admin'
+        roles = ['super_admin']
         allowed_rules = ['admin_rule']
         disallowed_rules = ['non_admin_rule']
 
         for rule in allowed_rules:
-            allowed = authority.allowed(rule, role)
+            allowed = authority.allowed(rule, roles)
             self.assertTrue(allowed)
 
         for rule in disallowed_rules:
-            allowed = authority.allowed(rule, role)
+            allowed = authority.allowed(rule, roles)
             self.assertFalse(allowed)
 
     def test_tenant_user_policy(self):
@@ -208,17 +269,17 @@ class PolicyAuthorityTest(base.TestCase):
         # Check whether Member role can perform expected actions.
         allowed_rules = ['rule1', 'rule2', 'rule3', 'rule4']
         for rule in allowed_rules:
-            allowed = authority.allowed(rule, 'Member')
+            allowed = authority.allowed(rule, ['Member'])
             self.assertTrue(allowed)
 
         disallowed_rules = ['admin_tenant_rule', 'admin_user_rule']
         for disallowed_rule in disallowed_rules:
-            self.assertFalse(authority.allowed(disallowed_rule, 'Member'))
+            self.assertFalse(authority.allowed(disallowed_rule, ['Member']))
 
         # Check whether admin role can perform expected actions.
         allowed_rules.extend(disallowed_rules)
         for rule in allowed_rules:
-            allowed = authority.allowed(rule, 'admin')
+            allowed = authority.allowed(rule, ['admin'])
             self.assertTrue(allowed)
 
         # Check whether _try_rule is called with the correct target dictionary.
@@ -243,7 +304,7 @@ class PolicyAuthorityTest(base.TestCase):
             }
 
             for rule in allowed_rules:
-                allowed = authority.allowed(rule, 'Member')
+                allowed = authority.allowed(rule, ['Member'])
                 self.assertTrue(allowed)
                 mock_try_rule.assert_called_once_with(
                     rule, expected_target, expected_access_data, mock.ANY)
@@ -292,7 +353,7 @@ class PolicyAuthorityTest(base.TestCase):
             fake_rule, [self.custom_policy_file], "custom_rbac_policy")
 
         e = self.assertRaises(rbac_exceptions.RbacParsingException,
-                              authority.allowed, fake_rule, None)
+                              authority.allowed, fake_rule, [None])
         self.assertIn(expected_message, str(e))
         m_log.debug.assert_called_once_with(expected_message)
 
@@ -309,13 +370,13 @@ class PolicyAuthorityTest(base.TestCase):
                mock.sentinel.error)})
 
         expected_message = (
-            'Policy action "{0}" not found in policy files: {1} or among '
+            'Policy action "[{0}]" not found in policy files: {1} or among '
             'registered policy in code defaults for {2} service.').format(
             mock.sentinel.rule, [self.custom_policy_file],
             "custom_rbac_policy")
 
         e = self.assertRaises(rbac_exceptions.RbacParsingException,
-                              authority.allowed, mock.sentinel.rule, None)
+                              authority.allowed, [mock.sentinel.rule], [None])
         self.assertIn(expected_message, str(e))
         m_log.debug.assert_called_once_with(expected_message)
 

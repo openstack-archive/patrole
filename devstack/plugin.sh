@@ -14,9 +14,14 @@ function install_patrole_tempest_plugin {
     setup_package $PATROLE_DIR -e
 
     if [[ ${DEVSTACK_SERIES} == 'pike' ]]; then
-        if [[ "$RBAC_TEST_ROLE" == "member" ]]; then
-            RBAC_TEST_ROLE="Member"
-        fi
+        IFS=',' read -ra roles_array <<< "$RBAC_TEST_ROLES"
+        RBAC_TEST_ROLES=""
+        for i in "${roles_array[@]}"; do
+            if [[ $i == "member" ]]; then
+                i="Member"
+            fi
+            RBAC_TEST_ROLES="$i,$RBAC_TEST_ROLES"
+        done
 
         # Policies used by Patrole testing that were changed in a backwards-incompatible way.
         # TODO(felipemonteiro): Remove these once stable/pike becomes EOL.
@@ -35,9 +40,14 @@ function install_patrole_tempest_plugin {
     fi
 
     if [[ ${DEVSTACK_SERIES} == 'queens' ]]; then
-        if [[ "$RBAC_TEST_ROLE" == "member" ]]; then
-            RBAC_TEST_ROLE="Member"
-        fi
+        IFS=',' read -ra roles_array <<< "$RBAC_TEST_ROLES"
+        RBAC_TEST_ROLES=""
+        for i in "${roles_array[@]}"; do
+            if [[ $i == "member" ]]; then
+                i="Member"
+            fi
+            RBAC_TEST_ROLES="$i,$RBAC_TEST_ROLES"
+        done
 
         # TODO(cl566n): Remove these once stable/queens becomes EOL.
         # These policies were removed in Stein but are available in Queens.
@@ -52,7 +62,7 @@ function install_patrole_tempest_plugin {
         iniset $TEMPEST_CONFIG policy-feature-enabled removed_keystone_policies_stein False
     fi
 
-    iniset $TEMPEST_CONFIG patrole rbac_test_role $RBAC_TEST_ROLE
+    iniset $TEMPEST_CONFIG patrole rbac_test_roles $RBAC_TEST_ROLES
 }
 
 if is_service_enabled tempest; then

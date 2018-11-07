@@ -154,17 +154,17 @@ class PolicyAuthority(RbacAuthority):
                         if os.path.isfile(filename):
                             cls.policy_files[service].append(filename)
 
-    def allowed(self, rule_name, role):
+    def allowed(self, rule_name, roles):
         """Checks if a given rule in a policy is allowed with given role.
 
         :param string rule_name: Policy name to pass to``oslo.policy``.
-        :param string role: Role to validate for authorization.
+        :param List[string] roles: List of roles to validate for authorization.
         :raises RbacParsingException: If ``rule_name`` does not exist in the
             cloud (in policy file or among registered in-code policy defaults).
         """
-        is_admin_context = self._is_admin_context(role)
+        is_admin_context = self._is_admin_context(roles)
         is_allowed = self._allowed(
-            access=self._get_access_token(role),
+            access=self._get_access_token(roles),
             apply_rule=rule_name,
             is_admin=is_admin_context)
         return is_allowed
@@ -224,7 +224,7 @@ class PolicyAuthority(RbacAuthority):
 
         return rules
 
-    def _is_admin_context(self, role):
+    def _is_admin_context(self, roles):
         """Checks whether a role has admin context.
 
         If context_is_admin is contained in the policy file, then checks
@@ -233,17 +233,17 @@ class PolicyAuthority(RbacAuthority):
         """
         if 'context_is_admin' in self.rules.keys():
             return self._allowed(
-                access=self._get_access_token(role),
+                access=self._get_access_token(roles),
                 apply_rule='context_is_admin')
-        return role == CONF.identity.admin_role
+        return CONF.identity.admin_role in roles
 
-    def _get_access_token(self, role):
+    def _get_access_token(self, roles):
         access_token = {
             "token": {
                 "roles": [
                     {
                         "name": role
-                    }
+                    } for role in roles
                 ],
                 "project_id": self.project_id,
                 "tenant_id": self.project_id,

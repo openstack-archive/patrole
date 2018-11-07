@@ -52,7 +52,7 @@ class RBACUtilsTest(base.TestCase):
         self.rbac_utils.override_role()
 
         mock_test_obj = self.rbac_utils.mock_test_obj
-        roles_client = self.rbac_utils.roles_v3_client
+        roles_client = self.rbac_utils.admin_roles_client
         mock_time = self.rbac_utils.mock_time
 
         roles_client.create_user_role_on_project.assert_called_once_with(
@@ -67,7 +67,7 @@ class RBACUtilsTest(base.TestCase):
         self.rbac_utils.set_roles(['admin', 'member'], 'admin')
         self.rbac_utils.override_role()
 
-        roles_client = self.rbac_utils.roles_v3_client
+        roles_client = self.rbac_utils.admin_roles_client
         mock_time = self.rbac_utils.mock_time
 
         roles_client.create_user_role_on_project.assert_not_called()
@@ -77,7 +77,7 @@ class RBACUtilsTest(base.TestCase):
         self.rbac_utils.override_role(True)
 
         mock_test_obj = self.rbac_utils.mock_test_obj
-        roles_client = self.rbac_utils.roles_v3_client
+        roles_client = self.rbac_utils.admin_roles_client
         mock_time = self.rbac_utils.mock_time
 
         roles_client.create_user_role_on_project.assert_has_calls([
@@ -96,7 +96,7 @@ class RBACUtilsTest(base.TestCase):
         self.rbac_utils.set_roles(['admin', 'member'], 'member')
         self.rbac_utils.override_role(True)
 
-        roles_client = self.rbac_utils.roles_v3_client
+        roles_client = self.rbac_utils.admin_roles_client
         mock_time = self.rbac_utils.mock_time
 
         roles_client.create_user_role_on_project.assert_has_calls([
@@ -109,7 +109,7 @@ class RBACUtilsTest(base.TestCase):
         self.rbac_utils.override_role(True, False)
 
         mock_test_obj = self.rbac_utils.mock_test_obj
-        roles_client = self.rbac_utils.roles_v3_client
+        roles_client = self.rbac_utils.admin_roles_client
         mock_time = self.rbac_utils.mock_time
 
         roles_client.create_user_role_on_project.assert_has_calls([
@@ -133,7 +133,7 @@ class RBACUtilsTest(base.TestCase):
         self.rbac_utils.set_roles(['admin', 'member'], ['member', 'random'])
         self.rbac_utils.override_role()
 
-        roles_client = self.rbac_utils.roles_v3_client
+        roles_client = self.rbac_utils.admin_roles_client
 
         roles_client.list_user_roles_on_project.assert_called_once_with(
             self.rbac_utils.PROJECT_ID, self.rbac_utils.USER_ID)
@@ -169,7 +169,8 @@ class RBACUtilsTest(base.TestCase):
         mock_override_role.assert_called_once_with(_rbac_utils, test_obj,
                                                    False)
 
-    @mock.patch.object(rbac_utils.RbacUtils, '_override_role', autospec=True)
+    @mock.patch.object(rbac_utils.RbacUtils, '_override_role',
+                       autospec=True)
     def test_override_role_context_manager_simulate_fail(self,
                                                          mock_override_role):
         """Validate that expected override_role calls are made when switching

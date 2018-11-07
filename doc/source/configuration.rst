@@ -7,33 +7,27 @@ Patrole can be customized by updating Tempest's ``tempest.conf`` configuration
 file. All Patrole-specific configuration options should be included under
 the ``patrole`` group.
 
-RBAC Test Role
---------------
+RBAC Test Roles
+---------------
 
-The RBAC test role governs which role is used when running Patrole tests. For
-example, setting ``rbac_test_role`` to "admin" will execute all RBAC tests
-using admin credentials. Changing the ``rbac_test_role`` value will `override`
-Tempest's primary credentials to use that role.
+The RBAC test roles govern the list of roles to be used when running Patrole
+tests. For example, setting ``rbac_test_roles`` to "admin" will execute all
+RBAC tests using admin credentials. Changing the ``rbac_test_roles`` value
+will `override` Tempest's primary credentials to use that role.
 
-This implies that, if ``rbac_test_role`` is "admin", regardless of the Tempest
+This implies that, if ``rbac_test_roles`` is "admin", regardless of the Tempest
 credentials used by a client, the client will be calling APIs using the admin
 role. That is, ``self.os_primary.servers_client`` will run as though it were
 ``self.os_admin.servers_client``.
 
-Similarly, setting ``rbac_test_role`` to a non-admin role results in Tempest's
-primary credentials being overridden by the role specified by
-``rbac_test_role``.
+Similarly, setting ``rbac_test_roles`` with various roles, results in
+Tempest's primary credentials being overridden by the roles specified by
+``rbac_test_roles``.
 
 .. note::
 
-    Only the role of the primary Tempest credentials ("os_primary") is
+    Only the roles of the primary Tempest credentials ("os_primary") are
     modified. The ``user_id`` and ``project_id`` remain unchanged.
-
-Enable RBAC
------------
-
-Given the value of ``enable_rbac``, enables or disables Patrole tests. If
-``enable_rbac`` is ``False``, then Patrole tests are skipped.
 
 Custom Policy Files
 -------------------
