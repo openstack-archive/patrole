@@ -31,7 +31,8 @@
         neutron-trunk: true
       tempest_concurrency: 2
       tempest_test_regex: (?!.*\[.*\bslow\b.*\])(^patrole_tempest_plugin\.tests\.api)
-      tox_envlist: all-plugin
+      tox_envlist: all
+      tox_extra_args: --sitepackages
 
 - job:
     name: patrole-base-multinode
@@ -60,7 +61,8 @@
         neutron: true
       tempest_concurrency: 1
       tempest_test_regex: (?=.*\[.*\bslow\b.*\])(^patrole_tempest_plugin\.tests\.api)
-      tox_envlist: all-plugin
+      tox_envlist: all
+      tox_extra_args: --sitepackages
 
 - job:
     name: patrole-admin
