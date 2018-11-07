@@ -33,7 +33,7 @@ class SchedulerStatsV3RbacTest(rbac_base.BaseVolumeRbacTest):
     def setup_clients(cls):
         super(SchedulerStatsV3RbacTest, cls).setup_clients()
         cls.scheduler_stats_client =\
-            cls.os_primary.volume_scheduler_stats_v2_client
+            cls.os_primary.volume_scheduler_stats_client_latest
 
     @rbac_rule_validation.action(
         service="cinder",

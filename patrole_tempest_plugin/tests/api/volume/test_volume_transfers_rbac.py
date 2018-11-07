@@ -26,7 +26,7 @@ class VolumesTransfersV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(VolumesTransfersV3RbacTest, cls).setup_clients()
-        cls.transfers_client = cls.os_primary.volume_transfers_v2_client
+        cls.transfers_client = cls.os_primary.volume_transfers_client_latest
 
     @classmethod
     def resource_setup(cls):

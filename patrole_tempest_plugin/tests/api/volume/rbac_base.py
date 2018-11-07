@@ -32,10 +32,10 @@ class BaseVolumeRbacTest(rbac_utils.RbacUtilsMixin,
     def setup_clients(cls):
         super(BaseVolumeRbacTest, cls).setup_clients()
         cls.setup_rbac_utils()
-        cls.volume_hosts_client = cls.os_primary.volume_hosts_v2_client
-        cls.volume_types_client = cls.os_primary.volume_types_v2_client
-        cls.groups_client = cls.os_primary.groups_v3_client
-        cls.group_types_client = cls.os_primary.group_types_v3_client
+        cls.volume_hosts_client = cls.os_primary.volume_hosts_client_latest
+        cls.volume_types_client = cls.os_primary.volume_types_client_latest
+        cls.groups_client = cls.os_primary.groups_client_latest
+        cls.group_types_client = cls.os_primary.group_types_client_latest
 
     @classmethod
     def create_volume_type(cls, name=None, **kwargs):

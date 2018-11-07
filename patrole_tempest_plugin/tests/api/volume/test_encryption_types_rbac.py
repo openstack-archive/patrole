@@ -56,7 +56,8 @@ class EncryptionTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(EncryptionTypesV3RbacTest, cls).setup_clients()
-        cls.encryption_types_client = cls.os_primary.encryption_types_v2_client
+        cls.encryption_types_client = \
+            cls.os_primary.encryption_types_client_latest
 
     def _create_volume_type_encryption(self):
         vol_type_id = self.create_volume_type()['id']

@@ -27,7 +27,7 @@ class VolumeQOSV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(VolumeQOSV3RbacTest, cls).setup_clients()
-        cls.qos_client = cls.os_primary.volume_qos_v2_client
+        cls.qos_client = cls.os_primary.volume_qos_client_latest
 
     def _create_test_qos_specs(self, name=None, consumer=None, **kwargs):
         name = name or data_utils.rand_name(self.__class__.__name__ + '-QoS')

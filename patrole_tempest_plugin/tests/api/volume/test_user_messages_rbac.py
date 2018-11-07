@@ -31,7 +31,7 @@ class MessagesV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(MessagesV3RbacTest, cls).setup_clients()
-        cls.messages_client = cls.os_primary.volume_v3_messages_client
+        cls.messages_client = cls.os_primary.volume_messages_client_latest
 
     def _create_user_message(self):
         """Trigger a 'no valid host' situation to generate a message."""

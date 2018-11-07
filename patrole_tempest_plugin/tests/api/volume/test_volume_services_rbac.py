@@ -36,7 +36,7 @@ class VolumeServicesV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(VolumeServicesV3RbacTest, cls).setup_clients()
-        cls.services_client = cls.os_primary.volume_services_v2_client
+        cls.services_client = cls.os_primary.volume_services_client_latest
 
     @decorators.idempotent_id('b9134f01-97c0-4abd-9455-fe2f03e3f966')
     @rbac_rule_validation.action(

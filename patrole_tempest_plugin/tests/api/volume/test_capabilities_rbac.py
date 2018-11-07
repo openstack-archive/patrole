@@ -32,8 +32,9 @@ class CapabilitiesV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(CapabilitiesV3RbacTest, cls).setup_clients()
-        cls.capabilities_client = cls.os_primary.volume_capabilities_v2_client
-        cls.hosts_client = cls.os_primary.volume_hosts_v2_client
+        cls.capabilities_client = \
+            cls.os_primary.volume_capabilities_client_latest
+        cls.hosts_client = cls.os_primary.volume_hosts_client_latest
 
     @rbac_rule_validation.action(service="cinder",
                                  rules=["volume_extension:capabilities"])

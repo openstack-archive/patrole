@@ -32,7 +32,7 @@ class VolumeQuotasV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(VolumeQuotasV3RbacTest, cls).setup_clients()
-        cls.quotas_client = cls.os_primary.volume_quotas_v2_client
+        cls.quotas_client = cls.os_primary.volume_quotas_client_latest
 
     def _restore_default_quota_set(self):
         default_quota_set = self.quotas_client.show_default_quota_set(

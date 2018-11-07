@@ -75,7 +75,7 @@ class GroupSnaphotsV314RbacTest(BaseGroupSnapshotsRbacTest):
     def setup_clients(cls):
         super(GroupSnaphotsV314RbacTest, cls).setup_clients()
         cls.group_snapshot_client = \
-            cls.os_primary.group_snapshots_v3_client
+            cls.os_primary.group_snapshots_client_latest
 
     def setUp(self):
         super(GroupSnaphotsV314RbacTest, self).setUp()
@@ -172,7 +172,7 @@ class GroupSnaphotsV319RbacTest(BaseGroupSnapshotsRbacTest):
     def setup_clients(cls):
         super(GroupSnaphotsV319RbacTest, cls).setup_clients()
         cls.group_snapshot_client = \
-            cls.os_primary.group_snapshots_v3_client
+            cls.os_primary.group_snapshots_client_latest
 
     def setUp(self):
         super(GroupSnaphotsV319RbacTest, self).setUp()

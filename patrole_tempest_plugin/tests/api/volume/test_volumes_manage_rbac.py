@@ -41,7 +41,7 @@ class VolumesManageV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(VolumesManageV3RbacTest, cls).setup_clients()
-        cls.volume_manage_client = cls.os_primary.volume_manage_v2_client
+        cls.volume_manage_client = cls.os_primary.volume_manage_client_latest
 
     def _manage_volume(self, org_volume):
         # Manage volume

@@ -40,7 +40,8 @@ class SnapshotManageRbacTest(rbac_base.BaseVolumeRbacTest):
     @classmethod
     def setup_clients(cls):
         super(SnapshotManageRbacTest, cls).setup_clients()
-        cls.snapshot_manage_client = cls.os_primary.snapshot_manage_v2_client
+        cls.snapshot_manage_client = \
+            cls.os_primary.snapshot_manage_client_latest
 
     @classmethod
     def resource_setup(cls):
