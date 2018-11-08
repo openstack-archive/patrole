@@ -17,6 +17,7 @@ import os
 from tempest.lib import exceptions
 from tempest.tests import base
 
+from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import requirements_authority as req_auth
 
 
@@ -50,17 +51,17 @@ class RequirementsAuthorityTest(BaseRequirementsAuthorityTest):
                           self.rbac_auth.allowed, "", [""])
 
     def test_auth_allowed_role_in_api(self):
-        self.rbac_auth.roles_dict = {'api': [['_member_']]}
-        self.assertTrue(self.rbac_auth.allowed("api", ["_member_"]))
+        self.rbac_auth.roles_dict = {'rule': [['_member_']]}
+        self.assertTrue(self.rbac_auth.allowed("rule", ["_member_"]))
 
     def test_auth_allowed_role_not_in_api(self):
-        self.rbac_auth.roles_dict = {'api': [['_member_']]}
-        self.assertFalse(self.rbac_auth.allowed("api", "support_member"))
+        self.rbac_auth.roles_dict = {'rule': [['_member_']]}
+        self.assertFalse(self.rbac_auth.allowed("rule", "support_member"))
 
-    def test_parser_get_allowed_except_keyerror(self):
-        self.rbac_auth.roles_dict = {}
-        self.assertRaises(KeyError, self.rbac_auth.allowed,
-                          "api", "support_member")
+    def test_parser_get_allowed_invalid_rule_raises_parsing_exception(self):
+        self.rbac_auth.roles_dict = {"foo": "bar"}
+        self.assertRaises(rbac_exceptions.RbacParsingException,
+                          self.rbac_auth.allowed, "baz", "support_member")
 
     def test_parser_init(self):
         req_auth.RequirementsParser(self.yaml_test_file)
@@ -90,7 +91,7 @@ class RequirementsAuthorityTest(BaseRequirementsAuthorityTest):
         self.rbac_auth.roles_dict = \
             req_auth.RequirementsParser.parse("Failure")
 
-        self.assertIsNone(self.rbac_auth.roles_dict)
+        self.assertFalse(self.rbac_auth.roles_dict)
         self.assertRaises(exceptions.InvalidConfiguration,
                           self.rbac_auth.allowed, "", [""])
 
@@ -99,10 +100,10 @@ class RequirementsAuthorityTest(BaseRequirementsAuthorityTest):
         considered as part of role itself.
         """
 
-        self.rbac_auth.roles_dict = {'api': [['!admin']]}
-        self.assertTrue(self.rbac_auth.allowed("api", ["member"]))
-        self.assertTrue(self.rbac_auth.allowed("api", ["!admin"]))
-        self.assertFalse(self.rbac_auth.allowed("api", ["admin"]))
+        self.rbac_auth.roles_dict = {'rule': [['!admin']]}
+        self.assertTrue(self.rbac_auth.allowed("rule", ["member"]))
+        self.assertTrue(self.rbac_auth.allowed("rule", ["!admin"]))
+        self.assertFalse(self.rbac_auth.allowed("rule", ["admin"]))
 
 
 class RequirementsAuthorityMultiRoleTest(BaseRequirementsAuthorityTest):
@@ -112,39 +113,39 @@ class RequirementsAuthorityMultiRoleTest(BaseRequirementsAuthorityTest):
         considered as part of role itself.
         """
 
-        self.rbac_auth.roles_dict = {'api': [['member', '!admin']]}
-        self.assertFalse(self.rbac_auth.allowed("api", ["member", "admin"]))
-        self.assertTrue(self.rbac_auth.allowed("api", ["member", "!admin"]))
+        self.rbac_auth.roles_dict = {'rule': [['member', '!admin']]}
+        self.assertFalse(self.rbac_auth.allowed("rule", ["member", "admin"]))
+        self.assertTrue(self.rbac_auth.allowed("rule", ["member", "!admin"]))
 
     def test_auth_allowed_single_rule_scenario(self):
         # member and support and not admin and not manager
-        self.rbac_auth.roles_dict = {'api': [['member', 'support',
-                                              '!admin', '!manager']]}
+        self.rbac_auth.roles_dict = {'rule': [['member', 'support',
+                                               '!admin', '!manager']]}
 
         # User is member and support and not manager or admin
-        self.assertTrue(self.rbac_auth.allowed("api", ["member",
-                                                       "support"]))
+        self.assertTrue(self.rbac_auth.allowed("rule", ["member",
+                                                        "support"]))
 
         # User is member and not manager or admin, but not support
-        self.assertFalse(self.rbac_auth.allowed("api", ["member"]))
+        self.assertFalse(self.rbac_auth.allowed("rule", ["member"]))
 
         # User is support and not manager or admin, but not member
-        self.assertFalse(self.rbac_auth.allowed("api", ["support"]))
+        self.assertFalse(self.rbac_auth.allowed("rule", ["support"]))
 
         # User is member and support and not manager, but have admin role
-        self.assertFalse(self.rbac_auth.allowed("api", ["member",
-                                                        "support",
-                                                        "admin"]))
+        self.assertFalse(self.rbac_auth.allowed("rule", ["member",
+                                                         "support",
+                                                         "admin"]))
 
         # User is member and not manager, but have admin role and not support
-        self.assertFalse(self.rbac_auth.allowed("api", ["member",
-                                                        "admin"]))
+        self.assertFalse(self.rbac_auth.allowed("rule", ["member",
+                                                         "admin"]))
 
         # User is member and support, but have manager and admin roles
-        self.assertFalse(self.rbac_auth.allowed("api", ["member",
-                                                        "support",
-                                                        "admin",
-                                                        "manager"]))
+        self.assertFalse(self.rbac_auth.allowed("rule", ["member",
+                                                         "support",
+                                                         "admin",
+                                                         "manager"]))
 
     def test_auth_allowed_multi_rule_scenario(self):
         rules = [
@@ -152,36 +153,36 @@ class RequirementsAuthorityMultiRoleTest(BaseRequirementsAuthorityTest):
             ['member', 'admin'],
             ["manager"]
         ]
-        self.rbac_auth.roles_dict = {'api': rules}
+        self.rbac_auth.roles_dict = {'rule': rules}
 
         # Not a single role allows viewer
-        self.assertFalse(self.rbac_auth.allowed("api", ["viewer"]))
+        self.assertFalse(self.rbac_auth.allowed("rule", ["viewer"]))
         # We have no rule that allows support and admin
-        self.assertFalse(self.rbac_auth.allowed("api", ["support",
-                                                        "admin"]))
+        self.assertFalse(self.rbac_auth.allowed("rule", ["support",
+                                                         "admin"]))
         # There is no rule that requires member without additional requirements
-        self.assertFalse(self.rbac_auth.allowed("api", ["member"]))
+        self.assertFalse(self.rbac_auth.allowed("rule", ["member"]))
 
         # Pass with rules[2]
-        self.assertTrue(self.rbac_auth.allowed("api", ["manager"]))
+        self.assertTrue(self.rbac_auth.allowed("rule", ["manager"]))
         # Pass with rules[0]
-        self.assertTrue(self.rbac_auth.allowed("api", ["member",
-                                                       "support"]))
+        self.assertTrue(self.rbac_auth.allowed("rule", ["member",
+                                                        "support"]))
         # Pass with rules[1]
-        self.assertTrue(self.rbac_auth.allowed("api", ["member",
-                                                       "admin"]))
+        self.assertTrue(self.rbac_auth.allowed("rule", ["member",
+                                                        "admin"]))
         # Pass with rules[2]
-        self.assertTrue(self.rbac_auth.allowed("api", ["manager",
-                                                       "admin"]))
+        self.assertTrue(self.rbac_auth.allowed("rule", ["manager",
+                                                        "admin"]))
         # Pass with rules[1]
-        self.assertTrue(self.rbac_auth.allowed("api", ["member",
-                                                       "support",
-                                                       "admin"]))
+        self.assertTrue(self.rbac_auth.allowed("rule", ["member",
+                                                        "support",
+                                                        "admin"]))
         # Pass with rules[1]
-        self.assertTrue(self.rbac_auth.allowed("api", ["member",
-                                                       "support",
-                                                       "admin",
-                                                       "manager"]))
+        self.assertTrue(self.rbac_auth.allowed("rule", ["member",
+                                                        "support",
+                                                        "admin",
+                                                        "manager"]))
         # Pass with rules[2]
-        self.assertTrue(self.rbac_auth.allowed("api", ["admin",
-                                                       "manager"]))
+        self.assertTrue(self.rbac_auth.allowed("rule", ["admin",
+                                                        "manager"]))

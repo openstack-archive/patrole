@@ -18,9 +18,10 @@ import yaml
 from oslo_log import log as logging
 
 from tempest import config
-from tempest.lib import exceptions
+from tempest.lib import exceptions as lib_exc
 
 from patrole_tempest_plugin.rbac_authority import RbacAuthority
+from patrole_tempest_plugin import rbac_exceptions
 
 CONF = config.CONF
 LOG = logging.getLogger(__name__)
@@ -81,7 +82,7 @@ class RequirementsParser(object):
         except yaml.parser.ParserError:
             LOG.error("Error while parsing the requirements YAML file. Did "
                       "you pass a valid component name from the test case?")
-        return None
+        return {}
 
 
 class RequirementsAuthority(RbacAuthority):
@@ -98,10 +99,10 @@ class RequirementsAuthority(RbacAuthority):
             Defaults to ``[patrole].custom_requirements_file``.
         :param str component: Name of the OpenStack service to be validated.
         """
-        filepath = filepath or CONF.patrole.custom_requirements_file
-
+        self.filepath = filepath or CONF.patrole.custom_requirements_file
         if component is not None:
-            self.roles_dict = RequirementsParser(filepath).parse(component)
+            self.roles_dict = RequirementsParser(self.filepath).parse(
+                component)
         else:
             self.roles_dict = None
 
@@ -116,33 +117,34 @@ class RequirementsAuthority(RbacAuthority):
         :returns: True if ``role`` is allowed to perform ``rule_name``, else
             False.
         :rtype: bool
-        :raises KeyError: If ``rule_name`` does not exist among the keyed
-            policy names in the custom requirements file.
+        :raises RbacParsingException: If ``rule_name`` does not exist among the
+            keyed policy names in the custom requirements file.
         """
-        if self.roles_dict is None:
-            raise exceptions.InvalidConfiguration(
+        if not self.roles_dict:
+            raise lib_exc.InvalidConfiguration(
                 "Roles dictionary parsed from requirements YAML file is "
                 "empty. Ensure the requirements YAML file is correctly "
                 "formatted.")
         try:
             requirement_roles = self.roles_dict[rule_name]
-
-            for role_reqs in requirement_roles:
-                required_roles = [
-                    role for role in role_reqs if not role.startswith("!")]
-                forbidden_roles = [
-                    role[1:] for role in role_reqs if role.startswith("!")]
-
-                # User must have all required roles
-                required_passed = all([r in roles for r in required_roles])
-                # User must not have any forbidden roles
-                forbidden_passed = all([r not in forbidden_roles
-                                        for r in roles])
-
-                if required_passed and forbidden_passed:
-                    return True
-
-            return False
         except KeyError:
-            raise KeyError("'%s' API is not defined in the requirements YAML "
-                           "file" % rule_name)
+            raise rbac_exceptions.RbacParsingException(
+                "'%s' rule name is not defined in the requirements YAML file: "
+                "%s" % (rule_name, self.filepath))
+
+        for role_reqs in requirement_roles:
+            required_roles = [
+                role for role in role_reqs if not role.startswith("!")]
+            forbidden_roles = [
+                role[1:] for role in role_reqs if role.startswith("!")]
+
+            # User must have all required roles
+            required_passed = all([r in roles for r in required_roles])
+            # User must not have any forbidden roles
+            forbidden_passed = all([r not in forbidden_roles
+                                    for r in roles])
+
+            if required_passed and forbidden_passed:
+                return True
+
+        return False
