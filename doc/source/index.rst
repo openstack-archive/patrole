@@ -17,6 +17,7 @@ RBAC Overview
    :maxdepth: 2
 
    rbac-overview
+   multi-policy-validation
 
 User's Guide
 ============
