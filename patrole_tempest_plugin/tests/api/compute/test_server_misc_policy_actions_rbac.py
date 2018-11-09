@@ -143,7 +143,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         expected_attr = 'config_drive'
         # If the first server contains "config_drive", then all the others do.
         if expected_attr not in body[0]:
-            raise rbac_exceptions.RbacMalformedResponse(
+            raise rbac_exceptions.RbacMissingAttributeResponseBody(
                 attribute=expected_attr)
 
     @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
@@ -159,7 +159,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             body = self.servers_client.show_server(self.server['id'])['server']
         expected_attr = 'config_drive'
         if expected_attr not in body:
-            raise rbac_exceptions.RbacMalformedResponse(
+            raise rbac_exceptions.RbacMissingAttributeResponseBody(
                 attribute=expected_attr)
 
     @utils.requires_ext(extension='os-deferred-delete', service='compute')
@@ -188,7 +188,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             body = self.servers_client.list_servers(detail=True)['servers']
         # If the first server contains `expected_attr`, then all the others do.
         if expected_attr not in body[0]:
-            raise rbac_exceptions.RbacMalformedResponse(
+            raise rbac_exceptions.RbacMissingAttributeResponseBody(
                 attribute=expected_attr)
 
     @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
@@ -205,7 +205,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         with self.rbac_utils.override_role(self):
             body = self.servers_client.show_server(self.server['id'])['server']
         if expected_attr not in body:
-            raise rbac_exceptions.RbacMalformedResponse(
+            raise rbac_exceptions.RbacMissingAttributeResponseBody(
                 attribute=expected_attr)
 
     @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
@@ -229,7 +229,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         for attr in ('host', 'instance_name'):
             whole_attr = 'OS-EXT-SRV-ATTR:%s' % attr
             if whole_attr not in body[0]:
-                raise rbac_exceptions.RbacMalformedResponse(
+                raise rbac_exceptions.RbacMissingAttributeResponseBody(
                     attribute=whole_attr)
 
     @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
@@ -253,7 +253,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         for attr in ('host', 'instance_name'):
             whole_attr = 'OS-EXT-SRV-ATTR:%s' % attr
             if whole_attr not in body:
-                raise rbac_exceptions.RbacMalformedResponse(
+                raise rbac_exceptions.RbacMissingAttributeResponseBody(
                     attribute=whole_attr)
 
     @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
@@ -272,7 +272,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                           'OS-EXT-STS:power_state')
         for attr in expected_attrs:
             if attr not in body[0]:
-                raise rbac_exceptions.RbacMalformedResponse(
+                raise rbac_exceptions.RbacMissingAttributeResponseBody(
                     attribute=attr)
 
     @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
@@ -291,7 +291,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                           'OS-EXT-STS:power_state')
         for attr in expected_attrs:
             if attr not in body:
-                raise rbac_exceptions.RbacMalformedResponse(
+                raise rbac_exceptions.RbacMissingAttributeResponseBody(
                     attribute=attr)
 
     @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
@@ -310,7 +310,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         with self.rbac_utils.override_role(self):
             body = self.servers_client.list_servers(detail=True)['servers']
         if expected_attr not in body[0]:
-            raise rbac_exceptions.RbacMalformedResponse(
+            raise rbac_exceptions.RbacMissingAttributeResponseBody(
                 attribute=expected_attr)
 
     @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
@@ -329,7 +329,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         with self.rbac_utils.override_role(self):
             body = self.servers_client.show_server(self.server['id'])['server']
         if expected_attr not in body:
-            raise rbac_exceptions.RbacMalformedResponse(
+            raise rbac_exceptions.RbacMissingAttributeResponseBody(
                 attribute=expected_attr)
 
     @utils.requires_ext(extension='os-instance-actions', service='compute')
@@ -360,12 +360,12 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
                 self.server['id'], request_id)['instanceAction']
 
         if 'events' not in instance_action:
-            raise rbac_exceptions.RbacMalformedResponse(
+            raise rbac_exceptions.RbacMissingAttributeResponseBody(
                 attribute='events')
         # Microversion 2.51+ returns 'events' always, but not 'traceback'. If
         # 'traceback' is also present then policy enforcement passed.
         if 'traceback' not in instance_action['events'][0]:
-            raise rbac_exceptions.RbacMalformedResponse(
+            raise rbac_exceptions.RbacMissingAttributeResponseBody(
                 attribute='events.traceback')
 
     @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
@@ -379,7 +379,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             result = self.servers_client.show_server(self.server['id'])[
                 'server']
         if 'key_name' not in result:
-            raise rbac_exceptions.RbacMalformedResponse(
+            raise rbac_exceptions.RbacMissingAttributeResponseBody(
                 attribute='key_name')
 
     @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
@@ -392,7 +392,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         with self.rbac_utils.override_role(self):
             result = self.servers_client.list_servers(detail=True)['servers']
         if 'key_name' not in result[0]:
-            raise rbac_exceptions.RbacMalformedResponse(
+            raise rbac_exceptions.RbacMissingAttributeResponseBody(
                 attribute='key_name')
 
     @rbac_rule_validation.action(
@@ -514,7 +514,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             body = self.servers_client.show_server(self.server['id'])['server']
         for expected_attr in expected_attrs:
             if expected_attr not in body:
-                raise rbac_exceptions.RbacMalformedResponse(
+                raise rbac_exceptions.RbacMissingAttributeResponseBody(
                     attribute=expected_attr)
 
     @utils.requires_ext(extension='os-simple-tenant-usage', service='compute')

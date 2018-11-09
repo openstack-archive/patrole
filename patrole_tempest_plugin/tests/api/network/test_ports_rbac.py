@@ -183,7 +183,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
 
         # Rather than throwing a 403, the field is not present, so raise exc.
         if fields[0] not in retrieved_port:
-            raise rbac_exceptions.RbacMalformedResponse(
+            raise rbac_exceptions.RbacMissingAttributeResponseBody(
                 attribute='binding:vif_type')
 
     @utils.requires_ext(extension='binding', service='network')
@@ -203,7 +203,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
 
         # Rather than throwing a 403, the field is not present, so raise exc.
         if fields[0] not in retrieved_port:
-            raise rbac_exceptions.RbacMalformedResponse(
+            raise rbac_exceptions.RbacMissingAttributeResponseBody(
                 attribute='binding:vif_details')
 
     @utils.requires_ext(extension='binding', service='network')
@@ -226,7 +226,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
 
         # Rather than throwing a 403, the field is not present, so raise exc.
         if fields[0] not in retrieved_port:
-            raise rbac_exceptions.RbacMalformedResponse(
+            raise rbac_exceptions.RbacMissingAttributeResponseBody(
                 attribute='binding:host_id')
 
     @utils.requires_ext(extension='binding', service='network')
@@ -250,7 +250,7 @@ class PortsRbacTest(base.BaseNetworkRbacTest):
 
         # Rather than throwing a 403, the field is not present, so raise exc.
         if fields[0] not in retrieved_port:
-            raise rbac_exceptions.RbacMalformedResponse(
+            raise rbac_exceptions.RbacMissingAttributeResponseBody(
                 attribute='binding:profile')
 
     @rbac_rule_validation.action(service="neutron",

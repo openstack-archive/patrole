@@ -208,7 +208,7 @@ class GroupTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
             group_type = self.create_group_type(ignore_notfound=True)
 
         if 'group_specs' not in group_type:
-            raise rbac_exceptions.RbacMalformedResponse(
+            raise rbac_exceptions.RbacMissingAttributeResponseBody(
                 attribute='group_specs')
 
     @decorators.idempotent_id('8d9e2831-24c3-47b7-a76a-2e563287f12f')
@@ -221,5 +221,5 @@ class GroupTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
             resp_body = self.group_types_client.show_group_type(
                 group_type['id'])['group_type']
         if 'group_specs' not in resp_body:
-            raise rbac_exceptions.RbacMalformedResponse(
+            raise rbac_exceptions.RbacMissingAttributeResponseBody(
                 attribute='group_specs')

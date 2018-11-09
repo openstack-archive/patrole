@@ -73,7 +73,7 @@ class SubnetsRbacTest(base.BaseNetworkRbacTest):
 
         # Neutron may return an empty list if access is denied.
         if not subnets['subnets']:
-            raise rbac_exceptions.RbacMalformedResponse(empty=True)
+            raise rbac_exceptions.RbacEmptyResponseBody()
 
     @decorators.idempotent_id('f36cd821-dd22-4bd0-b43d-110fc4b553eb')
     @rbac_rule_validation.action(service="neutron",

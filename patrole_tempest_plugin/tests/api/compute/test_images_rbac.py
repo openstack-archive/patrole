@@ -294,7 +294,7 @@ class ImageSizeRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
         expected_attr = 'OS-EXT-IMG-SIZE:size'
         if expected_attr not in body:
-            raise rbac_exceptions.RbacMalformedResponse(
+            raise rbac_exceptions.RbacMissingAttributeResponseBody(
                 attribute=expected_attr)
 
     @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
@@ -310,5 +310,5 @@ class ImageSizeRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
         expected_attr = 'OS-EXT-IMG-SIZE:size'
         if expected_attr not in body[0]:
-            raise rbac_exceptions.RbacMalformedResponse(
+            raise rbac_exceptions.RbacMissingAttributeResponseBody(
                 attribute=expected_attr)

@@ -118,4 +118,4 @@ class NetworkSegmentsRbacTest(base.BaseNetworkRbacTest):
             LOG.info("NotFound or Forbidden exception are not thrown when "
                      "role doesn't have access to the endpoint. Instead, "
                      "the response will have an empty network body.")
-            raise rbac_exceptions.RbacMalformedResponse(empty=True)
+            raise rbac_exceptions.RbacEmptyResponseBody()

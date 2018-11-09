@@ -51,4 +51,5 @@ class LimitsV3RbacTest(rbac_base.BaseVolumeRbacTest):
                 'limits']['absolute']
         for key in expected_keys:
             if key not in absolute_limits:
-                raise rbac_exceptions.RbacMalformedResponse(attribute=key)
+                raise rbac_exceptions.RbacMissingAttributeResponseBody(
+                    attribute=key)

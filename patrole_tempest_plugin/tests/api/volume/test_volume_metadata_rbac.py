@@ -111,7 +111,7 @@ class VolumeMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
                 'volumes']
         expected_attr = 'volume_image_metadata'
         if expected_attr not in resp_body[0]:
-            raise rbac_exceptions.RbacMalformedResponse(
+            raise rbac_exceptions.RbacMissingAttributeResponseBody(
                 attribute=expected_attr)
 
     @decorators.idempotent_id('53f94d52-0dd5-42cf-a3a4-59b35150b3d5')
@@ -129,7 +129,7 @@ class VolumeMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
                 'volume']
         expected_attr = 'volume_image_metadata'
         if expected_attr not in resp_body:
-            raise rbac_exceptions.RbacMalformedResponse(
+            raise rbac_exceptions.RbacMissingAttributeResponseBody(
                 attribute=expected_attr)
 
     @decorators.idempotent_id('a9d9e825-5ea3-42e6-96f3-7ac4e97b2ed0')

@@ -46,8 +46,9 @@ class BaseRBACRuleValidationTest(base.TestCase):
                                project_id=mock.sentinel.project_id)
         setattr(self.mock_test_args.os_primary, 'credentials', mock_creds)
 
+        self.test_roles = ['member']
         self.useFixture(
-            patrole_fixtures.ConfPatcher(rbac_test_roles=['member'],
+            patrole_fixtures.ConfPatcher(rbac_test_roles=self.test_roles,
                                          group='patrole'))
         # Disable patrole log for unit tests.
         self.useFixture(
@@ -69,9 +70,10 @@ class BaseRBACMultiRoleRuleValidationTest(base.TestCase):
                                project_id=mock.sentinel.project_id)
         setattr(self.mock_test_args.os_primary, 'credentials', mock_creds)
 
+        self.test_roles = ['member', 'anotherrole']
         self.useFixture(
-            patrole_fixtures.ConfPatcher(
-                rbac_test_roles=['member', 'anotherrole'], group='patrole'))
+            patrole_fixtures.ConfPatcher(rbac_test_roles=self.test_roles,
+                                         group='patrole'))
         # Disable patrole log for unit tests.
         self.useFixture(
             patrole_fixtures.ConfPatcher(enable_reporting=False,
@@ -150,43 +152,66 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
     @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
-    def test_rule_validation_rbac_malformed_response_positive(
+    def test_rule_validation_rbac_failed_response_body_positive(
             self, mock_authority, mock_log):
-        """Test RbacMalformedResponse error is thrown without permission
-        passes.
+        """Test BasePatroleResponseBodyException error is thrown without
+        permission passes.
 
-        Positive test case: if RbacMalformedResponse is thrown and the user is
-        not allowed to perform the action, then this is a success.
+        Positive test case: if subclass of BasePatroleResponseBodyException is
+        thrown and the user is not allowed to perform the action, then this is
+        a success.
         """
         mock_authority.PolicyAuthority.return_value.allowed.return_value =\
             False
 
-        @rbac_rv.action(mock.sentinel.service, rules=[mock.sentinel.action])
-        def test_policy(*args):
-            raise rbac_exceptions.RbacMalformedResponse()
+        def _do_test(exception_cls, **kwargs):
+            @rbac_rv.action(mock.sentinel.service,
+                            rules=[mock.sentinel.action])
+            def test_policy(*args):
+                raise exception_cls(**kwargs)
 
-        mock_log.error.assert_not_called()
+            mock_log.error.assert_not_called()
+            mock_log.warning.assert_not_called()
+
+        _do_test(rbac_exceptions.RbacMissingAttributeResponseBody,
+                 attribute=mock.sentinel.attr)
+        _do_test(rbac_exceptions.RbacPartialResponseBody,
+                 body=mock.sentinel.body)
+        _do_test(rbac_exceptions.RbacEmptyResponseBody)
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
     @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
-    def test_rule_validation_rbac_malformed_response_negative(
+    def test_rule_validation_soft_authorization_exceptions(
             self, mock_authority, mock_log):
-        """Test RbacMalformedResponse error is thrown with permission fails.
+        """Test RbacUnderPermissionException error is thrown when any of the
+        soft authorization-related exceptions are raised by a test.
 
-        Negative test case: if RbacMalformedResponse is thrown and the user is
-        allowed to perform the action, then this is an expected failure.
+        Negative test case: if subclass of BasePatroleResponseBodyException is
+        thrown and the user is allowed to perform the action, then this is an
+        expected failure.
         """
         mock_authority.PolicyAuthority.return_value.allowed.return_value = True
 
-        @rbac_rv.action(mock.sentinel.service, rules=[mock.sentinel.action])
-        def test_policy(*args):
-            raise rbac_exceptions.RbacMalformedResponse()
+        def _do_test(exception_cls, **kwargs):
+            @rbac_rv.action(mock.sentinel.service,
+                            rules=[mock.sentinel.action])
+            def test_policy(*args):
+                raise exception_cls(**kwargs)
 
-        test_re = ("User with roles \['member'\] was not allowed to perform "
-                   "the following actions: \[%s\]. " % (mock.sentinel.action))
-        self.assertRaisesRegex(rbac_exceptions.RbacUnderPermissionException,
-                               test_re, test_policy, self.mock_test_args)
-        self.assertRegex(mock_log.error.mock_calls[0][1][0], test_re)
+            test_re = (".*User with roles \[%s\] was not allowed to "
+                       "perform the following actions: \[%s\].*" % (
+                           ', '.join("'%s'" % r for r in self.test_roles),
+                           mock.sentinel.action))
+            self.assertRaisesRegex(
+                rbac_exceptions.RbacUnderPermissionException, test_re,
+                test_policy, self.mock_test_args)
+            self.assertRegex(mock_log.error.mock_calls[0][1][0], test_re)
+
+        _do_test(rbac_exceptions.RbacMissingAttributeResponseBody,
+                 attribute=mock.sentinel.attr)
+        _do_test(rbac_exceptions.RbacPartialResponseBody,
+                 body=mock.sentinel.body)
+        _do_test(rbac_exceptions.RbacEmptyResponseBody)
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
     @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
@@ -395,28 +420,6 @@ class RBACMultiRoleRuleValidationTest(BaseRBACMultiRoleRuleValidationTest,
         self.assertRaisesRegex(
             rbac_exceptions.RbacUnderPermissionException, test_re, test_policy,
             self.mock_test_args)
-        self.assertRegex(mock_log.error.mock_calls[0][1][0], test_re)
-
-    @mock.patch.object(rbac_rv, 'LOG', autospec=True)
-    @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
-    def test_rule_validation_rbac_malformed_response_negative(
-            self, mock_authority, mock_log):
-        """Test RbacMalformedResponse error is thrown with permission fails.
-
-        Negative test case: if RbacMalformedResponse is thrown and the user is
-        allowed to perform the action, then this is an expected failure.
-        """
-        mock_authority.PolicyAuthority.return_value.allowed.return_value = True
-
-        @rbac_rv.action(mock.sentinel.service, rules=[mock.sentinel.action])
-        def test_policy(*args):
-            raise rbac_exceptions.RbacMalformedResponse()
-
-        test_re = ("User with roles \['member', 'anotherrole'\] was not "
-                   "allowed to perform the following actions: \[%s\]. " %
-                   (mock.sentinel.action))
-        self.assertRaisesRegex(rbac_exceptions.RbacUnderPermissionException,
-                               test_re, test_policy, self.mock_test_args)
         self.assertRegex(mock_log.error.mock_calls[0][1][0], test_re)
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
@@ -960,7 +963,7 @@ class RBACOverrideRoleValidationTest(BaseRBACRuleValidationTest):
     def test_rule_validation_override_role_patrole_exception_ignored(
             self, mock_authority):
         """Test success case where Patrole exception is raised (which is
-        valid in case of e.g. RbacMalformedException) after override_role
+        valid in case of e.g. RbacPartialResponseBody) after override_role
         passes.
         """
         mock_authority.PolicyAuthority.return_value.allowed.return_value =\

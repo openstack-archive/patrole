@@ -126,7 +126,7 @@ class SecGroupRbacTest(base.BaseNetworkRbacTest):
 
         # Neutron may return an empty list if access is denied.
         if not security_groups['security_groups']:
-            raise rbac_exceptions.RbacMalformedResponse(empty=True)
+            raise rbac_exceptions.RbacEmptyResponseBody()
 
     @rbac_rule_validation.action(service="neutron",
                                  rules=["create_security_group_rule"])
@@ -170,4 +170,4 @@ class SecGroupRbacTest(base.BaseNetworkRbacTest):
 
         # Neutron may return an empty list if access is denied.
         if not security_rules['security_group_rules']:
-            raise rbac_exceptions.RbacMalformedResponse(empty=True)
+            raise rbac_exceptions.RbacEmptyResponseBody()
