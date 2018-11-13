@@ -173,7 +173,9 @@ class FlavorsServiceProfileExtRbacTest(base.BaseNetworkExtRbacTest):
 
     @decorators.idempotent_id('3b680d9e-946a-4670-ab7f-0e4576675833')
     @rbac_rule_validation.action(service="neutron",
-                                 rules=["delete_flavor_service_profile"])
+                                 rules=["get_flavor_service_profile",
+                                        "delete_flavor_service_profile"],
+                                 expected_error_codes=[404, 403])
     def test_delete_flavor_service_profile(self):
         """Delete flavor_service_profile.
 
