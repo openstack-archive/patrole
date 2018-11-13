@@ -20,11 +20,11 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.network import rbac_base as base
 
 
-class AutoAllocationTopologyPluginRbacTest(base.BaseNetworkPluginRbacTest):
+class AutoAllocationTopologyExtRbacTest(base.BaseNetworkExtRbacTest):
 
     @classmethod
     def skip_checks(cls):
-        super(AutoAllocationTopologyPluginRbacTest, cls).skip_checks()
+        super(AutoAllocationTopologyExtRbacTest, cls).skip_checks()
         if not utils.is_extension_enabled('auto-allocated-topology',
                                           'network'):
             msg = "auto-allocated-topology extension not enabled."

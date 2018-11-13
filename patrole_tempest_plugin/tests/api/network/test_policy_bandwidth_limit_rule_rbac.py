@@ -22,18 +22,18 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.network import rbac_base as base
 
 
-class PolicyBandwidthLimitRulePluginRbacTest(base.BaseNetworkPluginRbacTest):
+class PolicyBandwidthLimitRuleExtRbacTest(base.BaseNetworkExtRbacTest):
 
     @classmethod
     def skip_checks(cls):
-        super(PolicyBandwidthLimitRulePluginRbacTest, cls).skip_checks()
+        super(PolicyBandwidthLimitRuleExtRbacTest, cls).skip_checks()
         if not utils.is_extension_enabled('qos', 'network'):
             msg = "qos extension not enabled."
             raise cls.skipException(msg)
 
     @classmethod
     def resource_setup(cls):
-        super(PolicyBandwidthLimitRulePluginRbacTest, cls).resource_setup()
+        super(PolicyBandwidthLimitRuleExtRbacTest, cls).resource_setup()
         name = data_utils.rand_name(cls.__class__.__name__ + '-qos-policy')
         cls.policy_id = cls.ntp_client.create_qos_policy(
             name=name)["policy"]["id"]

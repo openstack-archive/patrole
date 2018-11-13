@@ -10,7 +10,7 @@ These tests are RBAC tests for Neutron and its associated plugins. They are
 broken up into the following categories:
 
 * :ref:`neutron-rbac-tests`
-* :ref:`neutron-plugin-rbac-tests`
+* :ref:`neutron-extension-rbac-tests`
 
 .. _neutron-rbac-tests:
 
@@ -22,18 +22,16 @@ test many of the Neutron policies found in the service's `policy.json file`_.
 These tests are gated in many `Zuul jobs`_ (master, n-1, n-2) against many
 roles (member, admin).
 
-.. _neutron-plugin-rbac-tests:
+.. _neutron-extension-rbac-tests:
 
-Neutron plugin tests
-^^^^^^^^^^^^^^^^^^^^
+Neutron extension tests
+^^^^^^^^^^^^^^^^^^^^^^^
 
 The Neutron RBAC plugin tests focus on testing RBAC for various Neutron
-extensions and plugins, or, stated differently:
+extensions, or, stated differently: tests that rely on
+`neutron-tempest-plugin`_.
 
-* tests that rely on `neutron-tempest-plugin`_
-* external Neutron plugins
-
-These tests inherit from the base class ``BaseNetworkPluginRbacTest``. If an
+These tests inherit from the base class ``BaseNetworkExtRbacTest``. If an
 extension or plugin is not enabled in the cloud, the corresponding tests are
 gracefully skipped.
 

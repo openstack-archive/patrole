@@ -23,18 +23,18 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.network import rbac_base as base
 
 
-class SegmentsPluginRbacTest(base.BaseNetworkPluginRbacTest):
+class SegmentsExtRbacTest(base.BaseNetworkExtRbacTest):
 
     @classmethod
     def skip_checks(cls):
-        super(SegmentsPluginRbacTest, cls).skip_checks()
+        super(SegmentsExtRbacTest, cls).skip_checks()
         if not utils.is_extension_enabled('segment', 'network'):
             msg = "segment extension not enabled."
             raise cls.skipException(msg)
 
     @classmethod
     def resource_setup(cls):
-        super(SegmentsPluginRbacTest, cls).resource_setup()
+        super(SegmentsExtRbacTest, cls).resource_setup()
         cls.network = cls.create_network()
 
     @classmethod

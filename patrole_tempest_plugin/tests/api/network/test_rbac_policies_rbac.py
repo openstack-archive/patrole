@@ -20,11 +20,11 @@ from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.network import rbac_base as base
 
 
-class RbacPoliciesPluginRbacTest(base.BaseNetworkPluginRbacTest):
+class RbacPoliciesExtRbacTest(base.BaseNetworkExtRbacTest):
 
     @classmethod
     def resource_setup(cls):
-        super(RbacPoliciesPluginRbacTest, cls).resource_setup()
+        super(RbacPoliciesExtRbacTest, cls).resource_setup()
         cls.tenant_id = cls.os_primary.credentials.tenant_id
         cls.network_id = cls.create_network()['id']
 

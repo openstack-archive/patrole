@@ -36,8 +36,8 @@ RBAC_CLASS_NAME_RE = re.compile(r'class .+RbacTest')
 RULE_VALIDATION_DECORATOR = re.compile(
     r'\s*@rbac_rule_validation.action\(.*')
 IDEMPOTENT_ID_DECORATOR = re.compile(r'\s*@decorators\.idempotent_id\((.*)\)')
-PLUGIN_RBAC_TEST = re.compile(
-    r"class .+\(.+PluginRbacTest\)|class .+PluginRbacTest\(.+\)")
+EXT_RBAC_TEST = re.compile(
+    r"class .+\(.+ExtRbacTest\)|class .+ExtRbacTest\(.+\)")
 
 have_rbac_decorator = False
 
@@ -213,15 +213,15 @@ def no_client_alias_in_test_cases(logical_line, filename):
             return 0, "Do not use 'self.client' as a service client alias"
 
 
-def no_plugin_rbac_test_suffix_in_plugin_test_class_name(physical_line,
-                                                         filename):
-    """Check that Plugin RBAC class names end with "PluginRbacTest"
+def no_extension_rbac_test_suffix_in_plugin_test_class_name(physical_line,
+                                                            filename):
+    """Check that Extension RBAC class names end with "ExtRbacTest"
 
     P104
     """
-    suffix = "PluginRbacTest"
+    suffix = "ExtRbacTest"
     if "patrole_tempest_plugin/tests/api" in filename:
-        if PLUGIN_RBAC_TEST.match(physical_line):
+        if EXT_RBAC_TEST.match(physical_line):
             subclass, superclass = physical_line.split('(')
             subclass = subclass.split('class')[1].strip()
             superclass = superclass.split(')')[0].strip()
@@ -238,16 +238,16 @@ def no_plugin_rbac_test_suffix_in_plugin_test_class_name(physical_line,
                         superclass.startswith("Base")):
                     return
 
-                # Case 1: Subclass of "BasePluginRbacTest" must end in `suffix`
+                # Case 1: Subclass of "BaseExtRbacTest" must end in `suffix`
                 # Case 2: Subclass that ends in `suffix` must inherit from base
                 # class ending in `suffix`.
                 if not subclass.endswith(suffix):
                     error = ("Plugin RBAC test subclasses must end in "
-                             "'PluginRbacTest'")
+                             "'ExtRbacTest'")
                     return len(subclass) - 1, error
                 elif not superclass.endswith(suffix):
                     error = ("Plugin RBAC test subclasses must inherit from a "
-                             "'PluginRbacTest' base class")
+                             "'ExtRbacTest' base class")
                     return len(superclass) - 1, error
 
 
@@ -263,4 +263,4 @@ def factory(register):
     register(no_rbac_rule_validation_decorator)
     register(no_rbac_suffix_in_test_filename)
     register(no_rbac_test_suffix_in_test_class_name)
-    register(no_plugin_rbac_test_suffix_in_plugin_test_class_name)
+    register(no_extension_rbac_test_suffix_in_plugin_test_class_name)

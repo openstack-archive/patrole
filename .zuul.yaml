@@ -135,11 +135,14 @@
         c-bak: false
 
 - job:
-    name: patrole-plugin-base
+    name: patrole-extension-base
     parent: patrole-base
     description: |
-      Patrole plugin job for admin and member roles which
-      runs RBAC tests for neutron-tempest-plugin APIs (if the plugin is installed).
+      Patrole plugin job for admin and member roles which runs RBAC tests for
+      neutron-tempest-plugin APIs (if the plugin is installed).
+
+      Covers Neutron extension functionality only. Should not be used for
+      supporting Neutron plugins like fwaas.
     required-projects:
       - name: openstack/tempest
       - name: openstack/patrole
@@ -158,22 +161,22 @@
         neutron-qos: true
 
 - job:
-    name: patrole-plugin-member
-    parent: patrole-plugin-base
+    name: patrole-extension-member
+    parent: patrole-extension-base
     voting: false
     vars:
       devstack_localrc:
         RBAC_TEST_ROLES: member
-      tempest_test_regex: (?=.*PluginRbacTest)(^patrole_tempest_plugin\.tests\.api)
+      tempest_test_regex: (?=.*ExtRbacTest)(^patrole_tempest_plugin\.tests\.api)
 
 - job:
-    name: patrole-plugin-admin
-    parent: patrole-plugin-base
+    name: patrole-extension-admin
+    parent: patrole-extension-base
     voting: false
     vars:
       devstack_localrc:
         RBAC_TEST_ROLES: admin
-      tempest_test_regex: (?=.*PluginRbacTest)(^patrole_tempest_plugin\.tests\.api)
+      tempest_test_regex: (?=.*ExtRbacTest)(^patrole_tempest_plugin\.tests\.api)
 
 - project:
     templates:
@@ -195,8 +198,8 @@
         - patrole-py35-member
         - patrole-multinode-admin
         - patrole-multinode-member
-        - patrole-plugin-admin
-        - patrole-plugin-member
+        - patrole-extension-admin
+        - patrole-extension-member
     gate:
       jobs:
         - patrole-admin
