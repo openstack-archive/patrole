@@ -4,3 +4,7 @@ Test:
     - _member_
   test:create2:
     - test_member
+  test:create3:
+    - test_member, _member_
+  test:create4:
+    - test_member, !_member_
