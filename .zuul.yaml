@@ -16,8 +16,8 @@
       - ^.*\.rst$
       - ^doc/.*
       - ^etc/.*$
-      - ^patrole/patrole_tempest_plugin/tests/unit/.*$
-      - ^patrole/patrole_tempest_plugin/hacking/.*$
+      - ^patrole_tempest_plugin/tests/unit/.*$
+      - ^patrole_tempest_plugin/hacking/.*$
       - ^releasenotes/.*
       - ^setup.cfg$
     vars:
