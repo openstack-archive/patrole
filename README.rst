@@ -202,8 +202,10 @@ To change the roles that the patrole tests are being run as, edit
   **admin** and **member** roles. However, other services may use entirely
   different roles or role combinations.
 
-For more information about the member role and its nomenclature,
-please see: `<https://ask.openstack.org/en/question/4759/member-vs-_member_/>`__.
+For more information about RBAC, reference the `rbac-overview`_
+documentation page.
+
+.. _rbac-overview: https://docs.openstack.org/patrole/latest/rbac-overview.html
 
 Unit Tests
 ----------

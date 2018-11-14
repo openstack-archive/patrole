@@ -121,3 +121,34 @@ The same `Tempest logic`_ regarding new tests for existing features or
 policies also applies to Patrole.
 
 .. _Tempest logic: https://docs.openstack.org/tempest/latest/HACKING.html#new-tests-for-existing-features
+
+
+Black Box vs. White Box Testing
+-------------------------------
+
+Tempest is a `black box testing framework`_, meaning that it is concerned with
+testing public API endpoints and doesn't concern itself with testing internal
+implementation details. Patrole, as a Tempest plugin, also falls underneath
+the category of black box testing. However, even with policy in code
+documentation, some degree of white box testing is required in order to
+correctly write RBAC tests.
+
+This is because :ref:`policy-in-code` documentation, while useful in many
+respects, is usually quite brief and its main purpose is to help operators
+understand how to customize policy configuration rather than to help
+developers understand complex policy authorization work flows. For example,
+policy in code documentation doesn't make deriving
+:ref:`multiple policies <multiple-policies>` easy. Such documentation also
+doesn't usually mention that a specific parameter needs to be set, or that a
+particular microversion must be enabled, or that a particular set of
+prerequisite API or policy actions must be executed, in order for the policy
+under test to be enforced by the server. This means that test writers must
+account for the internal RBAC implementation in API code in order to correctly
+understand the complete RBAC work flow within an API.
+
+Besides, as mentioned :ref:`elsewhere <design-principles>` in this
+documentation, not all services currently implement policy in code, making
+some degree of white box testing a "necessary evil" for writing robust RBAC
+tests.
+
+.. _black box testing framework: https://docs.openstack.org/tempest/latest/HACKING.html#negative-tests

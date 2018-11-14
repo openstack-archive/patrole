@@ -1,3 +1,5 @@
+.. _rbac-overview:
+
 ==================================
 Role-Based Access Control Overview
 ==================================
