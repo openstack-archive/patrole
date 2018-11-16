@@ -18,9 +18,6 @@ cloud. It runs `Tempest`_-based API tests using specified RBAC roles, thus
 allowing deployments to verify that only intended roles have access to those
 APIs.
 
-Patrole currently offers testing for the following OpenStack services: Nova,
-Neutron, Glance, Cinder and Keystone.
-
 Patrole is currently undergoing heavy development. As more projects move
 toward policy in code, Patrole will align its testing with the appropriate
 documentation.
@@ -205,7 +202,11 @@ To change the roles that the patrole tests are being run as, edit
 For more information about RBAC, reference the `rbac-overview`_
 documentation page.
 
+For information regarding which projects Patrole offers RBAC testing for,
+reference the `HACKING`_ documentation page.
+
 .. _rbac-overview: https://docs.openstack.org/patrole/latest/rbac-overview.html
+.. _HACKING: https://docs.openstack.org/patrole/latest/HACKING.html#supported-openstack-components
 
 Unit Tests
 ----------
