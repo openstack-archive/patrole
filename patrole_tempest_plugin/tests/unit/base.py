@@ -16,17 +16,15 @@
 
 from tempest.tests import base
 
+from patrole_tempest_plugin.tests.unit import fixtures as patrole_fixtures
+
 
 class TestCase(base.TestCase):
-
     """Test case base class for all unit tests."""
 
-    def get_all_needed_roles(self, roles):
-        role_inferences_mapping = {
-            "admin": {"member", "reader"},
-            "member": {"reader"}
-        }
-        res = set(r.lower() for r in roles)
-        for role in res.copy():
-            res.update(role_inferences_mapping.get(role, set()))
-        return list(res)
+    def setUp(self):
+        super(TestCase, self).setUp()
+        # Disable patrole log for unit tests.
+        self.useFixture(
+            patrole_fixtures.ConfPatcher(enable_reporting=False,
+                                         group='patrole_log'))

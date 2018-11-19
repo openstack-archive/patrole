@@ -20,12 +20,9 @@ from oslo_config import cfg
 
 import fixtures
 from tempest.lib import exceptions
-from tempest import manager
-from tempest import test
 
 from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation as rbac_rv
-from patrole_tempest_plugin import rbac_utils
 from patrole_tempest_plugin.tests.unit import base
 from patrole_tempest_plugin.tests.unit import fixtures as patrole_fixtures
 
@@ -38,25 +35,10 @@ class BaseRBACRuleValidationTest(base.TestCase):
 
     def setUp(self):
         super(BaseRBACRuleValidationTest, self).setUp()
-        self.mock_test_args = mock.Mock(spec=test.BaseTestCase)
-        self.mock_test_args.os_primary = mock.Mock(spec=manager.Manager)
-        self.mock_test_args.rbac_utils = mock.Mock(
-            spec_set=rbac_utils.RbacUtils)
-        self.mock_test_args.rbac_utils.get_all_needed_roles.side_effect = \
-            self.get_all_needed_roles
-
-        # Setup credentials for mock client manager.
-        mock_creds = mock.Mock(user_id=mock.sentinel.user_id,
-                               project_id=mock.sentinel.project_id)
-        setattr(self.mock_test_args.os_primary, 'credentials', mock_creds)
-
-        self.useFixture(
-            patrole_fixtures.ConfPatcher(rbac_test_roles=self.test_roles,
-                                         group='patrole'))
-        # Disable patrole log for unit tests.
-        self.useFixture(
-            patrole_fixtures.ConfPatcher(enable_reporting=False,
-                                         group='patrole_log'))
+        self.rbac_utils_fixture = self.useFixture(
+            patrole_fixtures.RbacUtilsMixinFixture(
+                rbac_test_roles=self.test_roles))
+        self.test_obj = self.rbac_utils_fixture.test_obj
 
 
 class BaseRBACMultiRoleRuleValidationTest(BaseRBACRuleValidationTest):
@@ -89,7 +71,7 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
         def test_policy(*args):
             pass
 
-        test_policy(self.mock_test_args)
+        test_policy(self.test_obj)
         mock_log.error.assert_not_called()
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
@@ -107,7 +89,7 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
         def test_policy(*args):
             raise exceptions.Forbidden()
 
-        test_policy(self.mock_test_args)
+        test_policy(self.test_obj)
         mock_log.error.assert_not_called()
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
@@ -131,7 +113,7 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
                    "the following actions: \[%s\].*" % (mock.sentinel.action))
         self.assertRaisesRegex(
             rbac_exceptions.RbacUnderPermissionException, test_re, test_policy,
-            self.mock_test_args)
+            self.test_obj)
         self.assertRegex(mock_log.error.mock_calls[0][1][0], test_re)
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
@@ -188,7 +170,7 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
                            mock.sentinel.action))
             self.assertRaisesRegex(
                 rbac_exceptions.RbacUnderPermissionException, test_re,
-                test_policy, self.mock_test_args)
+                test_policy, self.test_obj)
             self.assertRegex(mock_log.error.mock_calls[0][1][0], test_re)
 
         _do_test(rbac_exceptions.RbacMissingAttributeResponseBody,
@@ -221,7 +203,7 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
                 return_value = allowed
             self.assertRaisesRegex(
                 rbac_exceptions.RbacExpectedWrongException, error_re,
-                test_policy, self.mock_test_args)
+                test_policy, self.test_obj)
             self.assertTrue(mock_log.error.called)
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
@@ -259,10 +241,10 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
             if error_re:
                 self.assertRaisesRegex(
                     rbac_exceptions.RbacUnderPermissionException, error_re,
-                    test_policy, self.mock_test_args)
+                    test_policy, self.test_obj)
                 self.assertRegex(mock_log.error.mock_calls[0][1][0], error_re)
             else:
-                test_policy(self.mock_test_args)
+                test_policy(self.test_obj)
                 mock_log.error.assert_not_called()
 
             mock_log.warning.assert_called_with(
@@ -302,7 +284,7 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
 
             error_re = ".*OverPermission: .* \[%s\]$" % mock.sentinel.action
             self.assertRaisesRegex(rbac_exceptions.RbacOverPermissionException,
-                                   error_re, test_policy, self.mock_test_args)
+                                   error_re, test_policy, self.test_obj)
             self.assertRegex(mock_log.error.mock_calls[0][1][0], error_re)
             mock_log.error.reset_mock()
 
@@ -320,7 +302,7 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
 
         error_re = 'Attempted to test an invalid policy file or action'
         self.assertRaisesRegex(rbac_exceptions.RbacParsingException, error_re,
-                               test_policy, self.mock_test_args)
+                               test_policy, self.test_obj)
 
         mock_authority.PolicyAuthority.assert_called_once_with(
             mock.sentinel.project_id, mock.sentinel.user_id,
@@ -403,7 +385,7 @@ class RBACMultiRoleRuleValidationTest(BaseRBACMultiRoleRuleValidationTest,
                    (mock.sentinel.action))
         self.assertRaisesRegex(
             rbac_exceptions.RbacUnderPermissionException, test_re, test_policy,
-            self.mock_test_args)
+            self.test_obj)
         self.assertRegex(mock_log.error.mock_calls[0][1][0], test_re)
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
@@ -441,10 +423,10 @@ class RBACMultiRoleRuleValidationTest(BaseRBACMultiRoleRuleValidationTest,
             if error_re:
                 self.assertRaisesRegex(
                     rbac_exceptions.RbacUnderPermissionException, error_re,
-                    test_policy, self.mock_test_args)
+                    test_policy, self.test_obj)
                 self.assertRegex(mock_log.error.mock_calls[0][1][0], error_re)
             else:
-                test_policy(self.mock_test_args)
+                test_policy(self.test_obj)
                 mock_log.error.assert_not_called()
 
             mock_log.warning.assert_called_with(
@@ -486,7 +468,7 @@ class RBACRuleValidationLoggingTest(BaseRBACRuleValidationTest):
         def test_policy(*args):
             pass
 
-        test_policy(self.mock_test_args)
+        test_policy(self.test_obj)
         self.assertFalse(mock_rbaclog.info.called)
 
     @mock.patch.object(rbac_rv, 'RBACLOG', autospec=True)
@@ -506,7 +488,7 @@ class RBACRuleValidationLoggingTest(BaseRBACRuleValidationTest):
         def test_policy(*args):
             pass
 
-        test_policy(self.mock_test_args)
+        test_policy(self.test_obj)
         mock_rbaclog.info.assert_called_once_with(
             "[Service]: %s, [Test]: %s, [Rules]: %s, "
             "[Expected]: %s, [Actual]: %s",
@@ -528,12 +510,12 @@ class RBACRuleValidationLoggingTest(BaseRBACRuleValidationTest):
         def test_policy(*args):
             pass
 
-        test_policy(self.mock_test_args)
+        test_policy(self.test_obj)
 
         policy_authority = mock_authority.PolicyAuthority.return_value
         policy_authority.allowed.assert_called_with(
             mock.sentinel.action,
-            self.get_all_needed_roles(CONF.patrole.rbac_test_roles))
+            self.test_obj.get_all_needed_roles(CONF.patrole.rbac_test_roles))
 
         mock_log.error.assert_not_called()
 
@@ -545,7 +527,7 @@ class RBACRuleValidationLoggingTest(BaseRBACRuleValidationTest):
         evaluated correctly.
         """
         mock_authority.PolicyAuthority.return_value.allowed.return_value = True
-        expected_roles = self.get_all_needed_roles(
+        expected_roles = self.test_obj.get_all_needed_roles(
             CONF.patrole.rbac_test_roles)
 
         def partial_func(x):
@@ -563,14 +545,14 @@ class RBACRuleValidationLoggingTest(BaseRBACRuleValidationTest):
         def test_bar_policy(*args):
             pass
 
-        test_foo_policy(self.mock_test_args)
+        test_foo_policy(self.test_obj)
         policy_authority = mock_authority.PolicyAuthority.return_value
         policy_authority.allowed.assert_called_with(
             "foo",
             expected_roles)
         policy_authority.allowed.reset_mock()
 
-        test_bar_policy(self.mock_test_args)
+        test_bar_policy(self.test_obj)
         policy_authority = mock_authority.PolicyAuthority.return_value
         policy_authority.allowed.assert_called_with(
             "qux",
@@ -603,7 +585,7 @@ class RBACRuleValidationNegativeTest(BaseRBACRuleValidationTest):
             pass
 
         self.assertRaises(rbac_exceptions.RbacInvalidServiceException,
-                          test_policy, self.mock_test_args)
+                          test_policy, self.test_obj)
 
 
 class RBACMultiRoleRuleValidationNegativeTest(
@@ -627,7 +609,8 @@ class RBACRuleValidationTestMultiPolicy(BaseRBACRuleValidationTest):
         m_authority.allowed.assert_has_calls([
             mock.call(
                 rule,
-                self.get_all_needed_roles(CONF.patrole.rbac_test_roles)
+                self.test_obj.get_all_needed_roles(
+                    CONF.patrole.rbac_test_roles)
             ) for rule in rules
         ])
         m_authority.allowed.reset_mock()
@@ -648,7 +631,7 @@ class RBACRuleValidationTestMultiPolicy(BaseRBACRuleValidationTest):
         def test_policy(*args):
             pass
 
-        test_policy(self.mock_test_args)
+        test_policy(self.test_obj)
         self._assert_policy_authority_called_with(rules, mock_authority)
 
     @mock.patch.object(rbac_rv, 'LOG', autospec=True)
@@ -677,7 +660,7 @@ class RBACRuleValidationTestMultiPolicy(BaseRBACRuleValidationTest):
             error_re = ".*OverPermission: .* \[%s\]$" % fail_on_action
             self.assertRaisesRegex(
                 rbac_exceptions.RbacOverPermissionException, error_re,
-                test_policy, self.mock_test_args)
+                test_policy, self.test_obj)
             mock_log.debug.assert_any_call(
                 "%s: Expecting %d to be raised for policy name: %s",
                 'test_policy', 403, fail_on_action)
@@ -710,7 +693,7 @@ class RBACRuleValidationTestMultiPolicy(BaseRBACRuleValidationTest):
         def _do_test(allowed_list, fail_on_action):
             mock_authority.PolicyAuthority.return_value.allowed.\
                 side_effect = allowed_list
-            test_policy(self.mock_test_args)
+            test_policy(self.test_obj)
             mock_log.debug.assert_called_with(
                 "%s: Expecting %d to be raised for policy name: %s",
                 'test_policy', 403, fail_on_action)
@@ -747,7 +730,7 @@ class RBACRuleValidationTestMultiPolicy(BaseRBACRuleValidationTest):
                     (rules, rules)).replace('[', '\[').replace(']', '\]')
         self.assertRaisesRegex(
             rbac_exceptions.RbacUnderPermissionException, error_re,
-            test_policy, self.mock_test_args)
+            test_policy, self.test_obj)
         self.assertRegex(mock_log.error.mock_calls[0][1][0], error_re)
         self._assert_policy_authority_called_with(rules, mock_authority)
 
@@ -773,7 +756,7 @@ class RBACRuleValidationTestMultiPolicy(BaseRBACRuleValidationTest):
         def _do_test(allowed_list, fail_on_action):
             mock_authority.PolicyAuthority.return_value.allowed.\
                 side_effect = allowed_list
-            test_policy(self.mock_test_args)
+            test_policy(self.test_obj)
             mock_log.debug.assert_called_with(
                 "%s: Expecting %d to be raised for policy name: %s",
                 'test_policy', 403, fail_on_action)
@@ -806,7 +789,7 @@ class RBACRuleValidationTestMultiPolicy(BaseRBACRuleValidationTest):
         def _do_test(allowed_list, fail_on_action):
             mock_authority.PolicyAuthority.return_value.allowed.\
                 side_effect = allowed_list
-            test_policy(self.mock_test_args)
+            test_policy(self.test_obj)
             mock_log.debug.assert_called_with(
                 "%s: Expecting %d to be raised for policy name: %s",
                 'test_policy', 404, fail_on_action)
@@ -833,7 +816,7 @@ class RBACRuleValidationTestMultiPolicy(BaseRBACRuleValidationTest):
         def test_policy(*args):
             raise exceptions.Forbidden()
 
-        test_policy(self.mock_test_args)
+        test_policy(self.test_obj)
         self._assert_policy_authority_called_with(rules, mock_authority)
         # Assert that 403 is expected.
         mock_calls = [x[1] for x in mock_log.debug.mock_calls]
@@ -847,7 +830,7 @@ class RBACRuleValidationTestMultiPolicy(BaseRBACRuleValidationTest):
         def test_policy(*args):
             raise exceptions.Forbidden()
 
-        test_policy(self.mock_test_args)
+        test_policy(self.test_obj)
         self._assert_policy_authority_called_with(rules, mock_authority)
         # Assert that 403 is expected.
         mock_calls = [x[1] for x in mock_log.debug.mock_calls]
@@ -932,7 +915,7 @@ class RBACMultiRoleRuleValidationTestMultiPolicy(
                     (rules, rules)).replace('[', '\[').replace(']', '\]')
         self.assertRaisesRegex(
             rbac_exceptions.RbacUnderPermissionException, error_re,
-            test_policy, self.mock_test_args)
+            test_policy, self.test_obj)
         self.assertRegex(mock_log.error.mock_calls[0][1][0], error_re)
         self._assert_policy_authority_called_with(rules, mock_authority)
 
@@ -951,21 +934,7 @@ class RBACOverrideRoleValidationTest(BaseRBACRuleValidationTest):
     def setUp(self):
         super(RBACOverrideRoleValidationTest, self).setUp()
 
-        # Mixin automatically initializes __override_role_called to False.
-        class FakeRbacTest(rbac_utils.RbacUtilsMixin, test.BaseTestCase):
-            def runTest(self):
-                pass
-
-        # Stub out problematic function calls.
-        FakeRbacTest.os_primary = mock.Mock(spec=manager.Manager)
-        FakeRbacTest.rbac_utils = self.useFixture(
-            patrole_fixtures.RbacUtilsFixture())
-        mock_creds = mock.Mock(user_id=mock.sentinel.user_id,
-                               project_id=mock.sentinel.project_id)
-        setattr(FakeRbacTest.os_primary, 'credentials', mock_creds)
-        setattr(FakeRbacTest.os_primary, 'auth_provider', mock.Mock())
-
-        self.parent_class = FakeRbacTest
+        self.parent_class = self.test_obj.__class__
 
     @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
     def test_rule_validation_override_role_called_inside_ctx(self,
@@ -981,7 +950,7 @@ class RBACOverrideRoleValidationTest(BaseRBACRuleValidationTest):
             @rbac_rv.action(mock.sentinel.service, rules=["fake:rule"],
                             expected_error_codes=[404])
             def test_called(self_):
-                with self_.rbac_utils.real_override_role(self_):
+                with self_.override_role():
                     raise exceptions.NotFound()
 
         child_test = ChildRbacTest()
@@ -991,8 +960,8 @@ class RBACOverrideRoleValidationTest(BaseRBACRuleValidationTest):
     def test_rule_validation_override_role_patrole_exception_ignored(
             self, mock_authority):
         """Test success case where Patrole exception is raised (which is
-        valid in case of e.g. RbacPartialResponseBody) after override_role
-        passes.
+        valid in case of e.g. BasePatroleResponseBodyException) after
+        override_role passes.
         """
         mock_authority.PolicyAuthority.return_value.allowed.return_value =\
             True
@@ -1002,14 +971,14 @@ class RBACOverrideRoleValidationTest(BaseRBACRuleValidationTest):
             @rbac_rv.action(mock.sentinel.service, rules=["fake:rule"],
                             expected_error_codes=[404])
             def test_called(self_):
-                with self_.rbac_utils.real_override_role(self_):
+                with self_.override_role():
                     pass
-                # Instances of BasePatroleException don't count as they are
-                # part of the validation work flow.
-                raise rbac_exceptions.BasePatroleException()
+                # Instances of BasePatroleResponseBodyException don't count as
+                # they are part of the validation work flow.
+                raise rbac_exceptions.BasePatroleResponseBodyException()
 
         child_test = ChildRbacTest()
-        self.assertRaises(rbac_exceptions.BasePatroleException,
+        self.assertRaises(rbac_exceptions.RbacUnderPermissionException,
                           child_test.test_called)
 
     @mock.patch.object(rbac_rv, 'policy_authority', autospec=True)
@@ -1057,7 +1026,7 @@ class RBACOverrideRoleValidationTest(BaseRBACRuleValidationTest):
                 @rbac_rv.action(mock.sentinel.service, rules=["fake:rule"],
                                 expected_error_codes=[404])
                 def test_called_after(self_):
-                    with self_.rbac_utils.real_override_role(self_):
+                    with self_.override_role():
                         pass
                     # Simulates a test tearDown failure or some such.
                     raise exception_type()
@@ -1098,7 +1067,7 @@ class RBACOverrideRoleValidationTest(BaseRBACRuleValidationTest):
             @rbac_rv.action(mock.sentinel.service, rules=["fake:rule1"],
                             expected_error_codes=[404])
             def test_called(self_):
-                with self_.rbac_utils.real_override_role(self_):
+                with self_.override_role():
                     raise exceptions.NotFound()
 
             @rbac_rv.action(mock.sentinel.service, rules=["fake:rule2"],

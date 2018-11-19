@@ -17,7 +17,6 @@ import mock
 import testtools
 
 from tempest.lib import exceptions as lib_exc
-from tempest import test
 
 from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_utils
@@ -25,118 +24,132 @@ from patrole_tempest_plugin.tests.unit import base
 from patrole_tempest_plugin.tests.unit import fixtures as patrole_fixtures
 
 
-class RBACUtilsTest(base.TestCase):
+class RBACUtilsMixinTest(base.TestCase):
 
     def setUp(self):
-        super(RBACUtilsTest, self).setUp()
-        # Reset the role history after each test run to avoid validation
-        # errors between tests.
-        rbac_utils.RbacUtils.override_role_history = {}
-        self.rbac_utils = self.useFixture(patrole_fixtures.RbacUtilsFixture())
+        super(RBACUtilsMixinTest, self).setUp()
+        self.rbac_utils_fixture = self.useFixture(
+            patrole_fixtures.RbacUtilsMixinFixture())
+        self.test_obj = self.rbac_utils_fixture.test_obj
 
-    def test_override_role_with_missing_admin_role(self):
-        self.rbac_utils.set_roles('member')
+    def test_init_roles_with_missing_admin_role(self):
+        self.rbac_utils_fixture.set_roles('member')
         error_re = (".*Following roles were not found: admin. Available "
                     "roles: member.")
         self.assertRaisesRegex(rbac_exceptions.RbacResourceSetupFailed,
-                               error_re, self.rbac_utils.override_role)
+                               error_re, self.test_obj._init_roles)
 
-    def test_override_role_with_missing_rbac_role(self):
-        self.rbac_utils.set_roles('admin')
+    def test_init_roles_with_missing_rbac_role(self):
+        self.rbac_utils_fixture.set_roles('admin')
         error_re = (".*Following roles were not found: member. Available "
                     "roles: admin.")
         self.assertRaisesRegex(rbac_exceptions.RbacResourceSetupFailed,
-                               error_re, self.rbac_utils.override_role)
+                               error_re, self.test_obj._init_roles)
 
-    def test_override_role_to_admin_role(self):
-        self.rbac_utils.override_role()
-
-        mock_test_obj = self.rbac_utils.mock_test_obj
-        roles_client = self.rbac_utils.admin_roles_client
-        mock_time = self.rbac_utils.mock_time
+    def test_override_role_to_admin_role_at_creating(self):
+        rbac_utils_fixture = self.useFixture(
+            patrole_fixtures.RbacUtilsMixinFixture(do_reset_mocks=False))
+        test_obj = rbac_utils_fixture.test_obj
+        roles_client = rbac_utils_fixture.admin_roles_client
+        mock_time = rbac_utils_fixture.mock_time
 
         roles_client.create_user_role_on_project.assert_called_once_with(
-            self.rbac_utils.PROJECT_ID, self.rbac_utils.USER_ID, 'admin_id')
-        mock_test_obj.get_auth_providers()[0].clear_auth\
+            rbac_utils_fixture.PROJECT_ID,
+            rbac_utils_fixture.USER_ID,
+            'admin_id')
+        test_obj.get_auth_providers()[0].clear_auth.assert_called_once_with()
+        test_obj.get_auth_providers()[0].set_auth.assert_called_once_with()
+        mock_time.sleep.assert_called_once_with(1)
+
+    def test_override_role_to_admin_role(self):
+        self.test_obj._override_role()
+
+        roles_client = self.rbac_utils_fixture.admin_roles_client
+        mock_time = self.rbac_utils_fixture.mock_time
+
+        roles_client.create_user_role_on_project.assert_called_once_with(
+            self.rbac_utils_fixture.PROJECT_ID,
+            self.rbac_utils_fixture.USER_ID,
+            'admin_id')
+        self.test_obj.get_auth_providers()[0].clear_auth\
             .assert_called_once_with()
-        mock_test_obj.get_auth_providers()[0].set_auth\
+        self.test_obj.get_auth_providers()[0].set_auth\
             .assert_called_once_with()
         mock_time.sleep.assert_called_once_with(1)
 
     def test_override_role_to_admin_role_avoids_role_switch(self):
-        self.rbac_utils.set_roles(['admin', 'member'], 'admin')
-        self.rbac_utils.override_role()
+        self.rbac_utils_fixture.set_roles(['admin', 'member'], 'admin')
+        self.test_obj._override_role()
 
-        roles_client = self.rbac_utils.admin_roles_client
-        mock_time = self.rbac_utils.mock_time
+        roles_client = self.rbac_utils_fixture.admin_roles_client
+        mock_time = self.rbac_utils_fixture.mock_time
 
         roles_client.create_user_role_on_project.assert_not_called()
         mock_time.sleep.assert_not_called()
 
     def test_override_role_to_member_role(self):
-        self.rbac_utils.override_role(True)
+        self.test_obj._override_role(True)
 
-        mock_test_obj = self.rbac_utils.mock_test_obj
-        roles_client = self.rbac_utils.admin_roles_client
-        mock_time = self.rbac_utils.mock_time
+        roles_client = self.rbac_utils_fixture.admin_roles_client
+        mock_time = self.rbac_utils_fixture.mock_time
 
         roles_client.create_user_role_on_project.assert_has_calls([
-            mock.call(self.rbac_utils.PROJECT_ID, self.rbac_utils.USER_ID,
-                      'admin_id'),
-            mock.call(self.rbac_utils.PROJECT_ID, self.rbac_utils.USER_ID,
+            mock.call(self.rbac_utils_fixture.PROJECT_ID,
+                      self.rbac_utils_fixture.USER_ID,
                       'member_id')
         ])
-        mock_test_obj.get_auth_providers()[0].clear_auth.assert_has_calls(
-            [mock.call()] * 2)
-        mock_test_obj.get_auth_providers()[0].set_auth.assert_has_calls(
-            [mock.call()] * 2)
-        mock_time.sleep.assert_has_calls([mock.call(1)] * 2)
+        self.test_obj.get_auth_providers()[0].clear_auth.assert_has_calls(
+            [mock.call()])
+        self.test_obj.get_auth_providers()[0].set_auth.assert_has_calls(
+            [mock.call()])
+        mock_time.sleep.assert_has_calls([mock.call(1)])
 
     def test_override_role_to_member_role_avoids_role_switch(self):
-        self.rbac_utils.set_roles(['admin', 'member'], 'member')
-        self.rbac_utils.override_role(True)
+        self.rbac_utils_fixture.set_roles(['admin', 'member'], 'member')
+        self.test_obj._override_role(True)
 
-        roles_client = self.rbac_utils.admin_roles_client
-        mock_time = self.rbac_utils.mock_time
+        roles_client = self.rbac_utils_fixture.admin_roles_client
+        mock_time = self.rbac_utils_fixture.mock_time
 
-        roles_client.create_user_role_on_project.assert_has_calls([
-            mock.call(self.rbac_utils.PROJECT_ID, self.rbac_utils.USER_ID,
-                      'admin_id')
-        ])
-        mock_time.sleep.assert_called_once_with(1)
+        self.assertEqual(0,
+                         roles_client.create_user_role_on_project.call_count)
+        self.assertEqual(0,
+                         mock_time.sleep.call_count)
 
     def test_override_role_to_member_role_then_admin_role(self):
-        self.rbac_utils.override_role(True, False)
+        self.test_obj._override_role(True)
+        self.test_obj._override_role(False)
 
-        mock_test_obj = self.rbac_utils.mock_test_obj
-        roles_client = self.rbac_utils.admin_roles_client
-        mock_time = self.rbac_utils.mock_time
+        roles_client = self.rbac_utils_fixture.admin_roles_client
+        mock_time = self.rbac_utils_fixture.mock_time
 
         roles_client.create_user_role_on_project.assert_has_calls([
-            mock.call(self.rbac_utils.PROJECT_ID, self.rbac_utils.USER_ID,
-                      'admin_id'),
-            mock.call(self.rbac_utils.PROJECT_ID, self.rbac_utils.USER_ID,
+            mock.call(self.rbac_utils_fixture.PROJECT_ID,
+                      self.rbac_utils_fixture.USER_ID,
                       'member_id'),
-            mock.call(self.rbac_utils.PROJECT_ID, self.rbac_utils.USER_ID,
+            mock.call(self.rbac_utils_fixture.PROJECT_ID,
+                      self.rbac_utils_fixture.USER_ID,
                       'admin_id')
         ])
-        mock_test_obj.get_auth_providers()[0].clear_auth.assert_has_calls(
-            [mock.call()] * 3)
-        mock_test_obj.get_auth_providers()[0].set_auth.assert_has_calls(
-            [mock.call()] * 3)
-        mock_time.sleep.assert_has_calls([mock.call(1)] * 3)
+        self.test_obj.get_auth_providers()[0].clear_auth.assert_has_calls(
+            [mock.call()] * 2)
+        self.test_obj.get_auth_providers()[0].set_auth.assert_has_calls(
+            [mock.call()] * 2)
+        mock_time.sleep.assert_has_calls([mock.call(1)] * 2)
 
     def test_clear_user_roles(self):
         # NOTE(felipemonteiro): Set the user's roles on the project to
         # include 'random' to coerce a role switch, or else it will be
         # skipped.
-        self.rbac_utils.set_roles(['admin', 'member'], ['member', 'random'])
-        self.rbac_utils.override_role()
+        self.rbac_utils_fixture.set_roles(['admin', 'member'],
+                                          ['member', 'random'])
+        self.test_obj._override_role()
 
-        roles_client = self.rbac_utils.admin_roles_client
+        roles_client = self.rbac_utils_fixture.admin_roles_client
 
         roles_client.list_user_roles_on_project.assert_called_once_with(
-            self.rbac_utils.PROJECT_ID, self.rbac_utils.USER_ID)
+            self.rbac_utils_fixture.PROJECT_ID,
+            self.rbac_utils_fixture.USER_ID)
         roles_client.delete_role_from_user_on_project.\
             assert_has_calls([
                 mock.call(mock.sentinel.project_id, mock.sentinel.user_id,
@@ -144,52 +157,32 @@ class RBACUtilsTest(base.TestCase):
                 mock.call(mock.sentinel.project_id, mock.sentinel.user_id,
                           'random_id')])
 
-    @mock.patch.object(rbac_utils.RbacUtils, '_override_role', autospec=True)
-    def test_override_role_context_manager_simulate_pass(self,
-                                                         mock_override_role):
+    def test_override_role_context_manager_simulate_pass(self):
         """Validate that expected override_role calls are made when switching
         to admin role for success path.
         """
-        test_obj = mock.MagicMock()
-        _rbac_utils = rbac_utils.RbacUtils(test_obj)
 
-        # Validate constructor called _override_role with False.
-        mock_override_role.assert_called_once_with(_rbac_utils, test_obj,
-                                                   False)
-        mock_override_role.reset_mock()
-
-        with _rbac_utils.override_role(test_obj):
+        mock_override_role = self.patchobject(self.test_obj, '_override_role')
+        with self.test_obj.override_role():
             # Validate `override_role` public method called private method
             # `_override_role` with True.
-            mock_override_role.assert_called_once_with(_rbac_utils, test_obj,
-                                                       True)
+            mock_override_role.assert_called_once_with(True)
             mock_override_role.reset_mock()
         # Validate that `override_role` switched back to admin role after
         # contextmanager.
-        mock_override_role.assert_called_once_with(_rbac_utils, test_obj,
-                                                   False)
+        mock_override_role.assert_called_once_with(False)
 
-    @mock.patch.object(rbac_utils.RbacUtils, '_override_role',
-                       autospec=True)
-    def test_override_role_context_manager_simulate_fail(self,
-                                                         mock_override_role):
+    def test_override_role_context_manager_simulate_fail(self):
         """Validate that expected override_role calls are made when switching
         to admin role for failure path (i.e. when test raises exception).
         """
-        test_obj = mock.MagicMock()
-        _rbac_utils = rbac_utils.RbacUtils(test_obj)
-
-        # Validate constructor called _override_role with False.
-        mock_override_role.assert_called_once_with(_rbac_utils, test_obj,
-                                                   False)
-        mock_override_role.reset_mock()
+        mock_override_role = self.patchobject(self.test_obj, '_override_role')
 
         def _do_test():
-            with _rbac_utils.override_role(test_obj):
+            with self.test_obj.override_role():
                 # Validate `override_role` public method called private method
                 # `_override_role` with True.
-                mock_override_role.assert_called_once_with(
-                    _rbac_utils, test_obj, True)
+                mock_override_role.assert_called_once_with(True)
                 mock_override_role.reset_mock()
                 # Raise exc to verify role switch works for negative case.
                 raise lib_exc.Forbidden()
@@ -197,61 +190,51 @@ class RBACUtilsTest(base.TestCase):
         # Validate that role is switched back to admin, despite test failure.
         with testtools.ExpectedException(lib_exc.Forbidden):
             _do_test()
-        mock_override_role.assert_called_once_with(_rbac_utils, test_obj,
-                                                   False)
+        mock_override_role.assert_called_once_with(False)
 
     def test_override_role_and_validate_list(self):
-        self.patchobject(rbac_utils.RbacUtils, '_override_role')
-        test_obj = mock.MagicMock()
-        _rbac_utils = rbac_utils.RbacUtils(test_obj)
-        m_override_role = self.patchobject(_rbac_utils, 'override_role')
+        m_override_role = self.patchobject(self.test_obj, 'override_role')
 
-        with (_rbac_utils.override_role_and_validate_list(
-                test_obj, 'foo')) as ctx:
+        with (self.test_obj.override_role_and_validate_list(
+                admin_resource_id='foo')) as ctx:
             self.assertIsInstance(ctx, rbac_utils._ValidateListContext)
             m_validate = self.patchobject(ctx, '_validate')
-        m_override_role.assert_called_once_with(test_obj)
+        m_override_role.assert_called_once_with()
         m_validate.assert_called_once()
 
     def test_prepare_role_inferences_mapping(self):
-        self.patchobject(rbac_utils.RbacUtils, '_override_role')
-        test_obj = mock.MagicMock()
-        _rbac_utils = rbac_utils.RbacUtils(test_obj)
-        _rbac_utils.admin_roles_client.list_all_role_inference_rules.\
+        self.test_obj.admin_roles_client.list_all_role_inference_rules.\
             return_value = {
                 "role_inferences": [
                     {
-                        "implies": [{"id": "3", "name": "reader"}],
-                        "prior_role": {"id": "2", "name": "member"}
+                        "implies": [{"id": "reader_id", "name": "reader"}],
+                        "prior_role": {"id": "member_id", "name": "member"}
                     },
                     {
-                        "implies": [{"id": "2", "name": "member"}],
-                        "prior_role": {"id": "1", "name": "admin"}
+                        "implies": [{"id": "member_id", "name": "member"}],
+                        "prior_role": {"id": "admin_id", "name": "admin"}
                     }
                 ]
             }
 
         expected_role_inferences_mapping = {
-            "2": {"3"},      # "member": ["reader"],
-            "1": {"2", "3"}  # "admin": ["member", "reader"]
+            "member_id": {"reader_id"},
+            "admin_id": {"member_id", "reader_id"}
         }
-        actual_role_inferences_mapping = _rbac_utils.\
+        actual_role_inferences_mapping = self.test_obj.\
             _prepare_role_inferences_mapping()
         self.assertEqual(expected_role_inferences_mapping,
                          actual_role_inferences_mapping)
 
     def test_get_all_needed_roles(self):
-        self.patchobject(rbac_utils.RbacUtils, '_override_role')
-        test_obj = mock.MagicMock()
-        _rbac_utils = rbac_utils.RbacUtils(test_obj)
-        _rbac_utils._role_inferences_mapping = {
-            "2": {"3"},      # "member": ["reader"],
-            "1": {"2", "3"}  # "admin": ["member", "reader"]
+        self.test_obj.__class__._role_inferences_mapping = {
+            "member_id": {"reader_id"},
+            "admin_id": {"member_id", "reader_id"}
         }
-        _rbac_utils._role_map = {
-            "1": "admin", "admin": "1",
-            "2": "member", "member": "2",
-            "3": "reader", "reader": "3"
+        self.test_obj.__class__._role_map = {
+            "admin_id": "admin", "admin": "admin_id",
+            "member_id": "member", "member": "member_id",
+            "reader_id": "reader", "reader": "reader_id"
         }
         for roles, expected_roles in (
             (['admin'], ['admin', 'member', 'reader']),
@@ -262,42 +245,8 @@ class RBACUtilsTest(base.TestCase):
             (['admin', 'member'], ['admin', 'member', 'reader']),
         ):
             expected_roles = sorted(expected_roles)
-            actual_roles = sorted(_rbac_utils.get_all_needed_roles(roles))
+            actual_roles = sorted(self.test_obj.get_all_needed_roles(roles))
         self.assertEqual(expected_roles, actual_roles)
-
-
-class RBACUtilsMixinTest(base.TestCase):
-
-    def setUp(self):
-        super(RBACUtilsMixinTest, self).setUp()
-
-        class FakeRbacTest(rbac_utils.RbacUtilsMixin, test.BaseTestCase):
-
-            @classmethod
-            def setup_clients(cls):
-                super(FakeRbacTest, cls).setup_clients()
-                cls.setup_rbac_utils()
-
-            def runTest(self):
-                pass
-
-        self.parent_class = FakeRbacTest
-
-    def test_setup_rbac_utils(self):
-        """Validate that the child class has the `rbac_utils` attribute after
-        running parent class's `cls.setup_rbac_utils`.
-        """
-        class ChildRbacTest(self.parent_class):
-            pass
-
-        child_test = ChildRbacTest()
-
-        with mock.patch.object(rbac_utils.RbacUtils, '__init__',
-                               lambda *args: None):
-            child_test.setUpClass()
-
-        self.assertTrue(hasattr(child_test, 'rbac_utils'))
-        self.assertIsInstance(child_test.rbac_utils, rbac_utils.RbacUtils)
 
 
 class ValidateListContextTest(base.TestCase):

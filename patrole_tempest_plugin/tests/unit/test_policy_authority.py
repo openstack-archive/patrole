@@ -76,6 +76,9 @@ class PolicyAuthorityTest(base.TestCase):
             if attr in dir(policy_authority.PolicyAuthority):
                 delattr(policy_authority.PolicyAuthority, attr)
 
+        self.test_obj = self.useFixture(fixtures.RbacUtilsMixinFixture()).\
+            test_obj
+
     @staticmethod
     def _get_fake_policies(rules):
         fake_rules = []
@@ -96,7 +99,7 @@ class PolicyAuthorityTest(base.TestCase):
             authority = policy_authority.PolicyAuthority(
                 test_tenant_id, test_user_id, service)
 
-        roles = self.get_all_needed_roles(roles)
+        roles = self.test_obj.get_all_needed_roles(roles)
 
         for rule in allowed_rules:
             allowed = authority.allowed(rule, roles)
@@ -289,7 +292,7 @@ class PolicyAuthorityTest(base.TestCase):
 
             for rule in allowed_rules:
                 allowed = authority.allowed(
-                    rule, self.get_all_needed_roles(['member']))
+                    rule, self.test_obj.get_all_needed_roles(['member']))
                 self.assertTrue(allowed)
                 # for sure that roles are in same order
                 mock_try_rule.call_args[0][2]["roles"] = sorted(

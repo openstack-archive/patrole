@@ -24,7 +24,6 @@ class BaseV2ComputeRbacTest(rbac_utils.RbacUtilsMixin,
     @classmethod
     def setup_clients(cls):
         super(BaseV2ComputeRbacTest, cls).setup_clients()
-        cls.setup_rbac_utils()
         cls.hosts_client = cls.os_primary.hosts_client
         cls.tenant_usages_client = cls.os_primary.tenant_usages_client
         cls.networks_client = cls.os_primary.networks_client

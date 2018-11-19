@@ -16,12 +16,10 @@
 """Fixtures for Patrole tests."""
 from __future__ import absolute_import
 
-from contextlib import contextmanager
 import fixtures
 import mock
 import time
 
-from tempest import clients
 from tempest.common import credentials_factory as credentials
 from tempest import config
 from tempest import test
@@ -57,81 +55,84 @@ class ConfPatcher(fixtures.Fixture):
             CONF.set_override(k, v, self.group)
 
 
-class RbacUtilsFixture(fixtures.Fixture):
+class FakeBaseRbacTest(rbac_utils.RbacUtilsMixin, test.BaseTestCase):
+    os_primary = None
+
+    def runTest(self):
+        pass
+
+
+class RbacUtilsMixinFixture(fixtures.Fixture):
     """Fixture for `RbacUtils` class."""
 
     USER_ID = mock.sentinel.user_id
     PROJECT_ID = mock.sentinel.project_id
 
-    def setUp(self):
-        super(RbacUtilsFixture, self).setUp()
+    def __init__(self, do_reset_mocks=True, rbac_test_roles=None):
+        self._do_reset_mocks = do_reset_mocks
+        self._rbac_test_roles = rbac_test_roles or ['member']
 
-        self.useFixture(ConfPatcher(rbac_test_roles=['member'],
+    def patchobject(self, target, attribute, *args, **kwargs):
+        p = mock.patch.object(target, attribute, *args, **kwargs)
+        m = p.start()
+        self.addCleanup(p.stop)
+        return m
+
+    def setUp(self):
+        super(RbacUtilsMixinFixture, self).setUp()
+
+        self.useFixture(ConfPatcher(rbac_test_roles=self._rbac_test_roles,
                                     group='patrole'))
         self.useFixture(ConfPatcher(
             admin_role='admin', auth_version='v3', group='identity'))
         self.useFixture(ConfPatcher(
             api_v3=True, group='identity-feature-enabled'))
 
-        test_obj_kwargs = {
-            'os_primary.credentials.user_id': self.USER_ID,
-            'os_primary.credentials.tenant_id': self.PROJECT_ID,
-            'os_primary.credentials.project_id': self.PROJECT_ID,
-        }
-        self.mock_test_obj = mock.Mock(
-            __name__='patrole_unit_test', spec=test.BaseTestCase,
-            os_primary=mock.Mock(),
-            get_auth_providers=mock.Mock(return_value=[mock.Mock()]),
-            **test_obj_kwargs)
-
         # Mock out functionality that can't be used by unit tests. Mocking out
         # time.sleep is a test optimization.
-        self.mock_time = mock.patch.object(
-            rbac_utils, 'time', __name__='mock_time', spec=time).start()
-        mock.patch.object(credentials, 'get_configured_admin_credentials',
-                          spec=object).start()
-        mock_admin_mgr = mock.patch.object(
-            clients, 'Manager', spec=clients.Manager,
-            roles_v3_client=mock.Mock(), roles_client=mock.Mock()).start()
+        self.mock_time = self.patchobject(rbac_utils, 'time',
+                                          __name__='mock_time', spec=time)
+        self.patchobject(credentials, 'get_configured_admin_credentials',
+                         spec=object)
+        mock_admin_mgr = self.patchobject(rbac_utils.clients, 'Manager',
+                                          spec=rbac_utils.clients.Manager,
+                                          roles_v3_client=mock.Mock(),
+                                          roles_client=mock.Mock())
         self.admin_roles_client = mock_admin_mgr.return_value.roles_v3_client
         self.admin_roles_client.list_all_role_inference_rules.return_value = {
-            "role_inferences": []}
+            "role_inferences": [
+                {
+                    "implies": [{"id": "reader_id", "name": "reader"}],
+                    "prior_role": {"id": "member_id", "name": "member"}
+                },
+                {
+                    "implies": [{"id": "member_id", "name": "member"}],
+                    "prior_role": {"id": "admin_id", "name": "admin"}
+                }
+            ]
+        }
 
-        self.set_roles(['admin', 'member'], [])
+        default_roles = {'admin', 'member', 'reader'}.union(
+            set(self._rbac_test_roles))
+        self.set_roles(list(default_roles), [])
 
-    def override_role(self, *role_toggles):
-        """Instantiate `rbac_utils.RbacUtils` and call `override_role`.
+        test_obj_kwargs = {
+            'credentials.user_id': self.USER_ID,
+            'credentials.tenant_id': self.PROJECT_ID,
+            'credentials.project_id': self.PROJECT_ID,
+        }
 
-        Create an instance of `rbac_utils.RbacUtils` and call `override_role`
-        for each boolean value in `role_toggles`. The number of calls to
-        `override_role` is always 1 + len(`role_toggles`) because the
-        `rbac_utils.RbacUtils` constructor automatically calls `override_role`.
+        class FakeRbacTest(FakeBaseRbacTest):
+            os_primary = mock.Mock()
 
-        :param role_toggles: the list of boolean values iterated over and
-            passed to `override_role`.
-        """
-        _rbac_utils = rbac_utils.RbacUtils(self.mock_test_obj)
+        FakeRbacTest.os_primary.configure_mock(**test_obj_kwargs)
 
-        for role_toggle in role_toggles:
-            _rbac_utils._override_role(self.mock_test_obj, role_toggle)
-            # NOTE(felipemonteiro): Simulate that a role switch has occurred
-            # by updating the user's current role to the new role. This means
-            # that all API actions involved during a role switch -- listing,
-            # deleting and adding roles -- are executed, making it easier to
-            # assert that mock calls were called as expected.
-            new_role = 'member' if role_toggle else 'admin'
-            self.set_roles(['admin', 'member'], [new_role])
-
-    @contextmanager
-    def real_override_role(self, test_obj):
-        """Actual call to ``override_role``.
-
-        Useful for ensuring all the necessary mocks are performed before
-        the method in question is called.
-        """
-        _rbac_utils = rbac_utils.RbacUtils(test_obj)
-        with _rbac_utils.override_role(test_obj):
-            yield
+        FakeRbacTest.setUpClass()
+        self.test_obj = FakeRbacTest()
+        if self._do_reset_mocks:
+            self.admin_roles_client.reset_mock()
+            self.test_obj.os_primary.reset_mock()
+            self.mock_time.reset_mock()
 
     def set_roles(self, roles, roles_on_project=None):
         """Set the list of available roles in the system.
@@ -159,28 +160,3 @@ class RbacUtilsFixture(fixtures.Fixture):
         self.admin_roles_client.list_roles.return_value = available_roles
         self.admin_roles_client.list_user_roles_on_project.return_value = (
             available_project_roles)
-
-    def get_all_needed_roles(self, roles):
-        self.admin_roles_client.list_all_role_inference_rules.return_value = {
-            "role_inferences": [
-                {
-                    "implies": [{"id": "3", "name": "reader"}],
-                    "prior_role": {"id": "2", "name": "member"}
-                },
-                {
-                    "implies": [{"id": "2", "name": "member"}],
-                    "prior_role": {"id": "1", "name": "admin"}
-                }
-            ]
-        }
-
-        # Call real get_all_needed_roles function
-        with mock.patch.object(rbac_utils.RbacUtils, '_override_role',
-                               autospec=True):
-            obj = rbac_utils.RbacUtils(mock.Mock())
-            obj._role_map = {
-                "1": "admin", "admin": "1",
-                "2": "member", "member": "2",
-                "3": "reader", "reader": "3"
-            }
-            return obj.get_all_needed_roles(roles)

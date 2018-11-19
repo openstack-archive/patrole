@@ -31,7 +31,6 @@ class BaseVolumeRbacTest(rbac_utils.RbacUtilsMixin,
     @classmethod
     def setup_clients(cls):
         super(BaseVolumeRbacTest, cls).setup_clients()
-        cls.setup_rbac_utils()
         cls.volume_hosts_client = cls.os_primary.volume_hosts_client_latest
         cls.volume_types_client = cls.os_primary.volume_types_client_latest
         cls.groups_client = cls.os_primary.groups_client_latest

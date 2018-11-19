@@ -18,8 +18,4 @@ from patrole_tempest_plugin import rbac_utils
 
 class BaseV2ImageRbacTest(rbac_utils.RbacUtilsMixin,
                           image_base.BaseV2ImageTest):
-
-    @classmethod
-    def setup_clients(cls):
-        super(BaseV2ImageRbacTest, cls).setup_clients()
-        cls.setup_rbac_utils()
+    pass

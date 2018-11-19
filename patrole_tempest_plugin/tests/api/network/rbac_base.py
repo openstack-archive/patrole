@@ -23,11 +23,7 @@ from patrole_tempest_plugin import rbac_utils
 
 class BaseNetworkRbacTest(rbac_utils.RbacUtilsMixin,
                           network_base.BaseNetworkTest):
-
-    @classmethod
-    def setup_clients(cls):
-        super(BaseNetworkRbacTest, cls).setup_clients()
-        cls.setup_rbac_utils()
+    pass
 
 
 class BaseNetworkExtRbacTest(BaseNetworkRbacTest):

@@ -28,11 +28,6 @@ class BaseIdentityRbacTest(rbac_utils.RbacUtilsMixin,
                            base.BaseIdentityTest):
 
     @classmethod
-    def setup_clients(cls):
-        super(BaseIdentityRbacTest, cls).setup_clients()
-        cls.setup_rbac_utils()
-
-    @classmethod
     def setup_test_endpoint(cls, service=None):
         """Creates a service and an endpoint for test."""
         interface = 'public'
