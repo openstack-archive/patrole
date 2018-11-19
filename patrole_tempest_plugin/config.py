@@ -117,7 +117,7 @@ PatroleLogGroup = [
     cfg.StrOpt('report_log_path',
                default='.',
                help="Path (relative or absolute) where the output from "
-                    "'enable_reporting' is logged. This is combined with"
+                    "'enable_reporting' is logged. This is combined with "
                     "report_log_name to generate the full path."),
 ]
 
