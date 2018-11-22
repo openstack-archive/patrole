@@ -77,10 +77,7 @@
     parent: patrole-base
     description: Patrole job for member role.
     # This currently works from stable/pike onward.
-    branches:
-      - master
-      - stable/queens
-      - stable/pike
+    branches: ^(?!stable/ocata).*$
     vars:
       devstack_localrc:
         RBAC_TEST_ROLES: member
