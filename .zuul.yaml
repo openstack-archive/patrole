@@ -87,16 +87,19 @@
 
 - job:
     name: patrole-member-rocky
+    nodeset: openstack-single-node-xenial
     parent: patrole-member
     override-checkout: stable/rocky
 
 - job:
     name: patrole-member-queens
+    nodeset: openstack-single-node-xenial
     parent: patrole-member
     override-checkout: stable/queens
 
 - job:
     name: patrole-member-pike
+    nodeset: openstack-single-node-xenial
     parent: patrole-member
     override-checkout: stable/pike
 
