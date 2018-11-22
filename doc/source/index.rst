@@ -61,7 +61,7 @@ Framework
 ---------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    framework/overview
    framework/rbac_validation
@@ -69,6 +69,7 @@ Framework
    framework/policy_authority
    framework/requirements_authority
    framework/rbac_utils
+   framework/code/modules
 
 Indices and tables
 ==================

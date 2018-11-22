@@ -57,7 +57,4 @@ This validation approach should be used when:
 Implementation
 --------------
 
-.. automodule:: patrole_tempest_plugin.policy_authority
-   :members:
-   :undoc-members:
-   :special-members:
+:py:mod:`Policy Authority Module <patrole_tempest_plugin.policy_authority>`

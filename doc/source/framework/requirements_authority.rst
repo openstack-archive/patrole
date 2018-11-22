@@ -153,7 +153,4 @@ This example must be read as ``<allowed_role_1> and <allowed_role_2> and not
 Implementation
 --------------
 
-.. automodule:: patrole_tempest_plugin.requirements_authority
-   :members:
-   :undoc-members:
-   :special-members:
+:py:mod:`Requirements Authority Module <patrole_tempest_plugin.requirements_authority>`

@@ -26,10 +26,7 @@ custom policy rule definitions, which can be arbitrarily complex.
 Implementation
 --------------
 
-.. automodule:: patrole_tempest_plugin.rbac_utils
-   :members:
-   :private-members:
-   :special-members:
+:py:mod:`RBAC Utils Module <patrole_tempest_plugin.rbac_utils>`
 
 .. _Tempest credentials: https://docs.openstack.org/tempest/latest/library/credential_providers.html
 .. _dynamic credentials: https://docs.openstack.org/tempest/latest/configuration.html#dynamic-credentials
