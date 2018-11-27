@@ -43,6 +43,23 @@ The following are Patrole's specific Commandments:
 
 .. _extension test class: https://github.com/openstack/patrole/tree/master/patrole_tempest_plugin/tests/api/network#neutron-extension-rbac-tests
 
+Supported OpenStack Components
+------------------------------
+
+Patrole only offers **in-tree** integration testing coverage for the following
+components:
+
+* Cinder
+* Glance
+* Keystone
+* Neutron
+* Nova
+
+Patrole currently has no stable library, so reliance upon Patrole's framework
+for external RBAC testing should be done with caution. Nonetheless, even when
+Patrole has a stable library, it will only offer in-tree RBAC testing for
+the components listed above.
+
 Role Overriding
 ---------------
 
