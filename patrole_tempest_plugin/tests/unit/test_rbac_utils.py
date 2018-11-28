@@ -200,6 +200,19 @@ class RBACUtilsTest(base.TestCase):
         mock_override_role.assert_called_once_with(_rbac_utils, test_obj,
                                                    False)
 
+    def test_override_role_and_validate_list(self):
+        self.patchobject(rbac_utils.RbacUtils, '_override_role')
+        test_obj = mock.MagicMock()
+        _rbac_utils = rbac_utils.RbacUtils(test_obj)
+        m_override_role = self.patchobject(_rbac_utils, 'override_role')
+
+        with (_rbac_utils.override_role_and_validate_list(
+                test_obj, 'foo')) as ctx:
+            self.assertIsInstance(ctx, rbac_utils._ValidateListContext)
+            m_validate = self.patchobject(ctx, '_validate')
+        m_override_role.assert_called_once_with(test_obj)
+        m_validate.assert_called_once()
+
 
 class RBACUtilsMixinTest(base.TestCase):
 
@@ -233,3 +246,87 @@ class RBACUtilsMixinTest(base.TestCase):
 
         self.assertTrue(hasattr(child_test, 'rbac_utils'))
         self.assertIsInstance(child_test.rbac_utils, rbac_utils.RbacUtils)
+
+
+class ValidateListContextTest(base.TestCase):
+    @staticmethod
+    def _get_context(admin_resources=None, admin_resource_id=None):
+        return rbac_utils._ValidateListContext(
+            admin_resources=admin_resources,
+            admin_resource_id=admin_resource_id)
+
+    def test_incorrect_usage(self):
+        # admin_resources and admin_resource_is are not assigned
+        self.assertRaises(rbac_exceptions.RbacValidateListException,
+                          self._get_context)
+
+        # both admin_resources and admin_resource_is are assigned
+        self.assertRaises(rbac_exceptions.RbacValidateListException,
+                          self._get_context,
+                          admin_resources='foo', admin_resource_id='bar')
+        # empty list assigned to admin_resources
+        self.assertRaises(rbac_exceptions.RbacValidateListException,
+                          self._get_context, admin_resources=[])
+
+        # ctx.resources is not assigned
+        ctx = self._get_context(admin_resources='foo')
+        self.assertRaises(rbac_exceptions.RbacValidateListException,
+                          ctx._validate)
+
+    def test_validate_len_negative(self):
+        ctx = self._get_context(admin_resources=[1, 2, 3, 4])
+        self.assertEqual(ctx._validate_len, ctx._validate_func)
+        self.assertEqual(4, ctx._admin_len)
+        self.assertFalse(hasattr(ctx, '_admin_resource_id'))
+
+        # the number of resources is less than admin resources
+        ctx.resources = [1, 2, 3]
+        self.assertRaises(rbac_exceptions.RbacPartialResponseBody,
+                          ctx._validate_len)
+
+        # the resources is empty
+        ctx.resources = []
+        self.assertRaises(rbac_exceptions.RbacEmptyResponseBody,
+                          ctx._validate_len)
+
+    def test_validate_len(self):
+        ctx = self._get_context(admin_resources=[1, 2, 3, 4])
+
+        # the number of resources and admin resources are same
+        ctx.resources = [1, 2, 3, 4]
+        self.assertIsNone(ctx._validate_len())
+
+    def test_validate_resource_negative(self):
+        ctx = self._get_context(admin_resource_id=1)
+        self.assertEqual(ctx._validate_resource, ctx._validate_func)
+        self.assertEqual(1, ctx._admin_resource_id)
+        self.assertFalse(hasattr(ctx, '_admin_len'))
+
+        # there is no admin resource in the resources
+        ctx.resources = [{'id': 2}, {'id': 3}]
+        self.assertRaises(rbac_exceptions.RbacPartialResponseBody,
+                          ctx._validate_resource)
+
+    def test_validate_resource(self):
+        ctx = self._get_context(admin_resource_id=1)
+
+        # there is admin resource in the resources
+        ctx.resources = [{'id': 1}, {'id': 2}]
+        self.assertIsNone(ctx._validate_resource())
+
+    def test_validate(self):
+        ctx = self._get_context(admin_resources='foo')
+        ctx.resources = 'bar'
+        with mock.patch.object(ctx, '_validate_func',
+                               autospec=False) as m_validate_func:
+            m_validate_func.side_effect = (
+                rbac_exceptions.RbacPartialResponseBody,
+                None
+            )
+            self.assertRaises(rbac_exceptions.RbacPartialResponseBody,
+                              ctx._validate)
+            m_validate_func.assert_called_once()
+
+            m_validate_func.reset_mock()
+            ctx._validate()
+            m_validate_func.assert_called_once()

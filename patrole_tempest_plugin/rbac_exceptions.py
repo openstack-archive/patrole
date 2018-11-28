@@ -47,7 +47,7 @@ class RbacEmptyResponseBody(BasePatroleResponseBodyException):
     """Raised when a list or show action is empty following RBAC authorization
     failure.
     """
-    message = ("The response body is empty due to policy enforcement failure.")
+    message = "The response body is empty due to policy enforcement failure."
 
 
 class RbacResourceSetupFailed(BasePatroleException):
@@ -104,3 +104,16 @@ class RbacOverrideRoleException(BasePatroleException):
     * an exception is raised after ``override_role`` context
     """
     message = "Override role failure or incorrect usage"
+
+
+class RbacValidateListException(BasePatroleException):
+    """Raised when override_role_and_validate_list is used incorrectly.
+
+    Specifically, when:
+
+    * Neither ``resource_id`` nor ``resources`` is initialized
+    * Both ``resource_id`` and ``resources`` are initialized
+    * The ``ctx.resources`` variable wasn't set in
+        override_role_and_validate_list context.
+    """
+    message = "Incorrect usage of override_role_and_validate_list: %(reason)s"

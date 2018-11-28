@@ -13,7 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from contextlib import contextmanager
+import contextlib
 import sys
 import time
 
@@ -29,6 +29,77 @@ from patrole_tempest_plugin import rbac_exceptions
 
 CONF = config.CONF
 LOG = logging.getLogger(__name__)
+
+
+class _ValidateListContext(object):
+    """Context class responsible for validation of the list functions.
+
+    This class is used in ``override_role_and_validate_list`` function and
+    the result of a list function must be assigned to the ``ctx.resources``
+    variable.
+
+    Example::
+
+        with self.rbac_utils.override_role_and_validate_list(...) as ctx:
+            ctx.resources = list_function()
+
+    """
+    def __init__(self, admin_resources=None, admin_resource_id=None):
+        """Constructor for ``ValidateListContext``.
+
+        Either ``admin_resources`` or ``admin_resource_id`` should be used,
+            not both.
+
+        :param list admin_resources: The list of resources received before
+            calling the ``override_role_and_validate_list`` function. To
+            validate will be used the ``_validate_len`` function.
+        :param UUID admin_resource_id: An ID of a resource created before
+            calling the ``override_role_and_validate_list`` function. To
+            validate will be used the ``_validate_resource`` function.
+        :raises RbacValidateListException: if both ``admin_resources`` and
+            ``admin_resource_id`` are set or unset.
+        """
+        self.resources = None
+        if admin_resources is not None and not admin_resource_id:
+            self._admin_len = len(admin_resources)
+            if not self._admin_len:
+                raise rbac_exceptions.RbacValidateListException(
+                    reason="the list of admin resources cannot be empty")
+            self._validate_func = self._validate_len
+        elif admin_resource_id and admin_resources is None:
+            self._admin_resource_id = admin_resource_id
+            self._validate_func = self._validate_resource
+        else:
+            raise rbac_exceptions.RbacValidateListException(
+                reason="admin_resources and admin_resource_id are mutually "
+                       "exclusive")
+
+    def _validate_len(self):
+        """Validates that the number of resources is less than admin resources.
+        """
+        if not len(self.resources):
+            raise rbac_exceptions.RbacEmptyResponseBody()
+        elif self._admin_len > len(self.resources):
+            raise rbac_exceptions.RbacPartialResponseBody(body=self.resources)
+
+    def _validate_resource(self):
+        """Validates that the admin resource is present in the resources.
+        """
+        for resource in self.resources:
+            if resource['id'] == self._admin_resource_id:
+                return
+        raise rbac_exceptions.RbacPartialResponseBody(body=self.resources)
+
+    def _validate(self):
+        """Calls the proper validation function.
+
+        :raises RbacValidateListException: if the ``ctx.resources`` variable is
+            not assigned.
+        """
+        if self.resources is None:
+            raise rbac_exceptions.RbacValidateListException(
+                reason="ctx.resources is not assigned")
+        self._validate_func()
 
 
 class RbacUtils(object):
@@ -68,7 +139,7 @@ class RbacUtils(object):
     admin_role_id = None
     rbac_role_ids = None
 
-    @contextmanager
+    @contextlib.contextmanager
     def override_role(self, test_obj):
         """Override the role used by ``os_primary`` Tempest credentials.
 
@@ -219,6 +290,41 @@ class RbacUtils(object):
                 self.project_id, self.user_id, role['id'])
 
         return False
+
+    @contextlib.contextmanager
+    def override_role_and_validate_list(self, test_obj, admin_resources=None,
+                                        admin_resource_id=None):
+        """Call ``override_role`` and validate RBAC for a list API action.
+
+        List actions usually do soft authorization: partial or empty response
+        bodies are returned instead of exceptions. This helper validates
+        that unauthorized roles only return a subset of the available
+        resources.
+        Should only be used for validating list API actions.
+
+        :param test_obj: Instance of ``tempest.test.BaseTestCase``.
+        :param list admin_resources: The list of resources received before
+            calling the ``override_role_and_validate_list`` function.
+        :param UUID admin_resource_id: An ID of a resource created before
+            calling the ``override_role_and_validate_list`` function.
+        :return: py:class:`_ValidateListContext` object.
+
+        Example::
+
+            # the resource created by admin
+            admin_resource_id = (
+                self.ntp_client.create_dscp_marking_rule()
+                ["dscp_marking_rule"]["id'])
+            with self.rbac_utils.override_role_and_validate_list(
+                    self, admin_resource_id=admin_resource_id) as ctx:
+                # the list of resources available for member role
+                ctx.resources = self.ntp_client.list_dscp_marking_rules(
+                    policy_id=self.policy_id)["dscp_marking_rules"]
+        """
+        ctx = _ValidateListContext(admin_resources, admin_resource_id)
+        with self.override_role(test_obj):
+            yield ctx
+            ctx._validate()
 
 
 class RbacUtilsMixin(object):
