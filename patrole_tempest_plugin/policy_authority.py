@@ -169,6 +169,27 @@ class PolicyAuthority(RbacAuthority):
             is_admin=is_admin_context)
         return is_allowed
 
+    def _handle_deprecated_rule(self, default):
+        deprecated_rule = default.deprecated_rule
+        deprecated_msg = (
+            'Policy "%(old_name)s":"%(old_check_str)s" was deprecated in '
+            '%(release)s in favor of "%(name)s":"%(check_str)s". Reason: '
+            '%(reason)s. Either ensure your deployment is ready for the new '
+            'default or copy/paste the deprecated policy into your policy '
+            'file and maintain it manually.' % {
+                'old_name': deprecated_rule.name,
+                'old_check_str': deprecated_rule.check_str,
+                'release': default.deprecated_since,
+                'name': default.name,
+                'check_str': default.check_str,
+                'reason': default.deprecated_reason
+            }
+        )
+        LOG.warn(deprecated_msg)
+        check_str = '(%s) or (%s)' % (default.check_str,
+                                      deprecated_rule.check_str)
+        return policy.RuleDefault(default.name, check_str)
+
     def get_rules(self):
         rules = policy.Rules()
         # Check whether policy file exists and attempt to read it.
@@ -203,6 +224,12 @@ class PolicyAuthority(RbacAuthority):
             if self.service in policy_generator:
                 for rule in policy_generator[self.service]:
                     if rule.name not in rules:
+                        if CONF.patrole.validate_deprecated_rules:
+                            # NOTE (sergey.vilgelm):
+                            # The `DocumentedRuleDefault` object has no
+                            # `deprecated_rule` attribute in Pike
+                            if getattr(rule, 'deprecated_rule', False):
+                                rule = self._handle_deprecated_rule(rule)
                         rules[rule.name] = rule.check
                     elif str(rule.check) != str(rules[rule.name]):
                         msg = ("The same policy name: %s was found in the "
@@ -238,13 +265,17 @@ class PolicyAuthority(RbacAuthority):
         return CONF.identity.admin_role in roles
 
     def _get_access_token(self, roles):
+        roles = {r.lower() for r in roles if r}
+
+        # Extend roles for an user with admin or member role
+        if 'admin' in roles:
+            roles.add('member')
+        if 'member' in roles:
+            roles.add('reader')
+
         access_token = {
             "token": {
-                "roles": [
-                    {
-                        "name": role
-                    } for role in roles
-                ],
+                "roles": [{'name': r} for r in roles],
                 "project_id": self.project_id,
                 "tenant_id": self.project_id,
                 "user_id": self.user_id

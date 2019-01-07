@@ -96,6 +96,11 @@ api_action = the policy action that is being tested. Examples:
 * add_image
 
 allowed_role = the ``oslo.policy`` role that is allowed to perform the API.
+"""),
+    cfg.BoolOpt('validate_deprecated_rules', default=True,
+                help="""Some of the policy rules have deprecated version,
+Patrole should be able to run check against default and deprecated rules,
+otherwise the result of the tests may not be correct.
 """)
 ]
 

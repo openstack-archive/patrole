@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Patrole will validate the deprecated policy rules (if applicable) alongside
+    the current policy rule.
+    Add ``[patrole] validate_deprecated_rules`` enabled by default to validate
+    the deprecated rules.
