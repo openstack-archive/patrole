@@ -18,10 +18,10 @@ import testtools
 
 from tempest.lib import exceptions as lib_exc
 from tempest import test
-from tempest.tests import base
 
 from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_utils
+from patrole_tempest_plugin.tests.unit import base
 from patrole_tempest_plugin.tests.unit import fixtures as patrole_fixtures
 
 
@@ -212,6 +212,58 @@ class RBACUtilsTest(base.TestCase):
             m_validate = self.patchobject(ctx, '_validate')
         m_override_role.assert_called_once_with(test_obj)
         m_validate.assert_called_once()
+
+    def test_prepare_role_inferences_mapping(self):
+        self.patchobject(rbac_utils.RbacUtils, '_override_role')
+        test_obj = mock.MagicMock()
+        _rbac_utils = rbac_utils.RbacUtils(test_obj)
+        _rbac_utils.admin_roles_client.list_all_role_inference_rules.\
+            return_value = {
+                "role_inferences": [
+                    {
+                        "implies": [{"id": "3", "name": "reader"}],
+                        "prior_role": {"id": "2", "name": "member"}
+                    },
+                    {
+                        "implies": [{"id": "2", "name": "member"}],
+                        "prior_role": {"id": "1", "name": "admin"}
+                    }
+                ]
+            }
+
+        expected_role_inferences_mapping = {
+            "2": {"3"},      # "member": ["reader"],
+            "1": {"2", "3"}  # "admin": ["member", "reader"]
+        }
+        actual_role_inferences_mapping = _rbac_utils.\
+            _prepare_role_inferences_mapping()
+        self.assertEqual(expected_role_inferences_mapping,
+                         actual_role_inferences_mapping)
+
+    def test_get_all_needed_roles(self):
+        self.patchobject(rbac_utils.RbacUtils, '_override_role')
+        test_obj = mock.MagicMock()
+        _rbac_utils = rbac_utils.RbacUtils(test_obj)
+        _rbac_utils._role_inferences_mapping = {
+            "2": {"3"},      # "member": ["reader"],
+            "1": {"2", "3"}  # "admin": ["member", "reader"]
+        }
+        _rbac_utils._role_map = {
+            "1": "admin", "admin": "1",
+            "2": "member", "member": "2",
+            "3": "reader", "reader": "3"
+        }
+        for roles, expected_roles in (
+            (['admin'], ['admin', 'member', 'reader']),
+            (['member'], ['member', 'reader']),
+            (['reader'], ['reader']),
+            (['custom_role'], ['custom_role']),
+            (['custom_role', 'member'], ['custom_role', 'member', 'reader']),
+            (['admin', 'member'], ['admin', 'member', 'reader']),
+        ):
+            expected_roles = sorted(expected_roles)
+            actual_roles = sorted(_rbac_utils.get_all_needed_roles(roles))
+        self.assertEqual(expected_roles, actual_roles)
 
 
 class RBACUtilsMixinTest(base.TestCase):

@@ -15,10 +15,10 @@
 import os
 
 from tempest.lib import exceptions
-from tempest.tests import base
 
 from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import requirements_authority as req_auth
+from patrole_tempest_plugin.tests.unit import base
 
 
 class BaseRequirementsAuthorityTest(base.TestCase):

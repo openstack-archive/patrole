@@ -17,10 +17,10 @@ import mock
 import os
 
 from tempest import config
-from tempest.tests import base
 
 from patrole_tempest_plugin import policy_authority
 from patrole_tempest_plugin import rbac_exceptions
+from patrole_tempest_plugin.tests.unit import base
 from patrole_tempest_plugin.tests.unit import fixtures
 
 CONF = config.CONF
@@ -95,6 +95,8 @@ class PolicyAuthorityTest(base.TestCase):
             test_user_id = mock.sentinel.user_id
             authority = policy_authority.PolicyAuthority(
                 test_tenant_id, test_user_id, service)
+
+        roles = self.get_all_needed_roles(roles)
 
         for rule in allowed_rules:
             allowed = authority.allowed(rule, roles)
@@ -286,7 +288,8 @@ class PolicyAuthorityTest(base.TestCase):
             }
 
             for rule in allowed_rules:
-                allowed = authority.allowed(rule, ['member'])
+                allowed = authority.allowed(
+                    rule, self.get_all_needed_roles(['member']))
                 self.assertTrue(allowed)
                 # for sure that roles are in same order
                 mock_try_rule.call_args[0][2]["roles"] = sorted(

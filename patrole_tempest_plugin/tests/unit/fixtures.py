@@ -94,6 +94,8 @@ class RbacUtilsFixture(fixtures.Fixture):
             clients, 'Manager', spec=clients.Manager,
             roles_v3_client=mock.Mock(), roles_client=mock.Mock()).start()
         self.admin_roles_client = mock_admin_mgr.return_value.roles_v3_client
+        self.admin_roles_client.list_all_role_inference_rules.return_value = {
+            "role_inferences": []}
 
         self.set_roles(['admin', 'member'], [])
 
@@ -157,3 +159,28 @@ class RbacUtilsFixture(fixtures.Fixture):
         self.admin_roles_client.list_roles.return_value = available_roles
         self.admin_roles_client.list_user_roles_on_project.return_value = (
             available_project_roles)
+
+    def get_all_needed_roles(self, roles):
+        self.admin_roles_client.list_all_role_inference_rules.return_value = {
+            "role_inferences": [
+                {
+                    "implies": [{"id": "3", "name": "reader"}],
+                    "prior_role": {"id": "2", "name": "member"}
+                },
+                {
+                    "implies": [{"id": "2", "name": "member"}],
+                    "prior_role": {"id": "1", "name": "admin"}
+                }
+            ]
+        }
+
+        # Call real get_all_needed_roles function
+        with mock.patch.object(rbac_utils.RbacUtils, '_override_role',
+                               autospec=True):
+            obj = rbac_utils.RbacUtils(mock.Mock())
+            obj._role_map = {
+                "1": "admin", "admin": "1",
+                "2": "member", "member": "2",
+                "3": "reader", "reader": "3"
+            }
+            return obj.get_all_needed_roles(roles)

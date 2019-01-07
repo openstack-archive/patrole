@@ -119,6 +119,10 @@ class RbacUtils(object):
 
         :param test_obj: An instance of `tempest.test.BaseTestCase`.
         """
+        self.admin_role_id = None
+        self.rbac_role_ids = None
+        self._role_map = None
+
         # Intialize the admin roles_client to perform role switching.
         admin_mgr = clients.Manager(
             credentials.get_configured_admin_credentials())
@@ -132,12 +136,83 @@ class RbacUtils(object):
 
         self.user_id = test_obj.os_primary.credentials.user_id
         self.project_id = test_obj.os_primary.credentials.tenant_id
+        self._role_inferences_mapping = self._prepare_role_inferences_mapping()
 
         # Change default role to admin
         self._override_role(test_obj, False)
 
-    admin_role_id = None
-    rbac_role_ids = None
+    def _prepare_role_inferences_mapping(self):
+        """Preparing roles mapping to support role inferences
+
+        Making query to `list-all-role-inference-rules`_ keystone API
+        returns all inference rules, which makes it possible to prepare
+        roles mapping.
+
+        It walks recursively through the raw data::
+
+            {"role_inferences": [
+                {
+                  "implies": [{"id": "3", "name": "reader"}],
+                  "prior_role": {"id": "2", "name": "member"}
+                },
+                {
+                  "implies": [{"id": "2", "name": "member"}],
+                  "prior_role": {"id": "1", "name": "admin"}
+                }
+              ]
+            }
+
+        and converts it to the mapping::
+
+            {
+              "2": ["3"],      # "member": ["reader"],
+              "1": ["2", "3"]  # "admin": ["member", "reader"]
+            }
+
+        .. _list-all-role-inference-rules: https://developer.openstack.org/api-ref/identity/v3/#list-all-role-inference-rules
+        """  # noqa: E501
+        def process_roles(role_id, data):
+            roles = data.get(role_id, set())
+            for rid in roles.copy():
+                roles.update(process_roles(rid, data))
+
+            return roles
+
+        def convert_data(data):
+            res = {}
+            for rule in data:
+                prior_role = rule['prior_role']['id']
+                implies = {r['id'] for r in rule['implies']}
+                res[prior_role] = implies
+            return res
+
+        raw_data = self.admin_roles_client.list_all_role_inference_rules()
+        data = convert_data(raw_data['role_inferences'])
+        res = {}
+        for role_id in data:
+            res[role_id] = process_roles(role_id, data)
+        return res
+
+    def get_all_needed_roles(self, roles):
+        """Extending given roles with roles from mapping
+
+        Examples::
+            ["admin"] >> ["admin", "member", "reader"]
+            ["member"] >> ["member", "reader"]
+            ["reader"] >> ["reader"]
+            ["custom_role"] >> ["custom_role"]
+
+        :param roles: list of roles
+        :return: extended list of roles
+        """
+        res = set(r for r in roles)
+        for role in res.copy():
+            role_id = self._role_map.get(role)
+            implied_roles = self._role_inferences_mapping.get(role_id, set())
+            role_names = {self._role_map[rid] for rid in implied_roles}
+            res.update(role_names)
+        LOG.debug('All needed roles: %s; Base roles: %s', res, roles)
+        return list(res)
 
     @contextlib.contextmanager
     def override_role(self, test_obj):
@@ -233,8 +308,8 @@ class RbacUtils(object):
 
     def _get_roles_by_name(self):
         available_roles = self.admin_roles_client.list_roles()['roles']
-        role_map = {r['name']: r['id'] for r in available_roles}
-        LOG.debug('Available roles: %s', list(role_map.keys()))
+        self._role_map = {r['name']: r['id'] for r in available_roles}
+        LOG.debug('Available roles: %s', list(self._role_map.keys()))
 
         rbac_role_ids = []
         roles = CONF.patrole.rbac_test_roles
@@ -244,9 +319,9 @@ class RbacUtils(object):
                 roles.append(CONF.patrole.rbac_test_role)
 
         for role_name in roles:
-            rbac_role_ids.append(role_map.get(role_name))
+            rbac_role_ids.append(self._role_map.get(role_name))
 
-        admin_role_id = role_map.get(CONF.identity.admin_role)
+        admin_role_id = self._role_map.get(CONF.identity.admin_role)
 
         if not all([admin_role_id, all(rbac_role_ids)]):
             missing_roles = []
@@ -257,15 +332,18 @@ class RbacUtils(object):
                 missing_roles.append(CONF.identity.admin_role)
             if not all(rbac_role_ids):
                 missing_roles += [role_name for role_name in roles
-                                  if not role_map.get(role_name)]
+                                  if not self._role_map.get(role_name)]
 
             msg += " Following roles were not found: %s." % (
                 ", ".join(missing_roles))
-            msg += " Available roles: %s." % ", ".join(list(role_map.keys()))
+            msg += " Available roles: %s." % ", ".join(list(
+                self._role_map.keys()))
             raise rbac_exceptions.RbacResourceSetupFailed(msg)
 
         self.admin_role_id = admin_role_id
         self.rbac_role_ids = rbac_role_ids
+        # Adding backward mapping
+        self._role_map.update({v: k for k, v in self._role_map.items()})
 
     def _create_user_role_on_project(self, role_ids):
         for role_id in role_ids:

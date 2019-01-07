@@ -344,6 +344,9 @@ def _is_authorized(test_obj, service, rule, extra_target_data):
         if not roles:
             roles.append(CONF.patrole.rbac_test_role)
 
+    # Adding implied roles
+    roles = test_obj.rbac_utils.get_all_needed_roles(roles)
+
     # Test RBAC against custom requirements. Otherwise use oslo.policy.
     if CONF.patrole.test_custom_requirements:
         authority = requirements_authority.RequirementsAuthority(

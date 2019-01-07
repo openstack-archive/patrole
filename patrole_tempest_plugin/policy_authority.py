@@ -265,14 +265,6 @@ class PolicyAuthority(RbacAuthority):
         return CONF.identity.admin_role in roles
 
     def _get_access_token(self, roles):
-        roles = {r.lower() for r in roles if r}
-
-        # Extend roles for an user with admin or member role
-        if 'admin' in roles:
-            roles.add('member')
-        if 'member' in roles:
-            roles.add('reader')
-
         access_token = {
             "token": {
                 "roles": [{'name': r} for r in roles],

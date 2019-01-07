@@ -22,11 +22,11 @@ import fixtures
 from tempest.lib import exceptions
 from tempest import manager
 from tempest import test
-from tempest.tests import base
 
 from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation as rbac_rv
 from patrole_tempest_plugin import rbac_utils
+from patrole_tempest_plugin.tests.unit import base
 from patrole_tempest_plugin.tests.unit import fixtures as patrole_fixtures
 
 CONF = cfg.CONF
@@ -34,19 +34,22 @@ CONF = cfg.CONF
 
 class BaseRBACRuleValidationTest(base.TestCase):
 
+    test_roles = ['member']
+
     def setUp(self):
         super(BaseRBACRuleValidationTest, self).setUp()
         self.mock_test_args = mock.Mock(spec=test.BaseTestCase)
         self.mock_test_args.os_primary = mock.Mock(spec=manager.Manager)
         self.mock_test_args.rbac_utils = mock.Mock(
             spec_set=rbac_utils.RbacUtils)
+        self.mock_test_args.rbac_utils.get_all_needed_roles.side_effect = \
+            self.get_all_needed_roles
 
         # Setup credentials for mock client manager.
         mock_creds = mock.Mock(user_id=mock.sentinel.user_id,
                                project_id=mock.sentinel.project_id)
         setattr(self.mock_test_args.os_primary, 'credentials', mock_creds)
 
-        self.test_roles = ['member']
         self.useFixture(
             patrole_fixtures.ConfPatcher(rbac_test_roles=self.test_roles,
                                          group='patrole'))
@@ -56,28 +59,9 @@ class BaseRBACRuleValidationTest(base.TestCase):
                                          group='patrole_log'))
 
 
-class BaseRBACMultiRoleRuleValidationTest(base.TestCase):
+class BaseRBACMultiRoleRuleValidationTest(BaseRBACRuleValidationTest):
 
-    def setUp(self):
-        super(BaseRBACMultiRoleRuleValidationTest, self).setUp()
-        self.mock_test_args = mock.Mock(spec=test.BaseTestCase)
-        self.mock_test_args.os_primary = mock.Mock(spec=manager.Manager)
-        self.mock_test_args.rbac_utils = mock.Mock(
-            spec_set=rbac_utils.RbacUtils)
-
-        # Setup credentials for mock client manager.
-        mock_creds = mock.Mock(user_id=mock.sentinel.user_id,
-                               project_id=mock.sentinel.project_id)
-        setattr(self.mock_test_args.os_primary, 'credentials', mock_creds)
-
-        self.test_roles = ['member', 'anotherrole']
-        self.useFixture(
-            patrole_fixtures.ConfPatcher(rbac_test_roles=self.test_roles,
-                                         group='patrole'))
-        # Disable patrole log for unit tests.
-        self.useFixture(
-            patrole_fixtures.ConfPatcher(enable_reporting=False,
-                                         group='patrole_log'))
+    test_roles = ['member', 'anotherrole']
 
 
 class RBACRuleValidationTest(BaseRBACRuleValidationTest):
@@ -549,7 +533,7 @@ class RBACRuleValidationLoggingTest(BaseRBACRuleValidationTest):
         policy_authority = mock_authority.PolicyAuthority.return_value
         policy_authority.allowed.assert_called_with(
             mock.sentinel.action,
-            CONF.patrole.rbac_test_roles)
+            self.get_all_needed_roles(CONF.patrole.rbac_test_roles))
 
         mock_log.error.assert_not_called()
 
@@ -561,6 +545,8 @@ class RBACRuleValidationLoggingTest(BaseRBACRuleValidationTest):
         evaluated correctly.
         """
         mock_authority.PolicyAuthority.return_value.allowed.return_value = True
+        expected_roles = self.get_all_needed_roles(
+            CONF.patrole.rbac_test_roles)
 
         def partial_func(x):
             return "foo" if x == "bar" else "qux"
@@ -581,14 +567,14 @@ class RBACRuleValidationLoggingTest(BaseRBACRuleValidationTest):
         policy_authority = mock_authority.PolicyAuthority.return_value
         policy_authority.allowed.assert_called_with(
             "foo",
-            CONF.patrole.rbac_test_roles)
+            expected_roles)
         policy_authority.allowed.reset_mock()
 
         test_bar_policy(self.mock_test_args)
         policy_authority = mock_authority.PolicyAuthority.return_value
         policy_authority.allowed.assert_called_with(
             "qux",
-            CONF.patrole.rbac_test_roles)
+            expected_roles)
 
         mock_log.error.assert_not_called()
 
@@ -639,7 +625,10 @@ class RBACRuleValidationTestMultiPolicy(BaseRBACRuleValidationTest):
     def _assert_policy_authority_called_with(self, rules, mock_authority):
         m_authority = mock_authority.PolicyAuthority.return_value
         m_authority.allowed.assert_has_calls([
-            mock.call(rule, CONF.patrole.rbac_test_roles) for rule in rules
+            mock.call(
+                rule,
+                self.get_all_needed_roles(CONF.patrole.rbac_test_roles)
+            ) for rule in rules
         ])
         m_authority.allowed.reset_mock()
 

@@ -14,9 +14,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from oslotest import base
+from tempest.tests import base
 
 
-class TestCase(base.BaseTestCase):
+class TestCase(base.TestCase):
 
     """Test case base class for all unit tests."""
+
+    def get_all_needed_roles(self, roles):
+        role_inferences_mapping = {
+            "admin": {"member", "reader"},
+            "member": {"reader"}
+        }
+        res = set(r.lower() for r in roles)
+        for role in res.copy():
+            res.update(role_inferences_mapping.get(role, set()))
+        return list(res)
