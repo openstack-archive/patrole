@@ -266,7 +266,7 @@ class PolicyAuthority(RbacAuthority):
         # than hard-coding it to True. is_admin_project cannot be determined
         # from the role, but rather from project and domain names. For more
         # information, see:
-        # https://github.com/openstack/keystone/blob/37ce5417418f8acbd27f3dacb70c605b0fe48301/keystone/token/providers/common.py#L150
+        # https://git.openstack.org/cgit/openstack/keystone/tree/keystone/token/providers/common.py?id=37ce5417418f8acbd27f3dacb70c605b0fe48301#n150
         access_data['is_admin_project'] = True
 
         class Object(object):

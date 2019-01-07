@@ -41,7 +41,7 @@ The following are Patrole's specific Commandments:
   code that is more maintainable and easier to read
 - [P104] RBAC `extension test class`_ names must end in 'ExtRbacTest'
 
-.. _extension test class: https://github.com/openstack/patrole/tree/master/patrole_tempest_plugin/tests/api/network#neutron-extension-rbac-tests
+.. _extension test class: https://git.openstack.org/cgit/openstack/patrole/plain/patrole_tempest_plugin/tests/api/network/README.rst
 
 Supported OpenStack Components
 ------------------------------

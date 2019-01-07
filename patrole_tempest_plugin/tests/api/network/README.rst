@@ -41,7 +41,7 @@ gracefully skipped.
   possible (such as ``neutron_tempest_plugin.api.clients`` for the service
   clients) because the module is not a `stable interface`_.
 
-.. _policy.json file: https://github.com/openstack/neutron/blob/master/etc/policy.json
-.. _Zuul jobs: https://github.com/openstack/patrole/blob/master/.zuul.yaml
-.. _neutron-tempest-plugin: https://github.com/openstack/neutron-tempest-plugin
-.. _stable interface: https://github.com/openstack/neutron-tempest-plugin/tree/master/neutron_tempest_plugin#warning
+.. _policy.json file: https://git.openstack.org/cgit/openstack/neutron/tree/etc/policy.json?h=12.0.0
+.. _Zuul jobs: https://git.openstack.org/cgit/openstack/patrole/tree/.zuul.yaml
+.. _neutron-tempest-plugin: https://git.openstack.org/cgit/openstack/neutron-tempest-plugin
+.. _stable interface: https://git.openstack.org/cgit/openstack/neutron-tempest-plugin/plain/neutron_tempest_plugin/README.rst
