@@ -18,6 +18,7 @@ from oslo_log import log
 from tempest.common import utils
 from tempest.common import waiters
 from tempest import config
+from tempest.lib.common import fixed_network
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
@@ -42,6 +43,20 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
     def resource_setup(cls):
         super(ComputeServersRbacTest, cls).resource_setup()
         cls.server = cls.create_test_server(wait_until='ACTIVE')
+        cls.tenant_network = fixed_network.set_networks_kwarg(
+            cls.get_tenant_network()
+        )
+
+    def _get_instance_config(self):
+        instance_params = {
+            'name': data_utils.rand_name(self.__class__.__name__ + '-Server'),
+            'flavorRef': CONF.compute.flavor_ref,
+            'imageRef': CONF.compute.image_ref
+        }
+        if 'networks' in self.tenant_network:
+            instance_params['networks'] = self.tenant_network['networks']
+
+        return instance_params
 
     @rbac_rule_validation.action(
         service="nova",
@@ -49,10 +64,10 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('4f34c73a-6ddc-4677-976f-71320fa855bd')
     def test_create_server(self):
         with self.override_role():
+            instance_params = self._get_instance_config()
             server = self.servers_client.create_server(
-                name=data_utils.rand_name(self.__class__.__name__ + '-Server'),
-                flavorRef=CONF.compute.flavor_ref,
-                imageRef=CONF.compute.image_ref)['server']
+                **instance_params
+            )['server']
         self.addCleanup(waiters.wait_for_server_termination,
                         self.servers_client, server['id'])
         self.addCleanup(self.servers_client.delete_server, server['id'])
@@ -72,13 +87,12 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
         # The first key of the dictionary specifies the host name.
         host = list(hosts[0].keys())[0]
         availability_zone = 'nova:' + host
-
         with self.override_role():
+            instance_params = self._get_instance_config()
+            instance_params['availability_zone'] = availability_zone
             server = self.servers_client.create_server(
-                name=data_utils.rand_name(self.__class__.__name__ + '-Server'),
-                flavorRef=CONF.compute.flavor_ref,
-                imageRef=CONF.compute.image_ref,
-                availability_zone=availability_zone)['server']
+                **instance_params
+            )['server']
         self.addCleanup(waiters.wait_for_server_termination,
                         self.servers_client, server['id'])
         self.addCleanup(self.servers_client.delete_server, server['id'])
@@ -101,15 +115,14 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
                       'destination_type': 'volume',
                       'boot_index': 0,
                       'delete_on_termination': False}]
-        device_mapping = {'block_device_mapping_v2': bd_map_v2}
-
         with self.override_role():
-            # Use image_id='' to avoid using the default image in tempest.conf.
+            instance_params = self._get_instance_config()
+            # Use imageRef='' to avoid using the default image in tempest.conf.
+            instance_params['imageRef'] = ''
+            instance_params['block_device_mapping_v2'] = bd_map_v2
             server = self.servers_client.create_server(
-                name=data_utils.rand_name(self.__class__.__name__ + '-Server'),
-                flavorRef=CONF.compute.flavor_ref,
-                imageRef='',
-                **device_mapping)['server']
+                **instance_params
+            )['server']
         waiters.wait_for_server_status(
             self.servers_client, server['id'], 'ACTIVE')
         # Delete the server and wait for the volume to become available to
@@ -152,11 +165,11 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
         network_id = {'uuid': network['id']}
 
         with self.override_role():
+            instance_params = self._get_instance_config()
+            instance_params['networks'] = [network_id]
             server = self.servers_client.create_server(
-                name=data_utils.rand_name(self.__class__.__name__ + '-Server'),
-                flavorRef=CONF.compute.flavor_ref,
-                imageRef=CONF.compute.image_ref,
-                networks=[network_id])['server']
+                **instance_params
+            )['server']
         self.addCleanup(waiters.wait_for_server_termination,
                         self.servers_client, server['id'])
         self.addCleanup(self.servers_client.delete_server, server['id'])
