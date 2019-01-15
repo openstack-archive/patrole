@@ -81,7 +81,7 @@
 #
 # Where:
 #
-# service = the service that is being tested (Cinder, Nova, etc.).
+# service = the service that is being tested (cinder, nova, etc.).
 #
 # api_action = the policy action that is being tested. Examples:
 #
