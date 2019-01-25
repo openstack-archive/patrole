@@ -83,6 +83,17 @@
         RBAC_TEST_ROLES: member
 
 - job:
+    name: patrole-reader
+    parent: patrole-base
+    description: Patrole job for reader role.
+    # This currently works from stable/stein onward.
+    branches: ^(?!stable/(ocata|pike|queens|rocky)).*$
+    voting: false
+    vars:
+      devstack_localrc:
+        RBAC_TEST_ROLES: reader
+
+- job:
     name: patrole-member-rocky
     nodeset: openstack-single-node-xenial
     parent: patrole-member
@@ -159,14 +170,6 @@
         neutron: true
         neutron-segments: true
         neutron-qos: true
-
-- job:
-    name: patrole-extension-member
-    parent: patrole-extension-base
-    voting: false
-    vars:
-      devstack_localrc:
-        RBAC_TEST_ROLES: member
       tempest_test_regex: (?=.*ExtRbacTest)(^patrole_tempest_plugin\.tests\.api)
 
 - job:
@@ -176,7 +179,14 @@
     vars:
       devstack_localrc:
         RBAC_TEST_ROLES: admin
-      tempest_test_regex: (?=.*ExtRbacTest)(^patrole_tempest_plugin\.tests\.api)
+
+- job:
+    name: patrole-extension-member
+    parent: patrole-extension-base
+    voting: false
+    vars:
+      devstack_localrc:
+        RBAC_TEST_ROLES: member
 
 - project:
     templates:
@@ -192,6 +202,7 @@
       jobs:
         - patrole-admin
         - patrole-member
+        - patrole-reader
         - patrole-member-rocky
         - patrole-member-queens
         - patrole-member-pike
