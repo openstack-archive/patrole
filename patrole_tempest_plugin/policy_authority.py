@@ -258,7 +258,7 @@ class PolicyAuthority(RbacAuthority):
         whether the given role is contained in context_is_admin. If it is not
         in the policy file, then default to context_is_admin: admin.
         """
-        if 'context_is_admin' in self.rules.keys():
+        if 'context_is_admin' in self.rules:
             return self._allowed(
                 access=self._get_access_token(roles),
                 apply_rule='context_is_admin')
