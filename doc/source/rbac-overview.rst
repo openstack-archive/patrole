@@ -271,8 +271,8 @@ related to RBAC in Patrole.
 
     Related term: :term:`hard authorization`.
 
-.. _Nova repository: https://github.com/openstack/nova/tree/master/nova/policies
-.. _Keystone repository: https://github.com/openstack/keystone/tree/master/keystone/common/policies
+.. _Nova repository: https://git.openstack.org/cgit/openstack/nova/tree/nova/policies
+.. _Keystone repository: https://git.openstack.org/cgit/openstack/keystone/tree/keystone/common/policies
 .. _governance goal: https://governance.openstack.org/tc/goals/queens/policy-in-code.html
 .. _scope types: https://docs.openstack.org/keystone/latest/admin/identity-tokens.html#authorization-scopes
 .. _policy.yaml: https://docs.openstack.org/ocata/config-reference/policy-yaml-file.html

@@ -75,8 +75,8 @@ but not all, as its testing scope is confined to policies.
 .. _Tempest plugin: https://docs.openstack.org/tempest/latest/plugin.html
 .. _Tempest design principles: https://docs.openstack.org/tempest/latest/overview.html#design-principles
 .. _policy in code: https://specs.openstack.org/openstack/oslo-specs/specs/newton/policy-in-code.html
-.. _Nova repository: https://github.com/openstack/nova/tree/master/nova/policies
-.. _Keystone repository: https://github.com/openstack/keystone/tree/master/keystone/common/policies
+.. _Nova repository: https://git.openstack.org/cgit/openstack/nova/tree/nova/policies
+.. _Keystone repository: https://git.openstack.org/cgit/openstack/keystone/tree/keystone/common/policies
 
 Features
 --------
@@ -174,7 +174,7 @@ the steps outlined therein. Afterward, proceed with the steps below.
    the Patrole repository. To configure Patrole's logging, see the
    `Patrole Configuration Guide <https://docs.openstack.org/patrole/latest/configuration.html#patrole-configuration>`_.
 
-.. _Tempest: https://github.com/openstack/tempest
+.. _Tempest: https://git.openstack.org/cgit/openstack/tempest
 .. _Tempest_quickstart: https://docs.openstack.org/tempest/latest/overview.html#quickstart
 .. _tempest_run: https://docs.openstack.org/tempest/latest/run.html
 .. _testr: https://testrepository.readthedocs.org/en/latest/MANUAL.html

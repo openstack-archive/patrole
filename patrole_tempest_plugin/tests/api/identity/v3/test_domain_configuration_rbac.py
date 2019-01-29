@@ -28,7 +28,7 @@ class DomainConfigurationV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     """RBAC tests for domain configuration client.
 
     Provides coverage for the following policy actions:
-    https://github.com/openstack/keystone/blob/master/keystone/common/policies/domain_config.py
+    https://git.openstack.org/cgit/openstack/keystone/tree/keystone/common/policies/domain_config.py
     """
 
     identity = {"driver": "ldap"}

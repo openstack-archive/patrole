@@ -22,4 +22,4 @@ Enabling in Devstack
 
 3. Run ``stack.sh`` found in the DevStack repo.
 
-.. _README file: https://github.com/openstack-dev/devstack/blob/master/README.rst
+.. _README file: https://git.openstack.org/cgit/openstack-dev/devstack/plain/README.rst

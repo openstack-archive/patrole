@@ -20,7 +20,7 @@ information about Patrole's RBAC validation work flow, reference
 Multi-policy support allows Patrole to more accurately offer RBAC tests for API
 endpoints that enforce multiple policy actions.
 
-.. _this spec: https://github.com/openstack/qa-specs/blob/master/specs/patrole/rbac-testing-multiple-policies.rst
+.. _this spec: http://specs.openstack.org/openstack/qa-specs/specs/patrole/rbac-testing-multiple-policies.html
 
 Scope
 -----

@@ -23,7 +23,7 @@ class IdentityAuthV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     """Tests the APIs that enforce the auth policy actions.
 
     For more information about the auth policy actions, see:
-    https://github.com/openstack/keystone/blob/master/keystone/common/policies/auth.py
+    https://git.openstack.org/cgit/openstack/keystone/tree/keystone/common/policies/auth.py
     """
 
     # TODO(felipemonteiro): Add tests for identity:get_auth_catalog

@@ -505,7 +505,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
         TODO(felipemonteiro): Once multiple policy testing is supported, this
         test should also check for additional policies mentioned here:
-        https://github.com/openstack/nova/blob/master/nova/policies/server_usage.py
+        https://git.openstack.org/cgit/openstack/nova/tree/nova/policies/server_usage.py?h=17.0.0
         """
         expected_attrs = ('OS-SRV-USG:launched_at',
                           'OS-SRV-USG:terminated_at')
