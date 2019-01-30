@@ -62,3 +62,4 @@ releasenotes/build
 
 # Misc
 .stestr
+*.log
