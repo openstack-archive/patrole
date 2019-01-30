@@ -39,7 +39,7 @@ class BaseNetworkExtRbacTest(BaseNetworkRbacTest):
         """Register auth_provider from neutron-tempest-plugin.
         """
         providers = super(BaseNetworkExtRbacTest, cls).get_auth_providers()
-        if cls.is_neutron_tempest_plugin_avaliable():
+        if cls.is_neutron_tempest_plugin_available():
             providers.append(cls.ntp_client.auth_provider)
         return providers
 
@@ -47,12 +47,12 @@ class BaseNetworkExtRbacTest(BaseNetworkRbacTest):
     def skip_checks(cls):
         super(BaseNetworkExtRbacTest, cls).skip_checks()
 
-        if not cls.is_neutron_tempest_plugin_avaliable():
+        if not cls.is_neutron_tempest_plugin_available():
             msg = ("neutron-tempest-plugin not installed.")
             raise cls.skipException(msg)
 
     @classmethod
-    def is_neutron_tempest_plugin_avaliable(cls):
+    def is_neutron_tempest_plugin_available(cls):
         try:
             import neutron_tempest_plugin  # noqa
             return True
@@ -69,7 +69,7 @@ class BaseNetworkExtRbacTest(BaseNetworkRbacTest):
         )
 
         # Import neutron-tempest-plugin clients
-        if cls.is_neutron_tempest_plugin_avaliable():
+        if cls.is_neutron_tempest_plugin_available():
             from neutron_tempest_plugin.api import clients
             neutron_tempest_manager = clients.Manager(manager.credentials)
             cls.ntp_client = neutron_tempest_manager.network_client
