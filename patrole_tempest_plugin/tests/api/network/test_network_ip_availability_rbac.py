@@ -48,12 +48,13 @@ class NetworkIpAvailabilityExtRbacTest(base.BaseNetworkExtRbacTest):
             self.ntp_client.show_network_ip_availability(network['id'])
 
     @rbac_rule_validation.action(service="neutron",
-                                 rules=["get_network_ip_availabilities"])
+                                 rules=["get_network_ip_availability"])
     @decorators.idempotent_id('d4ceb5f0-2342-4412-a617-4e1aaf7fcaf0')
     def test_get_network_ip_availabilities(self):
         """List network ip availabilities
 
-        RBAC test for the neutron get_network_ip_availabilities policy
+        RBAC test for the neutron "get_network_ip_availability" policy
+        for the "list_network_ip_availabilities" action.
         """
         admin_resources = (self.ntp_client.list_network_ip_availabilities()
                            ["network_ip_availabilities"])
