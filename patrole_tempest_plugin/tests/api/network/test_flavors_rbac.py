@@ -103,16 +103,18 @@ class FlavorsExtRbacTest(base.BaseNetworkExtRbacTest):
 
     @decorators.idempotent_id('ab10bd5d-987e-4255-966f-947670ffd0fa')
     @rbac_rule_validation.action(service="neutron",
-                                 rules=["get_flavors"])
+                                 rules=["get_flavor"])
     def test_list_flavors(self):
         """List flavors.
 
-        RBAC test for the neutron "get_flavors" policy
+        RBAC test for the neutron "get_flavor" policy for "list_flavors" action
         """
         flavor = self.ntp_client.create_flavor(service_type=self.service_type)
         self.addCleanup(
             test_utils.call_and_ignore_notfound_exc,
             self.ntp_client.delete_flavor, flavor["flavor"]["id"])
 
-        with self.rbac_utils.override_role(self):
-            self.ntp_client.list_flavors()
+        with self.rbac_utils.override_role_and_validate_list(
+            self, admin_resource_id=flavor["flavor"]["id"]
+        ) as ctx:
+            ctx.resources = self.ntp_client.list_flavors()['flavors']
