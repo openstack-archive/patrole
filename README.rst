@@ -188,7 +188,7 @@ To change the roles that the patrole tests are being run as, edit
 ``rbac_test_roles`` in the ``patrole`` section of tempest.conf: ::
 
     [patrole]
-    rbac_test_role = member,reader
+    rbac_test_roles = member,reader
     ...
 
 .. note::
