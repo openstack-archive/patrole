@@ -52,7 +52,7 @@ class IdentityTokenV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         # Explicit negative test for identity:validate_token policy action.
         # Assert expected exception is Forbidden and then reraise it.
         alt_token_id = self._setup_alt_token()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             e = self.assertRaises(lib_exc.Forbidden,
                                   self.identity_client.show_token,
                                   alt_token_id)
@@ -71,7 +71,7 @@ class IdentityTokenV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         # Explicit negative test for identity:revoke_token policy action.
         # Assert expected exception is Forbidden and then reraise it.
         alt_token_id = self._setup_alt_token()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             e = self.assertRaises(lib_exc.Forbidden,
                                   self.identity_client.delete_token,
                                   alt_token_id)
@@ -90,7 +90,7 @@ class IdentityTokenV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         # Explicit negative test for identity:check_token policy action.
         # Assert expected exception is Forbidden and then reraise it.
         alt_token_id = self._setup_alt_token()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             e = self.assertRaises(lib_exc.Forbidden,
                                   self.identity_client.check_token_existence,
                                   alt_token_id)

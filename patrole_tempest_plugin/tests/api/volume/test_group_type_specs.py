@@ -39,7 +39,7 @@ class GroupTypeSpecsRbacTest(rbac_base.BaseVolumeRbacTest):
             "key2": "value2"
         }
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.group_types_client. \
                 create_or_update_group_type_specs(
                     group_type['id'], create_specs)['group_specs']
@@ -58,7 +58,7 @@ class GroupTypeSpecsRbacTest(rbac_base.BaseVolumeRbacTest):
         self.group_types_client.create_or_update_group_type_specs(
             group_type['id'], specs)['group_specs']
         # Show specified item of group type specs
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.group_types_client.show_group_type_specs_item(
                 group_type['id'], 'key2')
 
@@ -74,7 +74,7 @@ class GroupTypeSpecsRbacTest(rbac_base.BaseVolumeRbacTest):
         update_spec = {update_key: "value3-updated"}
         self.group_types_client.create_or_update_group_type_specs(
             group_type['id'], update_spec)['group_specs']
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.group_types_client.update_group_type_specs_item(
                 group_type['id'], update_key, update_spec)
 
@@ -85,7 +85,7 @@ class GroupTypeSpecsRbacTest(rbac_base.BaseVolumeRbacTest):
     )
     def test_group_type_specs_list(self):
         group_type = self.create_group_type()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.group_types_client.list_group_type_specs(
                 group_type['id'])['group_specs']
 
@@ -101,6 +101,6 @@ class GroupTypeSpecsRbacTest(rbac_base.BaseVolumeRbacTest):
         specs = {'key1': 'value1'}
         self.group_types_client.create_or_update_group_type_specs(
             group_type['id'], specs)['group_specs']
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.group_types_client.delete_group_type_specs_item(
                 group_type['id'], delete_key)

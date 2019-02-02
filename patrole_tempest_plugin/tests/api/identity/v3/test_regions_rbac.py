@@ -26,7 +26,7 @@ class IdentityRegionsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                                  rules=["identity:create_region"])
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd119')
     def test_create_region(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.setup_test_region()
 
     @rbac_rule_validation.action(service="keystone",
@@ -37,7 +37,7 @@ class IdentityRegionsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         new_description = data_utils.rand_name(
             self.__class__.__name__ + '-test_update_region')
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.regions_client.update_region(region['id'],
                                               description=new_description)
 
@@ -47,7 +47,7 @@ class IdentityRegionsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     def test_delete_region(self):
         region = self.setup_test_region()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.regions_client.delete_region(region['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -56,12 +56,12 @@ class IdentityRegionsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     def test_show_region(self):
         region = self.setup_test_region()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.regions_client.show_region(region['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rules=["identity:list_regions"])
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd123')
     def test_list_regions(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.regions_client.list_regions()

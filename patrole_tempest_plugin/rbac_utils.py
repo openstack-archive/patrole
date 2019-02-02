@@ -40,7 +40,7 @@ class _ValidateListContext(object):
 
     Example::
 
-        with self.rbac_utils.override_role_and_validate_list(...) as ctx:
+        with self.override_role_and_validate_list(...) as ctx:
             ctx.resources = list_function()
 
     """
@@ -146,10 +146,6 @@ class RbacUtilsMixin(object):
 
     admin_roles_client = None
 
-    @property
-    def rbac_utils(self):
-        return self
-
     @classmethod
     def setup_clients(cls):
         # Intialize the admin roles_client to perform role switching.
@@ -250,7 +246,7 @@ class RbacUtilsMixin(object):
         return list(res)
 
     @contextlib.contextmanager
-    def override_role(self, test_obj=None):
+    def override_role(self):
         """Override the role used by ``os_primary`` Tempest credentials.
 
         Temporarily change the role used by ``os_primary`` credentials to:
@@ -273,7 +269,7 @@ class RbacUtilsMixin(object):
                                          rules=['a:test:rule'])
             def test_foo(self):
                 # Allocate test-level resources here.
-                with self.rbac_utils.override_role(self):
+                with self.override_role():
                     # The role for `os_primary` has now been overridden. Within
                     # this block, call the API endpoint that enforces the
                     # expected policy specified by "rule" in the decorator.
@@ -403,7 +399,7 @@ class RbacUtilsMixin(object):
         return False
 
     @contextlib.contextmanager
-    def override_role_and_validate_list(self, test_obj=None,
+    def override_role_and_validate_list(self,
                                         admin_resources=None,
                                         admin_resource_id=None):
         """Call ``override_role`` and validate RBAC for a list API action.
@@ -427,8 +423,8 @@ class RbacUtilsMixin(object):
             admin_resource_id = (
                 self.ntp_client.create_dscp_marking_rule()
                 ["dscp_marking_rule"]["id'])
-            with self.rbac_utils.override_role_and_validate_list(
-                    self, admin_resource_id=admin_resource_id) as ctx:
+            with self.override_role_and_validate_list(
+                    admin_resource_id=admin_resource_id) as ctx:
                 # the list of resources available for member role
                 ctx.resources = self.ntp_client.list_dscp_marking_rules(
                     policy_id=self.policy_id)["dscp_marking_rules"]

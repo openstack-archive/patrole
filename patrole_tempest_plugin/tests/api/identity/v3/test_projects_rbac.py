@@ -26,7 +26,7 @@ class IdentityProjectV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                                  rules=["identity:create_project"])
     @decorators.idempotent_id('0f148510-63bf-11e6-1564-080044d0d904')
     def test_create_project(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.setup_test_project()
 
     @rbac_rule_validation.action(service="keystone",
@@ -37,7 +37,7 @@ class IdentityProjectV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         new_desc = data_utils.rand_name(
             self.__class__.__name__ + '-description')
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.projects_client.update_project(project['id'],
                                                 description=new_desc)
 
@@ -47,7 +47,7 @@ class IdentityProjectV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     def test_delete_project(self):
         project = self.setup_test_project()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.projects_client.delete_project(project['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -56,12 +56,12 @@ class IdentityProjectV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     def test_show_project(self):
         project = self.setup_test_project()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.projects_client.show_project(project['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rules=["identity:list_projects"])
     @decorators.idempotent_id('0f148510-63bf-11e6-1564-080044d0d908')
     def test_list_projects(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.projects_client.list_projects()

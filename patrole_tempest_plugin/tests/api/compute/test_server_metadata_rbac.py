@@ -37,7 +37,7 @@ class ServerMetadataRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:server-metadata:index"])
     def test_list_server_metadata(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.list_server_metadata(self.server['id'])
 
     @decorators.idempotent_id('6e76748b-2417-4fa2-b41a-c0cc4bff356b')
@@ -45,7 +45,7 @@ class ServerMetadataRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:server-metadata:update_all"])
     def test_set_server_metadata(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.set_server_metadata(self.server['id'], {})
 
     @decorators.idempotent_id('1060bac4-fe16-4a77-be64-d8e482a06eab')
@@ -53,7 +53,7 @@ class ServerMetadataRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:server-metadata:create"])
     def test_update_server_metadata(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.update_server_metadata(self.server['id'], {})
 
     @decorators.idempotent_id('93dd8323-d3fa-48d1-8bd6-91c1b62fc341')
@@ -61,7 +61,7 @@ class ServerMetadataRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:server-metadata:show"])
     def test_show_server_metadata_item(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.show_server_metadata_item(
                 self.server['id'], 'default_key')
 
@@ -70,7 +70,7 @@ class ServerMetadataRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:server-metadata:update"])
     def test_set_server_metadata_item(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.set_server_metadata_item(
                 self.server['id'], 'default_key', {'default_key': 'value2'})
 
@@ -79,6 +79,6 @@ class ServerMetadataRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:server-metadata:delete"])
     def test_delete_server_metadata_item(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.delete_server_metadata_item(
                 self.server['id'], 'delete_key')

@@ -66,7 +66,7 @@ class MigrateServerV225RbacTest(base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('c6f1607c-9fed-4c00-807e-9ba675b98b1b')
     def test_cold_migration(self):
         server = self.create_test_server(wait_until="ACTIVE")
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.migrate_server(server['id'])
         waiters.wait_for_server_status(self.servers_client,
                                        server['id'], 'VERIFY_RESIZE')
@@ -84,7 +84,7 @@ class MigrateServerV225RbacTest(base.BaseV2ComputeRbacTest):
         actual_host = self._get_host_for_server(server_id)
         target_host = self._get_host_other_than(actual_host)
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.live_migrate_server(
                 server_id, host=target_host,
                 block_migration=self.block_migration)

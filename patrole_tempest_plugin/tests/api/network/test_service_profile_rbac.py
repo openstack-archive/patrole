@@ -28,7 +28,7 @@ class ServiceProfileExtRbacTest(base.BaseNetworkExtRbacTest):
 
         RBAC test for the neutron "create_service_profile" policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.create_service_profile()
 
     @decorators.idempotent_id('e4c473b7-3ae9-4a2e-8cac-848f7b01187d')
@@ -41,7 +41,7 @@ class ServiceProfileExtRbacTest(base.BaseNetworkExtRbacTest):
         RBAC test for the neutron "get_service_profile" policy
         """
         profile_id = self.create_service_profile()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.show_service_profile(profile_id)
 
     @decorators.idempotent_id('a3dd719d-4cd3-40cc-b4f1-5642e2717adf')
@@ -55,7 +55,7 @@ class ServiceProfileExtRbacTest(base.BaseNetworkExtRbacTest):
         RBAC test for the neutron "update_service_profile" policy
         """
         profile_id = self.create_service_profile()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.update_service_profile(profile_id, enabled=False)
 
     @decorators.idempotent_id('926b60c2-04fe-4339-aa44-bf27121392e8')
@@ -69,5 +69,5 @@ class ServiceProfileExtRbacTest(base.BaseNetworkExtRbacTest):
         RBAC test for the neutron "delete_service_profile" policy
         """
         profile_id = self.create_service_profile()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.delete_service_profile(profile_id)

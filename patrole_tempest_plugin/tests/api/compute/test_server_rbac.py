@@ -48,7 +48,7 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
         rules=["os_compute_api:servers:create"])
     @decorators.idempotent_id('4f34c73a-6ddc-4677-976f-71320fa855bd')
     def test_create_server(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             server = self.servers_client.create_server(
                 name=data_utils.rand_name(self.__class__.__name__ + '-Server'),
                 flavorRef=CONF.compute.flavor_ref,
@@ -73,7 +73,7 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
         host = list(hosts[0].keys())[0]
         availability_zone = 'nova:' + host
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             server = self.servers_client.create_server(
                 name=data_utils.rand_name(self.__class__.__name__ + '-Server'),
                 flavorRef=CONF.compute.flavor_ref,
@@ -103,7 +103,7 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
                       'delete_on_termination': False}]
         device_mapping = {'block_device_mapping_v2': bd_map_v2}
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             # Use image_id='' to avoid using the default image in tempest.conf.
             server = self.servers_client.create_server(
                 name=data_utils.rand_name(self.__class__.__name__ + '-Server'),
@@ -151,7 +151,7 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
         network = _create_network_resources()
         network_id = {'uuid': network['id']}
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             server = self.servers_client.create_server(
                 name=data_utils.rand_name(self.__class__.__name__ + '-Server'),
                 flavorRef=CONF.compute.flavor_ref,
@@ -168,7 +168,7 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
     def test_delete_server(self):
         server = self.create_test_server(wait_until='ACTIVE')
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.delete_server(server['id'])
         waiters.wait_for_server_termination(
             self.servers_client, server['id'])
@@ -179,7 +179,7 @@ class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('077b17cb-5621-43b9-8adf-5725f0d7a863')
     def test_update_server(self):
         new_name = data_utils.rand_name(self.__class__.__name__ + '-server')
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.update_server(self.server['id'],
                                               name=new_name)
         waiters.wait_for_server_status(self.servers_client,

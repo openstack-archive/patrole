@@ -34,12 +34,12 @@ class IdentityAuthV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @rbac_rule_validation.action(service="keystone",
                                  rules=["identity:get_auth_projects"])
     def test_list_auth_projects(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.identity_client.list_auth_projects()
 
     @decorators.idempotent_id('6a40af0d-7265-4657-b6b2-87a2828e263e')
     @rbac_rule_validation.action(service="keystone",
                                  rules=["identity:get_auth_domains"])
     def test_list_auth_domain(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.identity_client.list_auth_domains()

@@ -34,7 +34,7 @@ class FlavorManageRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:os-flavor-manage:create"])
     def test_create_flavor_manage(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.create_flavor()
 
     @decorators.idempotent_id('782e988e-061b-4c40-896f-a77c70c2b057')
@@ -44,6 +44,6 @@ class FlavorManageRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_delete_flavor_manage(self):
         flavor_id = self.create_flavor()['id']
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.flavors_client.delete_flavor(flavor_id)
         self.flavors_client.wait_for_resource_deletion(flavor_id)

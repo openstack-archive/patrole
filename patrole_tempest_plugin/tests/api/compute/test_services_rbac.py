@@ -34,5 +34,5 @@ class ServicesRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rules=["os_compute_api:os-services"])
     @decorators.idempotent_id('7472261b-9c6d-453a-bcb3-aecaa29ad281')
     def test_list_services(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.services_client.list_services()['services']

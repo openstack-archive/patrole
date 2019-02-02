@@ -73,7 +73,7 @@ class SegmentsExtRbacTest(base.BaseNetworkExtRbacTest):
 
         RBAC test for the neutron "create_segment" policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.create_segment(self.network)
 
     @decorators.idempotent_id('c02618e7-bb20-1a3a-83c8-6eec2af08127')
@@ -87,7 +87,7 @@ class SegmentsExtRbacTest(base.BaseNetworkExtRbacTest):
         """
         segment = self.create_segment(self.network)
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.show_segment(segment['segment']['id'])
 
     @decorators.idempotent_id('c02618e7-bb20-1a3a-83c8-6eec2af08128')
@@ -102,7 +102,7 @@ class SegmentsExtRbacTest(base.BaseNetworkExtRbacTest):
         """
         segment = self.create_segment(self.network)
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.update_segment(segment['segment']['id'],
                                            name="NewName")
 
@@ -118,7 +118,7 @@ class SegmentsExtRbacTest(base.BaseNetworkExtRbacTest):
         """
         segment = self.create_segment(self.network)
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.delete_segment(segment['segment']['id'])
 
     @decorators.idempotent_id('d68a0578-36ae-435e-8aaa-508ee96bdfae')
@@ -130,7 +130,7 @@ class SegmentsExtRbacTest(base.BaseNetworkExtRbacTest):
         the``get_segment`` policy
         """
         admin_resource_id = self.create_segment(self.network)['segment']['id']
-        with (self.rbac_utils.override_role_and_validate_list(
-                self, admin_resource_id=admin_resource_id)) as ctx:
+        with (self.override_role_and_validate_list(
+                admin_resource_id=admin_resource_id)) as ctx:
             ctx.resources = self.ntp_client.list_segments(
                 id=admin_resource_id)["segments"]

@@ -54,7 +54,7 @@ class MeteringLabelsRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron "create_metering_label" policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._create_metering_label()
 
     @rbac_rule_validation.action(service="neutron",
@@ -67,7 +67,7 @@ class MeteringLabelsRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron "get_metering_label" policy
         """
         label = self._create_metering_label()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.metering_labels_client.show_metering_label(label['id'])
 
     @rbac_rule_validation.action(service="neutron",
@@ -81,7 +81,7 @@ class MeteringLabelsRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron "delete_metering_label" policy
         """
         label = self._create_metering_label()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.metering_labels_client.delete_metering_label(label['id'])
 
     @rbac_rule_validation.action(service="neutron",
@@ -94,8 +94,8 @@ class MeteringLabelsRbacTest(base.BaseNetworkRbacTest):
         the ``get_metering_label`` policy
         """
         admin_resource_id = self._create_metering_label()['id']
-        with (self.rbac_utils.override_role_and_validate_list(
-                self, admin_resource_id=admin_resource_id)) as ctx:
+        with (self.override_role_and_validate_list(
+                admin_resource_id=admin_resource_id)) as ctx:
             ctx.resources = (
                 self.metering_labels_client.
                 list_metering_labels(id=admin_resource_id)

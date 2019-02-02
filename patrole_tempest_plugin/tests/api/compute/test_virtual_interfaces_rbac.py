@@ -53,7 +53,7 @@ class VirtualInterfacesRbacTest(rbac_base.BaseV2ComputeRbacTest):
         If Neutron is available, then call the API and expect it to fail
         with a 400 BadRequest (policy enforcement is done before that happens).
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             if CONF.service_available.neutron:
                 msg = ("Listing virtual interfaces is not supported by this "
                        "cloud.")

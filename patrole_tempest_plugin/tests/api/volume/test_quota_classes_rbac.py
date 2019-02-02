@@ -41,7 +41,7 @@ class QuotaClassesV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @rbac_rule_validation.action(service="cinder",
                                  rules=["volume_extension:quota_classes"])
     def test_show_quota_class_set(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.quota_classes_client.show_quota_class_set(
                 self.quota_name)['quota_class_set']
 
@@ -53,6 +53,6 @@ class QuotaClassesV3RbacTest(rbac_base.BaseVolumeRbacTest):
             self.quota_name)['quota_class_set']
         quota_class_set.pop('id')
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.quota_classes_client.update_quota_class_set(self.quota_name,
                                                              **quota_class_set)

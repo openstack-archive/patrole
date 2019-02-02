@@ -42,7 +42,7 @@ class AvailabilityZoneExtRbacTest(base.BaseNetworkExtRbacTest):
         """
         admin_resources = (self.ntp_client.list_availability_zones()
                            ["availability_zones"])
-        with self.rbac_utils.override_role_and_validate_list(
-                self, admin_resources=admin_resources) as ctx:
+        with self.override_role_and_validate_list(
+                admin_resources=admin_resources) as ctx:
             ctx.resources = (self.ntp_client.list_availability_zones()
                              ['availability_zones'])

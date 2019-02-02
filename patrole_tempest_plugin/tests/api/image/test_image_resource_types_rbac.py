@@ -43,7 +43,7 @@ class ImageResourceTypesRbacTest(rbac_base.BaseV2ImageRbacTest):
 
         RBAC test for the glance list_metadef_resource_type policy.
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.resource_types_client.list_resource_types()
 
     @rbac_rule_validation.action(service="glance",
@@ -54,7 +54,7 @@ class ImageResourceTypesRbacTest(rbac_base.BaseV2ImageRbacTest):
 
         RBAC test for the glance get_metadef_resource_type policy.
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.resource_types_client.list_resource_type_association(
                 self.namespace_name)
 
@@ -64,6 +64,6 @@ class ImageResourceTypesRbacTest(rbac_base.BaseV2ImageRbacTest):
     @decorators.idempotent_id('ef9fbc60-3e28-4164-a25c-d30d892f7939')
     def test_add_metadef_resource_type(self):
         type_name = data_utils.rand_name()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.resource_types_client.create_resource_type_association(
                 self.namespace_name, name=type_name)

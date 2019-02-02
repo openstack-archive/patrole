@@ -44,7 +44,7 @@ class FlavorAccessRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_show_flavor_contains_is_public_key(self):
         public_flavor_id = CONF.compute.flavor_ref
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             body = self.flavors_client.show_flavor(public_flavor_id)[
                 'flavor']
 
@@ -62,7 +62,7 @@ class FlavorAccessRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_list_flavors_details_contains_is_public_key(self):
         expected_attr = 'os-flavor-access:is_public'
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             flavors = self.flavors_client.list_flavors(detail=True)['flavors']
         # There should already be a public flavor available, namely
         # `CONF.compute.flavor_ref`.
@@ -79,7 +79,7 @@ class FlavorAccessRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:os-flavor-access:add_tenant_access"])
     def test_add_flavor_access(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.flavors_client.add_flavor_access(
                 flavor_id=self.flavor_id, tenant_id=self.tenant_id)
         self.addCleanup(self.flavors_client.remove_flavor_access,
@@ -96,7 +96,7 @@ class FlavorAccessRbacTest(rbac_base.BaseV2ComputeRbacTest):
                         self.flavors_client.remove_flavor_access,
                         flavor_id=self.flavor_id, tenant_id=self.tenant_id)
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.flavors_client.remove_flavor_access(
                 flavor_id=self.flavor_id, tenant_id=self.tenant_id)
 
@@ -112,5 +112,5 @@ class FlavorAccessRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.addCleanup(self.flavors_client.remove_flavor_access,
                         flavor_id=self.flavor_id, tenant_id=self.tenant_id)
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.flavors_client.list_flavor_access(self.flavor_id)

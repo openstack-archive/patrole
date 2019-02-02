@@ -33,7 +33,7 @@ class IdentityGroupsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                                  rules=["identity:create_group"])
     @decorators.idempotent_id('88377f51-9074-4d64-a22f-f8931d048c9a')
     def test_create_group(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.setup_test_group()
 
     @rbac_rule_validation.action(service="keystone",
@@ -44,7 +44,7 @@ class IdentityGroupsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         new_group_name = data_utils.rand_name(
             self.__class__.__name__ + '-group')
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.groups_client.update_group(group['id'], name=new_group_name)
 
     @rbac_rule_validation.action(service="keystone",
@@ -53,7 +53,7 @@ class IdentityGroupsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     def test_delete_group(self):
         group = self.setup_test_group()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.groups_client.delete_group(group['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -62,14 +62,14 @@ class IdentityGroupsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     def test_show_group(self):
         group = self.setup_test_group()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.groups_client.show_group(group['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rules=["identity:list_groups"])
     @decorators.idempotent_id('c4d0f76b-735f-4fd0-868b-0006bc420ff4')
     def test_list_groups(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.groups_client.list_groups()
 
     @rbac_rule_validation.action(service="keystone",
@@ -79,7 +79,7 @@ class IdentityGroupsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         group = self.setup_test_group()
         user = self.setup_test_user()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.groups_client.add_group_user(group['id'], user['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -88,7 +88,7 @@ class IdentityGroupsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     def test_remove_user_group(self):
         group_id, user_id = self._create_user_and_add_to_new_group()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.groups_client.delete_group_user(group_id, user_id)
 
     @rbac_rule_validation.action(service="keystone",
@@ -97,7 +97,7 @@ class IdentityGroupsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     def test_list_user_group(self):
         group = self.setup_test_group()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.groups_client.list_group_users(group['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -106,5 +106,5 @@ class IdentityGroupsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     def test_check_user_group(self):
         group_id, user_id = self._create_user_and_add_to_new_group()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.groups_client.check_group_user_existence(group_id, user_id)

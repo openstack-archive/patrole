@@ -105,7 +105,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron create_network policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._create_network()
 
     @rbac_rule_validation.action(service="neutron",
@@ -119,7 +119,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron create_network:is_default policy
         """
         try:
-            with self.rbac_utils.override_role(self):
+            with self.override_role():
                 self._create_network(is_default=True)
         except lib_exc.Conflict as exc:
             # A default network might already exist
@@ -136,7 +136,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron create_network:shared policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._create_network(shared=True)
 
     @utils.requires_ext(extension='external-net', service='network')
@@ -150,7 +150,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron create_network:router:external policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._create_network(router_external=True)
 
     @utils.requires_ext(extension='provider', service='network')
@@ -166,7 +166,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         RBAC test for neutron create_network:provider:physical_network policy
         """
         try:
-            with self.rbac_utils.override_role(self):
+            with self.override_role():
                 self._create_network(provider_physical_network='provider',
                                      provider_network_type='flat')
         except lib_exc.BadRequest as exc:
@@ -188,7 +188,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron create_network:provider:network_type policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._create_network(provider_network_type='vxlan')
 
     @utils.requires_ext(extension='provider', service='network')
@@ -203,7 +203,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron create_network:provider:segmentation_id
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._create_network(provider_network_type='vxlan',
                                  provider_segmentation_id=200)
 
@@ -220,7 +220,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         updated_name = data_utils.rand_name(
             self.__class__.__name__ + '-Network')
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._update_network(name=updated_name)
 
     @rbac_rule_validation.action(service="neutron",
@@ -235,7 +235,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron update_network:shared policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._update_network(shared_network=True)
         self.addCleanup(self._update_network, shared_network=False)
 
@@ -253,7 +253,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron update_network:router:external policy
         """
         network = self._create_network()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._update_network(net_id=network['id'], router_external=True)
 
     @utils.requires_ext(extension='provider', service='network')
@@ -271,7 +271,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         RBAC test for neutron update_network:provider:network_type policy
         """
         try:
-            with self.rbac_utils.override_role(self):
+            with self.override_role():
                 self._update_network(self.network['id'],
                                      provider_network_type='vxlan')
         except lib_exc.BadRequest as exc:
@@ -296,7 +296,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         RBAC test for neutron update_network:provider:physical_network policy
         """
         try:
-            with self.rbac_utils.override_role(self):
+            with self.override_role():
                 self._update_network(self.network['id'],
                                      provider_physical_network='provider')
         except lib_exc.BadRequest as exc:
@@ -321,7 +321,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         RBAC test for neutron update_network:provider:segmentation_id policy
         """
         try:
-            with self.rbac_utils.override_role(self):
+            with self.override_role():
                 self._update_network(self.network['id'],
                                      provider_segmentation_id=400)
         except lib_exc.BadRequest as exc:
@@ -341,7 +341,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron get_network policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.networks_client.show_network(self.network['id'])
 
     @utils.requires_ext(extension='external-net', service='network')
@@ -358,7 +358,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         """
         kwargs = {'fields': 'router:external'}
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             retrieved_network = self.networks_client.show_network(
                 self.network['id'], **kwargs)['network']
 
@@ -379,7 +379,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         """
         kwargs = {'fields': 'provider:network_type'}
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             retrieved_network = self.networks_client.show_network(
                 self.network['id'], **kwargs)['network']
 
@@ -401,7 +401,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         """
         kwargs = {'fields': 'provider:physical_network'}
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             retrieved_network = self.networks_client.show_network(
                 self.network['id'], **kwargs)['network']
 
@@ -423,7 +423,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         """
         kwargs = {'fields': 'provider:segmentation_id'}
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             retrieved_network = self.networks_client.show_network(
                 self.network['id'], **kwargs)['network']
 
@@ -441,7 +441,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron delete_network policy
         """
         network = self._create_network()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.networks_client.delete_network(network['id'])
 
     @utils.requires_ext(extension='dhcp_agent_scheduler', service='network')
@@ -454,7 +454,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron "get_dhcp-agents" policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.networks_client.list_dhcp_agents_on_hosting_network(
                 self.network['id'])
 
@@ -468,7 +468,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         """
 
         admin_resource_id = self.network['id']
-        with (self.rbac_utils.override_role_and_validate_list(
-                self, admin_resource_id=admin_resource_id)) as ctx:
+        with (self.override_role_and_validate_list(
+                admin_resource_id=admin_resource_id)) as ctx:
             ctx.resources = self.networks_client.list_networks(
                 id=admin_resource_id)["networks"]

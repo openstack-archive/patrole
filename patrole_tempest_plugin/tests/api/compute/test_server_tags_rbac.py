@@ -49,7 +49,7 @@ class ServerTagsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:os-server-tags:index"])
     def test_list_tags(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.list_tags(self.server['id'])
 
     @decorators.idempotent_id('9297c99e-94eb-429f-93cf-9b1838e33622')
@@ -58,7 +58,7 @@ class ServerTagsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rules=["os_compute_api:os-server-tags:show"])
     def test_check_tag_existence(self):
         tag_name = self._add_tag_to_server()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.check_tag_existence(self.server['id'],
                                                     tag_name)
 
@@ -67,7 +67,7 @@ class ServerTagsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:os-server-tags:update"])
     def test_update_tag(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._add_tag_to_server()
 
     @decorators.idempotent_id('115c2694-00aa-41ee-99f6-9eab4040c182')
@@ -76,7 +76,7 @@ class ServerTagsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rules=["os_compute_api:os-server-tags:delete"])
     def test_delete_tag(self):
         tag_name = self._add_tag_to_server()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.delete_tag(self.server['id'], tag_name)
 
     @decorators.idempotent_id('a8e19b87-6580-4bc8-9933-e62561ff667d')
@@ -85,7 +85,7 @@ class ServerTagsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rules=["os_compute_api:os-server-tags:update_all"])
     def test_update_all_tags(self):
         new_tag_name = data_utils.rand_name(self.__class__.__name__ + '-tag')
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.update_all_tags(self.server['id'],
                                                 [new_tag_name])
 
@@ -94,5 +94,5 @@ class ServerTagsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:os-server-tags:delete_all"])
     def test_delete_all_tags(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.delete_all_tags(self.server['id'])

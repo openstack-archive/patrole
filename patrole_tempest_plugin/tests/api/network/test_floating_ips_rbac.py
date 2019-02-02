@@ -70,7 +70,7 @@ class FloatingIpsRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron create_floatingip policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._create_floatingip()
 
     @rbac_rule_validation.action(
@@ -85,7 +85,7 @@ class FloatingIpsRbacTest(base.BaseNetworkRbacTest):
         """
         fip = str(netaddr.IPAddress(self.cidr) + 10)
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._create_floatingip(floating_ip_address=fip)
 
     @rbac_rule_validation.action(service="neutron",
@@ -98,7 +98,7 @@ class FloatingIpsRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron update_floatingip policy
         """
         floating_ip = self._create_floatingip()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             # Associate floating IP to the other port
             self.floating_ips_client.update_floatingip(
                 floating_ip['id'], port_id=None)
@@ -113,7 +113,7 @@ class FloatingIpsRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron get_floatingip policy
         """
         floating_ip = self._create_floatingip()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             # Show floating IP
             self.floating_ips_client.show_floatingip(floating_ip['id'])
 
@@ -127,7 +127,7 @@ class FloatingIpsRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron delete_floatingip policy
         """
         floating_ip = self._create_floatingip()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             # Delete the floating IP
             self.floating_ips_client.delete_floatingip(floating_ip['id'])
 
@@ -140,7 +140,7 @@ class FloatingIpsRbacTest(base.BaseNetworkRbacTest):
         the ``get_floatingip`` policy
         """
         admin_resource_id = self._create_floatingip()['id']
-        with (self.rbac_utils.override_role_and_validate_list(
-                self, admin_resource_id=admin_resource_id)) as ctx:
+        with (self.override_role_and_validate_list(
+                admin_resource_id=admin_resource_id)) as ctx:
             ctx.resources = self.floating_ips_client.list_floatingips(
                 id=admin_resource_id)["floatingips"]

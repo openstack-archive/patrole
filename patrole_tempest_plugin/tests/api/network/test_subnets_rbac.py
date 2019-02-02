@@ -44,7 +44,7 @@ class SubnetsRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron "create_subnet" policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.create_subnet(self.network)
 
     @decorators.idempotent_id('c02618e7-bb20-4abd-83c8-6eec2af08752')
@@ -56,7 +56,7 @@ class SubnetsRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron "get_subnet" policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.subnets_client.show_subnet(self.subnet['id'])
 
     @decorators.idempotent_id('e2ddc415-5cab-43f4-9b61-166aed65d637')
@@ -68,8 +68,8 @@ class SubnetsRbacTest(base.BaseNetworkRbacTest):
         the ``get_subnet`` policy
         """
         admin_resource_id = self.subnet['id']
-        with (self.rbac_utils.override_role_and_validate_list(
-                self, admin_resource_id=admin_resource_id)) as ctx:
+        with (self.override_role_and_validate_list(
+                admin_resource_id=admin_resource_id)) as ctx:
             ctx.resources = self.subnets_client.list_subnets(
                 id=admin_resource_id)["subnets"]
 
@@ -84,7 +84,7 @@ class SubnetsRbacTest(base.BaseNetworkRbacTest):
         """
         update_name = data_utils.rand_name(self.__class__.__name__ + '-Subnet')
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.subnets_client.update_subnet(self.subnet['id'],
                                               name=update_name)
 
@@ -99,5 +99,5 @@ class SubnetsRbacTest(base.BaseNetworkRbacTest):
         """
         subnet = self.create_subnet(self.network)
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.subnets_client.delete_subnet(subnet['id'])

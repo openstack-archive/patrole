@@ -39,7 +39,7 @@ class NamespacesPropertyRbacTest(rbac_base.BaseV2ImageRbacTest):
         namespace = self.create_namespace()
         property_name = data_utils.rand_name(
             self.__class__.__name__ + '-test-ns-property')
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.namespace_properties_client.create_namespace_property(
                 namespace=namespace['namespace'], type="string",
                 title=property_name, name=self.resource_name)
@@ -53,7 +53,7 @@ class NamespacesPropertyRbacTest(rbac_base.BaseV2ImageRbacTest):
         RBAC test for the glance get_metadef_properties policy
         """
         namespace = self.create_namespace()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.namespace_properties_client.list_namespace_properties(
                 namespace=namespace['namespace'])
 
@@ -72,7 +72,7 @@ class NamespacesPropertyRbacTest(rbac_base.BaseV2ImageRbacTest):
             namespace=namespace['namespace'], type="string",
             title=property_name, name=self.resource_name)
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.namespace_properties_client.show_namespace_properties(
                 namespace['namespace'], self.resource_name)
 
@@ -91,7 +91,7 @@ class NamespacesPropertyRbacTest(rbac_base.BaseV2ImageRbacTest):
             namespace=namespace['namespace'], type="string",
             title=property_name, name=self.resource_name)
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.namespace_properties_client.update_namespace_properties(
                 namespace['namespace'], self.resource_name, type="string",
                 title=property_name, name=self.resource_name)

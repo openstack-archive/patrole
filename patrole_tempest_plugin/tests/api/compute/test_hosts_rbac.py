@@ -38,7 +38,7 @@ class HostsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:os-hosts"])
     def test_list_hosts(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.hosts_client.list_hosts()
 
     @decorators.idempotent_id('bc10d8b4-d2c3-4d4e-9d2b-31d1bd3e1b51')
@@ -50,5 +50,5 @@ class HostsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         hosts = [host for host in hosts if host['service'] == 'compute']
         self.assertNotEmpty(hosts)
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.hosts_client.show_host(hosts[0]['host_name'])

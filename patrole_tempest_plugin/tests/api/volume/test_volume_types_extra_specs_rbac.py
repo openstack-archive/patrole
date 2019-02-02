@@ -57,7 +57,7 @@ class VolumeTypesExtraSpecsRbacTest(rbac_base.BaseVolumeRbacTest):
         service="cinder",
         rules=["volume_extension:types_extra_specs:index"])
     def test_list_volume_types_extra_specs(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.volume_types_client.list_volume_types_extra_specs(
                 self.vol_type['id'])['extra_specs']
 
@@ -66,7 +66,7 @@ class VolumeTypesExtraSpecsRbacTest(rbac_base.BaseVolumeRbacTest):
         rules=["volume_extension:types_extra_specs:create"])
     @decorators.idempotent_id('eea40251-990b-49b0-99ae-10e4585b479b')
     def test_create_volume_type_extra_specs(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._create_volume_type_extra_specs(ignore_not_found=True)
 
     @decorators.idempotent_id('e2dcc9c6-2fef-431d-afaf-92b45bc76d1a')
@@ -76,7 +76,7 @@ class VolumeTypesExtraSpecsRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_show_volume_type_extra_specs(self):
         self._create_volume_type_extra_specs()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.volume_types_client.show_volume_type_extra_specs(
                 self.vol_type['id'], self.spec_key)
 
@@ -87,7 +87,7 @@ class VolumeTypesExtraSpecsRbacTest(rbac_base.BaseVolumeRbacTest):
     def test_delete_volume_type_extra_specs(self):
         self._create_volume_type_extra_specs(ignore_not_found=True)
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.volume_types_client.delete_volume_type_extra_specs(
                 self.vol_type['id'], self.spec_key)
 
@@ -99,6 +99,6 @@ class VolumeTypesExtraSpecsRbacTest(rbac_base.BaseVolumeRbacTest):
         self._create_volume_type_extra_specs()
         update_extra_specs = {self.spec_key: "val2"}
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.volume_types_client.update_volume_type_extra_specs(
                 self.vol_type['id'], self.spec_key, update_extra_specs)

@@ -57,7 +57,7 @@ class DscpMarkingRuleExtRbacTest(base.BaseNetworkExtRbacTest):
         RBAC test for the neutron "create_policy_dscp_marking_rule" policy
         """
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.create_policy_dscp_marking_rule()
 
     @decorators.idempotent_id('3D68F50E-B948-4B25-8A72-F6F4890BBC6F')
@@ -71,7 +71,7 @@ class DscpMarkingRuleExtRbacTest(base.BaseNetworkExtRbacTest):
         """
         rule_id = self.create_policy_dscp_marking_rule()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.show_dscp_marking_rule(self.policy_id, rule_id)
 
     @decorators.idempotent_id('33830794-8731-45C3-BC97-17718555DD7C')
@@ -86,7 +86,7 @@ class DscpMarkingRuleExtRbacTest(base.BaseNetworkExtRbacTest):
         """
         rule_id = self.create_policy_dscp_marking_rule()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.update_dscp_marking_rule(
                 self.policy_id, rule_id, dscp_mark=16)
 
@@ -102,7 +102,7 @@ class DscpMarkingRuleExtRbacTest(base.BaseNetworkExtRbacTest):
         """
         rule_id = self.create_policy_dscp_marking_rule()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.delete_dscp_marking_rule(self.policy_id, rule_id)
 
     @decorators.idempotent_id('c012fd4f-3a3e-4af4-9075-dd3e170daecd')
@@ -115,7 +115,7 @@ class DscpMarkingRuleExtRbacTest(base.BaseNetworkExtRbacTest):
         the ``get_policy_dscp_marking_rule`` policy
         """
         admin_resource_id = self.create_policy_dscp_marking_rule()
-        with (self.rbac_utils.override_role_and_validate_list(
-                self, admin_resource_id=admin_resource_id)) as ctx:
+        with (self.override_role_and_validate_list(
+                admin_resource_id=admin_resource_id)) as ctx:
             ctx.resources = self.ntp_client.list_dscp_marking_rules(
                 policy_id=self.policy_id)["dscp_marking_rules"]

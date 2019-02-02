@@ -92,7 +92,7 @@ class GroupSnaphotsV314RbacTest(BaseGroupSnapshotsRbacTest):
         rules=["group:create_group_snapshot"]
     )
     def test_create_group_snapshot(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             name = data_utils.rand_name(
                 self.__class__.__name__ + '-Group_Snapshot')
             group_snapshot = self.group_snapshots_client.create_group_snapshot(
@@ -118,7 +118,7 @@ class GroupSnaphotsV314RbacTest(BaseGroupSnapshotsRbacTest):
         group_snapshot_name = data_utils.rand_name('group_snapshot')
         group_snapshot = self._create_group_snapshot(group_id=self.grp['id'],
                                                      name=group_snapshot_name)
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.group_snapshots_client.show_group_snapshot(
                 group_snapshot['id'])
 
@@ -128,7 +128,7 @@ class GroupSnaphotsV314RbacTest(BaseGroupSnapshotsRbacTest):
         rules=["group:get_all_group_snapshots"]
     )
     def test_list_group_snapshot_rbac(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.group_snapshots_client.list_group_snapshots()
 
     @decorators.idempotent_id('cf2e25ee-ca58-4ad6-b98d-33235c77db7b')
@@ -140,7 +140,7 @@ class GroupSnaphotsV314RbacTest(BaseGroupSnapshotsRbacTest):
         group_snapshot_name = data_utils.rand_name('group_snapshot')
         group_snapshot = self._create_group_snapshot(group_id=self.grp['id'],
                                                      name=group_snapshot_name)
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.group_snapshots_client.delete_group_snapshot(
                 group_snapshot['id'])
         vols = self.volumes_client.list_volumes(detail=True)['volumes']
@@ -192,7 +192,7 @@ class GroupSnaphotsV319RbacTest(BaseGroupSnapshotsRbacTest):
         group_snapshot_name = data_utils.rand_name('group_snapshot')
         group_snapshot = self._create_group_snapshot(group_id=self.grp['id'],
                                                      name=group_snapshot_name)
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.group_snapshots_client.reset_group_snapshot_status(
                 group_snapshot['id'], 'error')
 

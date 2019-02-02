@@ -50,7 +50,7 @@ class VolumesSnapshotV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('ac7b2ee5-fbc0-4360-afc2-de8fa4881ede')
     def test_create_snapshot(self):
         # Create a temp snapshot
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.create_snapshot(self.volume['id'])
 
     @rbac_rule_validation.action(service="cinder",
@@ -58,7 +58,7 @@ class VolumesSnapshotV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('93a11b40-1ba8-44d6-a196-f8d97220f796')
     def test_show_snapshot(self):
         # Get the snapshot
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.snapshots_client.show_snapshot(
                 self.snapshot['id'])['snapshot']
 
@@ -71,7 +71,7 @@ class VolumesSnapshotV3RbacTest(rbac_base.BaseVolumeRbacTest):
         expected_attrs = ('os-extended-snapshot-attributes:project_id',
                           'os-extended-snapshot-attributes:progress')
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             resp = self.snapshots_client.show_snapshot(
                 self.snapshot['id'])['snapshot']
         for expected_attr in expected_attrs:
@@ -86,7 +86,7 @@ class VolumesSnapshotV3RbacTest(rbac_base.BaseVolumeRbacTest):
         new_desc = 'This is the new description of snapshot.'
         params = {'description': new_desc}
         # Updates snapshot with new values
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.snapshots_client.update_snapshot(
                 self.snapshot['id'], **params)['snapshot']
         waiters.wait_for_volume_resource_status(
@@ -98,7 +98,7 @@ class VolumesSnapshotV3RbacTest(rbac_base.BaseVolumeRbacTest):
     def test_delete_snapshot(self):
         # Create a temp snapshot
         temp_snapshot = self.create_snapshot(self.volume['id'])
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             # Delete the snapshot
             self.snapshots_client.delete_snapshot(temp_snapshot['id'])
         self.snapshots_client.wait_for_resource_deletion(
@@ -110,7 +110,7 @@ class VolumesSnapshotV3RbacTest(rbac_base.BaseVolumeRbacTest):
     def test_list_snapshots(self):
         """List snapshots with params."""
         params = {'name': self.snapshot['name']}
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._list_by_param_values(**params)
 
     @decorators.idempotent_id('f3155d8e-45ee-45c9-910d-18c0242229e1')
@@ -119,7 +119,7 @@ class VolumesSnapshotV3RbacTest(rbac_base.BaseVolumeRbacTest):
     def test_list_snapshots_details(self):
         """List snapshots details with params."""
         params = {'name': self.snapshot['name']}
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._list_by_param_values(with_detail=True, **params)
 
     @decorators.idempotent_id('dd37f388-2731-446d-a78f-676997ebb04a')
@@ -132,7 +132,7 @@ class VolumesSnapshotV3RbacTest(rbac_base.BaseVolumeRbacTest):
                           'os-extended-snapshot-attributes:progress')
         params = {'name': self.snapshot['name']}
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             resp = self._list_by_param_values(with_detail=True, **params)
         for expected_attr in expected_attrs:
             if expected_attr not in resp[0]:

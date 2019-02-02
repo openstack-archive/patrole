@@ -46,7 +46,7 @@ class AgentsRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron get_agent policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.agents_client.show_agent(self.agent['id'])
 
     @decorators.idempotent_id('8ca68fdb-eaf6-4880-af82-ba0982949dec')
@@ -61,7 +61,7 @@ class AgentsRbacTest(base.BaseNetworkRbacTest):
         original_status = self.agent['admin_state_up']
         agent_status = {'admin_state_up': original_status}
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.agents_client.update_agent(agent_id=self.agent['id'],
                                             agent=agent_status)
 
@@ -74,8 +74,8 @@ class AgentsRbacTest(base.BaseNetworkRbacTest):
         the ``get_agent`` policy
         """
         admin_resource_id = self.agent['id']
-        with (self.rbac_utils.override_role_and_validate_list(
-                self, admin_resource_id=admin_resource_id)) as ctx:
+        with (self.override_role_and_validate_list(
+                admin_resource_id=admin_resource_id)) as ctx:
             ctx.resources = self.agents_client.list_agents(
                 id=admin_resource_id)["agents"]
 
@@ -120,7 +120,7 @@ class L3AgentSchedulerRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron get_l3-routers policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.agents_client.list_routers_on_l3_agent(self.agent['id'])
 
     @decorators.idempotent_id('466b2a10-8747-4c09-855a-bd90a1c86ce7')
@@ -131,7 +131,7 @@ class L3AgentSchedulerRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron create_l3-router policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.agents_client.create_router_on_l3_agent(
                 self.agent['id'], router_id=self.router['id'])
         self.addCleanup(
@@ -154,7 +154,7 @@ class L3AgentSchedulerRbacTest(base.BaseNetworkRbacTest):
             self.agents_client.delete_router_from_l3_agent,
             self.agent['id'], router_id=self.router['id'])
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.agents_client.delete_router_from_l3_agent(
                 self.agent['id'], router_id=self.router['id'])
 
@@ -213,7 +213,7 @@ class DHCPAgentSchedulersRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron get_dhcp-networks policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.agents_client.list_networks_hosted_by_one_dhcp_agent(
                 self.agent['id'])
 
@@ -228,7 +228,7 @@ class DHCPAgentSchedulersRbacTest(base.BaseNetworkRbacTest):
         network_id = self._create_and_prepare_network_for_agent(
             self.agent['id'])
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.agents_client.add_dhcp_agent_to_network(
                 self.agent['id'], network_id=network_id)
         # Clean up is not necessary and might result in 409 being raised.
@@ -247,7 +247,7 @@ class DHCPAgentSchedulersRbacTest(base.BaseNetworkRbacTest):
             self.agent['id'], network_id=network_id)
         # Clean up is not necessary and might result in 409 being raised.
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.agents_client.delete_network_from_dhcp_agent(
                 self.agent['id'], network_id=network_id)
 
@@ -275,7 +275,7 @@ class L3AgentsExtRbacTest(base.BaseNetworkExtRbacTest):
 
         RBAC test for the neutron get_l3-agents policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             # NOTE: It is not empty list since it's a special case where
             # policy.enforce is called from the controller.
             self.ntp_client.list_l3_agents_hosting_router(self.router['id'])

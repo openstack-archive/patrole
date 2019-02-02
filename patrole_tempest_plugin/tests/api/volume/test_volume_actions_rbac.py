@@ -82,7 +82,7 @@ class VolumesActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
         server = self._create_server()
         volume_id = self.volume['id']
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.attach_volume(
                 server['id'], volumeId=volume_id,
                 device='/dev/%s' % CONF.compute.volume_device_name)
@@ -101,7 +101,7 @@ class VolumesActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
         self._attach_volume(server)
         volume_id = self.volume['id']
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.volumes_client.detach_volume(volume_id)
         waiters.wait_for_volume_resource_status(
             self.volumes_client, volume_id, 'available')
@@ -110,7 +110,7 @@ class VolumesActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
                                  rules=["volume:update_readonly_flag"])
     @decorators.idempotent_id('2750717a-f250-4e41-9e09-02624aad6ff8')
     def test_volume_readonly_update(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.volumes_client.update_volume_readonly(self.volume['id'],
                                                        readonly=True)
         self.addCleanup(self.volumes_client.update_volume_readonly,
@@ -120,7 +120,7 @@ class VolumesActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @rbac_rule_validation.action(service="cinder",
                                  rules=["volume:update"])
     def test_volume_set_bootable(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.volumes_client.set_bootable_volume(self.volume['id'],
                                                     bootable=True)
 
@@ -134,7 +134,7 @@ class VolumesActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
         service="cinder",
         rules=["volume_extension:volume_actions:reserve"])
     def test_volume_reserve(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.volumes_client.reserve_volume(self.volume['id'])
 
     @testtools.skipUnless(
@@ -147,7 +147,7 @@ class VolumesActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
         service="cinder",
         rules=["volume_extension:volume_actions:unreserve"])
     def test_volume_unreserve(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.volumes_client.unreserve_volume(self.volume['id'])
 
     @decorators.idempotent_id('c015c82f-7010-48cc-bd71-4ef542046f20')
@@ -157,7 +157,7 @@ class VolumesActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
         vol_type = self.create_volume_type()['name']
         volume = self.create_volume()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.volumes_client.retype_volume(volume['id'], new_type=vol_type)
         waiters.wait_for_volume_retype(
             self.volumes_client, volume['id'], vol_type)
@@ -169,7 +169,7 @@ class VolumesActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
     def test_volume_reset_status(self):
         volume = self.create_volume()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.volumes_client.reset_volume_status(
                 volume['id'], status='error')
 
@@ -181,7 +181,7 @@ class VolumesActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
         volume = self.create_volume()
         self.volumes_client.reset_volume_status(volume['id'], status='error')
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.volumes_client.force_delete_volume(volume['id'])
         self.volumes_client.wait_for_resource_deletion(volume['id'])
 
@@ -200,7 +200,7 @@ class VolumesActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
         # Reset volume's status to error.
         self.volumes_client.reset_volume_status(volume['id'], status='error')
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.volumes_client.force_detach_volume(
                 volume['id'], connector=None,
                 attachment_id=attachment['attachment_id'])
@@ -234,7 +234,7 @@ class VolumesActionsV310RbacTest(rbac_base.BaseVolumeRbacTest):
         # "volume:copy_volume_to_image".
         image_name = data_utils.rand_name(self.__class__.__name__ + '-Image')
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             body = self.volumes_client.upload_volume(
                 self.volume['id'], image_name=image_name, visibility="private",
                 disk_format=CONF.volume.disk_format)['os-volume_upload_image']
@@ -257,7 +257,7 @@ class VolumesActionsV310RbacTest(rbac_base.BaseVolumeRbacTest):
         # This also enforces "volume_extension:volume_actions:upload_image".
         image_name = data_utils.rand_name(self.__class__.__name__ + '-Image')
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             body = self.volumes_client.upload_volume(
                 self.volume['id'], image_name=image_name, visibility="public",
                 disk_format=CONF.volume.disk_format)['os-volume_upload_image']
@@ -279,5 +279,5 @@ class VolumesActionsV312RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('a654833d-4811-4acd-93ef-5ac4a34c75bc')
     @rbac_rule_validation.action(service="cinder", rules=["volume:get_all"])
     def test_show_volume_summary(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.volumes_client.show_volume_summary()

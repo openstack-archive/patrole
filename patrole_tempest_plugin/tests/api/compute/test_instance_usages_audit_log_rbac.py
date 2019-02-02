@@ -38,7 +38,7 @@ class InstanceUsagesAuditLogRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @rbac_rule_validation.action(
         service="nova", rules=["os_compute_api:os-instance-usage-audit-log"])
     def test_list_instance_usage_audit_logs(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             (self.instance_usages_audit_log_client
                 .list_instance_usage_audit_logs())
 
@@ -48,7 +48,7 @@ class InstanceUsagesAuditLogRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_show_instance_usage_audit_log(self):
         now = datetime.datetime.now()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             (self.instance_usages_audit_log_client.
                 show_instance_usage_audit_log(
                     urllib.quote(now.strftime("%Y-%m-%d %H:%M:%S"))))

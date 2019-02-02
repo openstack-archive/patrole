@@ -44,7 +44,7 @@ class NetworkIpAvailabilityExtRbacTest(base.BaseNetworkExtRbacTest):
             self.__class__.__name__ + '-Network')
         network = self.create_network(network_name=network_name)
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.show_network_ip_availability(network['id'])
 
     @rbac_rule_validation.action(service="neutron",
@@ -58,7 +58,7 @@ class NetworkIpAvailabilityExtRbacTest(base.BaseNetworkExtRbacTest):
         """
         admin_resources = (self.ntp_client.list_network_ip_availabilities()
                            ["network_ip_availabilities"])
-        with self.rbac_utils.override_role_and_validate_list(
-                self, admin_resources=admin_resources) as ctx:
+        with self.override_role_and_validate_list(
+                admin_resources=admin_resources) as ctx:
             ctx.resources = (self.ntp_client.list_network_ip_availabilities()
                              ["network_ip_availabilities"])

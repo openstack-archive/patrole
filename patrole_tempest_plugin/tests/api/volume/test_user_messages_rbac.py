@@ -67,7 +67,7 @@ class MessagesV3RbacTest(rbac_base.BaseVolumeRbacTest):
         service="cinder",
         rules=["message:get_all"])
     def test_list_messages(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.messages_client.list_messages()['messages']
 
     @decorators.idempotent_id('9cc1ad1e-68a2-4407-8b60-ea77909bce08')
@@ -77,7 +77,7 @@ class MessagesV3RbacTest(rbac_base.BaseVolumeRbacTest):
     def test_show_message(self):
         message_id = self._create_user_message()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.messages_client.show_message(message_id)['message']
 
     @decorators.idempotent_id('65ca7fb7-7f2c-443e-b144-ac86973a97be')
@@ -87,6 +87,6 @@ class MessagesV3RbacTest(rbac_base.BaseVolumeRbacTest):
     def test_delete_message(self):
         message_id = self._create_user_message()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.messages_client.delete_message(message_id)
         self.messages_client.wait_for_resource_deletion(message_id)

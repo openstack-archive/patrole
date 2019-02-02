@@ -60,7 +60,7 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron create_subnetpool policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._create_subnetpool()
 
     @rbac_rule_validation.action(service="neutron",
@@ -83,7 +83,7 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
             self.addCleanup(self.subnetpools_client.update_subnetpool,
                             default_pool["id"], is_default=True)
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             # It apparently only enforces the policy for is_default=True.
             # It does nothing for is_default=False
             self._create_subnetpool(is_default=True)
@@ -98,7 +98,7 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron create_subnetpool:shared policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._create_subnetpool(shared=True)
 
     @rbac_rule_validation.action(service="neutron",
@@ -111,7 +111,7 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron get_subnetpool policy
         """
         subnetpool = self._create_subnetpool()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.subnetpools_client.show_subnetpool(subnetpool['id'])
 
     @rbac_rule_validation.action(service="neutron",
@@ -125,7 +125,7 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron update_subnetpool policy
         """
         subnetpool = self._create_subnetpool()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.subnetpools_client.update_subnetpool(subnetpool['id'],
                                                       min_prefixlen=24)
 
@@ -147,7 +147,7 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
             default_pool = self._create_subnetpool(is_default=True)
         original_desc = default_pool['description']
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.subnetpools_client.update_subnetpool(
                 default_pool['id'], description=original_desc, is_default=True)
 
@@ -162,7 +162,7 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron delete_subnetpool policy
         """
         subnetpool = self._create_subnetpool()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.subnetpools_client.delete_subnetpool(subnetpool['id'])
 
     @rbac_rule_validation.action(service="neutron", rules=["get_subnetpool"])
@@ -174,7 +174,7 @@ class SubnetPoolsRbacTest(base.BaseNetworkRbacTest):
         the ``get_subnetpool`` policy
         """
         admin_resource_id = self._create_subnetpool()['id']
-        with (self.rbac_utils.override_role_and_validate_list(
-                self, admin_resource_id=admin_resource_id)) as ctx:
+        with (self.override_role_and_validate_list(
+                admin_resource_id=admin_resource_id)) as ctx:
             ctx.resources = self.subnetpools_client.list_subnetpools(
                 id=admin_resource_id)["subnetpools"]

@@ -37,7 +37,7 @@ class IdentityTokenV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         })
     def test_show_token(self):
         token_id = self.setup_test_token(self.user_id, self.password)
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.identity_client.show_token(token_id)
 
     @decorators.idempotent_id('42a299db-fe0a-4ea0-9824-0bfd13155886')
@@ -50,7 +50,7 @@ class IdentityTokenV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         })
     def test_delete_token(self):
         token_id = self.setup_test_token(self.user_id, self.password)
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.identity_client.delete_token(token_id)
 
     @decorators.idempotent_id('3554d218-8cd6-4730-a1b2-0e22f9b78f45')
@@ -63,5 +63,5 @@ class IdentityTokenV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         })
     def test_check_token_exsitence(self):
         token_id = self.setup_test_token(self.user_id, self.password)
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.identity_client.check_token_existence(token_id)

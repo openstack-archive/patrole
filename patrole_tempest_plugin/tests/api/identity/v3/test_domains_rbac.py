@@ -26,7 +26,7 @@ class IdentityDomainsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                                  rules=["identity:create_domain"])
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd110')
     def test_create_domain(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.setup_test_domain()
 
     @rbac_rule_validation.action(service="keystone",
@@ -36,7 +36,7 @@ class IdentityDomainsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         domain = self.setup_test_domain()
         new_domain_name = data_utils.rand_name(
             self.__class__.__name__ + '-test_update_domain')
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.domains_client.update_domain(domain['id'],
                                               domain=domain,
                                               name=new_domain_name)
@@ -50,7 +50,7 @@ class IdentityDomainsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         self.domains_client.update_domain(domain['id'],
                                           domain=domain,
                                           enabled=False)
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.domains_client.delete_domain(domain['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -58,12 +58,12 @@ class IdentityDomainsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd113')
     def test_show_domain(self):
         domain = self.setup_test_domain()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.domains_client.show_domain(domain['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rules=["identity:list_domains"])
     @decorators.idempotent_id('6bdaecd4-0843-4ed6-ab64-3a57ab0cd114')
     def test_list_domains(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.domains_client.list_domains()

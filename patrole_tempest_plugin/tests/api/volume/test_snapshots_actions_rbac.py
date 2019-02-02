@@ -53,7 +53,7 @@ class SnapshotsActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('ea430145-34ef-408d-b678-95d5ae5f46eb')
     def test_reset_snapshot_status(self):
         status = 'error'
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.snapshots_client.reset_snapshot_status(
                 self.snapshot['id'], status)
         waiters.wait_for_volume_resource_status(
@@ -66,7 +66,7 @@ class SnapshotsActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
     def test_snapshot_force_delete(self):
         temp_snapshot = self.create_snapshot(self.volume['id'])
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.snapshots_client.force_delete_snapshot(temp_snapshot['id'])
         self.snapshots_client.wait_for_resource_deletion(temp_snapshot['id'])
 
@@ -80,7 +80,7 @@ class SnapshotsActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
             self.snapshot['id'], status)
         waiters.wait_for_volume_resource_status(self.snapshots_client,
                                                 self.snapshot['id'], status)
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.snapshots_client.update_snapshot_status(self.snapshot['id'],
                                                          status="creating")
         waiters.wait_for_volume_resource_status(

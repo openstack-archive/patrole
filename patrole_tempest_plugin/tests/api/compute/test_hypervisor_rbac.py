@@ -41,7 +41,7 @@ class HypervisorRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:os-hypervisors"])
     def test_list_hypervisors(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.hypervisor_client.list_hypervisors()
 
     @decorators.idempotent_id('36b95c7d-1085-487a-a674-b7c1ca35f520')
@@ -49,7 +49,7 @@ class HypervisorRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:os-hypervisors"])
     def test_list_hypervisors_with_details(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.hypervisor_client.list_hypervisors(detail=True)
 
     @decorators.idempotent_id('8a7f6f9e-34a6-4480-8875-bba566c3a581')
@@ -57,7 +57,7 @@ class HypervisorRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:os-hypervisors"])
     def test_show_hypervisor(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.hypervisor_client.show_hypervisor(self.hypervisor['id'])
 
     @decorators.idempotent_id('ca0e465c-6365-4a7f-ae58-6f8ddbca06c2')
@@ -65,7 +65,7 @@ class HypervisorRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:os-hypervisors"])
     def test_show_hypervisor_statistics(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.hypervisor_client.show_hypervisor_statistics()
 
     @decorators.idempotent_id('109b37c5-91ba-4da5-b2a2-d7618d84406d')
@@ -73,7 +73,7 @@ class HypervisorRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:os-hypervisors"])
     def test_show_hypervisor_uptime(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.hypervisor_client.show_hypervisor_uptime(
                 self.hypervisor['id'])
 
@@ -104,7 +104,7 @@ class HypervisorMaxv252RbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:os-hypervisors"])
     def test_list_servers_on_hypervisor(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.hypervisor_client.list_servers_on_hypervisor(
                 self.hypervisor['hypervisor_hostname'])
 
@@ -113,6 +113,6 @@ class HypervisorMaxv252RbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:os-hypervisors"])
     def test_search_hypervisor(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.hypervisor_client.search_hypervisor(
                 self.hypervisor['hypervisor_hostname'])

@@ -56,7 +56,7 @@ class RbacPoliciesExtRbacTest(base.BaseNetworkExtRbacTest):
         Neutron's custom FieldCheck oslo.policy rule.
         """
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.create_rbac_policy(self.tenant_id, self.network_id)
 
     @decorators.idempotent_id('f5d836d8-3b64-412d-a283-ee29761017f3')
@@ -77,7 +77,7 @@ class RbacPoliciesExtRbacTest(base.BaseNetworkExtRbacTest):
         """
         policy_id = self.create_rbac_policy(self.tenant_id, self.network_id)
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.update_rbac_policy(
                 policy_id, target_tenant=self.tenant_id)
 
@@ -92,7 +92,7 @@ class RbacPoliciesExtRbacTest(base.BaseNetworkExtRbacTest):
         """
         policy_id = self.create_rbac_policy(self.tenant_id, self.network_id)
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.show_rbac_policy(policy_id)
 
     @decorators.idempotent_id('54aa9bce-efea-47fb-b0e4-12012f82f285')
@@ -107,7 +107,7 @@ class RbacPoliciesExtRbacTest(base.BaseNetworkExtRbacTest):
         """
         policy_id = self.create_rbac_policy(self.tenant_id, self.network_id)
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.delete_rbac_policy(policy_id)
 
     @decorators.idempotent_id('5337d95a-2e75-47bb-a0ea-0a082be930bf')
@@ -120,7 +120,7 @@ class RbacPoliciesExtRbacTest(base.BaseNetworkExtRbacTest):
         """
         admin_resource_id = self.create_rbac_policy(self.tenant_id,
                                                     self.network_id)
-        with (self.rbac_utils.override_role_and_validate_list(
-                self, admin_resource_id=admin_resource_id)) as ctx:
+        with (self.override_role_and_validate_list(
+                admin_resource_id=admin_resource_id)) as ctx:
             ctx.resources = self.ntp_client.list_rbac_policies(
                 id=admin_resource_id)["rbac_policies"]

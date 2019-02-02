@@ -85,7 +85,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('ae84dd0b-f364-462e-b565-3457f9c019ef')
     def test_reset_server_state(self):
         """Test reset server state, part of os-admin-actions."""
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.reset_state(self.server['id'], state='error')
         self.addCleanup(self.servers_client.reset_state, self.server['id'],
                         state='active')
@@ -97,7 +97,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('ce48c340-51c1-4cff-9b6e-0cc5ef008630')
     def test_inject_network_info(self):
         """Test inject network info, part of os-admin-actions."""
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.inject_network_info(self.server['id'])
 
     @utils.requires_ext(extension='os-admin-actions', service='compute')
@@ -107,7 +107,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('2911a242-15c4-4fcb-80d5-80a8930661b0')
     def test_reset_network(self):
         """Test reset network, part of os-admin-actions."""
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.reset_network(self.server['id'])
 
     @testtools.skipUnless(CONF.compute_feature_enabled.change_password,
@@ -121,7 +121,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         original_password = self.servers_client.show_password(
             self.server['id'])
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.change_password(
                 self.server['id'], adminPass=data_utils.rand_password())
         self.addCleanup(self.servers_client.change_password, self.server['id'],
@@ -138,7 +138,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rules=["os_compute_api:os-config-drive"])
     def test_list_servers_with_details_config_drive(self):
         """Test list servers with config_drive property in response body."""
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             body = self.servers_client.list_servers(detail=True)['servers']
         expected_attr = 'config_drive'
         # If the first server contains "config_drive", then all the others do.
@@ -155,7 +155,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rules=["os_compute_api:os-config-drive"])
     def test_show_server_config_drive(self):
         """Test show server with config_drive property in response body."""
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             body = self.servers_client.show_server(self.server['id'])['server']
         expected_attr = 'config_drive'
         if expected_attr not in body:
@@ -169,7 +169,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rules=["os_compute_api:os-deferred-delete"])
     def test_force_delete_server(self):
         """Test force delete server, part of os-deferred-delete."""
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             # Force-deleting a server enforces os-deferred-delete.
             self.servers_client.force_delete_server(self.server['id'])
 
@@ -184,7 +184,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         """Test list servers OS-EXT-AZ:availability_zone attr in resp body."""
         expected_attr = 'OS-EXT-AZ:availability_zone'
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             body = self.servers_client.list_servers(detail=True)['servers']
         # If the first server contains `expected_attr`, then all the others do.
         if expected_attr not in body[0]:
@@ -202,7 +202,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         """Test show server OS-EXT-AZ:availability_zone attr in resp body."""
         expected_attr = 'OS-EXT-AZ:availability_zone'
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             body = self.servers_client.show_server(self.server['id'])['server']
         if expected_attr not in body:
             raise rbac_exceptions.RbacMissingAttributeResponseBody(
@@ -219,7 +219,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         """Test list servers with details, with extended server attributes in
         response body.
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             body = self.servers_client.list_servers(detail=True)['servers']
 
         # NOTE(felipemonteiro): The attributes included below should be
@@ -243,7 +243,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         """Test show server with extended server attributes in response
         body.
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             body = self.servers_client.show_server(self.server['id'])['server']
 
         # NOTE(felipemonteiro): The attributes included below should be
@@ -265,7 +265,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rules=["os_compute_api:os-extended-status"])
     def test_list_servers_extended_status(self):
         """Test list servers with extended properties in response body."""
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             body = self.servers_client.list_servers(detail=True)['servers']
 
         expected_attrs = ('OS-EXT-STS:task_state', 'OS-EXT-STS:vm_state',
@@ -284,7 +284,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rules=["os_compute_api:os-extended-status"])
     def test_show_server_extended_status(self):
         """Test show server with extended properties in response body."""
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             body = self.servers_client.show_server(self.server['id'])['server']
 
         expected_attrs = ('OS-EXT-STS:task_state', 'OS-EXT-STS:vm_state',
@@ -307,7 +307,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         """
         expected_attr = 'os-extended-volumes:volumes_attached'
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             body = self.servers_client.list_servers(detail=True)['servers']
         if expected_attr not in body[0]:
             raise rbac_exceptions.RbacMissingAttributeResponseBody(
@@ -326,7 +326,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         """
         expected_attr = 'os-extended-volumes:volumes_attached'
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             body = self.servers_client.show_server(self.server['id'])['server']
         if expected_attr not in body:
             raise rbac_exceptions.RbacMissingAttributeResponseBody(
@@ -339,7 +339,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rules=["os_compute_api:os-instance-actions"])
     def test_list_instance_actions(self):
         """Test list instance actions, part of os-instance-actions."""
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.list_instance_actions(self.server['id'])
 
     @utils.requires_ext(extension='os-instance-actions', service='compute')
@@ -355,7 +355,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         # NOTE: "os_compute_api:os-instance-actions" is also enforced.
         request_id = self.server.response['x-compute-request-id']
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             instance_action = self.servers_client.show_instance_action(
                 self.server['id'], request_id)['instanceAction']
 
@@ -375,7 +375,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rules=["os_compute_api:os-keypairs"])
     @decorators.idempotent_id('81e6fa34-c06b-42ca-b195-82bf8699b940')
     def test_show_server_keypair(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             result = self.servers_client.show_server(self.server['id'])[
                 'server']
         if 'key_name' not in result:
@@ -389,7 +389,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rules=["os_compute_api:os-keypairs"])
     @decorators.idempotent_id('41ca4280-ec59-4b80-a9b1-6bc6366faf39')
     def test_list_servers_keypairs(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             result = self.servers_client.list_servers(detail=True)['servers']
         if 'key_name' not in result[0]:
             raise rbac_exceptions.RbacMissingAttributeResponseBody(
@@ -401,7 +401,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('b81e10fb-1864-498f-8c1d-5175c6fec5fb')
     def test_lock_server(self):
         """Test lock server, part of os-lock-server."""
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.lock_server(self.server['id'])
         self.addCleanup(self.servers_client.unlock_server, self.server['id'])
 
@@ -414,7 +414,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.servers_client.lock_server(self.server['id'])
         self.addCleanup(self.servers_client.unlock_server, self.server['id'])
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.unlock_server(self.server['id'])
 
     @rbac_rule_validation.action(
@@ -432,7 +432,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.os_admin.servers_client.lock_server(self.server['id'])
         self.addCleanup(self.servers_client.unlock_server, self.server['id'])
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.unlock_server(self.server['id'])
 
     @utils.requires_ext(extension='os-rescue', service='compute')
@@ -442,7 +442,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('fbbb2afc-ed0e-4552-887d-ac00fb5d436e')
     def test_rescue_server(self):
         """Test rescue server, part of os-rescue."""
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.rescue_server(self.server['id'])
         waiters.wait_for_server_status(
             self.servers_client, self.server['id'], 'RESCUE')
@@ -458,7 +458,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         waiters.wait_for_server_status(
             self.servers_client, self.server['id'], 'RESCUE')
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.unrescue_server(self.server['id'])
         waiters.wait_for_server_status(
             self.servers_client, self.server['id'], 'ACTIVE')
@@ -470,7 +470,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('5dabfcc4-bedb-417b-8247-b3ee7c5c0f3e')
     def test_show_server_diagnostics(self):
         """Test show server diagnostics, part of os-server-diagnostics."""
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.show_server_diagnostics(self.server['id'])
 
     @utils.requires_ext(extension='os-server-password', service='compute')
@@ -480,7 +480,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rules=["os_compute_api:os-server-password"])
     def test_delete_server_password(self):
         """Test delete server password, part of os-server-password."""
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.delete_password(self.server['id'])
 
     @utils.requires_ext(extension='os-server-password', service='compute')
@@ -490,7 +490,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('f677971a-7d20-493c-977f-6ff0a74b5b2c')
     def test_get_server_password(self):
         """Test show server password, part of os-server-password."""
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.show_password(self.server['id'])
 
     @testtools.skipIf(CONF.policy_feature_enabled.removed_nova_policies_stein,
@@ -510,7 +510,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         expected_attrs = ('OS-SRV-USG:launched_at',
                           'OS-SRV-USG:terminated_at')
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             body = self.servers_client.show_server(self.server['id'])['server']
         for expected_attr in expected_attrs:
             if expected_attr not in body:
@@ -524,7 +524,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('2aef094f-0452-4df6-a66a-0ec22a92b16e')
     def test_list_simple_tenant_usages(self):
         """Test list tenant usages, part of os-simple-tenant-usage."""
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.tenant_usages_client.list_tenant_usages()
 
     @utils.requires_ext(extension='os-simple-tenant-usage', service='compute')
@@ -536,7 +536,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         """Test show tenant usage, part of os-simple-tenant-usage."""
         tenant_id = self.os_primary.credentials.tenant_id
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.tenant_usages_client.show_tenant_usage(tenant_id=tenant_id)
 
     @testtools.skipUnless(CONF.compute_feature_enabled.suspend,
@@ -547,7 +547,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rules=["os_compute_api:os-suspend-server:suspend"])
     def test_suspend_server(self):
         """Test suspend server, part of os-suspend-server."""
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.suspend_server(self.server['id'])
         self.addCleanup(self.servers_client.resume_server, self.server['id'])
         waiters.wait_for_server_status(
@@ -565,7 +565,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         waiters.wait_for_server_status(
             self.servers_client, self.server['id'], 'SUSPENDED')
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.resume_server(self.server['id'])
         waiters.wait_for_server_status(
             self.servers_client, self.server['id'], 'ACTIVE')
@@ -657,7 +657,7 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rules=["os_compute_api:os-attach-interfaces"])
     def test_list_interfaces(self):
         """Test list interfaces, part of os-attach-interfaces."""
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.interfaces_client.list_interfaces(self.server['id'])
 
     @decorators.idempotent_id('1b9cf7db-dc50-48a2-8eb9-8c25af5e934a')
@@ -670,7 +670,7 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_show_interface(self):
         """Test show interfaces, part of os-attach-interfaces."""
         interface = self._attach_interface_to_server()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.interfaces_client.show_interface(
                 self.server['id'], interface['port_id'])
 
@@ -684,7 +684,7 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_create_interface(self):
         """Test create interface, part of os-attach-interfaces."""
         network_id = self.network['id']
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             interface = self.interfaces_client.create_interface(
                 self.server['id'], net_id=network_id)['interfaceAttachment']
         self.addCleanup(
@@ -709,7 +709,7 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
         """Test delete interface, part of os-attach-interfaces."""
         interface = self._attach_interface_to_server()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.interfaces_client.delete_interface(self.server['id'],
                                                     interface['port_id'])
         waiters.wait_for_interface_detach(
@@ -722,7 +722,7 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rules=["os_compute_api:ips:index"])
     def test_list_addresses(self):
         """Test list server addresses, part of ips policy family."""
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.list_addresses(self.server['id'])
 
     @decorators.idempotent_id('fa43e7e5-0db9-48eb-9c6b-c11eb766b8e4')
@@ -736,7 +736,7 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
             'addresses']
         address = next(iter(addresses))
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.list_addresses_by_network(
                 self.server['id'], address)
 
@@ -763,7 +763,7 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
                 self.interfaces_client.delete_interface,
                 self.server['id'], interface['port_id'])
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.add_fixed_ip(self.server['id'],
                                              networkId=network_id)
         # Get the Fixed IP from server.

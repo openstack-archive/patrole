@@ -56,7 +56,7 @@ class ApplicationCredentialsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         service="keystone",
         rules=["identity:create_application_credential"])
     def test_create_application_credential(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._create_application_credential()
 
     @decorators.idempotent_id('58b3c3a0-5ad0-44f7-8da7-0736f71f7168')
@@ -64,7 +64,7 @@ class ApplicationCredentialsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         service="keystone",
         rules=["identity:list_application_credentials"])
     def test_list_application_credentials(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.application_credentials_client.list_application_credentials(
                 user_id=self.user_id)
 
@@ -74,7 +74,7 @@ class ApplicationCredentialsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         rules=["identity:get_application_credential"])
     def test_show_application_credential(self):
         app_cred = self._create_application_credential()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.application_credentials_client.show_application_credential(
                 user_id=self.user_id, application_credential_id=app_cred['id'])
 
@@ -84,6 +84,6 @@ class ApplicationCredentialsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         rules=["identity:delete_application_credential"])
     def test_delete_application_credential(self):
         app_cred = self._create_application_credential()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.application_credentials_client.delete_application_credential(
                 user_id=self.user_id, application_credential_id=app_cred['id'])

@@ -42,7 +42,7 @@ class IdentityCredentialsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     def test_create_credential(self):
         project = self.setup_test_project()
         user = self.setup_test_user(project_id=project['id'])
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.setup_test_credential(user=user)
 
     @rbac_rule_validation.action(service="keystone",
@@ -53,7 +53,7 @@ class IdentityCredentialsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         new_keys = [data_utils.rand_uuid_hex(),
                     data_utils.rand_uuid_hex()]
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.creds_client.update_credential(
                 credential['id'],
                 credential=credential,
@@ -67,7 +67,7 @@ class IdentityCredentialsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     def test_delete_credential(self):
         credential = self._create_user_project_and_credential()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.creds_client.delete_credential(credential['id'])
 
     @rbac_rule_validation.action(service="keystone",
@@ -76,12 +76,12 @@ class IdentityCredentialsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     def test_show_credential(self):
         credential = self._create_user_project_and_credential()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.creds_client.show_credential(credential['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rules=["identity:list_credentials"])
     @decorators.idempotent_id('3de303e2-12a7-4811-805a-f18906472038')
     def test_list_credentials(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.creds_client.list_credentials()

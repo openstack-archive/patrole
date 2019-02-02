@@ -69,7 +69,7 @@ class NamespaceTagsRbacTest(base.BaseV2ImageRbacTest):
     @rbac_rule_validation.action(service="glance",
                                  rules=["add_metadef_tag"])
     def test_create_namespace_tag(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._create_namespace_tag()
 
     @decorators.idempotent_id('4acf70cc-05da-4b1e-87b2-d5e4475164e7')
@@ -77,7 +77,7 @@ class NamespaceTagsRbacTest(base.BaseV2ImageRbacTest):
                                  rules=["get_metadef_tag"])
     def test_show_namespace_tag(self):
         tag_name = self._create_namespace_tag()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.namespace_tags_client.show_namespace_tag(self.namespace,
                                                           tag_name)
 
@@ -89,7 +89,7 @@ class NamespaceTagsRbacTest(base.BaseV2ImageRbacTest):
         updated_tag_name = data_utils.rand_name(
             self.__class__.__name__ + '-tag')
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.namespace_tags_client.update_namespace_tag(
                 self.namespace, tag_name, name=updated_tag_name)
 
@@ -97,12 +97,12 @@ class NamespaceTagsRbacTest(base.BaseV2ImageRbacTest):
     @rbac_rule_validation.action(service="glance",
                                  rules=["add_metadef_tags"])
     def test_create_namespace_tags(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._create_namespace_tag(multiple=True)
 
     @decorators.idempotent_id('d37c1501-e787-449d-89b3-754a942a459a')
     @rbac_rule_validation.action(service="glance",
                                  rules=["get_metadef_tags"])
     def test_list_namespace_tags(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.namespace_tags_client.list_namespace_tags(self.namespace)

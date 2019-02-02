@@ -85,7 +85,7 @@ class IdentityOAuthTokensV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     def test_authorize_request_token(self):
         _, request_token = self._create_consumer_and_request_token()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.oauth_token_client.authorize_request_token(
                 request_token['oauth_token'],
                 self.role_ids)
@@ -96,7 +96,7 @@ class IdentityOAuthTokensV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     def test_get_access_token(self):
         access_token = self._create_access_token()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.oauth_token_client.get_access_token(self.user_id,
                                                      access_token)
 
@@ -106,7 +106,7 @@ class IdentityOAuthTokensV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     def test_get_access_token_role(self):
         access_token = self._create_access_token()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.oauth_token_client.get_access_token_role(
                 self.user_id, access_token, self.role_ids[0])
 
@@ -114,7 +114,7 @@ class IdentityOAuthTokensV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                                  rules=["identity:list_access_tokens"])
     @decorators.idempotent_id('0f148510-63bf-11e6-4522-080044d0d979')
     def test_list_access_tokens(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.oauth_token_client.list_access_tokens(self.user_id)
 
     @rbac_rule_validation.action(service="keystone",
@@ -123,7 +123,7 @@ class IdentityOAuthTokensV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     def test_list_access_token_roles(self):
         access_token = self._create_access_token()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.oauth_token_client.list_access_token_roles(
                 self.user_id, access_token)
 
@@ -133,6 +133,6 @@ class IdentityOAuthTokensV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     def test_revoke_access_token(self):
         access_token = self._create_access_token()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.oauth_token_client.revoke_access_token(
                 self.user_id, access_token)

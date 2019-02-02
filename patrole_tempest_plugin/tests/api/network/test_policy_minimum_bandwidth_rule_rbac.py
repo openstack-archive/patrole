@@ -59,7 +59,7 @@ class PolicyMinimumBandwidthRuleExtRbacTest(base.BaseNetworkExtRbacTest):
         RBAC test for the neutron "create_policy_minimum_bandwidth_rule" policy
         """
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.create_minimum_bandwidth_rule()
 
     @decorators.idempotent_id('01DD902C-47C5-45D2-9A0E-7AF05981DF21')
@@ -73,7 +73,7 @@ class PolicyMinimumBandwidthRuleExtRbacTest(base.BaseNetworkExtRbacTest):
         """
         rule_id = self.create_minimum_bandwidth_rule()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.show_minimum_bandwidth_rule(
                 self.policy_id, rule_id)
 
@@ -90,7 +90,7 @@ class PolicyMinimumBandwidthRuleExtRbacTest(base.BaseNetworkExtRbacTest):
         """
         rule_id = self.create_minimum_bandwidth_rule()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.update_minimum_bandwidth_rule(
                 self.policy_id, rule_id, min_kbps=2000)
 
@@ -107,6 +107,6 @@ class PolicyMinimumBandwidthRuleExtRbacTest(base.BaseNetworkExtRbacTest):
         """
         rule_id = self.create_minimum_bandwidth_rule()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.delete_minimum_bandwidth_rule(
                 self.policy_id, rule_id)

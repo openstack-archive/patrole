@@ -73,7 +73,7 @@ class EncryptionTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
         rules=[_CREATE_VOLUME_TYPE_ENCRYPTION])
     def test_create_volume_type_encryption(self):
         vol_type_id = self.create_volume_type()['id']
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.encryption_types_client.create_encryption_type(
                 vol_type_id,
                 provider="nova.volume.encryptors.luks.LuksEncryptor",
@@ -85,7 +85,7 @@ class EncryptionTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
         rules=[_DELETE_VOLUME_TYPE_ENCRYPTION])
     def test_delete_volume_type_encryption(self):
         vol_type_id = self._create_volume_type_encryption()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.encryption_types_client.delete_encryption_type(vol_type_id)
 
     @decorators.idempotent_id('42da9fec-32fd-4dca-9242-8a53b2fed25a')
@@ -94,7 +94,7 @@ class EncryptionTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
         rules=[_UPDATE_VOLUME_TYPE_ENCRYPTION])
     def test_update_volume_type_encryption(self):
         vol_type_id = self._create_volume_type_encryption()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.encryption_types_client.update_encryption_type(
                 vol_type_id,
                 control_location="front-end")
@@ -105,7 +105,7 @@ class EncryptionTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
         rules=[_SHOW_VOLUME_TYPE_ENCRYPTION])
     def test_show_volume_type_encryption(self):
         vol_type_id = self._create_volume_type_encryption()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.encryption_types_client.show_encryption_type(vol_type_id)
 
     @decorators.idempotent_id('d4ed3cf8-52b2-4fa2-910d-e405361f0881')
@@ -114,6 +114,6 @@ class EncryptionTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
         rules=[_SHOW_VOLUME_TYPE_ENCRYPTION])
     def test_show_encryption_specs_item(self):
         vol_type_id = self._create_volume_type_encryption()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.encryption_types_client.show_encryption_specs_item(
                 vol_type_id, 'provider')

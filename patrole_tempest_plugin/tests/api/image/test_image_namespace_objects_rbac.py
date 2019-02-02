@@ -36,7 +36,7 @@ class ImageNamespacesObjectsRbacTest(rbac_base.BaseV2ImageRbacTest):
         # cleanup of namespace
         object_name = data_utils.rand_name(
             self.__class__.__name__ + '-test-object')
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.namespace_objects_client.create_namespace_object(
                 namespace['namespace'],
                 name=object_name)
@@ -53,7 +53,7 @@ class ImageNamespacesObjectsRbacTest(rbac_base.BaseV2ImageRbacTest):
         RBAC test for the glance get_metadef_objects policy
         """
         namespace = self.create_namespace()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             # list md objects
             self.namespace_objects_client.list_namespace_objects(
                 namespace['namespace'])
@@ -78,7 +78,7 @@ class ImageNamespacesObjectsRbacTest(rbac_base.BaseV2ImageRbacTest):
 
         # Toggle role and modify object
         new_name = "Object New Name"
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.namespace_objects_client.update_namespace_object(
                 namespace['namespace'], object_name, name=new_name)
 
@@ -100,7 +100,7 @@ class ImageNamespacesObjectsRbacTest(rbac_base.BaseV2ImageRbacTest):
                         self.namespace_objects_client.delete_namespace_object,
                         namespace['namespace'], object_name)
         # Toggle role and get object
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.namespace_objects_client.show_namespace_object(
                 namespace['namespace'],
                 object_name)

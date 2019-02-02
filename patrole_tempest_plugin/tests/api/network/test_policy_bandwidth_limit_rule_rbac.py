@@ -59,7 +59,7 @@ class PolicyBandwidthLimitRuleExtRbacTest(base.BaseNetworkExtRbacTest):
         RBAC test for the neutron "create_policy_bandwidth_limit_rule" policy
         """
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._create_bandwidth_limit_rule()
 
     @decorators.idempotent_id('A092BD50-364F-4F55-B81A-37DAD6E77B95')
@@ -73,7 +73,7 @@ class PolicyBandwidthLimitRuleExtRbacTest(base.BaseNetworkExtRbacTest):
         """
         rule_id = self._create_bandwidth_limit_rule()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.show_bandwidth_limit_rule(self.policy_id, rule_id)
 
     @decorators.idempotent_id('CAA27599-082B-44B9-AF09-8C9B8E777ED7')
@@ -88,7 +88,7 @@ class PolicyBandwidthLimitRuleExtRbacTest(base.BaseNetworkExtRbacTest):
         """
         rule_id = self._create_bandwidth_limit_rule()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.update_bandwidth_limit_rule(
                 self.policy_id, rule_id, max_kbps=2000)
 
@@ -104,6 +104,6 @@ class PolicyBandwidthLimitRuleExtRbacTest(base.BaseNetworkExtRbacTest):
         """
         rule_id = self._create_bandwidth_limit_rule()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.delete_bandwidth_limit_rule(self.policy_id,
                                                         rule_id)

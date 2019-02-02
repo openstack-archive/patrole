@@ -57,7 +57,7 @@ class FlavorsServiceProfileExtRbacTest(base.BaseNetworkExtRbacTest):
 
         RBAC test for the neutron "create_flavor_service_profile" policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.create_flavor_service_profile(self.flavor_id,
                                                self.service_profile_id)
 
@@ -72,6 +72,6 @@ class FlavorsServiceProfileExtRbacTest(base.BaseNetworkExtRbacTest):
         self.create_flavor_service_profile(self.flavor_id,
                                            self.service_profile_id)
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.delete_flavor_service_profile(
                 self.flavor_id, self.service_profile_id)

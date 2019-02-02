@@ -74,7 +74,7 @@ class NetworkSegmentsRbacTest(base.BaseNetworkRbacTest):
 
         RBAC test for the neutron create_network:segments policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._create_network_segments()
 
     @rbac_rule_validation.action(service="neutron",
@@ -90,7 +90,7 @@ class NetworkSegmentsRbacTest(base.BaseNetworkRbacTest):
         network = self._create_network_segments()
         new_segments = [{'provider:network_type': self.network_type}]
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.networks_client.update_network(network['id'],
                                                 segments=new_segments)
 
@@ -106,7 +106,7 @@ class NetworkSegmentsRbacTest(base.BaseNetworkRbacTest):
         """
         network = self._create_network_segments()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             body = self.networks_client.show_network(network['id'],
                                                      fields='segments')
         response_network = body['network']

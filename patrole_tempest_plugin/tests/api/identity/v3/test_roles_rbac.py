@@ -37,7 +37,7 @@ class IdentityRolesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                                  rules=["identity:create_role"])
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d904')
     def test_create_role(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.setup_test_role()
 
     @rbac_rule_validation.action(service="keystone",
@@ -47,7 +47,7 @@ class IdentityRolesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         new_role_name = data_utils.rand_name(
             self.__class__.__name__ + '-test_update_role')
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.roles_client.update_role(self.role['id'],
                                           name=new_role_name)
 
@@ -57,28 +57,28 @@ class IdentityRolesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     def test_delete_role(self):
         role = self.setup_test_role()
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.roles_client.delete_role(role['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rules=["identity:get_role"])
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d907')
     def test_show_role(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.roles_client.show_role(self.role['id'])
 
     @rbac_rule_validation.action(service="keystone",
                                  rules=["identity:list_roles"])
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d908')
     def test_list_roles(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.roles_client.list_roles()
 
     @rbac_rule_validation.action(service="keystone",
                                  rules=["identity:create_grant"])
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d909')
     def test_create_user_role_on_project(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.roles_client.create_user_role_on_project(
                 self.project['id'],
                 self.user['id'],
@@ -93,7 +93,7 @@ class IdentityRolesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                                  rules=["identity:create_grant"])
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d90c')
     def test_create_group_role_on_project(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.roles_client.create_group_role_on_project(
                 self.project['id'],
                 self.group['id'],
@@ -108,7 +108,7 @@ class IdentityRolesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                                  rules=["identity:create_grant"])
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d90f')
     def test_create_user_role_on_domain(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.roles_client.create_user_role_on_domain(
                 self.domain['id'],
                 self.user['id'],
@@ -123,7 +123,7 @@ class IdentityRolesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                                  rules=["identity:create_grant"])
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d912')
     def test_create_group_role_on_domain(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.roles_client.create_group_role_on_domain(
                 self.domain['id'],
                 self.group['id'],
@@ -148,7 +148,7 @@ class IdentityRolesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                         self.user['id'],
                         self.role['id'])
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.roles_client.check_user_role_existence_on_project(
                 self.project['id'],
                 self.user['id'],
@@ -168,7 +168,7 @@ class IdentityRolesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                         self.user['id'],
                         self.role['id'])
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.roles_client.check_user_role_existence_on_domain(
                 self.domain['id'],
                 self.user['id'],
@@ -188,7 +188,7 @@ class IdentityRolesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                         self.group['id'],
                         self.role['id'])
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.roles_client.check_role_from_group_on_project_existence(
                 self.project['id'],
                 self.group['id'],
@@ -208,7 +208,7 @@ class IdentityRolesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                         self.group['id'],
                         self.role['id'])
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.roles_client.check_role_from_group_on_domain_existence(
                 self.domain['id'],
                 self.group['id'],
@@ -228,7 +228,7 @@ class IdentityRolesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                         self.user['id'],
                         self.role['id'])
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.roles_client.delete_role_from_user_on_project(
                 self.project['id'],
                 self.user['id'],
@@ -248,7 +248,7 @@ class IdentityRolesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                         self.group['id'],
                         self.role['id'])
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.roles_client.delete_role_from_group_on_project(
                 self.project['id'],
                 self.group['id'],
@@ -268,7 +268,7 @@ class IdentityRolesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                         self.user['id'],
                         self.role['id'])
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.roles_client.delete_role_from_user_on_domain(
                 self.domain['id'],
                 self.user['id'],
@@ -288,7 +288,7 @@ class IdentityRolesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                         self.group['id'],
                         self.role['id'])
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.roles_client.delete_role_from_group_on_domain(
                 self.domain['id'],
                 self.group['id'],
@@ -298,7 +298,7 @@ class IdentityRolesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                                  rules=["identity:list_grants"])
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d90b')
     def test_list_user_roles_on_project(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.roles_client.list_user_roles_on_project(
                 self.project['id'],
                 self.user['id'])
@@ -307,7 +307,7 @@ class IdentityRolesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                                  rules=["identity:list_grants"])
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d90e')
     def test_list_group_roles_on_project(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.roles_client.list_group_roles_on_project(
                 self.project['id'],
                 self.group['id'])
@@ -316,7 +316,7 @@ class IdentityRolesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                                  rules=["identity:list_grants"])
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d911')
     def test_list_user_roles_on_domain(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.roles_client.list_user_roles_on_domain(
                 self.domain['id'],
                 self.user['id'])
@@ -325,7 +325,7 @@ class IdentityRolesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                                  rules=["identity:list_grants"])
     @decorators.idempotent_id('0f148510-63bf-11e6-1395-080044d0d914')
     def test_list_group_roles_on_domain(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.roles_client.list_group_roles_on_domain(
                 self.domain['id'],
                 self.group['id'])
@@ -334,7 +334,7 @@ class IdentityRolesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @rbac_rule_validation.action(service="keystone",
                                  rules=["identity:create_implied_role"])
     def test_create_role_inference_rule(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.roles_client.create_role_inference_rule(
                 self.role['id'], self.implies_role['id'])
         self.addCleanup(self.roles_client.delete_role_inference_rule,
@@ -349,7 +349,7 @@ class IdentityRolesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         self.addCleanup(self.roles_client.delete_role_inference_rule,
                         self.role['id'], self.implies_role['id'])
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.roles_client.show_role_inference_rule(
                 self.role['id'], self.implies_role['id'])
 
@@ -357,7 +357,7 @@ class IdentityRolesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @rbac_rule_validation.action(service="keystone",
                                  rules=["identity:list_implied_roles"])
     def test_list_role_inferences_rules(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.roles_client.list_role_inferences_rules(self.role['id'])
 
     @decorators.idempotent_id('eca2d502-09bb-45cd-9773-bce2e7bcddd1')
@@ -369,7 +369,7 @@ class IdentityRolesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         self.addCleanup(self.roles_client.delete_role_inference_rule,
                         self.role['id'], self.implies_role['id'])
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.roles_client.check_role_inference_rule(
                 self.role['id'], self.implies_role['id'])
 
@@ -383,7 +383,7 @@ class IdentityRolesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                         self.roles_client.delete_role_inference_rule,
                         self.role['id'], self.implies_role['id'])
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.roles_client.delete_role_inference_rule(
                 self.role['id'], self.implies_role['id'])
 
@@ -391,5 +391,5 @@ class IdentityRolesV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @rbac_rule_validation.action(service="keystone",
                                  rules=["identity:list_role_inference_rules"])
     def test_list_all_role_inference_rules(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.roles_client.list_all_role_inference_rules()

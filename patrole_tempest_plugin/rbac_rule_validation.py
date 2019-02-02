@@ -132,7 +132,7 @@ def action(service,
             rules=["os_compute_api:os-agents"])
         def test_list_agents_rbac(self):
             # The call to `override_role` is mandatory.
-            with self.rbac_utils.override_role(self):
+            with self.override_role():
                 self.agents_client.list_agents()
     """
 

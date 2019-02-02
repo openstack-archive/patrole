@@ -62,7 +62,7 @@ class VolumeRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:os-volumes"])
     def test_create_volume(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             volume = self.volumes_extensions_client.create_volume(
                 size=CONF.volume.volume_size)['volume']
         waiters.wait_for_volume_resource_status(self.volumes_client,
@@ -75,7 +75,7 @@ class VolumeRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:os-volumes"])
     def test_list_volumes(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.volumes_extensions_client.list_volumes()
 
     @decorators.idempotent_id('4ba0a820-040f-488b-86bb-be2e920ea12c')
@@ -83,7 +83,7 @@ class VolumeRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:os-volumes"])
     def test_show_volume(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.volumes_extensions_client.show_volume(self.volume['id'])
 
     @decorators.idempotent_id('6e7870f2-1bb2-4b58-96f8-6782071ef327')
@@ -92,7 +92,7 @@ class VolumeRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rules=["os_compute_api:os-volumes"])
     def test_delete_volume(self):
         volume = self.create_volume()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.volumes_extensions_client.delete_volume(volume['id'])
 
     @decorators.idempotent_id('0c3eaa4f-69d6-4a13-9dda-19585f36b1c1')
@@ -101,7 +101,7 @@ class VolumeRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rules=["os_compute_api:os-volumes"])
     def test_create_snapshot(self):
         s_name = data_utils.rand_name(self.__class__.__name__ + '-Snapshot')
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             snapshot = self.snapshots_extensions_client.create_snapshot(
                 volume_id=self.volume['id'], display_name=s_name)['snapshot']
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
@@ -112,7 +112,7 @@ class VolumeRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:os-volumes"])
     def test_list_snapshots(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.snapshots_extensions_client.list_snapshots()
 
     @decorators.idempotent_id('19c2e6bd-585b-472f-a8d7-71ea9299c655')
@@ -125,7 +125,7 @@ class VolumeRbacTest(rbac_base.BaseV2ComputeRbacTest):
             volume_id=self.volume['id'], display_name=s_name)['snapshot']
         self.addCleanup(self._delete_snapshot, snapshot['id'])
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.snapshots_extensions_client.show_snapshot(snapshot['id'])
 
     @decorators.idempotent_id('f4f5635c-416c-11e7-a919-92ebcb67fe33')
@@ -142,7 +142,7 @@ class VolumeRbacTest(rbac_base.BaseV2ComputeRbacTest):
             self.snapshots_extensions_client, snapshot['id'],
             'available')
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.snapshots_extensions_client.delete_snapshot(snapshot['id'])
         self.snapshots_extensions_client.wait_for_resource_deletion(
             snapshot['id'])

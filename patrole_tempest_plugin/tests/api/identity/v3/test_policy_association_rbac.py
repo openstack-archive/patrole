@@ -61,7 +61,7 @@ class IdentityPolicyAssociationRbacTest(
         rules=["identity:create_policy_association_for_endpoint"])
     @decorators.idempotent_id('1b3f4f62-4f4a-4d27-be27-9a113058597f')
     def test_update_policy_association_for_endpoint(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._update_policy_association_for_endpoint(
                 self.policy_id, self.endpoint_id)
 
@@ -72,7 +72,7 @@ class IdentityPolicyAssociationRbacTest(
     def test_show_policy_association_for_endpoint(self):
         self._update_policy_association_for_endpoint(
             self.policy_id, self.endpoint_id)
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.policies_client.show_policy_association_for_endpoint(
                 self.policy_id, self.endpoint_id)
 
@@ -83,7 +83,7 @@ class IdentityPolicyAssociationRbacTest(
     def test_delete_policy_association_for_endpoint(self):
         self._update_policy_association_for_endpoint(
             self.policy_id, self.endpoint_id)
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.policies_client.delete_policy_association_for_endpoint(
                 self.policy_id, self.endpoint_id)
 
@@ -92,7 +92,7 @@ class IdentityPolicyAssociationRbacTest(
         rules=["identity:create_policy_association_for_service"])
     @decorators.idempotent_id('57fb80fe-6ce2-4995-b710-4692b3fc3cdc')
     def test_update_policy_association_for_service(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._update_policy_association_for_service(
                 self.policy_id, self.service_id)
 
@@ -103,7 +103,7 @@ class IdentityPolicyAssociationRbacTest(
     def test_show_policy_association_for_service(self):
         self._update_policy_association_for_service(
             self.policy_id, self.service_id)
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.policies_client.show_policy_association_for_service(
                 self.policy_id, self.service_id)
 
@@ -114,7 +114,7 @@ class IdentityPolicyAssociationRbacTest(
     def test_delete_policy_association_for_service(self):
         self._update_policy_association_for_service(
             self.policy_id, self.service_id)
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.policies_client.delete_policy_association_for_service(
                 self.policy_id, self.service_id)
 
@@ -123,7 +123,7 @@ class IdentityPolicyAssociationRbacTest(
         rules=["identity:create_policy_association_for_region_and_service"])
     @decorators.idempotent_id('54d2a93e-c84d-4079-8ea9-2fb227c262a1')
     def test_update_policy_association_for_region_and_service(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._update_policy_association_for_region_and_service(
                 self.policy_id, self.service_id, self.region_id)
 
@@ -134,7 +134,7 @@ class IdentityPolicyAssociationRbacTest(
     def test_show_policy_association_for_region_and_service(self):
         self._update_policy_association_for_region_and_service(
             self.policy_id, self.service_id, self.region_id)
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.policies_client\
                 .show_policy_association_for_region_and_service(
                     self.policy_id, self.service_id, self.region_id)
@@ -146,7 +146,7 @@ class IdentityPolicyAssociationRbacTest(
     def test_delete_policy_association_for_region_and_service(self):
         self._update_policy_association_for_region_and_service(
             self.policy_id, self.service_id, self.region_id)
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.policies_client.\
                 delete_policy_association_for_region_and_service(
                     self.policy_id, self.service_id, self.region_id)

@@ -54,7 +54,7 @@ class SnapshotMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
         # Create volume and snapshot metadata
         self._create_test_snapshot_metadata()
         # Get metadata for the snapshot
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.snapshots_client.show_snapshot_metadata(
                 self.snapshot_id)
 
@@ -66,7 +66,7 @@ class SnapshotMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
         # Create volume and snapshot metadata
         self._create_test_snapshot_metadata()
         # Get the metadata of the snapshot
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.snapshots_client.show_snapshot_metadata(
                 self.snapshot_id)['metadata']
 
@@ -75,7 +75,7 @@ class SnapshotMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
                                  rules=["volume:update_snapshot_metadata"])
     def test_update_snapshot_metadata(self):
         self._create_test_snapshot_metadata()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             update = {"key3": "value3_update",
                       "key4": "value4"}
             self.snapshots_client.update_snapshot_metadata(
@@ -86,7 +86,7 @@ class SnapshotMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
                                  rules=["volume:get_snapshot_metadata"])
     def test_show_snapshot_metadata_item(self):
         self._create_test_snapshot_metadata()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.snapshots_client.show_snapshot_metadata_item(
                 self.snapshot['id'], "key3")['meta']
 
@@ -96,7 +96,7 @@ class SnapshotMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
     def test_update_snapshot_metadata_item(self):
         update_item = {"key3": "value3_update"}
         self._create_test_snapshot_metadata()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.snapshots_client.update_snapshot_metadata_item(
                 self.snapshot['id'], "key3", meta=update_item)['meta']
 
@@ -105,6 +105,6 @@ class SnapshotMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
                                  rules=["volume:delete_snapshot_metadata"])
     def test_delete_snapshot_metadata_item(self):
         self._create_test_snapshot_metadata()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.snapshots_client.delete_snapshot_metadata_item(
                 self.snapshot['id'], "key1")

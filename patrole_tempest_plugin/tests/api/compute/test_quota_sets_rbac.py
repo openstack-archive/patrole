@@ -61,7 +61,7 @@ class QuotaSetsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         default_quota_set.pop('id')
         new_quota_set = {'injected_file_content_bytes': 20480}
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.quotas_client.update_quota_set(self.tenant_id,
                                                 force=True,
                                                 **new_quota_set)
@@ -73,7 +73,7 @@ class QuotaSetsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:os-quota-sets:defaults"])
     def test_show_default_quota_set(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.quotas_client.show_default_quota_set(self.tenant_id)
 
     @decorators.idempotent_id('e8169ac4-c402-4864-894e-aba74e3a459c')
@@ -81,7 +81,7 @@ class QuotaSetsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:os-quota-sets:show"])
     def test_show_quota_set(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.quotas_client.show_quota_set(self.tenant_id)
 
     @decorators.idempotent_id('4e240644-bf61-4872-9c32-8289ee2fdbbd')
@@ -99,7 +99,7 @@ class QuotaSetsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             identity.identity_utils(self.os_admin).delete_project,
             project_id)
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.quotas_client.delete_quota_set(project_id)
 
     @decorators.idempotent_id('ac9184b6-f3b3-4e17-a632-4b92c6500f86')
@@ -107,6 +107,6 @@ class QuotaSetsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:os-quota-sets:detail"])
     def test_show_quota_set_details(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.quotas_client.show_quota_set(self.tenant_id,
                                               detail=True)

@@ -52,7 +52,7 @@ class VolumesTransfersV3RbacTest(rbac_base.BaseVolumeRbacTest):
                                  rules=["volume:create_transfer"])
     @decorators.idempotent_id('25413af4-468d-48ff-94ca-4436f8526b3e')
     def test_create_volume_transfer(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._create_transfer()
         waiters.wait_for_volume_resource_status(
             self.volumes_client, self.volume['id'], 'awaiting-transfer')
@@ -65,21 +65,21 @@ class VolumesTransfersV3RbacTest(rbac_base.BaseVolumeRbacTest):
         waiters.wait_for_volume_resource_status(
             self.volumes_client, self.volume['id'], 'awaiting-transfer')
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.transfers_client.show_volume_transfer(transfer['id'])
 
     @rbac_rule_validation.action(service="cinder",
                                  rules=["volume:get_all_transfers"])
     @decorators.idempotent_id('02a06f2b-5040-49e2-b2b7-619a7db59603')
     def test_list_volume_transfers(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.transfers_client.list_volume_transfers()
 
     @decorators.idempotent_id('e84e45b0-9872-40bf-bf44-971266161a86')
     @rbac_rule_validation.action(service="cinder",
                                  rules=["volume:get_all_transfers"])
     def test_list_volume_transfers_details(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.transfers_client.list_volume_transfers(detail=True)
 
     @rbac_rule_validation.action(service="cinder",
@@ -90,7 +90,7 @@ class VolumesTransfersV3RbacTest(rbac_base.BaseVolumeRbacTest):
         waiters.wait_for_volume_resource_status(
             self.volumes_client, self.volume['id'], 'awaiting-transfer')
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.transfers_client.accept_volume_transfer(
                 transfer['id'], auth_key=transfer['auth_key'])
         waiters.wait_for_volume_resource_status(self.volumes_client,
@@ -104,7 +104,7 @@ class VolumesTransfersV3RbacTest(rbac_base.BaseVolumeRbacTest):
         waiters.wait_for_volume_resource_status(
             self.volumes_client, self.volume['id'], 'awaiting-transfer')
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.transfers_client.delete_volume_transfer(transfer['id'])
         waiters.wait_for_volume_resource_status(
             self.volumes_client, self.volume['id'], 'available')

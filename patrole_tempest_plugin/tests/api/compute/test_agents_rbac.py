@@ -45,7 +45,7 @@ class AgentsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova", rules=["os_compute_api:os-agents"])
     @decorators.idempotent_id('d1bc6d97-07f5-4f45-ac29-1c619a6a7e27')
     def test_list_agents_rbac(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.agents_client.list_agents()
 
     @rbac_rule_validation.action(
@@ -56,7 +56,7 @@ class AgentsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         params = {'hypervisor': 'kvm', 'os': 'win', 'architecture': 'x86',
                   'version': '7.0', 'url': 'xxx://xxxx/xxx/xxx',
                   'md5hash': 'add6bb58e139be103324d04d82d8f545'}
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             body = self.agents_client.create_agent(**params)['agent']
         self.addCleanup(self.agents_client.delete_agent,
                         body['agent_id'])
@@ -79,7 +79,7 @@ class AgentsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             url='xxx://xxxx/xxx/xxx2',
             md5hash='add6bb58e139be103324d04d82d8f547')
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.agents_client.update_agent(body['agent_id'], **update_params)
 
     @rbac_rule_validation.action(
@@ -96,5 +96,5 @@ class AgentsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self.agents_client.delete_agent,
                         body['agent_id'])
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.agents_client.delete_agent(body['agent_id'])

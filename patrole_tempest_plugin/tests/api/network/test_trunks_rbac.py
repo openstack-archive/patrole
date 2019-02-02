@@ -52,7 +52,7 @@ class TrunksExtRbacTest(base.BaseNetworkExtRbacTest):
 
         RBAC test for the neutron "create_trunk" policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.create_trunk(self.port_id)
 
     @decorators.idempotent_id('c02618e7-bb20-1a3a-83c8-6eec2af08131')
@@ -66,7 +66,7 @@ class TrunksExtRbacTest(base.BaseNetworkExtRbacTest):
         """
         trunk = self.create_trunk(self.port_id)
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.show_trunk(trunk['trunk']['id'])
 
     @decorators.idempotent_id('c02618e7-bb20-1a3a-83c8-6eec2af08132')
@@ -81,7 +81,7 @@ class TrunksExtRbacTest(base.BaseNetworkExtRbacTest):
         """
         trunk = self.create_trunk(self.port_id)
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.delete_trunk(trunk['trunk']['id'])
 
     @decorators.idempotent_id('047badd1-e4ff-40c5-9929-99ffcb8750a7')
@@ -93,8 +93,8 @@ class TrunksExtRbacTest(base.BaseNetworkExtRbacTest):
         the ``get_trunk`` policy
         """
         admin_resource_id = self.create_trunk(self.port_id)["trunk"]['id']
-        with (self.rbac_utils.override_role_and_validate_list(
-                self, admin_resource_id=admin_resource_id)) as ctx:
+        with (self.override_role_and_validate_list(
+                admin_resource_id=admin_resource_id)) as ctx:
             ctx.resources = self.ntp_client.list_trunks(
                 id=admin_resource_id)["trunks"]
 
@@ -149,7 +149,7 @@ class TrunksSubportsExtRbacTest(base.BaseNetworkExtRbacTest):
 
         self.create_subports(self.trunk_id, port["id"])
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.get_subports(self.trunk_id)
 
     @decorators.idempotent_id('c02618e7-bb20-1a3a-83c8-6eec2af08134')
@@ -176,7 +176,7 @@ class TrunksSubportsExtRbacTest(base.BaseNetworkExtRbacTest):
             self.ntp_client.remove_subports,
             self.trunk_id, subports)
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.add_subports(self.trunk_id, subports)
 
     @decorators.idempotent_id('c02618e7-bb20-1a3a-83c8-6eec2af08135')
@@ -197,5 +197,5 @@ class TrunksSubportsExtRbacTest(base.BaseNetworkExtRbacTest):
 
         subports = self.create_subports(self.trunk_id, port["id"])
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.remove_subports(self.trunk_id, subports)

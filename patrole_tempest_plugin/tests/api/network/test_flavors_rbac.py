@@ -39,7 +39,7 @@ class FlavorsExtRbacTest(base.BaseNetworkExtRbacTest):
 
         RBAC test for the neutron "create_flavor" policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             flavor = self.ntp_client.create_flavor(
                 service_type=self.service_type)
 
@@ -63,7 +63,7 @@ class FlavorsExtRbacTest(base.BaseNetworkExtRbacTest):
             self.ntp_client.delete_flavor, flavor["flavor"]["id"])
 
         name = data_utils.rand_name(self.__class__.__name__ + '-Flavor')
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.update_flavor(flavor["flavor"]["id"], name=name)
 
     @decorators.idempotent_id('1de15f9e-5080-4259-ab41-e230bb312de8')
@@ -81,7 +81,7 @@ class FlavorsExtRbacTest(base.BaseNetworkExtRbacTest):
             test_utils.call_and_ignore_notfound_exc,
             self.ntp_client.delete_flavor, flavor["flavor"]["id"])
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.delete_flavor(flavor["flavor"]["id"])
 
     @decorators.idempotent_id('c2baf35f-e6c1-4833-9114-aadd9b1f6aaa')
@@ -98,7 +98,7 @@ class FlavorsExtRbacTest(base.BaseNetworkExtRbacTest):
             test_utils.call_and_ignore_notfound_exc,
             self.ntp_client.delete_flavor, flavor["flavor"]["id"])
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.show_flavor(flavor["flavor"]["id"])
 
     @decorators.idempotent_id('ab10bd5d-987e-4255-966f-947670ffd0fa')
@@ -114,7 +114,7 @@ class FlavorsExtRbacTest(base.BaseNetworkExtRbacTest):
             test_utils.call_and_ignore_notfound_exc,
             self.ntp_client.delete_flavor, flavor["flavor"]["id"])
 
-        with self.rbac_utils.override_role_and_validate_list(
-            self, admin_resource_id=flavor["flavor"]["id"]
+        with self.override_role_and_validate_list(
+            admin_resource_id=flavor["flavor"]["id"]
         ) as ctx:
             ctx.resources = self.ntp_client.list_flavors()['flavors']

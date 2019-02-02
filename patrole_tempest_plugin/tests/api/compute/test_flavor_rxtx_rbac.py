@@ -42,7 +42,7 @@ class FlavorRxtxRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:os-flavor-rxtx"])
     def test_list_flavors_details_rxtx(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             result = self.flavors_client.list_flavors(detail=True)['flavors']
         if 'rxtx_factor' not in result[0]:
             raise rbac_exceptions.RbacMissingAttributeResponseBody(
@@ -55,7 +55,7 @@ class FlavorRxtxRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:os-flavor-rxtx"])
     def test_get_flavor_rxtx(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             result = self.flavors_client.show_flavor(
                 CONF.compute.flavor_ref)['flavor']
         if 'rxtx_factor' not in result:

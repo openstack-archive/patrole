@@ -46,7 +46,7 @@ class LimitsV3RbacTest(rbac_base.BaseVolumeRbacTest):
             'totalBackupGigabytesUsed'
         }
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             absolute_limits = self.volume_limits_client.show_limits()[
                 'limits']['absolute']
         for key in expected_keys:

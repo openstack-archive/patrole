@@ -33,7 +33,7 @@ class ImageNamespacesRbacTest(rbac_base.BaseV2ImageRbacTest):
         """
         namespace_name = data_utils.rand_name(
             self.__class__.__name__ + '-test-ns')
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.namespaces_client.create_namespace(
                 namespace=namespace_name,
                 protected=False)
@@ -50,7 +50,7 @@ class ImageNamespacesRbacTest(rbac_base.BaseV2ImageRbacTest):
 
         RBAC test for the glance get_metadef_namespaces policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.namespaces_client.list_namespaces()
 
     @rbac_rule_validation.action(service="glance",
@@ -66,7 +66,7 @@ class ImageNamespacesRbacTest(rbac_base.BaseV2ImageRbacTest):
         body = self.namespaces_client.create_namespace(
             namespace=namespace_name,
             protected=False)
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.namespaces_client.update_namespace(
                 body['namespace'], description="My new description")
         self.addCleanup(

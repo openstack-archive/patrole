@@ -48,7 +48,7 @@ class EndpointFilterProjectsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @decorators.idempotent_id('9199ec13-816d-4efe-b8b1-e1cd026b9747')
     def test_add_endpoint_to_project(self):
         # Adding endpoints to projects
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._add_endpoint_to_project(ignore_not_found=True)
 
     @rbac_rule_validation.action(
@@ -56,7 +56,7 @@ class EndpointFilterProjectsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         rules=["identity:list_projects_for_endpoint"])
     @decorators.idempotent_id('f53dca42-ec8a-48e9-924b-0bbe6c99727f')
     def test_list_projects_for_endpoint(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.endpoint_filter_client.list_projects_for_endpoint(
                 self.endpoint['id'])
 
@@ -66,7 +66,7 @@ class EndpointFilterProjectsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @decorators.idempotent_id('0c1425eb-833c-4aa1-a21d-52ffa41fdc6a')
     def test_check_endpoint_in_project(self):
         self._add_endpoint_to_project()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.endpoint_filter_client.check_endpoint_in_project(
                 self.project['id'], self.endpoint['id'])
 
@@ -75,7 +75,7 @@ class EndpointFilterProjectsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         rules=["identity:list_endpoints_for_project"])
     @decorators.idempotent_id('5d86c659-c6ad-41e0-854e-3823e95c7cc2')
     def test_list_endpoints_in_project(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.endpoint_filter_client.list_endpoints_in_project(
                 self.project['id'])
 
@@ -85,6 +85,6 @@ class EndpointFilterProjectsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     @decorators.idempotent_id('b4e21c10-4f47-427b-9b8a-f5b5601adfda')
     def test_remove_endpoint_from_project(self):
         self._add_endpoint_to_project(ignore_not_found=True)
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.endpoint_filter_client.delete_endpoint_from_project(
                 self.project['id'], self.endpoint['id'])

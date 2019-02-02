@@ -56,5 +56,5 @@ class TenantNetworksRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:os-tenant-networks"])
     def test_list_show_tenant_networks(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.tenant_networks_client.list_tenant_networks()

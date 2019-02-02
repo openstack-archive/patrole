@@ -84,7 +84,7 @@ class AggregatesRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova", rules=["os_compute_api:os-aggregates:create"])
     @decorators.idempotent_id('ba754393-896e-434a-9704-452ff4a84f3f')
     def test_create_aggregate_rbac(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._create_aggregate()
 
     @rbac_rule_validation.action(
@@ -92,14 +92,14 @@ class AggregatesRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('8fb0b749-b120-4727-b3fb-bcfa3fa6f55b')
     def test_show_aggregate_rbac(self):
         aggregate_id = self._create_aggregate()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.aggregates_client.show_aggregate(aggregate_id)
 
     @rbac_rule_validation.action(
         service="nova", rules=["os_compute_api:os-aggregates:index"])
     @decorators.idempotent_id('146284da-5dd6-4c97-b598-42b480f014c6')
     def test_list_aggregate_rbac(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.aggregates_client.list_aggregates()
 
     @rbac_rule_validation.action(
@@ -108,7 +108,7 @@ class AggregatesRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_update_aggregate_rbac(self):
         aggregate_id = self._create_aggregate()
         new_name = data_utils.rand_name(self.__class__.__name__ + '-aggregate')
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.aggregates_client.update_aggregate(aggregate_id,
                                                     name=new_name)
 
@@ -117,7 +117,7 @@ class AggregatesRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('5a50c5a6-0f12-4405-a1ce-2288ae895ea6')
     def test_delete_aggregate_rbac(self):
         aggregate_id = self._create_aggregate()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.aggregates_client.delete_aggregate(aggregate_id)
 
     @rbac_rule_validation.action(
@@ -125,7 +125,7 @@ class AggregatesRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('97e6e9df-5291-4faa-8147-755b2d1f1ce2')
     def test_add_host_to_aggregate_rbac(self):
         aggregate_id = self._create_aggregate()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._add_host_to_aggregate(aggregate_id)
 
     @rbac_rule_validation.action(
@@ -134,7 +134,7 @@ class AggregatesRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def test_remove_host_from_aggregate_rbac(self):
         aggregate_id = self._create_aggregate()
         self._add_host_to_aggregate(aggregate_id)
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.aggregates_client.remove_host(aggregate_id, host=self.host)
 
     @rbac_rule_validation.action(
@@ -144,7 +144,7 @@ class AggregatesRbacTest(rbac_base.BaseV2ComputeRbacTest):
         aggregate_id = self._create_aggregate()
         rand_key = data_utils.rand_name(self.__class__.__name__ + '-key')
         rand_val = data_utils.rand_name(self.__class__.__name__ + '-val')
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.aggregates_client.set_metadata(
                 aggregate_id,
                 metadata={rand_key: rand_val})

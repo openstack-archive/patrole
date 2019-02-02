@@ -58,7 +58,7 @@ class AddressScopeExtRbacTest(base.BaseNetworkExtRbacTest):
 
         RBAC test for the neutron create_address_scope policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._create_address_scope()
 
     @rbac_rule_validation.action(service="neutron",
@@ -72,7 +72,7 @@ class AddressScopeExtRbacTest(base.BaseNetworkExtRbacTest):
 
         RBAC test for the neutron create_address_scope:shared policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._create_address_scope(shared=True)
 
     @rbac_rule_validation.action(service="neutron",
@@ -86,7 +86,7 @@ class AddressScopeExtRbacTest(base.BaseNetworkExtRbacTest):
         RBAC test for the neutron get_address_scope policy
         """
         address_scope = self._create_address_scope()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.show_address_scope(address_scope['id'])
 
     @rbac_rule_validation.action(service="neutron",
@@ -102,7 +102,7 @@ class AddressScopeExtRbacTest(base.BaseNetworkExtRbacTest):
         """
         address_scope = self._create_address_scope()
         name = data_utils.rand_name(self.__class__.__name__)
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.update_address_scope(address_scope['id'],
                                                  name=name)
 
@@ -119,7 +119,7 @@ class AddressScopeExtRbacTest(base.BaseNetworkExtRbacTest):
         RBAC test for neutron update_address_scope:shared policy
         """
         address_scope = self._create_address_scope(shared=True)
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.update_address_scope(address_scope['id'],
                                                  shared=True)
 
@@ -135,7 +135,7 @@ class AddressScopeExtRbacTest(base.BaseNetworkExtRbacTest):
         RBAC test for neutron delete_address_scope policy
         """
         address_scope = self._create_address_scope()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.delete_address_scope(address_scope['id'])
 
     @rbac_rule_validation.action(service="neutron",
@@ -148,7 +148,7 @@ class AddressScopeExtRbacTest(base.BaseNetworkExtRbacTest):
         the ``get_address_scope`` policy
         """
         admin_resource_id = self._create_address_scope()['id']
-        with (self.rbac_utils.override_role_and_validate_list(
-                self, admin_resource_id=admin_resource_id)) as ctx:
+        with (self.override_role_and_validate_list(
+                admin_resource_id=admin_resource_id)) as ctx:
             ctx.resources = self.ntp_client.list_address_scopes(
                 id=admin_resource_id)["address_scopes"]

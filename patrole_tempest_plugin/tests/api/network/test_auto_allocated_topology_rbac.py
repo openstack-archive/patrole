@@ -39,7 +39,7 @@ class AutoAllocationTopologyExtRbacTest(base.BaseNetworkExtRbacTest):
 
         RBAC test for the neutron "get_auto_allocated_topology" policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.get_auto_allocated_topology(
                 tenant_id=self.os_primary.credentials.tenant_id)
 
@@ -73,6 +73,6 @@ class AutoAllocationTopologyExtRbacTest(base.BaseNetworkExtRbacTest):
 
         self._ensure_network_not_in_use(net_id)
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.ntp_client.delete_auto_allocated_topology(
                 tenant_id=self.os_primary.credentials.tenant_id)

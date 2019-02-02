@@ -62,7 +62,7 @@ class SnapshotManageRbacTest(rbac_base.BaseVolumeRbacTest):
                     CONF.volume.manage_snapshot_ref[1] % self.snapshot['id']},
             'name': name
         }
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             snapshot = self.snapshot_manage_client.manage_snapshot(
                 **snapshot_ref)['snapshot']
         self.addCleanup(self.delete_snapshot, snapshot['id'],
@@ -76,7 +76,7 @@ class SnapshotManageRbacTest(rbac_base.BaseVolumeRbacTest):
         service="cinder",
         rules=["snapshot_extension:snapshot_unmanage"])
     def test_unmanage_snapshot_rbac(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.snapshots_client.unmanage_snapshot(self.snapshot['id'])
         self.snapshots_client.wait_for_resource_deletion(
             self.snapshot['id'])

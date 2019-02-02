@@ -91,7 +91,7 @@ class FloatingIpsBulkRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:os-floating-ips-bulk"])
     def test_create_floating_ips_bulk(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._create_floating_ips_bulk()
 
     @decorators.idempotent_id('3b5c8a02-005d-4256-8a95-6fa2f389c6cf')
@@ -99,7 +99,7 @@ class FloatingIpsBulkRbacTest(rbac_base.BaseV2ComputeRbacTest):
         service="nova",
         rules=["os_compute_api:os-floating-ips-bulk"])
     def test_list_floating_ips_bulk(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.fip_bulk_client.list_floating_ips_bulk()
 
     @decorators.idempotent_id('37c2b759-c494-4e20-9dba-6a67b2df9573')
@@ -108,5 +108,5 @@ class FloatingIpsBulkRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rules=["os_compute_api:os-floating-ips-bulk"])
     def test_delete_floating_ips_bulk(self):
         self._create_floating_ips_bulk()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.fip_bulk_client.delete_floating_ips_bulk(self.ip_range)

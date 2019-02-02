@@ -42,7 +42,7 @@ class VolumeQOSV3RbacTest(rbac_base.BaseVolumeRbacTest):
         service="cinder", rules=["volume_extension:qos_specs_manage:create"])
     @decorators.idempotent_id('4f9f45f0-b379-4577-a279-cec3e917cbec')
     def test_create_qos_with_consumer(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._create_test_qos_specs()
 
     @rbac_rule_validation.action(
@@ -50,7 +50,7 @@ class VolumeQOSV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('fbc8a77e-6b6d-45ae-bebe-c496eb8f06f7')
     def test_delete_qos_with_consumer(self):
         qos = self._create_test_qos_specs()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.qos_client.delete_qos(qos['id'])
 
     @rbac_rule_validation.action(
@@ -59,7 +59,7 @@ class VolumeQOSV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('22aff0dd-0343-408d-ae80-e77551956e14')
     def test_show_qos(self):
         qos = self._create_test_qos_specs()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.qos_client.show_qos(qos['id'])['qos_specs']
 
     @rbac_rule_validation.action(
@@ -72,7 +72,7 @@ class VolumeQOSV3RbacTest(rbac_base.BaseVolumeRbacTest):
         self.qos_client.associate_qos(qos['id'], vol_type)
         self.addCleanup(self.qos_client.disassociate_qos, qos['id'], vol_type)
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.qos_client.show_association_qos(qos['id'])
 
     @rbac_rule_validation.action(
@@ -80,7 +80,7 @@ class VolumeQOSV3RbacTest(rbac_base.BaseVolumeRbacTest):
         rules=["volume_extension:qos_specs_manage:get_all"])
     @decorators.idempotent_id('546b8bb1-04a4-4387-9506-a538a7f3cd6a')
     def test_list_qos(self):
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.qos_client.list_qos()['qos_specs']
 
     @rbac_rule_validation.action(
@@ -88,7 +88,7 @@ class VolumeQOSV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('89b630b7-c170-47c3-ac80-50ed425c2d98')
     def test_set_qos_key(self):
         qos = self._create_test_qos_specs()
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.qos_client.set_qos_key(
                 qos['id'], iops_bytes='500')['qos_specs']
 
@@ -99,7 +99,7 @@ class VolumeQOSV3RbacTest(rbac_base.BaseVolumeRbacTest):
         qos = self._create_test_qos_specs()
         self.qos_client.set_qos_key(qos['id'], iops_bytes='500')['qos_specs']
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.qos_client.unset_qos_key(qos['id'], ['iops_bytes'])
         waiters.wait_for_qos_operations(self.qos_client, qos['id'],
                                         'qos-key-unset', args=['iops_bytes'])
@@ -111,7 +111,7 @@ class VolumeQOSV3RbacTest(rbac_base.BaseVolumeRbacTest):
         qos = self._create_test_qos_specs()
         vol_type = self.create_volume_type()['id']
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.qos_client.associate_qos(qos['id'], vol_type)
         self.addCleanup(
             test_utils.call_and_ignore_notfound_exc,
@@ -127,7 +127,7 @@ class VolumeQOSV3RbacTest(rbac_base.BaseVolumeRbacTest):
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self.qos_client.disassociate_qos, qos['id'], vol_type)
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.qos_client.disassociate_qos(qos['id'], vol_type)
         waiters.wait_for_qos_operations(self.qos_client, qos['id'],
                                         'disassociate', args=vol_type)
@@ -142,7 +142,7 @@ class VolumeQOSV3RbacTest(rbac_base.BaseVolumeRbacTest):
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self.qos_client.disassociate_qos, qos['id'], vol_type)
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.qos_client.disassociate_all_qos(qos['id'])
         waiters.wait_for_qos_operations(self.qos_client, qos['id'],
                                         'disassociate-all')

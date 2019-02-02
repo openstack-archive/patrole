@@ -88,7 +88,7 @@ class VolumesManageV3RbacTest(rbac_base.BaseVolumeRbacTest):
             'volume_type': volume['volume_type'],
             'availability_zone': volume['availability_zone']}
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             try:
                 new_volume_id = self.volume_manage_client.manage_volume(
                     **new_volume_ref)['volume']['id']
@@ -114,7 +114,7 @@ class VolumesManageV3RbacTest(rbac_base.BaseVolumeRbacTest):
         volume_id = self.create_volume()['id']
         volume = self.volumes_client.show_volume(volume_id)['volume']
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.volumes_client.unmanage_volume(volume['id'])
         self.volumes_client.wait_for_resource_deletion(volume['id'])
 
