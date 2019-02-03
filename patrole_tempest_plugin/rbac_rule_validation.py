@@ -461,7 +461,7 @@ def _check_for_expected_mismatch_exception(expected_exception,
 
 
 def _validate_override_role_called(test_obj, actual_exception):
-    """Validates that :func:`rbac_utils.RbacUtils.override_role` is called
+    """Validates that :func:`rbac_utils.RbacUtilsMixin.override_role` is called
     during each Patrole test.
 
     Useful for validating that the expected exception isn't raised too early

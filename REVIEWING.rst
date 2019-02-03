@@ -80,7 +80,7 @@ Test duplication means:
 * testing the same policy in more than one test
 
 For the first bullet, try to avoid calling the same API inside the
-``self.rbac_utils.override_role`` call.
+``self.override_role()`` call.
 
 .. note::
 

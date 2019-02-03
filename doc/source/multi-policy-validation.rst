@@ -66,7 +66,7 @@ Below is an example of multi-policy validation for a carefully chosen Nova API:
       self.os_admin.servers_client.lock_server(self.server['id'])
       self.addCleanup(self.servers_client.unlock_server, self.server['id'])
 
-      with self.rbac_utils.override_role(self):
+      with self.override_role():
           self.servers_client.unlock_server(self.server['id'])
 
 While the ``expected_error_codes`` parameter is omitted in the example above,
@@ -96,7 +96,7 @@ attribute that is added only following successful policy authorization.
         # Verify specific fields of a port
         fields = ['binding:vif_type']
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             retrieved_port = self.ports_client.show_port(
                 self.port['id'], fields=fields)['port']
 
@@ -131,7 +131,7 @@ A basic Neutron example that only expects 403's to be raised:
 
         RBAC test for the neutron create_network:router:external policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._create_network(router_external=True)
 
 Note that above the following expected error codes/rules relationship is
@@ -158,7 +158,7 @@ subsequent policy authorization failure:
 
         RBAC test for the neutron update_network:shared policy
         """
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._update_network(shared_network=True)
         self.addCleanup(self._update_network, shared_network=False)
 

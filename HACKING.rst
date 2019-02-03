@@ -64,7 +64,7 @@ Role Overriding
 ---------------
 
 Correct role overriding is vital to correct RBAC testing within Patrole. If a
-test does not call ``rbac_utils.override_role`` within the RBAC test, followed
+test does not call ``self.override_role()`` within the RBAC test, followed
 by the API endpoint that enforces the expected policy action, then the test is
 **not** a valid Patrole test: The API endpoint under test will be performed
 with admin role, which is always wrong unless ``CONF.patrole.rbac_test_role``

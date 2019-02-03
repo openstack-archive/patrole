@@ -34,7 +34,7 @@ The role workflow is as follows:
 #. Setup: Admin role is used automatically. The primary credentials are
    overridden with the admin role.
 #. Test execution: ``[patrole] rbac_test_roles`` is used manually via the
-   call to ``with rbac_utils.override_role(self)``. Everything that
+   call to ``with self.override_role()``. Everything that
    is executed within this contextmanager uses the primary
    credentials overridden with the ``[patrole] rbac_test_roles``.
 #. Teardown: Admin role is used automatically. The primary credentials have
@@ -68,7 +68,7 @@ Manual role override required.
 "Test execution" here means calling the API endpoint that enforces the policy
 action expected by the ``rbac_rule_validation`` decorator. Test execution
 should be performed *only after* calling
-``with rbac_utils.override_role(self)``.
+``with self.override_role()``.
 
 Immediately after that call, the API endpoint that enforces the policy should
 be called.
@@ -89,7 +89,7 @@ Example::
         aggregate_id = self._create_aggregate()
         # Call the ``override_role`` method so that the primary credentials
         # have the test role needed for test execution.
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.aggregates_client.show_aggregate(aggregate_id)
 
 When using a waiter, do the wait outside the contextmanager. "Waiting" always
@@ -113,7 +113,7 @@ Example using waiter::
         self.addCleanup(self.servers_client.change_password, self.server['id'],
                         adminPass=original_password)
 
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self.servers_client.change_password(
                 self.server['id'], adminPass=data_utils.rand_password())
         # Call the waiter outside the ``override_role`` contextmanager, so that
@@ -145,7 +145,7 @@ Incorrect::
         # Never call a helper function inside the contextmanager that calls a
         # bunch of APIs. Only call the API that enforces the policy action
         # contained in the decorator above.
-        with self.rbac_utils.override_role(self):
+        with self.override_role():
             self._complex_setup_method()
 
 To fix this test, see the "Example using waiter" section above. It is
