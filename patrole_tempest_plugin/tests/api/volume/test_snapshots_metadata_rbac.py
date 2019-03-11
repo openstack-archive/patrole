@@ -39,13 +39,13 @@ class SnapshotMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
         cls.snapshot_id = cls.snapshot['id']
 
     @classmethod
-    def _create_test_snapshot_metadata(self):
+    def _create_test_snapshot_metadata(cls):
         # Create test snapshot metadata
         metadata = {"key1": "value1",
                     "key2": "value2",
                     "key3": "value3"}
-        self.snapshots_client.create_snapshot_metadata(
-            self.snapshot_id, metadata)['metadata']
+        cls.snapshots_client.create_snapshot_metadata(
+            cls.snapshot_id, metadata)['metadata']
 
     @rbac_rule_validation.action(service="cinder",
                                  rules=["volume:get_snapshot_metadata"])
