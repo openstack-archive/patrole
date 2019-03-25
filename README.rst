@@ -249,4 +249,4 @@ Patrole is branchless and uses versioning instead.
 Storyboard
 ----------
 Bugs and enhancements are tracked via Patrole's
-`Storyboard <https://storyboard.openstack.org/#!/project/openstack/patrole>`_ page.
+`Storyboard Page <https://storyboard.openstack.org/#!/project/openstack/patrole>`_.
