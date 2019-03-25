@@ -24,7 +24,7 @@
       devstack_localrc:
         TEMPEST_PLUGINS: "'/opt/stack/patrole'"
       devstack_plugins:
-        patrole: git://git.openstack.org/openstack/patrole.git
+        patrole: https://git.openstack.org/openstack/patrole.git
       devstack_services:
         tempest: true
         neutron: true
@@ -55,7 +55,7 @@
       devstack_localrc:
         TEMPEST_PLUGINS: "'{{ ansible_user_dir }}/src/git.openstack.org/openstack/patrole'"
       devstack_plugins:
-        patrole: git://git.openstack.org/openstack/patrole.git
+        patrole: https://git.openstack.org/openstack/patrole.git
       devstack_services:
         tempest: true
         neutron: true
@@ -162,9 +162,9 @@
       devstack_localrc:
         TEMPEST_PLUGINS: "'/opt/stack/patrole /opt/stack/neutron-tempest-plugin'"
       devstack_plugins:
-        neutron: git://git.openstack.org/openstack/neutron.git
-        patrole: git://git.openstack.org/openstack/patrole.git
-        neutron-tempest-plugin: git://git.openstack.org/openstack/neutron-tempest-plugin.git
+        neutron: https://git.openstack.org/openstack/neutron.git
+        patrole: https://git.openstack.org/openstack/patrole.git
+        neutron-tempest-plugin: https://git.openstack.org/openstack/neutron-tempest-plugin.git
       devstack_services:
         tempest: true
         neutron: true
