@@ -37,6 +37,11 @@ LOG = logging.getLogger(__name__)
 class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
+    def setup_credentials(cls):
+        cls.set_network_resources(network=True, subnet=True, router=True)
+        super(ServerVolumeAttachmentRbacTest, cls).setup_credentials()
+
+    @classmethod
     def setup_clients(cls):
         super(ServerVolumeAttachmentRbacTest, cls).setup_clients()
         cls.volumes_client = cls.os_primary.volumes_client_latest

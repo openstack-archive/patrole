@@ -22,6 +22,11 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 class ServerMetadataRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @classmethod
+    def setup_credentials(cls):
+        cls.set_network_resources(network=True, subnet=True, router=True)
+        super(ServerMetadataRbacTest, cls).setup_credentials()
+
+    @classmethod
     def resource_setup(cls):
         super(ServerMetadataRbacTest, cls).resource_setup()
         cls.server = cls.create_test_server(metadata={}, wait_until='ACTIVE')

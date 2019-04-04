@@ -51,6 +51,11 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     credentials = ['primary', 'admin']
 
     @classmethod
+    def setup_credentials(cls):
+        cls.set_network_resources(network=True, subnet=True, router=True)
+        super(MiscPolicyActionsRbacTest, cls).setup_credentials()
+
+    @classmethod
     def resource_setup(cls):
         super(MiscPolicyActionsRbacTest, cls).resource_setup()
         cls.server = cls.create_test_server(wait_until='ACTIVE')

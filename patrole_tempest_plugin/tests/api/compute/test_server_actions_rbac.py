@@ -42,6 +42,11 @@ class ServerActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         cls.admin_servers_client = cls.os_admin.servers_client
 
     @classmethod
+    def setup_credentials(cls):
+        cls.set_network_resources(network=True, subnet=True, router=True)
+        super(ServerActionsRbacTest, cls).setup_credentials()
+
+    @classmethod
     def resource_setup(cls):
         super(ServerActionsRbacTest, cls).resource_setup()
         cls.server_id = cls.create_test_server(wait_until='ACTIVE')['id']
@@ -358,6 +363,11 @@ class ServerActionsV214RbacTest(rbac_base.BaseV2ComputeRbacTest):
     max_microversion = 'latest'
 
     @classmethod
+    def setup_credentials(cls):
+        cls.set_network_resources(network=True, subnet=True, router=True)
+        super(ServerActionsV214RbacTest, cls).setup_credentials()
+
+    @classmethod
     def resource_setup(cls):
         super(ServerActionsV214RbacTest, cls).resource_setup()
         cls.server_id = cls.create_test_server(wait_until='ACTIVE')['id']
@@ -388,6 +398,11 @@ class ServerActionsV216RbacTest(rbac_base.BaseV2ComputeRbacTest):
     # https://developer.openstack.org/api-ref/compute/#show-server-details
     min_microversion = '2.16'
     max_microversion = 'latest'
+
+    @classmethod
+    def setup_credentials(cls):
+        cls.set_network_resources(network=True, subnet=True, router=True)
+        super(ServerActionsV216RbacTest, cls).setup_credentials()
 
     @classmethod
     def resource_setup(cls):

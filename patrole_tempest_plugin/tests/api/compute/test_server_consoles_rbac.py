@@ -31,6 +31,11 @@ class ServerConsolesRbacTest(rbac_base.BaseV2ComputeRbacTest):
             raise cls.skipException('Console output not available.')
 
     @classmethod
+    def setup_credentials(cls):
+        cls.set_network_resources(network=True, subnet=True, router=True)
+        super(ServerConsolesRbacTest, cls).setup_credentials()
+
+    @classmethod
     def resource_setup(cls):
         super(ServerConsolesRbacTest, cls).resource_setup()
         cls.server_id = cls.create_test_server(wait_until='ACTIVE')['id']
@@ -53,6 +58,11 @@ class ServerConsolesMaxV25RbacTest(rbac_base.BaseV2ComputeRbacTest):
         super(ServerConsolesMaxV25RbacTest, cls).skip_checks()
         if not CONF.compute_feature_enabled.console_output:
             raise cls.skipException('Console output not available.')
+
+    @classmethod
+    def setup_credentials(cls):
+        cls.set_network_resources(network=True, subnet=True, router=True)
+        super(ServerConsolesMaxV25RbacTest, cls).setup_credentials()
 
     @classmethod
     def resource_setup(cls):
@@ -78,6 +88,11 @@ class ServerConsolesV26RbacTest(rbac_base.BaseV2ComputeRbacTest):
         super(ServerConsolesV26RbacTest, cls).skip_checks()
         if not CONF.compute_feature_enabled.console_output:
             raise cls.skipException('Console output not available.')
+
+    @classmethod
+    def setup_credentials(cls):
+        cls.set_network_resources(network=True, subnet=True, router=True)
+        super(ServerConsolesV26RbacTest, cls).setup_credentials()
 
     @classmethod
     def resource_setup(cls):
