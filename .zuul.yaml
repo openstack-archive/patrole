@@ -195,7 +195,6 @@
       - openstack-python36-jobs
       - openstack-python37-jobs
       - openstack-python-jobs
-      - openstack-python35-jobs
       - check-requirements
       - publish-openstack-docs-pti
       - release-notes-jobs-python3
@@ -207,7 +206,6 @@
         - patrole-member-rocky
         - patrole-member-queens
         - patrole-member-pike
-        - patrole-py35-member
         - patrole-multinode-admin
         - patrole-multinode-member
         - patrole-extension-admin
