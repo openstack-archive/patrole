@@ -33,6 +33,11 @@ LOG = log.getLogger(__name__)
 class ComputeServersRbacTest(base.BaseV2ComputeRbacTest):
 
     @classmethod
+    def setup_credentials(cls):
+        cls.set_network_resources(network=True, subnet=True, router=True)
+        super(ComputeServersRbacTest, cls).setup_credentials()
+
+    @classmethod
     def setup_clients(cls):
         super(ComputeServersRbacTest, cls).setup_clients()
         cls.networks_client = cls.os_primary.networks_client

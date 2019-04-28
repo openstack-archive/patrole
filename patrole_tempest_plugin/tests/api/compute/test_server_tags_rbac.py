@@ -34,6 +34,11 @@ class ServerTagsRbacTest(rbac_base.BaseV2ComputeRbacTest):
             raise cls.skipException(msg)
 
     @classmethod
+    def setup_credentials(cls):
+        cls.set_network_resources(network=True, subnet=True, router=True)
+        super(ServerTagsRbacTest, cls).setup_credentials()
+
+    @classmethod
     def resource_setup(cls):
         super(ServerTagsRbacTest, cls).resource_setup()
         cls.server = cls.create_test_server(wait_until='ACTIVE')

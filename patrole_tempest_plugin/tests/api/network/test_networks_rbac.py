@@ -256,6 +256,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         with self.override_role():
             self._update_network(net_id=network['id'], router_external=True)
 
+    @decorators.skip_because(bug='2005489', bug_type='storyboard')
     @utils.requires_ext(extension='provider', service='network')
     @rbac_rule_validation.action(
         service="neutron",
@@ -281,6 +282,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
                 "Plugin does not support updating provider attributes",
                 str(exc))
 
+    @decorators.skip_because(bug='2005489', bug_type='storyboard')
     @utils.requires_ext(extension='provider', service='network')
     @rbac_rule_validation.action(
         service="neutron",
@@ -306,6 +308,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
                 "Plugin does not support updating provider attributes",
                 str(exc))
 
+    @decorators.skip_because(bug='2005489', bug_type='storyboard')
     @utils.requires_ext(extension='provider', service='network')
     @rbac_rule_validation.action(
         service="neutron",

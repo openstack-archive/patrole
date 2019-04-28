@@ -37,13 +37,22 @@ class VolumesActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
         cls.image_client = cls.os_primary.image_client_v2
 
     @classmethod
+    def setup_credentials(cls):
+        cls.set_network_resources(network=True, subnet=True, router=True)
+        super(VolumesActionsV3RbacTest, cls).setup_credentials()
+
+    @classmethod
     def resource_setup(cls):
         super(VolumesActionsV3RbacTest, cls).resource_setup()
         cls.volume = cls.create_volume()
 
     def _create_server(self):
+        tenant_network = self.get_tenant_network()
         server, _ = compute.create_test_server(
-            self.os_primary, wait_until='ACTIVE')
+            self.os_primary, tenant_network=tenant_network,
+            wait_until='ACTIVE')
+        self.addCleanup(waiters.wait_for_server_termination,
+                        self.servers_client, server['id'])
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
                         self.servers_client.delete_server, server['id'])
         return server
