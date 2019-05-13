@@ -46,7 +46,7 @@ class SegmentsExtRbacTest(base.BaseNetworkExtRbacTest):
         # With 2+ concurrency, tests that ran in the same moment may fail due
         # to usage conflict. To prevent it we select segmentation to start
         # randomly.
-        segmentation_id = random.randint(1000, 5000)
+        segmentation_id = random.randint(1000, 5000)  # nosec
         while segmentation_id in segmentation_ids:
             segmentation_id += 1
 
