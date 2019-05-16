@@ -74,7 +74,7 @@ release, then the corresponding policy feature flag is removed.
 For more information on feature flags, reference the relevant
 `Tempest documentation`_.
 
-.. _Tempest documentation: https://docs.openstack.org/tempest/latest/HACKING.html#1-new-tests-for-new-features
+.. _Tempest documentation: https://docs.openstack.org/tempest/latest/HACKING.html#new-tests-for-new-features
 
 Sample Configuration File
 -------------------------

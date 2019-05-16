@@ -274,7 +274,7 @@ related to RBAC in Patrole.
 .. _Nova repository: https://git.openstack.org/cgit/openstack/nova/tree/nova/policies
 .. _Keystone repository: https://git.openstack.org/cgit/openstack/keystone/tree/keystone/common/policies
 .. _governance goal: https://governance.openstack.org/tc/goals/queens/policy-in-code.html
-.. _scope types: https://docs.openstack.org/keystone/latest/admin/identity-tokens.html#authorization-scopes
+.. _scope types: https://docs.openstack.org/keystone/latest/admin/tokens-overview.html#authorization-scopes
 .. _policy.yaml: https://docs.openstack.org/ocata/config-reference/policy-yaml-file.html
 .. _oslo.policy: https://docs.openstack.org/oslo.policy/latest/
 .. _policy documentation: https://docs.openstack.org/kilo/config-reference/content/policy-json-file.html
