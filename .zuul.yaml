@@ -94,6 +94,11 @@
         RBAC_TEST_ROLES: reader
 
 - job:
+    name: patrole-member-stein
+    parent: patrole-member
+    override-checkout: stable/stein
+
+- job:
     name: patrole-member-rocky
     nodeset: openstack-single-node-xenial
     parent: patrole-member
@@ -203,6 +208,7 @@
         - patrole-admin
         - patrole-member
         - patrole-reader
+        - patrole-member-stein
         - patrole-member-rocky
         - patrole-member-queens
         - patrole-member-pike
@@ -216,6 +222,7 @@
         - patrole-member
     periodic-stable:
       jobs:
+        - patrole-member-stein
         - patrole-member-rocky
         - patrole-member-queens
         - patrole-member-pike
