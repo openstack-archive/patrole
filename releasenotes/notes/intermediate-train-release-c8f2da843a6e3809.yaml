@@ -1,0 +1,12 @@
+---
+prelude: >
+    This is an intermediate release during the Train development cycle to
+    marks the end of support for Pike in Patrole.
+    After this release, Patrole will support below OpenStack Releases:
+
+      * Stein
+      * Rocky
+      * Queens
+
+    Current development of Patrole is for OpenStack Train development
+    cycle.
