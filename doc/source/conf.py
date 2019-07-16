@@ -63,7 +63,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'patrole'
+
 copyright = u'2017, Patrole Developers'
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
@@ -93,15 +93,15 @@ bug_tag = ''
 html_last_updated_fmt = '%Y-%m-%d %H:%M'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = '%sdoc' % project
+htmlhelp_basename = 'patroledoc'
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass
 # [howto/manual]).
 latex_documents = [
     ('index',
-     '%s.tex' % project,
-     u'%s Documentation' % project,
+     'patrole.tex',
+     u'patrole Documentation',
      u'Patrole Developers', 'manual'),
 ]
 
