@@ -21,8 +21,8 @@
       - ^releasenotes/.*
       - ^setup.cfg$
     vars:
-      devstack_localrc:
-        TEMPEST_PLUGINS: "'/opt/stack/patrole'"
+      tempest_plugins:
+        - patrole
       devstack_plugins:
         patrole: https://opendev.org/openstack/patrole.git
       devstack_services:
@@ -52,8 +52,8 @@
       - openstack/patrole
     irrelevant-files: *patrole-irrelevant-files
     vars:
-      devstack_localrc:
-        TEMPEST_PLUGINS: "'{{ ansible_user_dir }}/src/opendev.org/openstack/patrole'"
+      tempest_plugins:
+        - patrole
       devstack_plugins:
         patrole: https://opendev.org/openstack/patrole.git
       devstack_services:
@@ -103,18 +103,27 @@
     nodeset: openstack-single-node-xenial
     parent: patrole-member
     override-checkout: stable/rocky
+    vars:
+      devstack_localrc:
+        TEMPEST_PLUGINS: /opt/stack/patrole
 
 - job:
     name: patrole-member-queens
     nodeset: openstack-single-node-xenial
     parent: patrole-member
     override-checkout: stable/queens
+    vars:
+      devstack_localrc:
+        TEMPEST_PLUGINS: /opt/stack/patrole
 
 - job:
     name: patrole-member-pike
     nodeset: openstack-single-node-xenial
     parent: patrole-member
     override-checkout: stable/pike
+    vars:
+      devstack_localrc:
+        TEMPEST_PLUGINS: /opt/stack/patrole
 
 - job:
     name: patrole-multinode-admin
@@ -164,8 +173,9 @@
       - name: openstack/patrole
       - name: openstack/neutron-tempest-plugin
     vars:
-      devstack_localrc:
-        TEMPEST_PLUGINS: "'/opt/stack/patrole /opt/stack/neutron-tempest-plugin'"
+      tempest_plugins:
+        - patrole
+        - neutron-tempest-plugin
       devstack_plugins:
         neutron: https://opendev.org/openstack/neutron.git
         patrole: https://opendev.org/openstack/patrole.git
