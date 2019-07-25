@@ -198,7 +198,7 @@ class RbacUtilsMixin(object):
               "1": ["2", "3"]  # "admin": ["member", "reader"]
             }
 
-        .. _list-all-role-inference-rules: https://developer.openstack.org/api-ref/identity/v3/#list-all-role-inference-rules
+        .. _list-all-role-inference-rules: https://docs.openstack.org/api-ref/identity/v3/#list-all-role-inference-rules
         """  # noqa: E501
         def process_roles(role_id, data):
             roles = data.get(role_id, set())

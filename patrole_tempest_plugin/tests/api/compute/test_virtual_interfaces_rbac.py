@@ -28,7 +28,7 @@ CONF = config.CONF
 class VirtualInterfacesRbacTest(rbac_base.BaseV2ComputeRbacTest):
     # The compute os-virtual-interfaces API is deprecated from the Microversion
     # 2.44 onward. For more information, see:
-    # https://developer.openstack.org/api-ref/compute/#servers-virtual-interfaces-servers-os-virtual-interfaces-deprecated
+    # https://docs.openstack.org/api-ref/compute/#servers-virtual-interfaces-servers-os-virtual-interfaces-deprecated
     depends_on_nova_network = True
     max_microversion = '2.43'
 

@@ -23,7 +23,7 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 class HostsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     # These tests will fail with a 404 starting from microversion 2.43:
     # See the following links for details:
-    # https://developer.openstack.org/api-ref/compute/#hosts-os-hosts-deprecated
+    # https://docs.openstack.org/api-ref/compute/#hosts-os-hosts-deprecated
     max_microversion = '2.42'
 
     @classmethod

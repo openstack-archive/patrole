@@ -281,5 +281,5 @@ related to RBAC in Patrole.
 .. _do_raise: https://docs.openstack.org/oslo.policy/latest/reference/api/oslo_policy.policy.html#oslo_policy.policy.Enforcer.enforce
 .. _authorization policy enforcement: https://docs.openstack.org/neutron/latest/contributor/internals/policy.html
 .. _official documentation: https://docs.openstack.org/oslo.policy/latest/
-.. _Keystone Roles API: https://developer.openstack.org/api-ref/identity/v3/#roles
+.. _Keystone Roles API: https://docs.openstack.org/api-ref/identity/v3/#roles
 .. _response filtering: https://docs.openstack.org/neutron/latest/contributor/internals/policy.html#response-filtering

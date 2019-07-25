@@ -40,7 +40,7 @@ class ImagesRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     # These tests will fail with a 404 starting from microversion 2.36.
     # See the following link for details:
-    # https://developer.openstack.org/api-ref/compute/#images-deprecated
+    # https://docs.openstack.org/api-ref/compute/#images-deprecated
     max_microversion = '2.35'
 
     @classmethod
@@ -125,7 +125,7 @@ class ImagesMetadataRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     # These tests will fail with a 404 starting from microversion 2.39.
     # See the following link for details:
-    # https://developer.openstack.org/api-ref/compute/#images-deprecated
+    # https://docs.openstack.org/api-ref/compute/#images-deprecated
     max_microversion = '2.38'
 
     @classmethod
@@ -245,7 +245,7 @@ class ImageSizeRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     # These tests will fail with a 404 starting from microversion 2.36.
     # See the following link for details:
-    # https://developer.openstack.org/api-ref/compute/#images-deprecated
+    # https://docs.openstack.org/api-ref/compute/#images-deprecated
     max_microversion = '2.35'
 
     @classmethod

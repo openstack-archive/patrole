@@ -97,7 +97,7 @@ class SecurityGroupsRbacMaxV235Test(rbac_base.BaseV2ComputeRbacTest):
 
     # Tests in this class will fail with a 404 from microversion 2.36,
     # according to:
-    # https://developer.openstack.org/api-ref/compute/#security-groups-os-security-groups-deprecated
+    # https://docs.openstack.org/api-ref/compute/#security-groups-os-security-groups-deprecated
     max_microversion = '2.35'
 
     @classmethod

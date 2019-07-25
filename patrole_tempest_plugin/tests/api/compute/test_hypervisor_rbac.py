@@ -81,8 +81,8 @@ class HypervisorRbacTest(rbac_base.BaseV2ComputeRbacTest):
 class HypervisorMaxv252RbacTest(rbac_base.BaseV2ComputeRbacTest):
     # These tests will fail with a 404 starting from microversion 2.53:
     # See the following links for details:
-    # https://developer.openstack.org/api-ref/compute/#list-hypervisor-servers
-    # https://developer.openstack.org/api-ref/compute/#search-hypervisor
+    # https://docs.openstack.org/api-ref/compute/#list-hypervisor-servers
+    # https://docs.openstack.org/api-ref/compute/#search-hypervisor
     max_microversion = '2.52'
 
     @classmethod

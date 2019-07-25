@@ -28,7 +28,7 @@ class TenantNetworksRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     # Tests will fail with a 404 starting from microversion 2.36.
     # See the following link for details:
-    # https://developer.openstack.org/api-ref/compute/#project-networks-os-tenant-networks-deprecated
+    # https://docs.openstack.org/api-ref/compute/#project-networks-os-tenant-networks-deprecated
     max_microversion = '2.35'
 
     @classmethod

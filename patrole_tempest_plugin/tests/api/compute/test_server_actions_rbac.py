@@ -395,7 +395,7 @@ class ServerActionsV216RbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     # This class has test case(s) that requires at least microversion 2.16.
     # See the following link for details:
-    # https://developer.openstack.org/api-ref/compute/#show-server-details
+    # https://docs.openstack.org/api-ref/compute/#show-server-details
     min_microversion = '2.16'
     max_microversion = 'latest'
 
