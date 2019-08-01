@@ -117,15 +117,6 @@
         TEMPEST_PLUGINS: /opt/stack/patrole
 
 - job:
-    name: patrole-member-pike
-    nodeset: openstack-single-node-xenial
-    parent: patrole-member
-    override-checkout: stable/pike
-    vars:
-      devstack_localrc:
-        TEMPEST_PLUGINS: /opt/stack/patrole
-
-- job:
     name: patrole-multinode-admin
     parent: patrole-base-multinode
     voting: false
@@ -220,7 +211,6 @@
         - patrole-member-stein
         - patrole-member-rocky
         - patrole-member-queens
-        - patrole-member-pike
         - patrole-multinode-admin
         - patrole-multinode-member
         - patrole-extension-admin
@@ -234,4 +224,3 @@
         - patrole-member-stein
         - patrole-member-rocky
         - patrole-member-queens
-        - patrole-member-pike
