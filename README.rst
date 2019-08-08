@@ -168,7 +168,7 @@ the steps outlined therein. Afterward, proceed with the steps below.
 
 #. Log information from tests is captured in ``tempest.log`` under the Tempest
    repository. Some Patrole debugging information is captured in that log
-   related to expected test results and `Role Overriding <https://docs.openstack.org/patrole/latest/framework/rbac_utils.html#role-overriding>`_.
+   related to expected test results and `Role Overriding <https://docs.openstack.org/patrole/latest/test_writing_guide.html#role-overriding>`_.
 
    More detailed RBAC testing log output is emitted to ``patrole.log`` under
    the Patrole repository. To configure Patrole's logging, see the
