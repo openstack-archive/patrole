@@ -45,6 +45,9 @@ class IdentityCredentialsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         with self.override_role():
             self.setup_test_credential(user=user)
 
+    @testtools.skipIf(CONF.identity_feature_enabled.immutable_user_source,
+                      'Skipped because environment has an immutable user '
+                      'source and solely provides read-only access to users.')
     @rbac_rule_validation.action(service="keystone",
                                  rules=["identity:update_credential"])
     @decorators.idempotent_id('cfb05ce3-bffb-496e-a3c2-9515d730da63')
@@ -61,6 +64,9 @@ class IdentityCredentialsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                 secret_key=new_keys[1],
                 project_id=credential['project_id'])
 
+    @testtools.skipIf(CONF.identity_feature_enabled.immutable_user_source,
+                      'Skipped because environment has an immutable user '
+                      'source and solely provides read-only access to users.')
     @rbac_rule_validation.action(service="keystone",
                                  rules=["identity:delete_credential"])
     @decorators.idempotent_id('87ab42af-8d41-401b-90df-21e72919fcde')
@@ -70,6 +76,9 @@ class IdentityCredentialsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         with self.override_role():
             self.creds_client.delete_credential(credential['id'])
 
+    @testtools.skipIf(CONF.identity_feature_enabled.immutable_user_source,
+                      'Skipped because environment has an immutable user '
+                      'source and solely provides read-only access to users.')
     @rbac_rule_validation.action(service="keystone",
                                  rules=["identity:get_credential"])
     @decorators.idempotent_id('1b6eeae6-f1e8-4cdf-8903-1c002b1fc271')

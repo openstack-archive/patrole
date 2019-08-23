@@ -13,11 +13,16 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import testtools
+
+from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.identity import rbac_base
+
+CONF = config.CONF
 
 
 class IdentityUserV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
@@ -27,6 +32,8 @@ class IdentityUserV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         super(IdentityUserV3RbacTest, cls).resource_setup()
         cls.default_user_id = cls.os_primary.credentials.user_id
 
+    @testtools.skipIf(CONF.identity_feature_enabled.immutable_user_source,
+                      "Configured to use an immutable user source")
     @rbac_rule_validation.action(service="keystone",
                                  rules=["identity:create_user"])
     @decorators.idempotent_id('0f148510-63bf-11e6-4522-080044d0d904')
@@ -34,6 +41,8 @@ class IdentityUserV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         with self.override_role():
             self.setup_test_user()
 
+    @testtools.skipIf(CONF.identity_feature_enabled.immutable_user_source,
+                      "Configured to use an immutable user source")
     @rbac_rule_validation.action(service="keystone",
                                  rules=["identity:update_user"])
     @decorators.idempotent_id('0f148510-63bf-11e6-4522-080044d0d905')
@@ -47,6 +56,8 @@ class IdentityUserV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
                                           name=user['name'],
                                           email=new_email)
 
+    @testtools.skipIf(CONF.identity_feature_enabled.immutable_user_source,
+                      "Configured to use an immutable user source")
     @rbac_rule_validation.action(service="keystone",
                                  rules=["identity:delete_user"])
     @decorators.idempotent_id('0f148510-63bf-11e6-4522-080044d0d906')

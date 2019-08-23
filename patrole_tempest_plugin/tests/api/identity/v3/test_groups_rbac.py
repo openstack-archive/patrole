@@ -13,11 +13,16 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import testtools
+
+from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.identity import rbac_base
+
+CONF = config.CONF
 
 
 class IdentityGroupsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
@@ -82,6 +87,9 @@ class IdentityGroupsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         with self.override_role():
             self.groups_client.add_group_user(group['id'], user['id'])
 
+    @testtools.skipIf(CONF.identity_feature_enabled.immutable_user_source,
+                      'Skipped because environment has an immutable user '
+                      'source and solely provides read-only access to users.')
     @rbac_rule_validation.action(service="keystone",
                                  rules=["identity:remove_user_from_group"])
     @decorators.idempotent_id('8a60d11c-7d2b-47e5-a0f3-9ea900ca66fe')
@@ -100,6 +108,9 @@ class IdentityGroupsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         with self.override_role():
             self.groups_client.list_group_users(group['id'])
 
+    @testtools.skipIf(CONF.identity_feature_enabled.immutable_user_source,
+                      'Skipped because environment has an immutable user '
+                      'source and solely provides read-only access to users.')
     @rbac_rule_validation.action(service="keystone",
                                  rules=["identity:check_user_in_group"])
     @decorators.idempotent_id('d3603241-fd87-4a2d-94f9-f32469d1aaba')

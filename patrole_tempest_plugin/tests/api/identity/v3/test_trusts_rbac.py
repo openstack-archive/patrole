@@ -35,6 +35,10 @@ class IdentityTrustV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
         if not CONF.identity_feature_enabled.trust:
             raise cls.skipException(
                 "%s skipped as trust feature isn't enabled" % cls.__name__)
+        if CONF.identity_feature_enabled.immutable_user_source:
+            raise cls.skipException('Skipped because environment has an '
+                                    'immutable user source and solely '
+                                    'provides read-only access to users.')
 
     @classmethod
     def resource_setup(cls):
