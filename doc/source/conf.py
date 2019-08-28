@@ -81,7 +81,6 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.  Major themes that come with
 # Sphinx are currently 'default' and 'sphinxdoc'.
 # html_theme_path = ["."]
-html_static_path = ['_static']
 html_theme = 'openstackdocs'
 
 # openstackdocstheme options
