@@ -34,7 +34,7 @@ class PolicyBandwidthLimitRuleExtRbacTest(base.BaseNetworkExtRbacTest):
     @classmethod
     def resource_setup(cls):
         super(PolicyBandwidthLimitRuleExtRbacTest, cls).resource_setup()
-        name = data_utils.rand_name(cls.__class__.__name__ + '-qos-policy')
+        name = data_utils.rand_name(cls.__name__ + '-qos-policy')
         cls.policy_id = cls.ntp_client.create_qos_policy(
             name=name)["policy"]["id"]
         cls.addClassResourceCleanup(cls.ntp_client.delete_qos_policy,
