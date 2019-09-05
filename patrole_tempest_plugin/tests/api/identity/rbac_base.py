@@ -28,30 +28,6 @@ class BaseIdentityRbacTest(rbac_utils.RbacUtilsMixin,
                            base.BaseIdentityTest):
 
     @classmethod
-    def setup_test_endpoint(cls, service=None):
-        """Creates a service and an endpoint for test."""
-        interface = 'public'
-        url = data_utils.rand_url()
-        region_name = data_utils.rand_name(
-            cls.__name__ + '-region')
-        # Endpoint creation requires a service
-        if service is None:
-            service = cls.setup_test_service()
-        params = {
-            'service_id': service['id'],
-            'region': region_name,
-            'interface': interface,
-            'url': url
-        }
-
-        endpoint = cls.endpoints_client.create_endpoint(**params)['endpoint']
-        cls.addClassResourceCleanup(
-            test_utils.call_and_ignore_notfound_exc,
-            cls.endpoints_client.delete_endpoint, endpoint['id'])
-
-        return endpoint
-
-    @classmethod
     def setup_test_role(cls):
         """Set up a test role."""
         name = data_utils.rand_name(cls.__name__ + '-test_role')
@@ -182,6 +158,33 @@ class BaseIdentityV3RbacTest(BaseIdentityRbacTest):
         super(BaseIdentityV3RbacTest, cls).resource_cleanup()
 
     @classmethod
+    def setup_test_endpoint(cls, service=None):
+        """Creates a service and an endpoint for test."""
+        interface = 'public'
+        url = data_utils.rand_url()
+        region_name = data_utils.rand_name(
+            cls.__name__ + '-region')
+        # Endpoint creation requires a service
+        if service is None:
+            service = cls.setup_test_service()
+        params = {
+            'service_id': service['id'],
+            'region': region_name,
+            'interface': interface,
+            'url': url
+        }
+
+        endpoint = cls.endpoints_client.create_endpoint(**params)['endpoint']
+        cls.addClassResourceCleanup(
+            test_utils.call_and_ignore_notfound_exc,
+            cls.regions_client.delete_region, endpoint['region'])
+        cls.addClassResourceCleanup(
+            test_utils.call_and_ignore_notfound_exc,
+            cls.endpoints_client.delete_endpoint, endpoint['id'])
+
+        return endpoint
+
+    @classmethod
     def setup_test_credential(cls, user=None):
         """Creates a credential for test."""
         keys = [data_utils.rand_uuid_hex(),
@@ -249,8 +252,10 @@ class BaseIdentityV3RbacTest(BaseIdentityRbacTest):
         """Creates a region for test."""
         description = data_utils.rand_name(
             cls.__name__ + '-test_region_desc')
+        id = data_utils.rand_name(cls.__name__)
 
         region = cls.regions_client.create_region(
+            id=id,
             description=description)['region']
         cls.regions.append(region)
 
