@@ -59,6 +59,12 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
         cls.server = cls.create_test_server(wait_until='ACTIVE')
         cls.volume = cls.create_volume()
 
+    def _detach_volume_and_wait_until_available(self, server, volume):
+        self.servers_client.detach_volume(server['id'],
+                                          volume['id'])
+        waiters.wait_for_volume_resource_status(self.volumes_client,
+                                                volume['id'], 'available')
+
     def _recreate_volume(self):
         try:
             # In case detachment failed, update the DB status of the volume
@@ -190,7 +196,8 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
             # Swap volume from "volume1" to "volume2"
             self.servers_client.update_attached_volume(
                 self.server['id'], volume1['id'], volumeId=volume2['id'])
-        self.addCleanup(self._detach_volume, self.server, volume2)
+        self.addCleanup(self._detach_volume_and_wait_until_available,
+                        self.server, volume2)
         waiters.wait_for_volume_resource_status(self.volumes_client,
                                                 volume1['id'], 'available')
         waiters.wait_for_volume_resource_status(self.volumes_client,
