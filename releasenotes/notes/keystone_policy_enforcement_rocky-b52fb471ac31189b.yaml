@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Added new feature flag called ``keystone_policy_enforcement_train`` under
+    the configuration group ``[policy-feature-enabled]`` to make ``test_list_trusts``
+    test backwards compatible, test the current release, and test the correct policy
+    action. The Keystone Trust API is enforced differently depending on passed arguments

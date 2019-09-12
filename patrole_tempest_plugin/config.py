@@ -184,7 +184,12 @@ were removed in Stein."""),
                 default=True,
                 help="""Are the Cinder Stein policies available in the cloud
 (e.g. [create|update|get|delete]_encryption_policy)? These policies are added
-in Stein.""")
+in Stein."""),
+    cfg.BoolOpt('keystone_policy_enforcement_train',
+                default=True,
+                help="""Is the cloud running the Train release or newer? If
+so, the Keystone Trust API is enforced differently depending on passed
+arguments""")
 ]
 
 

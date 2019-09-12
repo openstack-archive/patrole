@@ -37,6 +37,12 @@ function install_patrole_tempest_plugin {
         iniset $TEMPEST_CONFIG policy-feature-enabled removed_nova_policies_stein False
         iniset $TEMPEST_CONFIG policy-feature-enabled removed_keystone_policies_stein False
         iniset $TEMPEST_CONFIG policy-feature-enabled added_cinder_policies_stein False
+
+       # TODO(rb560u): Remove this once stable/pike becomes EOL.
+       # Make the 'test_list_trusts' test backwards compatible.
+       # The Keystone Trust API is enforced differently depending on passed
+       # arguments
+       iniset $TEMPEST_CONFIG policy-feature-enabled keystone_policy_enforcement_train False
     fi
 
     if [[ ${DEVSTACK_SERIES} == 'queens' ]]; then
@@ -54,12 +60,32 @@ function install_patrole_tempest_plugin {
         iniset $TEMPEST_CONFIG policy-feature-enabled removed_nova_policies_stein False
         iniset $TEMPEST_CONFIG policy-feature-enabled removed_keystone_policies_stein False
         iniset $TEMPEST_CONFIG policy-feature-enabled added_cinder_policies_stein False
+
+       # TODO(rb560u): Remove this once stable/queens becomes EOL.
+       # Make the 'test_list_trusts' test backwards compatible.
+       # The Keystone Trust API is enforced differently depending on passed
+       # arguments
+       iniset $TEMPEST_CONFIG policy-feature-enabled keystone_policy_enforcement_train False
     fi
 
     if [[ ${DEVSTACK_SERIES} == 'rocky' ]]; then
         # TODO(cl566n): Policies used by Patrole testing. Remove these once stable/rocky becomes EOL.
         iniset $TEMPEST_CONFIG policy-feature-enabled added_cinder_policies_stein False
         iniset $TEMPEST_CONFIG policy-feature-enabled removed_keystone_policies_stein False
+
+       # TODO(rb560u): Remove this once stable/rocky becomes EOL.
+       # Make the 'test_list_trusts' test backwards compatible.
+       # The Keystone Trust API is enforced differently depending on passed
+       # arguments
+       iniset $TEMPEST_CONFIG policy-feature-enabled keystone_policy_enforcement_train False
+    fi
+
+    if [[ ${DEVSTACK_SERIES} == 'stein' ]]; then
+       # TODO(rb560u): Remove this once stable/stein becomes EOL.
+       # Make the 'test_list_trusts' test backwards compatible.
+       # The Keystone Trust API is enforced differently depending on passed
+       # arguments
+       iniset $TEMPEST_CONFIG policy-feature-enabled keystone_policy_enforcement_train False
     fi
 
     iniset $TEMPEST_CONFIG patrole rbac_test_roles $RBAC_TEST_ROLES
