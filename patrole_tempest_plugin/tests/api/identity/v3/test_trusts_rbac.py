@@ -13,6 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import testtools
+
 from tempest import config
 from tempest.lib import decorators
 from tempest.lib import exceptions as lib_exc
@@ -120,6 +122,36 @@ class IdentityTrustV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
             else:
                 self.trusts_client.list_trusts(
                     trustor_user_id=self.trustor_user_id)
+
+    @testtools.skipUnless(
+        CONF.policy_feature_enabled.keystone_policy_enforcement_train,
+        'This test tests Keystone policy actions introduced in Train')
+    @decorators.idempotent_id('6273ab11-32ad-450e-be4e-deaa856d7051')
+    @rbac_rule_validation.action(
+        service="keystone",
+        rules=["identity:list_trusts_for_trustor"],
+        extra_target_data={
+            "target.trust.trustor_user_id": "os_primary.credentials.user_id"
+        })
+    def test_list_trusts_for_trustor(self):
+        with self.override_role():
+            self.trusts_client.list_trusts(
+                trustor_user_id=self.trustor_user_id)
+
+    @testtools.skipUnless(
+        CONF.policy_feature_enabled.keystone_policy_enforcement_train,
+        'This test tests Keystone policy actions introduced in Train')
+    @decorators.idempotent_id('90bbbd77-c1df-43f9-99dc-088d52b95eff')
+    @rbac_rule_validation.action(
+        service="keystone",
+        rules=["identity:list_trusts_for_trustee"],
+        extra_target_data={
+            "target.trust.trustee_user_id": "trustee_user_id"
+        })
+    def test_list_trusts_for_trustee(self):
+        with self.override_role():
+            self.trusts_client.list_trusts(
+                trustee_user_id=self.trustee_user_id)
 
     @decorators.idempotent_id('3c9ff92f-a73e-4f9b-8865-e017f38c70f5')
     @rbac_rule_validation.action(
