@@ -611,8 +611,7 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
         cls.server = cls.create_test_server(wait_until='ACTIVE')
 
         # Create network the interface will be attached to
-        network_name = \
-            data_utils.rand_name(cls.__class__.__name__ + '-network')
+        network_name = data_utils.rand_name(cls.__name__ + '-network')
         post_body = {'name': network_name}
         post_body['router:external'] = False
         post_body['shared'] = True

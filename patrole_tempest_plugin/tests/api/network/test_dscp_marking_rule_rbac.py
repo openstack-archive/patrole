@@ -34,7 +34,7 @@ class DscpMarkingRuleExtRbacTest(base.BaseNetworkExtRbacTest):
     @classmethod
     def resource_setup(cls):
         super(DscpMarkingRuleExtRbacTest, cls).resource_setup()
-        name = data_utils.rand_name(cls.__class__.__name__ + '-qos')
+        name = data_utils.rand_name(cls.__name__ + '-qos')
         cls.policy_id = cls.ntp_client.create_qos_policy(
             name=name)["policy"]["id"]
         cls.addClassResourceCleanup(
