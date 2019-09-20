@@ -266,6 +266,10 @@ class L3AgentsExtRbacTest(base.BaseNetworkExtRbacTest):
         super(L3AgentsExtRbacTest, cls).resource_setup()
         name = data_utils.rand_name(cls.__name__ + '-Router')
         cls.router = cls.ntp_client.create_router(name)['router']
+        cls.addClassResourceCleanup(
+            test_utils.call_and_ignore_notfound_exc,
+            cls.ntp_client.delete_router,
+            cls.router['id'])
 
     @decorators.idempotent_id('5d2bbdbc-40a5-43d2-828a-84dc93bcd321')
     @rbac_rule_validation.action(service="neutron",
