@@ -1,10 +1,3 @@
-========================
-Team and repository tags
-========================
-
-.. image:: https://governance.openstack.org/tc/badges/patrole.svg
-    :target: https://governance.openstack.org/tc/reference/tags/index.html
-
 Patrole - RBAC Integration Tempest Plugin
 =========================================
 
@@ -24,9 +17,15 @@ documentation.
 
 * Free software: Apache license
 * Documentation: https://docs.openstack.org/patrole/latest
-* Source: https://git.openstack.org/cgit/openstack/patrole
+* Source: https://opendev.org/openstack/patrole
 * Bugs: https://storyboard.openstack.org/#!/project/openstack/patrole
 * Release notes: https://docs.openstack.org/releasenotes/patrole/
+
+Team and repository tags
+------------------------
+
+.. image:: https://governance.openstack.org/tc/badges/patrole.svg
+    :target: https://governance.openstack.org/tc/reference/tags/index.html
 
 .. _design-principles:
 
@@ -75,8 +74,8 @@ but not all, as its testing scope is confined to policies.
 .. _Tempest plugin: https://docs.openstack.org/tempest/latest/plugin.html
 .. _Tempest design principles: https://docs.openstack.org/tempest/latest/overview.html#design-principles
 .. _policy in code: https://specs.openstack.org/openstack/oslo-specs/specs/newton/policy-in-code.html
-.. _Nova repository: https://git.openstack.org/cgit/openstack/nova/tree/nova/policies
-.. _Keystone repository: https://git.openstack.org/cgit/openstack/keystone/tree/keystone/common/policies
+.. _Nova repository: https://opendev.org/openstack/nova/src/branch/master/nova/policies
+.. _Keystone repository: https://opendev.org/openstack/keystone/src/branch/master/keystone/common/policies
 
 Features
 --------
@@ -123,7 +122,7 @@ the steps outlined therein. Afterward, proceed with the steps below.
 #. You first need to install Patrole. This is done with pip after you check out
    the Patrole repo::
 
-    $ git clone https://git.openstack.org/openstack/patrole
+    $ git clone https://opendev.org/openstack/patrole
     $ pip install patrole/
 
    This can be done within a venv.
@@ -174,7 +173,7 @@ the steps outlined therein. Afterward, proceed with the steps below.
    the Patrole repository. To configure Patrole's logging, see the
    `Patrole Configuration Guide <https://docs.openstack.org/patrole/latest/configuration.html#patrole-configuration>`_.
 
-.. _Tempest: https://git.openstack.org/cgit/openstack/tempest
+.. _Tempest: https://opendev.org/openstack/tempest/
 .. _Tempest_quickstart: https://docs.openstack.org/tempest/latest/overview.html#quickstart
 .. _tempest_run: https://docs.openstack.org/tempest/latest/run.html
 .. _testr: https://testrepository.readthedocs.org/en/latest/MANUAL.html

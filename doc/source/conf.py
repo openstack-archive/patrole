@@ -30,6 +30,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.todo',
     'sphinx.ext.viewcode',
+    'sphinxcontrib.rsvgconverter',
     'openstackdocstheme',
     'oslo_config.sphinxconfiggen',
     'sphinxcontrib.apidoc',
@@ -94,15 +95,18 @@ html_last_updated_fmt = '%Y-%m-%d %H:%M'
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'patroledoc'
 
+# Example configuration for intersphinx: refer to the Python standard library.
+#intersphinx_mapping = {'http://docs.python.org/': None}
+
+# -- Options for LaTeX output -------------------------------------------------
+
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass
 # [howto/manual]).
 latex_documents = [
-    ('index',
-     'patrole.tex',
-     u'patrole Documentation',
-     u'Patrole Developers', 'manual'),
+    ('index', 'doc-patrole.tex', u'Patrole: Tempest Plugin for RBAC Testing',
+     u'OpenStack Foundation', 'manual'),
 ]
 
-# Example configuration for intersphinx: refer to the Python standard library.
-#intersphinx_mapping = {'http://docs.python.org/': None}
+# Disable usage of xindy https://bugzilla.redhat.com/show_bug.cgi?id=1643664
+latex_use_xindy = False

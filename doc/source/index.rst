@@ -71,7 +71,12 @@ Framework
    framework/rbac_utils
    framework/code/modules
 
-Indices and tables
-==================
+Search
+======
 
-* :ref:`search`
+.. only:: html
+
+  * :ref:`Patrole document search <search>`: Search the contents of this document.
+
+* `OpenStack wide search <https://docs.openstack.org>`_: Search the wider
+  set of OpenStack documentation, including forums.
