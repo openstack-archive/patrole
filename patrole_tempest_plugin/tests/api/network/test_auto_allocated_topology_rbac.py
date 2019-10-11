@@ -54,7 +54,7 @@ class AutoAllocationTopologyExtRbacTest(base.BaseNetworkExtRbacTest):
 
         if len(ports) != expected_ports_count:
             msg = "Auto Allocated Topology in use."
-            cls.skipException(msg)
+            raise cls.skipException(msg)
 
     @decorators.idempotent_id('A0606AFE-065E-4C09-8E51-58EE7FBA30A2')
     @decorators.attr(type='slow')
