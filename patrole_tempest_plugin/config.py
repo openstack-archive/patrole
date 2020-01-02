@@ -189,7 +189,12 @@ in Stein."""),
                 default=True,
                 help="""Is the cloud running the Train release or newer? If
 so, the Keystone Trust API is enforced differently depending on passed
-arguments""")
+arguments"""),
+    cfg.BoolOpt('changed_nova_policies_ussuri',
+                default=True,
+                help="""Are the Nova API policies available in the
+cloud (e.g. os_compute_api:os-services)? These policies were
+changed in Ussuri.""")
 ]
 
 

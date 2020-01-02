@@ -43,6 +43,10 @@ function install_patrole_tempest_plugin {
        # The Keystone Trust API is enforced differently depending on passed
        # arguments
        iniset $TEMPEST_CONFIG policy-feature-enabled keystone_policy_enforcement_train False
+
+       # TODO(rb560u): Remove this once stable/pike becomes EOL.
+       # These policies were removed in Ussuri but are available in Pike.
+       iniset $TEMPEST_CONFIG policy-feature-enabled changed_nova_policies_ussuri False
     fi
 
     if [[ ${DEVSTACK_SERIES} == 'queens' ]]; then
@@ -66,6 +70,10 @@ function install_patrole_tempest_plugin {
        # The Keystone Trust API is enforced differently depending on passed
        # arguments
        iniset $TEMPEST_CONFIG policy-feature-enabled keystone_policy_enforcement_train False
+
+       # TODO(rb560u): Remove this once stable/queens becomes EOL.
+       # These policies were removed in Ussuri but are available in Queens.
+       iniset $TEMPEST_CONFIG policy-feature-enabled changed_nova_policies_ussuri False
     fi
 
     if [[ ${DEVSTACK_SERIES} == 'rocky' ]]; then
@@ -78,6 +86,10 @@ function install_patrole_tempest_plugin {
        # The Keystone Trust API is enforced differently depending on passed
        # arguments
        iniset $TEMPEST_CONFIG policy-feature-enabled keystone_policy_enforcement_train False
+
+       # TODO(rb560u): Remove this once stable/rocky becomes EOL.
+       # These policies were removed in Ussuri but are available in Rocky.
+       iniset $TEMPEST_CONFIG policy-feature-enabled changed_nova_policies_ussuri False
     fi
 
     if [[ ${DEVSTACK_SERIES} == 'stein' ]]; then
@@ -86,6 +98,10 @@ function install_patrole_tempest_plugin {
        # The Keystone Trust API is enforced differently depending on passed
        # arguments
        iniset $TEMPEST_CONFIG policy-feature-enabled keystone_policy_enforcement_train False
+
+       # TODO(rb560u): Remove this once stable/stein becomes EOL.
+       # These policies were removed in Ussuri but are available in Stein.
+       iniset $TEMPEST_CONFIG policy-feature-enabled changed_nova_policies_ussuri False
     fi
 
     iniset $TEMPEST_CONFIG patrole rbac_test_roles $RBAC_TEST_ROLES

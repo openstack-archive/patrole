@@ -14,10 +14,18 @@
 #    under the License.
 
 from tempest.common import utils
+from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
+
+CONF = config.CONF
+
+if CONF.policy_feature_enabled.changed_nova_policies_ussuri:
+    _OS_COMPUTE_API_OS_SERVICES = "os_compute_api:os-services:list"
+else:
+    _OS_COMPUTE_API_OS_SERVICES = "os_compute_api:os-services"
 
 
 class ServicesRbacTest(rbac_base.BaseV2ComputeRbacTest):
@@ -31,7 +39,7 @@ class ServicesRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rules=["os_compute_api:os-services"])
+        rules=[_OS_COMPUTE_API_OS_SERVICES])
     @decorators.idempotent_id('7472261b-9c6d-453a-bcb3-aecaa29ad281')
     def test_list_services(self):
         with self.override_role():
