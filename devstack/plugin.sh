@@ -78,6 +78,7 @@ function install_patrole_tempest_plugin {
 
     if [[ ${DEVSTACK_SERIES} == 'rocky' ]]; then
         # TODO(cl566n): Policies used by Patrole testing. Remove these once stable/rocky becomes EOL.
+        iniset $TEMPEST_CONFIG policy-feature-enabled removed_nova_policies_stein False
         iniset $TEMPEST_CONFIG policy-feature-enabled added_cinder_policies_stein False
         iniset $TEMPEST_CONFIG policy-feature-enabled removed_keystone_policies_stein False
 
