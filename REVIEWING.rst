@@ -181,8 +181,9 @@ fix it. When it will happen, we will deal with it on a case-by-case basis.
 
 When to approve
 ---------------
-* Every patch needs two +2's before being approved.
+* Every patch can be approved with single +2 which means single reviewer can approve.
 * It's OK to hold off on an approval until a subject matter expert reviews it.
 * If a patch has already been approved but requires a trivial rebase to merge,
-  you do not have to wait for a second +2, since the patch has already had
-  two +2's.
+  you do not have to wait for a +2, since the patch has already had +2's. With
+  single +2 rule, this means that author can also approve this case if he/she has
+  approve rights.
