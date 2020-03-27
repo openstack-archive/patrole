@@ -1,0 +1,12 @@
+---
+features:
+  - |
+    Nova adopting the new policy defaults in ussuri cycle which
+    include some of the policies are made granular.
+
+    Patorle tests will adopt the new polcies. Below are the
+    policies changed in patrole tests:
+
+      - os_compute_api:os-services
+      - os_compute_api:deferred_delete
+      - os_compute_api:os-attach-interfaces

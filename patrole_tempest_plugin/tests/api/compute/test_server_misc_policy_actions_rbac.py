@@ -31,6 +31,17 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 CONF = config.CONF
 
+if CONF.policy_feature_enabled.changed_nova_policies_ussuri:
+    _DEFERRED_FORCE = "os_compute_api:os-deferred-delete:force"
+    _ATTACH_INTERFACES_LIST = "os_compute_api:os-attach-interfaces:list"
+    _ATTACH_INTERFACES_SHOW = "os_compute_api:os-attach-interfaces:show"
+    _INSTANCE_ACTIONS_LIST = "os_compute_api:os-instance-actions:list"
+else:
+    _DEFERRED_FORCE = "os_compute_api:os-deferred-delete"
+    _ATTACH_INTERFACES_LIST = "os_compute_api:os-attach-interfaces"
+    _ATTACH_INTERFACES_SHOW = "os_compute_api:os-attach-interfaces"
+    _INSTANCE_ACTIONS_LIST = "os_compute_api:os-instance-actions"
+
 
 class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     """Test multiple policy actions that require a server to be created.
@@ -171,7 +182,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('189bfed4-1e6d-475c-bb8c-d57e60895391')
     @rbac_rule_validation.action(
         service="nova",
-        rules=["os_compute_api:os-deferred-delete"])
+        rules=[_DEFERRED_FORCE])
     def test_force_delete_server(self):
         """Test force delete server, part of os-deferred-delete."""
         with self.override_role():
@@ -341,7 +352,7 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('9d1b131d-407e-4fa3-8eef-eb2c4526f1da')
     @rbac_rule_validation.action(
         service="nova",
-        rules=["os_compute_api:os-instance-actions"])
+        rules=[_INSTANCE_ACTIONS_LIST])
     def test_list_instance_actions(self):
         """Test list instance actions, part of os-instance-actions."""
         with self.override_role():
@@ -658,7 +669,7 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('ddf53cb6-4a0a-4e5a-91e3-6c32aaa3b9b6')
     @rbac_rule_validation.action(
         service="nova",
-        rules=["os_compute_api:os-attach-interfaces"])
+        rules=[_ATTACH_INTERFACES_LIST])
     def test_list_interfaces(self):
         """Test list interfaces, part of os-attach-interfaces."""
         with self.override_role():
@@ -670,7 +681,7 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @utils.requires_ext(extension='os-attach-interfaces', service='compute')
     @rbac_rule_validation.action(
         service="nova",
-        rules=["os_compute_api:os-attach-interfaces"])
+        rules=[_ATTACH_INTERFACES_SHOW])
     def test_show_interface(self):
         """Test show interfaces, part of os-attach-interfaces."""
         interface = self._attach_interface_to_server()
