@@ -62,12 +62,6 @@ class RBACHackingTestCase(base.TestCase):
             "  def tearDownClass(cls):",
             "./patrole_tempest_plugin/tests/scenario/fake_test.py"))
 
-    def test_no_vi_headers(self):
-        self.assertTrue(checks.no_vi_headers(
-            "# vim: tabstop=4", 1, range(250)))
-        self.assertTrue(checks.no_vi_headers(
-            "# vim: tabstop=4", 249, range(250)))
-
     def test_service_tags_not_in_module_path(self):
         self.assertTrue(checks.service_tags_not_in_module_path(
             "@utils.services('volume')",

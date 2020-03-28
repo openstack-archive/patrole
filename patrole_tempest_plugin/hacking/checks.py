@@ -17,6 +17,7 @@
 import os
 import re
 
+from hacking import core
 import pycodestyle
 
 
@@ -27,7 +28,6 @@ PYTHON_CLIENT_RE = re.compile('import (%s)client' % '|'.join(PYTHON_CLIENTS))
 TEST_DEFINITION = re.compile(r'^\s*def test.*')
 SETUP_TEARDOWN_CLASS_DEFINITION = re.compile(r'^\s+def (setUp|tearDown)Class')
 SCENARIO_DECORATOR = re.compile(r'\s*@.*services\((.*)\)')
-VI_HEADER_RE = re.compile(r"^#\s+vim?:.+")
 RAND_NAME_HYPHEN_RE = re.compile(r".*rand_name\(.+[\-\_][\"\']\)")
 MUTABLE_DEFAULT_ARGS = re.compile(r"^\s*def .+\((.+=\{\}|.+=\[\])")
 TESTTOOLS_SKIP_DECORATOR = re.compile(r'\s*@testtools\.skip\((.*)\)')
@@ -42,6 +42,7 @@ EXT_RBAC_TEST = re.compile(
 have_rbac_decorator = False
 
 
+@core.flake8ext
 def import_no_clients_in_api_tests(physical_line, filename):
     """Check for client imports from patrole_tempest_plugin/tests/api
 
@@ -56,6 +57,7 @@ def import_no_clients_in_api_tests(physical_line, filename):
                      "patrole_tempest_plugin/tests/scenario/* tests"))
 
 
+@core.flake8ext
 def no_setup_teardown_class_for_tests(physical_line, filename):
     """Check that tests do not use setUpClass/tearDownClass
 
@@ -69,20 +71,7 @@ def no_setup_teardown_class_for_tests(physical_line, filename):
                 "T105: (setUp|tearDown)Class can not be used in tests")
 
 
-def no_vi_headers(physical_line, line_number, lines):
-    """Check for vi editor configuration in source files.
-
-    By default vi modelines can only appear in the first or
-    last 5 lines of a source file.
-
-    T106
-    """
-    # NOTE(gilliard): line_number is 1-indexed
-    if line_number <= 5 or line_number > len(lines) - 5:
-        if VI_HEADER_RE.match(physical_line):
-            return 0, "T106: Don't put vi configuration in source files"
-
-
+@core.flake8ext
 def service_tags_not_in_module_path(physical_line, filename):
     """Check that a service tag isn't in the module path
 
@@ -102,6 +91,7 @@ def service_tags_not_in_module_path(physical_line, filename):
                         "T107: service tag should not be in path")
 
 
+@core.flake8ext
 def no_hyphen_at_end_of_rand_name(logical_line, filename):
     """Check no hyphen at the end of rand_name() argument
 
@@ -112,6 +102,7 @@ def no_hyphen_at_end_of_rand_name(logical_line, filename):
         return 0, msg
 
 
+@core.flake8ext
 def no_mutable_default_args(logical_line):
     """Check that mutable object isn't used as default argument
 
@@ -122,6 +113,7 @@ def no_mutable_default_args(logical_line):
         yield (0, msg)
 
 
+@core.flake8ext
 def no_testtools_skip_decorator(logical_line):
     """Check that methods do not have the testtools.skip decorator
 
@@ -132,6 +124,7 @@ def no_testtools_skip_decorator(logical_line):
                "decorators.skip_because from tempest.lib")
 
 
+@core.flake8ext
 def use_rand_uuid_instead_of_uuid4(logical_line, filename):
     """Check that tests use data_utils.rand_uuid() instead of uuid.uuid4()
 
@@ -145,6 +138,7 @@ def use_rand_uuid_instead_of_uuid4(logical_line, filename):
     yield (0, msg)
 
 
+@core.flake8ext
 def no_rbac_rule_validation_decorator(physical_line, filename):
     """Check that each test has the ``rbac_rule_validation.action`` decorator.
 
@@ -174,6 +168,7 @@ def no_rbac_rule_validation_decorator(physical_line, filename):
             have_rbac_decorator = False
 
 
+@core.flake8ext
 def no_rbac_suffix_in_test_filename(filename):
     """Check that RBAC filenames end with "_rbac" suffix.
 
@@ -188,6 +183,7 @@ def no_rbac_suffix_in_test_filename(filename):
             return 0, "RBAC test filenames must end in _rbac suffix"
 
 
+@core.flake8ext
 def no_rbac_test_suffix_in_test_class_name(physical_line, filename):
     """Check that RBAC class names end with "RbacTest"
 
@@ -203,6 +199,7 @@ def no_rbac_test_suffix_in_test_class_name(physical_line, filename):
                 return 0, "RBAC test class names must end in 'RbacTest'"
 
 
+@core.flake8ext
 def no_client_alias_in_test_cases(logical_line, filename):
     """Check that test cases don't use "self.client" to define a client.
 
@@ -213,6 +210,7 @@ def no_client_alias_in_test_cases(logical_line, filename):
             return 0, "Do not use 'self.client' as a service client alias"
 
 
+@core.flake8ext
 def no_extension_rbac_test_suffix_in_plugin_test_class_name(physical_line,
                                                             filename):
     """Check that Extension RBAC class names end with "ExtRbacTest"
@@ -249,18 +247,3 @@ def no_extension_rbac_test_suffix_in_plugin_test_class_name(physical_line,
                     error = ("Plugin RBAC test subclasses must inherit from a "
                              "'ExtRbacTest' base class")
                     return len(superclass) - 1, error
-
-
-def factory(register):
-    register(import_no_clients_in_api_tests)
-    register(no_setup_teardown_class_for_tests)
-    register(no_vi_headers)
-    register(no_hyphen_at_end_of_rand_name)
-    register(no_mutable_default_args)
-    register(no_testtools_skip_decorator)
-    register(use_rand_uuid_instead_of_uuid4)
-    register(service_tags_not_in_module_path)
-    register(no_rbac_rule_validation_decorator)
-    register(no_rbac_suffix_in_test_filename)
-    register(no_rbac_test_suffix_in_test_class_name)
-    register(no_extension_rbac_test_suffix_in_plugin_test_class_name)

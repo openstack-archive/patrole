@@ -109,8 +109,8 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
         def test_policy(*args):
             raise exceptions.Forbidden()
 
-        test_re = ("User with roles \['member'\] was not allowed to perform "
-                   "the following actions: \[%s\].*" % (mock.sentinel.action))
+        test_re = (r"User with roles \['member'\] was not allowed to perform "
+                   r"the following actions: \[%s\].*" % (mock.sentinel.action))
         self.assertRaisesRegex(
             rbac_exceptions.RbacUnderPermissionException, test_re, test_policy,
             self.test_obj)
@@ -164,8 +164,8 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
             def test_policy(*args):
                 raise exception_cls(**kwargs)
 
-            test_re = (".*User with roles \[%s\] was not allowed to "
-                       "perform the following actions: \[%s\].*" % (
+            test_re = (r".*User with roles \[%s\] was not allowed to "
+                       r"perform the following actions: \[%s\].*" % (
                            ', '.join("'%s'" % r for r in self.test_roles),
                            mock.sentinel.action))
             self.assertRaisesRegex(
@@ -227,8 +227,8 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
             raise exceptions.NotFound()
 
         expected_errors = [
-            ("User with roles \['member'\] was not allowed to perform the "
-             "following actions: \['%s'\].*" % policy_names[0]),
+            (r"User with roles \['member'\] was not allowed to perform the "
+             r"following actions: \['%s'\].*" % policy_names[0]),
             None
         ]
 
@@ -282,7 +282,7 @@ class RBACRuleValidationTest(BaseRBACRuleValidationTest):
         for test_policy in (
             test_policy_expect_forbidden, test_policy_expect_not_found):
 
-            error_re = ".*OverPermission: .* \[%s\]$" % mock.sentinel.action
+            error_re = r".*OverPermission: .* \[%s\]$" % mock.sentinel.action
             self.assertRaisesRegex(rbac_exceptions.RbacOverPermissionException,
                                    error_re, test_policy, self.test_obj)
             self.assertRegex(mock_log.error.mock_calls[0][1][0], error_re)
@@ -380,8 +380,8 @@ class RBACMultiRoleRuleValidationTest(BaseRBACMultiRoleRuleValidationTest,
         def test_policy(*args):
             raise exceptions.Forbidden()
 
-        test_re = ("User with roles \['member', 'anotherrole'\] was not "
-                   "allowed to perform the following actions: \[%s\].*" %
+        test_re = (r"User with roles \['member', 'anotherrole'\] was not "
+                   r"allowed to perform the following actions: \[%s\].*" %
                    (mock.sentinel.action))
         self.assertRaisesRegex(
             rbac_exceptions.RbacUnderPermissionException, test_re, test_policy,
@@ -409,8 +409,8 @@ class RBACMultiRoleRuleValidationTest(BaseRBACMultiRoleRuleValidationTest,
             raise exceptions.NotFound()
 
         expected_errors = [
-            ("User with roles \['member', 'anotherrole'\] was not allowed to "
-             "perform the following actions: \['%s'\].*" % policy_names[0]),
+            (r"User with roles \['member', 'anotherrole'\] was not allowed to "
+             r"perform the following actions: \['%s'\].*" % policy_names[0]),
             None
         ]
 
@@ -657,7 +657,7 @@ class RBACRuleValidationTestMultiPolicy(BaseRBACRuleValidationTest):
             mock_authority.PolicyAuthority.return_value.allowed.side_effect = (
                 allowed_list)
 
-            error_re = ".*OverPermission: .* \[%s\]$" % fail_on_action
+            error_re = r".*OverPermission: .* \[%s\]$" % fail_on_action
             self.assertRaisesRegex(
                 rbac_exceptions.RbacOverPermissionException, error_re,
                 test_policy, self.test_obj)
@@ -727,7 +727,7 @@ class RBACRuleValidationTestMultiPolicy(BaseRBACRuleValidationTest):
         error_re = ("User with roles ['member'] was not allowed to perform "
                     "the following actions: %s. Expected allowed actions: %s. "
                     "Expected disallowed actions: []." %
-                    (rules, rules)).replace('[', '\[').replace(']', '\]')
+                    (rules, rules)).replace('[', r'\[').replace(']', r'\]')
         self.assertRaisesRegex(
             rbac_exceptions.RbacUnderPermissionException, error_re,
             test_policy, self.test_obj)
@@ -912,7 +912,7 @@ class RBACMultiRoleRuleValidationTestMultiPolicy(
         error_re = ("User with roles ['member', 'anotherrole'] was not "
                     "allowed to perform the following actions: %s. Expected "
                     "allowed actions: %s. Expected disallowed actions: []." %
-                    (rules, rules)).replace('[', '\[').replace(']', '\]')
+                    (rules, rules)).replace('[', r'\[').replace(']', r'\]')
         self.assertRaisesRegex(
             rbac_exceptions.RbacUnderPermissionException, error_re,
             test_policy, self.test_obj)
