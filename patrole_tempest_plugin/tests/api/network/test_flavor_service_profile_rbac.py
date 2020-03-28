@@ -61,7 +61,6 @@ class FlavorsServiceProfileExtRbacTest(base.BaseNetworkExtRbacTest):
             self.create_flavor_service_profile(self.flavor_id,
                                                self.service_profile_id)
 
-    @decorators.skip_because(bug='1843290', bug_type='launchpad')
     @decorators.idempotent_id('3b680d9e-946a-4670-ab7f-0e4576675833')
     @rbac_rule_validation.action(service="neutron",
                                  rules=["delete_flavor_service_profile"])
