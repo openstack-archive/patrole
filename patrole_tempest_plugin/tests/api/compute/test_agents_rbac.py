@@ -14,12 +14,26 @@
 #    under the License.
 
 from tempest.common import utils
+from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
+
+CONF = config.CONF
+
+if CONF.policy_feature_enabled.changed_nova_policies_ussuri:
+    _AGENTS_LIST = "os_compute_api:os-agents:list"
+    _AGENTS_CREATE = "os_compute_api:os-agents:create"
+    _AGENTS_UPDATE = "os_compute_api:os-agents:update"
+    _AGENTS_DELETE = "os_compute_api:os-agents:delete"
+else:
+    _AGENTS_LIST = "os_compute_api:os-agents"
+    _AGENTS_CREATE = "os_compute_api:os-agents"
+    _AGENTS_UPDATE = "os_compute_api:os-agents"
+    _AGENTS_DELETE = "os_compute_api:os-agents"
 
 
 class AgentsRbacTest(rbac_base.BaseV2ComputeRbacTest):
@@ -42,7 +56,7 @@ class AgentsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         return kwargs
 
     @rbac_rule_validation.action(
-        service="nova", rules=["os_compute_api:os-agents"])
+        service="nova", rules=[_AGENTS_LIST])
     @decorators.idempotent_id('d1bc6d97-07f5-4f45-ac29-1c619a6a7e27')
     def test_list_agents_rbac(self):
         with self.override_role():
@@ -50,7 +64,7 @@ class AgentsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rules=["os_compute_api:os-agents"])
+        rules=[_AGENTS_CREATE])
     @decorators.idempotent_id('77d6cae4-1ced-47f7-af2e-3d6a45958fd6')
     def test_create_agent(self):
         params = {'hypervisor': 'kvm', 'os': 'win', 'architecture': 'x86',
@@ -63,7 +77,7 @@ class AgentsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rules=["os_compute_api:os-agents"])
+        rules=[_AGENTS_UPDATE])
     @decorators.idempotent_id('b22f2681-9ffb-439b-b240-dae503e41020')
     def test_update_agent(self):
         params = self._param_helper(
@@ -84,7 +98,7 @@ class AgentsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rules=["os_compute_api:os-agents"])
+        rules=[_AGENTS_DELETE])
     @decorators.idempotent_id('c5042af8-0682-43b0-abc4-bf33349e23dd')
     def test_delete_agent(self):
         params = self._param_helper(

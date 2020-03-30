@@ -18,10 +18,20 @@ import datetime
 from six.moves.urllib import parse as urllib
 
 from tempest.common import utils
+from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
+
+CONF = config.CONF
+
+if CONF.policy_feature_enabled.changed_nova_policies_ussuri:
+    _INSTANCE_USAGE_LIST = "os_compute_api:os-instance-usage-audit-log:list"
+    _INSTANCE_USAGE_SHOW = "os_compute_api:os-instance-usage-audit-log:show"
+else:
+    _INSTANCE_USAGE_LIST = "os_compute_api:os-instance-usage-audit-log"
+    _INSTANCE_USAGE_SHOW = "os_compute_api:os-instance-usage-audit-log"
 
 
 class InstanceUsagesAuditLogRbacTest(rbac_base.BaseV2ComputeRbacTest):
@@ -36,7 +46,7 @@ class InstanceUsagesAuditLogRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @decorators.idempotent_id('c80246c0-5c13-4ab0-97ba-91551cd53dc1')
     @rbac_rule_validation.action(
-        service="nova", rules=["os_compute_api:os-instance-usage-audit-log"])
+        service="nova", rules=[_INSTANCE_USAGE_LIST])
     def test_list_instance_usage_audit_logs(self):
         with self.override_role():
             (self.instance_usages_audit_log_client
@@ -44,7 +54,7 @@ class InstanceUsagesAuditLogRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @decorators.idempotent_id('ded8bfbd-5d90-4a58-aee0-d31231bf3c9b')
     @rbac_rule_validation.action(
-        service="nova", rules=["os_compute_api:os-instance-usage-audit-log"])
+        service="nova", rules=[_INSTANCE_USAGE_SHOW])
     def test_show_instance_usage_audit_log(self):
         now = datetime.datetime.now()
 
