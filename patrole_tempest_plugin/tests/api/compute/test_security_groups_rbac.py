@@ -13,12 +13,24 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
+
+CONF = config.CONF
+
+if CONF.policy_feature_enabled.changed_nova_policies_ussuri:
+    _SG_LIST = "os_compute_api:os-security-groups:list"
+    _SG_ADD = "os_compute_api:os-security-groups:add"
+    _SG_REMOVE = "os_compute_api:os-security-groups:remove"
+else:
+    _SG_LIST = "os_compute_api:os-security-groups"
+    _SG_ADD = "os_compute_api:os-security-groups"
+    _SG_REMOVE = "os_compute_api:os-security-groups"
 
 
 class SecurtiyGroupsRbacTest(rbac_base.BaseV2ComputeRbacTest):
@@ -55,7 +67,7 @@ class SecurtiyGroupsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rules=["os_compute_api:os-security-groups"])
+        rules=[_SG_LIST])
     @decorators.idempotent_id('3db159c6-a467-469f-9a25-574197885520')
     def test_list_security_groups_by_server(self):
         with self.override_role():
@@ -64,7 +76,7 @@ class SecurtiyGroupsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rules=["os_compute_api:os-security-groups"])
+        rules=[_SG_ADD])
     @decorators.idempotent_id('ea1ca73f-2d1d-43cb-9a46-900d7927b357')
     def test_create_security_group_for_server(self):
         sg_name = self.create_security_group()['name']
@@ -78,7 +90,7 @@ class SecurtiyGroupsRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
     @rbac_rule_validation.action(
         service="nova",
-        rules=["os_compute_api:os-security-groups"])
+        rules=[_SG_REMOVE])
     @decorators.idempotent_id('0ad2e856-e2d3-4ac5-a620-f93d0d3d2626')
     def test_remove_security_group_from_server(self):
         sg_name = self.create_security_group()['name']

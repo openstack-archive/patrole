@@ -186,9 +186,10 @@ class PolicyAuthority(RbacAuthority):
             }
         )
         LOG.warn(deprecated_msg)
-        check_str = '(%s) or (%s)' % (default.check_str,
-                                      deprecated_rule.check_str)
-        return policy.RuleDefault(default.name, check_str)
+        default.check = policy.OrCheck(
+            [policy._parser.parse_rule(cs) for cs in
+                [default.check_str,
+                 deprecated_rule.check_str]])
 
     def get_rules(self):
         rules = policy.Rules()
@@ -229,7 +230,7 @@ class PolicyAuthority(RbacAuthority):
                             # The `DocumentedRuleDefault` object has no
                             # `deprecated_rule` attribute in Pike
                             if getattr(rule, 'deprecated_rule', False):
-                                rule = self._handle_deprecated_rule(rule)
+                                self._handle_deprecated_rule(rule)
                         rules[rule.name] = rule.check
                     elif str(rule.check) != str(rules[rule.name]):
                         msg = ("The same policy name: %s was found in the "
