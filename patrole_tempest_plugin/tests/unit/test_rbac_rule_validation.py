@@ -13,9 +13,9 @@
 #    under the License.
 
 from __future__ import absolute_import
+from unittest import mock
 
 import functools
-import mock
 from oslo_config import cfg
 
 import fixtures
