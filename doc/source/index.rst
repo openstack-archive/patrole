@@ -47,6 +47,16 @@ Field Guides
    field_guide/index
    field_guide/rbac
 
+For Contributors
+================
+
+* If you are a new contributor to Patrole please refer: :doc:`contributor/contributing`
+
+.. toctree::
+   :hidden:
+
+   contributor/contributing
+
 Developer's Guide
 =================
 
