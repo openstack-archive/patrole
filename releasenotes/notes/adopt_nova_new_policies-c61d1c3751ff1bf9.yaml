@@ -13,3 +13,6 @@ features:
       - os_compute_api:os-instance-usage-audit-log
       - os_compute_api:os-agents
       - os_compute_api:os-hypervisors
+      - os_compute_api:os-instance-actions
+      - os_compute_api:os-security-groups
+      - os_compute_api:os-server-password
