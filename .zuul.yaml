@@ -102,23 +102,6 @@
         USE_PYTHON3: True
 
 - job:
-    name: patrole-member-rocky
-    nodeset: openstack-single-node-xenial
-    parent: patrole-member
-    override-checkout: stable/rocky
-    vars:
-      devstack_localrc:
-        TEMPEST_PLUGINS: /opt/stack/patrole
-        USE_PYTHON3: True
-    # NOTE(gmann): pin patrole for rocky
-    # job which is on Xenial node with py3.5.
-    # Patrole master need py3.6 as min version
-    # of python.
-    required-projects:
-      - name: openstack/patrole
-        override-checkout: 0.8.0
-
-- job:
     name: patrole-multinode-admin
     parent: patrole-base-multinode
     voting: false
@@ -210,7 +193,6 @@
         - patrole-member
         - patrole-reader
         - patrole-member-stein
-        - patrole-member-rocky
         - patrole-multinode-admin
         - patrole-multinode-member
         - patrole-extension-admin
@@ -222,4 +204,3 @@
     periodic-stable:
       jobs:
         - patrole-member-stein
-        - patrole-member-rocky
