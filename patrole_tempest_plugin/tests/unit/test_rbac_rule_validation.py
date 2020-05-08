@@ -15,10 +15,9 @@
 from __future__ import absolute_import
 from unittest import mock
 
+import fixtures
 import functools
 from oslo_config import cfg
-
-import fixtures
 from tempest.lib import exceptions
 
 from patrole_tempest_plugin import rbac_exceptions
