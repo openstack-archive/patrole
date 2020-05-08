@@ -94,6 +94,14 @@
         RBAC_TEST_ROLES: reader
 
 - job:
+    name: patrole-member-train
+    parent: patrole-member
+    override-checkout: stable/train
+    vars:
+      devstack_localrc:
+        USE_PYTHON3: True
+
+- job:
     name: patrole-member-stein
     parent: patrole-member
     override-checkout: stable/stein
@@ -192,6 +200,7 @@
         - patrole-admin
         - patrole-member
         - patrole-reader
+        - patrole-member-train
         - patrole-member-stein
         - patrole-multinode-admin
         - patrole-multinode-member
@@ -203,4 +212,5 @@
         - patrole-member
     periodic-stable:
       jobs:
+        - patrole-member-train
         - patrole-member-stein

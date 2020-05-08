@@ -105,6 +105,11 @@ function install_patrole_tempest_plugin {
        iniset $TEMPEST_CONFIG policy-feature-enabled changed_nova_policies_ussuri False
     fi
 
+    if [[ ${DEVSTACK_SERIES} == 'train' ]]; then
+       # Remove this once stable/train becomes EOL.
+       iniset $TEMPEST_CONFIG policy-feature-enabled changed_nova_policies_ussuri False
+    fi
+
     iniset $TEMPEST_CONFIG patrole rbac_test_roles $RBAC_TEST_ROLES
 }
 
