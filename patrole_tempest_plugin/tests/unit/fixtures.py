@@ -15,9 +15,9 @@
 
 """Fixtures for Patrole tests."""
 from __future__ import absolute_import
+from unittest import mock
 
 import fixtures
-import mock
 import time
 
 from tempest.common import credentials_factory as credentials
