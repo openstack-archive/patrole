@@ -85,9 +85,10 @@ pygments_style = 'sphinx'
 html_theme = 'openstackdocs'
 
 # openstackdocstheme options
-repository_name = 'openstack/patrole'
-bug_project = 'patrole'
-bug_tag = ''
+openstackdocs_repo_name = 'openstack/patrole'
+openstackdocs_pdf_link = True
+openstackdocs_bug_project = 'patrole'
+openstackdocs_bug_tag = ''
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'patroledoc'

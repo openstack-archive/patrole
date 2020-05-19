@@ -186,10 +186,10 @@ html_static_path = ['_static']
 htmlhelp_basename = 'PatroleReleaseNotesdoc'
 
 # openstackdocstheme options
-repository_name = 'openstack/patrole'
-bug_project = 'patrole'
-bug_tag = ''
-
+openstackdocs_repo_name = 'openstack/patrole'
+openstackdocs_bug_project = 'patrole'
+openstackdocs_bug_tag = ''
+openstackdocs_auto_name = False
 
 # -- Options for LaTeX output ---------------------------------------------
 
