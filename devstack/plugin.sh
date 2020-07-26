@@ -47,6 +47,7 @@ function install_patrole_tempest_plugin {
        # TODO(rb560u): Remove this once stable/pike becomes EOL.
        # These policies were removed in Ussuri but are available in Pike.
        iniset $TEMPEST_CONFIG policy-feature-enabled changed_nova_policies_ussuri False
+       iniset $TEMPEST_CONFIG policy-feature-enabled changed_nova_policies_victoria False
     fi
 
     if [[ ${DEVSTACK_SERIES} == 'queens' ]]; then
@@ -74,6 +75,7 @@ function install_patrole_tempest_plugin {
        # TODO(rb560u): Remove this once stable/queens becomes EOL.
        # These policies were removed in Ussuri but are available in Queens.
        iniset $TEMPEST_CONFIG policy-feature-enabled changed_nova_policies_ussuri False
+       iniset $TEMPEST_CONFIG policy-feature-enabled changed_nova_policies_victoria False
     fi
 
     if [[ ${DEVSTACK_SERIES} == 'rocky' ]]; then
@@ -91,6 +93,7 @@ function install_patrole_tempest_plugin {
        # TODO(rb560u): Remove this once stable/rocky becomes EOL.
        # These policies were removed in Ussuri but are available in Rocky.
        iniset $TEMPEST_CONFIG policy-feature-enabled changed_nova_policies_ussuri False
+       iniset $TEMPEST_CONFIG policy-feature-enabled changed_nova_policies_victoria False
     fi
 
     if [[ ${DEVSTACK_SERIES} == 'stein' ]]; then
@@ -103,11 +106,18 @@ function install_patrole_tempest_plugin {
        # TODO(rb560u): Remove this once stable/stein becomes EOL.
        # These policies were removed in Ussuri but are available in Stein.
        iniset $TEMPEST_CONFIG policy-feature-enabled changed_nova_policies_ussuri False
+       iniset $TEMPEST_CONFIG policy-feature-enabled changed_nova_policies_victoria False
     fi
 
     if [[ ${DEVSTACK_SERIES} == 'train' ]]; then
        # Remove this once stable/train becomes EOL.
        iniset $TEMPEST_CONFIG policy-feature-enabled changed_nova_policies_ussuri False
+       iniset $TEMPEST_CONFIG policy-feature-enabled changed_nova_policies_victoria False
+    fi
+
+    if [[ ${DEVSTACK_SERIES} == 'ussuri' ]]; then
+       # Remove this once stable/ussuri becomes EOL.
+       iniset $TEMPEST_CONFIG policy-feature-enabled changed_nova_policies_victoria False
     fi
 
     iniset $TEMPEST_CONFIG patrole rbac_test_roles $RBAC_TEST_ROLES

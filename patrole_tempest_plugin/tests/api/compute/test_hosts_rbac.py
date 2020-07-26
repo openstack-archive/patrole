@@ -14,10 +14,20 @@
 #    under the License.
 
 from tempest.common import utils
+from tempest import config
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.compute import rbac_base
+
+CONF = config.CONF
+
+if CONF.policy_feature_enabled.changed_nova_policies_victoria:
+    _HOSTS_LIST = "os_compute_api:os-hosts:list"
+    _HOSTS_SHOW = "os_compute_api:os-hosts:show"
+else:
+    _HOSTS_LIST = "os_compute_api:os-hosts"
+    _HOSTS_SHOW = "os_compute_api:os-hosts"
 
 
 class HostsRbacTest(rbac_base.BaseV2ComputeRbacTest):
@@ -36,7 +46,7 @@ class HostsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('035b7935-2fae-4218-8d37-27fa83097494')
     @rbac_rule_validation.action(
         service="nova",
-        rules=["os_compute_api:os-hosts"])
+        rules=[_HOSTS_LIST])
     def test_list_hosts(self):
         with self.override_role():
             self.hosts_client.list_hosts()
@@ -44,7 +54,7 @@ class HostsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('bc10d8b4-d2c3-4d4e-9d2b-31d1bd3e1b51')
     @rbac_rule_validation.action(
         service="nova",
-        rules=["os_compute_api:os-hosts"])
+        rules=[_HOSTS_SHOW])
     def test_show_host_details(self):
         hosts = self.hosts_client.list_hosts()['hosts']
         hosts = [host for host in hosts if host['service'] == 'compute']

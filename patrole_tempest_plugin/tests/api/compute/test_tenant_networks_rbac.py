@@ -23,6 +23,11 @@ from patrole_tempest_plugin.tests.api.compute import rbac_base
 
 CONF = config.CONF
 
+if CONF.policy_feature_enabled.changed_nova_policies_victoria:
+    _TENANT_NET_LIST = "os_compute_api:os-tenant-networks:list"
+else:
+    _TENANT_NET_LIST = "os_compute_api:os-tenant-networks"
+
 
 class TenantNetworksRbacTest(rbac_base.BaseV2ComputeRbacTest):
 
@@ -54,7 +59,7 @@ class TenantNetworksRbacTest(rbac_base.BaseV2ComputeRbacTest):
     @decorators.idempotent_id('42b39ba1-14aa-4799-9518-34367d0da67a')
     @rbac_rule_validation.action(
         service="nova",
-        rules=["os_compute_api:os-tenant-networks"])
+        rules=[_TENANT_NET_LIST])
     def test_list_show_tenant_networks(self):
         with self.override_role():
             self.tenant_networks_client.list_tenant_networks()

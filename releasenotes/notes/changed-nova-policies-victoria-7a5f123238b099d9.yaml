@@ -1,0 +1,13 @@
+---
+features:
+  - |
+    A new policy feature flag called
+    ``[policy_feature_flag].changed_nova_policies_victoria`` has been added to
+    Patrole's config to handle Nova policies changed in Victoria. The policy
+    feature flag is applied to tests that use policies changed in Victoria,
+    including the following:
+
+      - os_compute_api:os-hosts
+      - os_compute_api:os-tenant-networks
+      - os_compute_api:os-volumes
+      - os_compute_api:os-security-groups

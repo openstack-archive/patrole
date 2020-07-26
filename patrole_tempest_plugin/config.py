@@ -194,7 +194,12 @@ arguments"""),
                 default=True,
                 help="""Are the Nova API policies available in the
 cloud (e.g. os_compute_api:os-services)? These policies were
-changed in Ussuri.""")
+changed in Ussuri."""),
+    cfg.BoolOpt('changed_nova_policies_victoria',
+                default=True,
+                help="""Are the Nova deprecated API policies available in the
+cloud (e.g. os_compute_api:os-networks)? These policies were
+changed in Victoria.""")
 ]
 
 

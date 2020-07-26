@@ -46,6 +46,11 @@ else:
     _SERVER_PASSWORD_SHOW = "os_compute_api:os-server-password"
     _SERVER_PASSWORD_CLEAR = "os_compute_api:os-server-password"
 
+if CONF.policy_feature_enabled.changed_nova_policies_victoria:
+    _MULTINIC_ADD = "os_compute_api:os-multinic:add"
+else:
+    _MULTINIC_ADD = "os_compute_api:os-multinic"
+
 
 class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
     """Test multiple policy actions that require a server to be created.
@@ -763,7 +768,7 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
                           "Interface attachment is not available.")
     @utils.requires_ext(extension='os-multinic', service='compute')
     @rbac_rule_validation.action(
-        service="nova", rules=["os_compute_api:os-multinic"])
+        service="nova", rules=[_MULTINIC_ADD])
     @decorators.idempotent_id('bd3e2c74-130a-40f0-8085-124d93fe67da')
     def test_add_fixed_ip(self):
         """Test add fixed ip to server network, part of os-multinic."""
@@ -797,5 +802,7 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
             if fixed_ip is not None:
                 break
         # Remove the fixed IP from server.
-        self.servers_client.remove_fixed_ip(self.server['id'],
-                                            address=fixed_ip)
+        # TODO(gmann): separate the remve fixded ip test as it has
+        # separate policy now.
+        # self.servers_client.remove_fixed_ip(self.server['id'],
+        #                                    address=fixed_ip)
