@@ -204,7 +204,7 @@ class BaseIdentityV3RbacTest(BaseIdentityRbacTest):
     def setup_test_domain(cls):
         """Set up a test domain."""
         domain = cls.domains_client.create_domain(
-            name=data_utils.rand_name(cls.__name__ + '-test_domain'),
+            name=data_utils.rand_name(cls.__name__),
             description=data_utils.rand_name(
                 cls.__name__ + '-desc'))['domain']
         cls.domains.append(domain)
@@ -240,7 +240,7 @@ class BaseIdentityV3RbacTest(BaseIdentityRbacTest):
         """Set up a test project."""
         project = cls.projects_client.create_project(
             name=data_utils.rand_name(
-                cls.__name__ + '-testproject'),
+                cls.__name__),
             description=data_utils.rand_name(
                 cls.__name__ + '-desc'))['project']
         cls.projects.append(project)

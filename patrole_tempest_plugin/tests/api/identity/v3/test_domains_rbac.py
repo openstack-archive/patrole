@@ -35,7 +35,7 @@ class IdentityDomainsV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     def test_update_domain(self):
         domain = self.setup_test_domain()
         new_domain_name = data_utils.rand_name(
-            self.__class__.__name__ + '-test_update_domain')
+            self.__class__.__name__)
         with self.override_role():
             self.domains_client.update_domain(domain['id'],
                                               domain=domain,

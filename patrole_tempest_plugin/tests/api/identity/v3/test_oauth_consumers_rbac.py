@@ -25,7 +25,7 @@ class IdentityConsumersV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
     def _create_consumer(self):
         description = data_utils.rand_name(
-            self.__class__.__name__ + '-IdentityConsumer')
+            self.__class__.__name__)
         consumer = self.consumers_client.create_consumer(
             description)['consumer']
         self.addCleanup(test_utils.call_and_ignore_notfound_exc,
@@ -55,7 +55,7 @@ class IdentityConsumersV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
     def test_update_consumer(self):
         consumer = self._create_consumer()
         updated_description = data_utils.rand_name(
-            self.__class__.__name__ + '-IdentityConsumer')
+            self.__class__.__name__)
 
         with self.override_role():
             self.consumers_client.update_consumer(consumer['id'],

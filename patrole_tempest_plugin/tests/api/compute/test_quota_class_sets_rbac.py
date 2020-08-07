@@ -51,7 +51,7 @@ class QuotaClassesRbacTest(rbac_base.BaseV2ComputeRbacTest):
     def resource_setup(cls):
         super(QuotaClassesRbacTest, cls).resource_setup()
         # Create a project with its own quota.
-        project_name = data_utils.rand_name(cls.__name__ + '-project')
+        project_name = data_utils.rand_name(cls.__name__)
         project_desc = project_name + '-desc'
         project = identity.identity_utils(cls.os_admin).create_project(
             name=project_name, description=project_desc)

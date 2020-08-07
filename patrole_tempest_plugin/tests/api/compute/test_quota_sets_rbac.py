@@ -90,7 +90,7 @@ class QuotaSetsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         rules=["os_compute_api:os-quota-sets:delete"])
     def test_delete_quota_set(self):
         project_name = data_utils.rand_name(
-            self.__class__.__name__ + '-project')
+            self.__class__.__name__)
         project_desc = project_name + '-desc'
         project = identity.identity_utils(self.os_admin).create_project(
             name=project_name, description=project_desc)
