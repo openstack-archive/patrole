@@ -28,6 +28,8 @@ from tempest import test
 from patrole_tempest_plugin import policy_authority
 from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import requirements_authority
+import testtools
+
 
 CONF = config.CONF
 LOG = logging.getLogger(__name__)
@@ -480,6 +482,13 @@ def _validate_override_role_called(test_obj, actual_exception):
 
     if not called:
         if actual_exception is not None:
+            # Use testtools skipException in base TestCase
+            # to support different skip exceptions used.
+            # Just return so the skip exception will go up
+            # the stack and be handled by the unit testing framework
+            if isinstance(actual_exception,
+                          testtools.testcase.TestCase.skipException):
+                return
             msg = ('Caught exception (%s) but it was raised before the '
                    '`override_role` context. ' % actual_exception.__class__)
         else:
