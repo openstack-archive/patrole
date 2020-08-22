@@ -179,6 +179,7 @@ class ServerVolumeAttachmentRbacTest(rbac_base.BaseV2ComputeRbacTest):
             self.servers_client.show_volume_attachment(
                 self.server['id'], attachment['id'])
 
+    @decorators.skip_because(bug='2008051', bug_type='storyboard')
     @decorators.attr(type='slow')
     @testtools.skipUnless(CONF.compute_feature_enabled.swap_volume,
                           'In-place swapping of volumes not supported.')
