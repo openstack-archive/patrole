@@ -30,7 +30,10 @@
         neutron: true
         neutron-trunk: true
       tempest_test_regex: (?!.*\[.*\bslow\b.*\])(^patrole_tempest_plugin\.tests\.api)
+       # run the tempest all tox environment target with patrole regex
       tox_envlist: all
+      # allows job to use the tempest version installed with devstack instead of pypi
+      # according to the requirements.txt
       tox_extra_args: --sitepackages
 
 - job:
@@ -81,7 +84,6 @@
       devstack_localrc:
         RBAC_TEST_ROLES: member
 
-
 - job:
     name: patrole-reader
     parent: patrole-base
@@ -131,6 +133,14 @@
     vars:
       devstack_localrc:
         RBAC_TEST_ROLES: member
+
+- job:
+    name: patrole-multinode-reader
+    parent: patrole-base-multinode
+    voting: false
+    vars:
+      devstack_localrc:
+        RBAC_TEST_ROLES: reader
 
 - job:
     name: patrole-py35-member
@@ -194,6 +204,14 @@
       devstack_localrc:
         RBAC_TEST_ROLES: member
 
+- job:
+    name: patrole-extension-reader
+    parent: patrole-extension-base
+    voting: false
+    vars:
+      devstack_localrc:
+        RBAC_TEST_ROLES: reader
+
 - project:
     templates:
       - openstack-cover-jobs
@@ -212,12 +230,15 @@
         - patrole-member-stein
         - patrole-multinode-admin
         - patrole-multinode-member
+        - patrole-multinode-reader
         - patrole-extension-admin
         - patrole-extension-member
+        - patrole-extension-reader
     gate:
       jobs:
         - patrole-admin
         - patrole-member
+        - patrole-reader
     periodic-stable:
       jobs:
         - patrole-member-ussuri
