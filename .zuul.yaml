@@ -2,14 +2,14 @@
     name: patrole-base
     parent: devstack-tempest
     description: |
-      Patrole base job for admin and member roles. This job executes RBAC tests
+      Patrole base job for admin,member and reader roles. This job executes RBAC tests
       for all the "core" services that Tempest covers, excluding Swift.
     required-projects:
-      - name: openstack/tempest
-      - name: openstack/patrole
+      - name: opendev.org/openstack/tempest
+      - name: opendev.org/openstack/patrole
     timeout: 7800
     roles:
-      - zuul: openstack/devstack
+      - zuul: opendev.org/openstack/devstack
     # Define common irrelevant files to use everywhere else
     irrelevant-files: &patrole-irrelevant-files
       - ^(test-|)requirements.txt$
@@ -29,7 +29,6 @@
         tempest: true
         neutron: true
         neutron-trunk: true
-      tempest_concurrency: 2
       tempest_test_regex: (?!.*\[.*\bslow\b.*\])(^patrole_tempest_plugin\.tests\.api)
       tox_envlist: all
       tox_extra_args: --sitepackages
@@ -47,9 +46,9 @@
     branches:
       - master
     required-projects:
-      - openstack/devstack-gate
-      - openstack/tempest
-      - openstack/patrole
+      - opendev.org/openstack/devstack-gate
+      - opendev.org/openstack/tempest
+      - opendev.org/openstack/patrole
     irrelevant-files: *patrole-irrelevant-files
     vars:
       tempest_plugins:
@@ -82,13 +81,13 @@
       devstack_localrc:
         RBAC_TEST_ROLES: member
 
+
 - job:
     name: patrole-reader
     parent: patrole-base
     description: Patrole job for reader role.
     # This currently works from stable/stein onward.
     branches: ^(?!stable/(ocata|pike|queens|rocky)).*$
-    voting: false
     vars:
       devstack_localrc:
         RBAC_TEST_ROLES: reader
@@ -161,9 +160,9 @@
       Covers Neutron extension functionality only. Should not be used for
       supporting Neutron plugins like fwaas.
     required-projects:
-      - name: openstack/tempest
-      - name: openstack/patrole
-      - name: openstack/neutron-tempest-plugin
+      - name: opendev.org/openstack/tempest
+      - name: opendev.org/openstack/patrole
+      - name: opendev.org/openstack/neutron-tempest-plugin
     vars:
       tempest_plugins:
         - patrole
