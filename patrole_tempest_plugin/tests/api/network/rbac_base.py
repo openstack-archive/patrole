@@ -68,6 +68,7 @@ class BaseNetworkExtRbacTest(BaseNetworkRbacTest):
         if cls.is_neutron_tempest_plugin_available():
             from neutron_tempest_plugin.api import clients
             neutron_tempest_manager = clients.Manager(manager.credentials)
+            neutron_tempest_manager.auth_provider.set_auth()
             cls.ntp_client = neutron_tempest_manager.network_client
 
         return manager
