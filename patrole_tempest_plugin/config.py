@@ -175,6 +175,11 @@ was changed in a backwards-incompatible way."""),
                 help="""Are the Nova API extension policies available in the
 cloud (e.g. os_compute_api:os-extended-availability-zone)? These policies were
 removed in Stein because Nova API extension concept was removed in Pike."""),
+    # TODO(gmann): Remove these feature flags once Victoria is EOL.
+    cfg.BoolOpt('removed_nova_policies_wallaby',
+                default=True,
+                help="""Are the Nova API policies being removed in wallaby
+cycle (e.g. os_compute_api:os-agents)?"""),
     cfg.BoolOpt('removed_keystone_policies_stein',
                 default=True,
                 help="""Are the obsolete Keystone policies available in the

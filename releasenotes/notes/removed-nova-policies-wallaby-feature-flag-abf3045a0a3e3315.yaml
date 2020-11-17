@@ -1,0 +1,7 @@
+---
+features:
+  - |
+    Added new feature flag called ``removed_nova_policies_wallaby`` under
+    the configuration group ``[policy-feature-enabled]`` for skipping Nova
+    tests whose policies were removed in Wallaby. This feature flag is currently
+    applied to os-agents related policies.

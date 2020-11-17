@@ -44,6 +44,10 @@ class AgentsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         if not utils.is_extension_enabled('os-agents', 'compute'):
             raise cls.skipException(
                 '%s skipped as os-agents not enabled' % cls.__name__)
+        if CONF.policy_feature_enabled.removed_nova_policies_wallaby:
+            raise cls.skipException(
+                '%s skipped as os-agents APIs/policies are not avaialble '
+                'any more.' % cls.__name__)
 
     def _param_helper(self, **kwargs):
         rand_key = 'architecture'

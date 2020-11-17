@@ -48,6 +48,10 @@ function install_patrole_tempest_plugin {
        # These policies were removed in Ussuri but are available in Pike.
        iniset $TEMPEST_CONFIG policy-feature-enabled changed_nova_policies_ussuri False
        iniset $TEMPEST_CONFIG policy-feature-enabled changed_nova_policies_victoria False
+
+       # TODO(gmann): Remove these once stable/victoria becomes EOL.
+       # These policies were removed in Wallaby.
+       iniset $TEMPEST_CONFIG policy-feature-enabled removed_nova_policies_wallaby False
     fi
 
     if [[ ${DEVSTACK_SERIES} == 'queens' ]]; then
@@ -76,6 +80,10 @@ function install_patrole_tempest_plugin {
        # These policies were removed in Ussuri but are available in Queens.
        iniset $TEMPEST_CONFIG policy-feature-enabled changed_nova_policies_ussuri False
        iniset $TEMPEST_CONFIG policy-feature-enabled changed_nova_policies_victoria False
+
+       # TODO(gmann): Remove these once stable/victoria becomes EOL.
+       # These policies were removed in Wallaby.
+       iniset $TEMPEST_CONFIG policy-feature-enabled removed_nova_policies_wallaby False
     fi
 
     if [[ ${DEVSTACK_SERIES} == 'rocky' ]]; then
@@ -94,6 +102,10 @@ function install_patrole_tempest_plugin {
        # These policies were removed in Ussuri but are available in Rocky.
        iniset $TEMPEST_CONFIG policy-feature-enabled changed_nova_policies_ussuri False
        iniset $TEMPEST_CONFIG policy-feature-enabled changed_nova_policies_victoria False
+
+       # TODO(gmann): Remove these once stable/victoria becomes EOL.
+       # These policies were removed in Wallaby.
+       iniset $TEMPEST_CONFIG policy-feature-enabled removed_nova_policies_wallaby False
     fi
 
     if [[ ${DEVSTACK_SERIES} == 'stein' ]]; then
@@ -107,17 +119,33 @@ function install_patrole_tempest_plugin {
        # These policies were removed in Ussuri but are available in Stein.
        iniset $TEMPEST_CONFIG policy-feature-enabled changed_nova_policies_ussuri False
        iniset $TEMPEST_CONFIG policy-feature-enabled changed_nova_policies_victoria False
+
+       # TODO(gmann): Remove these once stable/victoria becomes EOL.
+       # These policies were removed in Wallaby.
+       iniset $TEMPEST_CONFIG policy-feature-enabled removed_nova_policies_wallaby False
     fi
 
     if [[ ${DEVSTACK_SERIES} == 'train' ]]; then
        # Remove this once stable/train becomes EOL.
        iniset $TEMPEST_CONFIG policy-feature-enabled changed_nova_policies_ussuri False
        iniset $TEMPEST_CONFIG policy-feature-enabled changed_nova_policies_victoria False
+       # TODO(gmann): Remove these once stable/victoria becomes EOL.
+       # These policies were removed in Wallaby.
+       iniset $TEMPEST_CONFIG policy-feature-enabled removed_nova_policies_wallaby False
     fi
 
     if [[ ${DEVSTACK_SERIES} == 'ussuri' ]]; then
        # Remove this once stable/ussuri becomes EOL.
        iniset $TEMPEST_CONFIG policy-feature-enabled changed_nova_policies_victoria False
+       # TODO(gmann): Remove these once stable/victoria becomes EOL.
+       # These policies were removed in Wallaby.
+       iniset $TEMPEST_CONFIG policy-feature-enabled removed_nova_policies_wallaby False
+    fi
+
+    if [[ ${DEVSTACK_SERIES} == 'victoria' ]]; then
+       # TODO(gmann): Remove these once stable/victoria becomes EOL.
+       # These policies were removed in Wallaby.
+       iniset $TEMPEST_CONFIG policy-feature-enabled removed_nova_policies_wallaby False
     fi
 
     iniset $TEMPEST_CONFIG patrole rbac_test_roles $RBAC_TEST_ROLES
