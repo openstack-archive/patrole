@@ -95,6 +95,11 @@
         RBAC_TEST_ROLES: reader
 
 - job:
+    name: patrole-member-victoria
+    parent: patrole-member
+    override-checkout: stable/victoria
+
+- job:
     name: patrole-member-ussuri
     parent: patrole-member
     nodeset: openstack-single-node-bionic
@@ -225,6 +230,7 @@
         - patrole-admin
         - patrole-member
         - patrole-reader
+        - patrole-member-victoria
         - patrole-member-ussuri
         - patrole-member-train
         - patrole-member-stein
@@ -241,6 +247,7 @@
         - patrole-reader
     periodic-stable:
       jobs:
+        - patrole-member-victoria
         - patrole-member-ussuri
         - patrole-member-train
         - patrole-member-stein
