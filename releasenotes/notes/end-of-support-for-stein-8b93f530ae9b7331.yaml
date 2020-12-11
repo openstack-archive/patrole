@@ -1,0 +1,12 @@
+---
+prelude: |
+    This is an intermediate release during the Wallaby development cycle to
+    mark the end of support for EM Stein release in Patrole.
+    After this release, Patrole will support below OpenStack Releases:
+
+    * Victoria
+    * Ussuri
+    * Train
+
+    Current development of Patrole is for OpenStack Wallaby development
+    cycle.
