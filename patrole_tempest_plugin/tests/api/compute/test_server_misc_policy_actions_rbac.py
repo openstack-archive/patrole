@@ -125,6 +125,9 @@ class MiscPolicyActionsRbacTest(rbac_base.BaseV2ComputeRbacTest):
         with self.override_role():
             self.servers_client.inject_network_info(self.server['id'])
 
+    @testtools.skipIf(
+        CONF.policy_feature_enabled.removed_nova_policies_wallaby,
+        "This API extension policy was removed in Wallaby")
     @utils.requires_ext(extension='os-admin-actions', service='compute')
     @rbac_rule_validation.action(
         service="nova",
