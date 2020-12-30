@@ -21,8 +21,6 @@ import os
 from oslo_log import log as logging
 from oslo_policy import policy
 import stevedore
-from tempest import clients
-from tempest.common import credentials_factory as credentials
 from tempest import config
 
 from patrole_tempest_plugin.rbac_authority import RbacAuthority
@@ -34,6 +32,7 @@ LOG = logging.getLogger(__name__)
 
 class PolicyAuthority(RbacAuthority):
     """A class that uses ``oslo.policy`` for validating RBAC."""
+    os_admin = None
 
     def __init__(self, project_id, user_id, service, extra_target_data=None):
         """Initialization of Policy Authority class.
@@ -123,12 +122,10 @@ class PolicyAuthority(RbacAuthority):
 
         # Cache the list of available services in memory to avoid needlessly
         # doing an API call every time.
-        if not hasattr(cls, 'available_services'):
-            admin_mgr = clients.Manager(
-                credentials.get_configured_admin_credentials())
-            services_client = (admin_mgr.identity_services_v3_client
+        if not hasattr(cls, 'available_services') and cls.os_admin:
+            services_client = (cls.os_admin.identity_services_v3_client
                                if CONF.identity_feature_enabled.api_v3
-                               else admin_mgr.identity_services_client)
+                               else cls.os_admin.identity_services_client)
             services = services_client.list_services()['services']
             cls.available_services = [s['name'] for s in services]
 

@@ -23,7 +23,7 @@ from patrole_tempest_plugin.tests.api.identity import rbac_base
 
 class IdentityTokenV3RbacTest(rbac_base.BaseIdentityV3RbacTest):
 
-    credentials = ['primary', 'alt']
+    credentials = ['primary', 'alt', 'admin']
 
     @classmethod
     def skip_checks(cls):
