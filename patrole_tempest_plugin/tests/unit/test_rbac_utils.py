@@ -248,6 +248,20 @@ class RBACUtilsMixinTest(base.TestCase):
             actual_roles = sorted(self.test_obj.get_all_needed_roles(roles))
         self.assertEqual(expected_roles, actual_roles)
 
+    def test_restore_roles(self):
+        self.rbac_utils_fixture.set_roles(['admin', 'member'], 'member')
+        roles_client = self.rbac_utils_fixture.admin_roles_client
+
+        # Explicitly call setup_clients() to make sure cls._orig_roles is set
+        # properly. Explicitly call resource_cleanup to invoke restore_roles().
+        self.test_obj.setup_clients()
+        self.test_obj.resource_cleanup()
+
+        # list_user_roles_on_project is called twice in setup_clients(),
+        # restore_roles() is called twice during resource cleanup.
+        self.assertEqual(4, roles_client.list_user_roles_on_project.call_count)
+        self.assertEqual(['member_id'], self.test_obj._orig_roles)
+
 
 class ValidateListContextTest(base.TestCase):
     @staticmethod
