@@ -40,11 +40,12 @@ class PolicyAuthorityTest(base.TestCase):
 
     def setUp(self):
         super(PolicyAuthorityTest, self).setUp()
-        self.patchobject(policy_authority, 'credentials')
-        m_creds = self.patchobject(policy_authority, 'clients')
-        m_creds.Manager().identity_services_client.list_services.\
+
+        mock_admin = self.patchobject(policy_authority.PolicyAuthority,
+                                      'os_admin')
+        mock_admin.identity_services_client.list_services.\
             return_value = self.services
-        m_creds.Manager().identity_services_v3_client.list_services.\
+        mock_admin.identity_services_v3_client.list_services.\
             return_value = self.services
 
         current_directory = os.path.dirname(os.path.realpath(__file__))
@@ -492,11 +493,12 @@ class PolicyAuthorityTest(base.TestCase):
     @mock.patch.object(policy_authority, 'policy', autospec=True)
     @mock.patch.object(policy_authority.PolicyAuthority, 'get_rules',
                        autospec=True)
-    @mock.patch.object(policy_authority, 'clients', autospec=True)
+    @mock.patch.object(policy_authority.PolicyAuthority, 'os_admin',
+                       autospec=True)
     @mock.patch.object(policy_authority, 'os', autospec=True)
     @mock.patch.object(policy_authority, 'glob', autospec=True)
     def test_discover_policy_files_with_many_invalid_one_valid(self, m_glob,
-                                                               m_os, m_creds,
+                                                               m_os, m_admin,
                                                                *args):
         service = 'test_service'
         custom_policy_files = ['foo/%s', 'bar/%s', 'baz/%s']
@@ -506,7 +508,7 @@ class PolicyAuthorityTest(base.TestCase):
         m_os.path.isfile.side_effect = [False, False, True]
 
         # Ensure the outer for loop runs only once in `discover_policy_files`.
-        m_creds.Manager().identity_services_v3_client.\
+        m_admin.identity_services_v3_client.\
             list_services.return_value = {
                 'services': [{'name': service}]}
 
@@ -545,11 +547,11 @@ class PolicyAuthorityTest(base.TestCase):
 
     def _test_validate_service(self, v2_services, v3_services,
                                expected_failure=False, expected_services=None):
-        with mock.patch.object(
-            policy_authority, 'clients', autospec=True) as m_creds:
-            m_creds.Manager().identity_services_client.list_services.\
+        with mock.patch.object(policy_authority.PolicyAuthority, 'os_admin',
+                               autospec=True) as m_admin:
+            m_admin.identity_services_client.list_services.\
                 return_value = v2_services
-            m_creds.Manager().identity_services_v3_client.list_services.\
+            m_admin.identity_services_v3_client.list_services.\
                 return_value = v3_services
 
         test_tenant_id = mock.sentinel.tenant_id

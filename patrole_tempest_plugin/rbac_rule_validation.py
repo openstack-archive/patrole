@@ -356,9 +356,11 @@ def _is_authorized(test_obj, service, rule, extra_target_data):
     else:
         formatted_target_data = _format_extra_target_data(
             test_obj, extra_target_data)
+        policy_authority.PolicyAuthority.os_admin = test_obj.os_admin
         authority = policy_authority.PolicyAuthority(
             project_id, user_id, service,
             extra_target_data=formatted_target_data)
+
     is_allowed = authority.allowed(rule, roles)
 
     if is_allowed:

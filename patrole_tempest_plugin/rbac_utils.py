@@ -20,8 +20,6 @@ import time
 from oslo_log import log as logging
 from oslo_utils import excutils
 
-from tempest import clients
-from tempest.common import credentials_factory as credentials
 from tempest import config
 from tempest.lib import exceptions as lib_exc
 
@@ -128,6 +126,7 @@ class RbacUtilsMixin(object):
     defined by ``CONF.identity.admin_role`` and
     ``CONF.patrole.rbac_test_roles``.
     """
+    credentials = ['primary', 'admin']
 
     def __init__(self, *args, **kwargs):
         super(RbacUtilsMixin, self).__init__(*args, **kwargs)
@@ -159,11 +158,8 @@ class RbacUtilsMixin(object):
 
     @classmethod
     def setup_clients(cls):
-        # Intialize the admin roles_client to perform role switching.
-        admin_mgr = clients.Manager(
-            credentials.get_configured_admin_credentials())
         if CONF.identity_feature_enabled.api_v3:
-            admin_roles_client = admin_mgr.roles_v3_client
+            admin_roles_client = cls.os_admin.roles_v3_client
         else:
             raise lib_exc.InvalidConfiguration(
                 "Patrole role overriding only supports v3 identity API.")
