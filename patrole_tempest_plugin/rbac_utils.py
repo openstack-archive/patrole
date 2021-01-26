@@ -143,8 +143,19 @@ class RbacUtilsMixin(object):
     _user_id = None
     _role_map = None
     _role_inferences_mapping = None
+    _orig_roles = []
 
     admin_roles_client = None
+
+    @classmethod
+    def restore_roles(cls):
+        if cls._orig_roles:
+            LOG.info("Restoring original roles %s", cls._orig_roles)
+            roles_already_present = cls._list_and_clear_user_roles_on_project(
+                cls._orig_roles)
+
+            if not roles_already_present:
+                cls._create_user_role_on_project(cls._orig_roles)
 
     @classmethod
     def setup_clients(cls):
@@ -165,8 +176,15 @@ class RbacUtilsMixin(object):
 
         cls._init_roles()
 
+        # Store the user's original roles and rollback after testing.
+        roles = cls.admin_roles_client.list_user_roles_on_project(
+            cls._project_id, cls._user_id)['roles']
+        cls._orig_roles = [role['id'] for role in roles]
+        cls.addClassResourceCleanup(cls.restore_roles)
+
         # Change default role to admin
         cls._override_role(False)
+
         super(RbacUtilsMixin, cls).setup_clients()
 
     @classmethod
