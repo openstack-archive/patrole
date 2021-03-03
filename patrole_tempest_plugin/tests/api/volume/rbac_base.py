@@ -66,6 +66,9 @@ class BaseVolumeRbacTest(rbac_utils.RbacUtilsMixin,
             volume_id=volume_id, **kwargs)['backup']
         cls.addClassResourceCleanup(
             test_utils.call_and_ignore_notfound_exc,
+            backup_client.wait_for_resource_deletion, backup['id'])
+        cls.addClassResourceCleanup(
+            test_utils.call_and_ignore_notfound_exc,
             backup_client.delete_backup, backup['id'])
         waiters.wait_for_volume_resource_status(backup_client, backup['id'],
                                                 'available')

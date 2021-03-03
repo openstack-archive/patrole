@@ -103,7 +103,6 @@ class VolumesBackupsV3RbacTest(rbac_base.BaseVolumeRbacTest):
         backup = self.create_backup(volume_id=self.volume['id'])
         waiters.wait_for_volume_resource_status(self.volumes_client,
                                                 self.volume['id'], 'available')
-
         with self.override_role():
             self.backups_client.reset_backup_status(backup_id=backup['id'],
                                                     status='error')
