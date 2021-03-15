@@ -20,6 +20,7 @@ import os
 
 from oslo_log import log as logging
 from oslo_policy import policy
+import pkg_resources
 import stevedore
 from tempest import config
 
@@ -183,10 +184,19 @@ class PolicyAuthority(RbacAuthority):
             }
         )
         LOG.warn(deprecated_msg)
-        default.check = policy.OrCheck(
-            [policy._parser.parse_rule(cs) for cs in
-                [default.check_str,
-                 deprecated_rule.check_str]])
+        oslo_policy_version = pkg_resources.parse_version(
+            pkg_resources.get_distribution("oslo.policy").version)
+        # NOTE(gmann): oslo policy 3.7.0 onwards does not allow to modify
+        # the Rule object check attribute.
+        required_version = pkg_resources.parse_version('3.7.0')
+        if oslo_policy_version >= required_version:
+            return policy.OrCheck([default.check, deprecated_rule.check])
+        else:
+            default.check = policy.OrCheck(
+                [policy._parser.parse_rule(cs) for cs in
+                    [default.check_str,
+                     deprecated_rule.check_str]])
+            return default.check
 
     def get_rules(self):
         rules = policy.Rules()
@@ -226,9 +236,10 @@ class PolicyAuthority(RbacAuthority):
                             # NOTE (sergey.vilgelm):
                             # The `DocumentedRuleDefault` object has no
                             # `deprecated_rule` attribute in Pike
+                            check = rule.check
                             if getattr(rule, 'deprecated_rule', False):
-                                self._handle_deprecated_rule(rule)
-                        rules[rule.name] = rule.check
+                                check = self._handle_deprecated_rule(rule)
+                        rules[rule.name] = check
                     elif str(rule.check) != str(rules[rule.name]):
                         msg = ("The same policy name: %s was found in the "
                                "policies files and in the code for service "

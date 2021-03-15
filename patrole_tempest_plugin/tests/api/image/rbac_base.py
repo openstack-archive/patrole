@@ -18,4 +18,13 @@ from patrole_tempest_plugin import rbac_utils
 
 class BaseV2ImageRbacTest(rbac_utils.RbacUtilsMixin,
                           image_base.BaseV2ImageTest):
-    pass
+
+    @classmethod
+    def setup_clients(cls):
+        super(BaseV2ImageRbacTest, cls).setup_clients()
+        cls.namespaces_client = cls.os_primary.namespaces_client
+        cls.resource_types_client = cls.os_primary.resource_types_client
+        cls.namespace_properties_client =\
+            cls.os_primary.namespace_properties_client
+        cls.namespace_objects_client = cls.os_primary.namespace_objects_client
+        cls.namespace_tags_client = cls.os_primary.namespace_tags_client
