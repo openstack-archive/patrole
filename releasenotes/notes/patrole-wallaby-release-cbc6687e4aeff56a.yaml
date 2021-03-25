@@ -1,0 +1,17 @@
+---
+prelude: |
+    This release is to tag the Patrole for OpenStack Wallaby release.
+    This release marks the start of Wallaby release support in Patrole.
+    After this release, Patrole will support below OpenStack Releases:
+
+    * Wallaby
+    * Victoria
+    * Ussuri
+    * Train
+
+    Current development of Patrole is for OpenStack Xena development
+    cycle. Every Patrole commit is also tested against master during
+    the Xena cycle. However, this does not necessarily mean that using
+    Patrole as of this tag will work against a Xena (or future release)
+    cloud.
+    To be on safe side, use this tag to test the OpenStack Wallaby release.
