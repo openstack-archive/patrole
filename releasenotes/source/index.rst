@@ -6,6 +6,7 @@ Patrole Release Notes
    :maxdepth: 1
 
    unreleased
+   v0.12.0
    v0.11.0
    v0.10.0
    v0.9.0
