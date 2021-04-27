@@ -43,6 +43,15 @@ class AutoAllocationTopologyExtRbacTest(base.BaseNetworkExtRbacTest):
             self.ntp_client.get_auto_allocated_topology(
                 tenant_id=self.os_primary.credentials.tenant_id)
 
+        # Auto allocated topology has to be deleted here because
+        # Neutron provisions new auto allocated topology for a project
+        # when:
+        #    - receives GET request for auto allocated topology and
+        #    - there is no auto allocated topology already associated
+        #      with the project.
+        self.ntp_client.delete_auto_allocated_topology(
+            tenant_id=self.os_primary.credentials.tenant_id)
+
     def _ensure_network_not_in_use(cls, network_id):
         ports = cls.ntp_client.list_ports(network_id=network_id)["ports"]
 
