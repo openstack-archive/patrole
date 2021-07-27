@@ -208,7 +208,8 @@ class VolumesActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
         # Reset volume's status to error.
         self.volumes_client.reset_volume_status(volume['id'], status='error')
-
+        waiters.wait_for_volume_resource_status(self.volumes_client,
+                                                volume['id'], 'error')
         with self.override_role():
             self.volumes_client.force_detach_volume(
                 volume['id'], connector=None,

@@ -189,7 +189,8 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron create_network:provider:network_type policy
         """
         with self.override_role():
-            self._create_network(provider_network_type='vxlan')
+            self._create_network(provider_physical_network='public',
+                                 provider_network_type='vlan')
 
     @utils.requires_ext(extension='provider', service='network')
     @rbac_rule_validation.action(
@@ -204,7 +205,8 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         RBAC test for the neutron create_network:provider:segmentation_id
         """
         with self.override_role():
-            self._create_network(provider_network_type='vxlan',
+            self._create_network(provider_physical_network='public',
+                                 provider_network_type='vlan',
                                  provider_segmentation_id=200)
 
     @rbac_rule_validation.action(service="neutron",
@@ -274,7 +276,7 @@ class NetworksRbacTest(base.BaseNetworkRbacTest):
         try:
             with self.override_role():
                 self._update_network(self.network['id'],
-                                     provider_network_type='vxlan')
+                                     provider_network_type='vlan')
         except lib_exc.BadRequest as exc:
             # Per the api documentation, most plugins don't support updating
             # provider attributes

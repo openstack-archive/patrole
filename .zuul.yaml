@@ -73,6 +73,8 @@
     vars:
       devstack_localrc:
         RBAC_TEST_ROLES: admin
+      # https://storyboard.openstack.org/#!/story/2009048
+      tempest_exclude_regex: patrole_tempest_plugin.tests.api.volume.test_volume_actions_rbac.VolumesActionsV3RbacTest.test_force_detach_volume_from_instance
 
 - job:
     name: patrole-member
@@ -83,6 +85,8 @@
     vars:
       devstack_localrc:
         RBAC_TEST_ROLES: member
+      # https://storyboard.openstack.org/#!/story/2009216
+      tempest_exclude_regex: patrole_tempest_plugin.tests.api.volume.test_volume_types_extra_specs_rbac.VolumeTypesExtraSpecsRbacTest.test_show_volume_type_extra_specs
 
 - job:
     name: patrole-reader
@@ -93,6 +97,8 @@
     vars:
       devstack_localrc:
         RBAC_TEST_ROLES: reader
+      # https://storyboard.openstack.org/#!/story/2009216
+      tempest_exclude_regex: patrole_tempest_plugin.tests.api.volume.test_volume_types_extra_specs_rbac.VolumeTypesExtraSpecsRbacTest.test_show_volume_type_extra_specs
 
 - job:
     name: patrole-member-victoria
@@ -104,6 +110,9 @@
     parent: patrole-member
     nodeset: openstack-single-node-bionic
     override-checkout: stable/ussuri
+    vars:
+      # https://storyboard.openstack.org/#!/story/2009048
+      tempest_exclude_regex: patrole_tempest_plugin.tests.api.volume.test_volume_actions_rbac.VolumesActionsV3RbacTest.test_force_detach_volume_from_instance
 
 - job:
     name: patrole-member-train

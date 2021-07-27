@@ -34,6 +34,7 @@ class ImagesMemberRbacTest(base.BaseV2ImageRbacTest):
         super(ImagesMemberRbacTest, cls).setup_clients()
         cls.image_client = cls.os_primary.image_client_v2
         cls.image_member_client = cls.os_primary.image_member_client_v2
+        cls.alt_image_member_client = cls.os_alt.image_member_client_v2
 
     @rbac_rule_validation.action(service="glance",
                                  rules=["add_member"])
@@ -99,15 +100,12 @@ class ImagesMemberRbacTest(base.BaseV2ImageRbacTest):
         image_id = self.create_image(visibility='shared')['id']
         self.image_member_client.create_image_member(
             image_id,
-            member=self.tenant_id)
-        self.image_member_client.update_image_member(
-            image_id, self.tenant_id,
-            status='accepted')
+            member=self.alt_tenant_id)
         # Toggle role and update member
         with self.override_role():
-            self.image_member_client.update_image_member(
-                image_id, self.tenant_id,
-                status='pending')
+            self.alt_image_member_client.update_image_member(
+                image_id, self.alt_tenant_id,
+                status='accepted')
 
     @rbac_rule_validation.action(service="glance",
                                  rules=["get_members"])

@@ -35,7 +35,10 @@ class VolumeTypesExtraSpecsRbacTest(rbac_base.BaseVolumeRbacTest):
     def resource_setup(cls):
         super(VolumeTypesExtraSpecsRbacTest, cls).resource_setup()
         cls.vol_type = cls.create_volume_type()
-        cls.spec_key = data_utils.rand_name(cls.__name__ + '-Spec')
+
+    def setUp(self):
+        super(VolumeTypesExtraSpecsRbacTest, self).setUp()
+        self.spec_key = data_utils.rand_name('-VolumeTypesExtraSpec')
 
     def _create_volume_type_extra_specs(self, ignore_not_found=False):
         extra_specs = {self.spec_key: "val1"}
