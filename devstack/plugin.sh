@@ -84,6 +84,9 @@ function install_patrole_tempest_plugin {
        # TODO(gmann): Remove these once stable/victoria becomes EOL.
        # These policies were removed in Wallaby.
        iniset $TEMPEST_CONFIG policy-feature-enabled removed_nova_policies_wallaby False
+
+       # TODO(gmann): Remove these once stable/xena becomes EOL.
+       iniset $TEMPEST_CONFIG policy-feature-enabled changed_cinder_policies_xena False
     fi
 
     if [[ ${DEVSTACK_SERIES} == 'rocky' ]]; then
@@ -106,6 +109,9 @@ function install_patrole_tempest_plugin {
        # TODO(gmann): Remove these once stable/victoria becomes EOL.
        # These policies were removed in Wallaby.
        iniset $TEMPEST_CONFIG policy-feature-enabled removed_nova_policies_wallaby False
+
+       # TODO(gmann): Remove these once stable/xena becomes EOL.
+       iniset $TEMPEST_CONFIG policy-feature-enabled changed_cinder_policies_xena False
     fi
 
     if [[ ${DEVSTACK_SERIES} == 'stein' ]]; then
@@ -123,6 +129,8 @@ function install_patrole_tempest_plugin {
        # TODO(gmann): Remove these once stable/victoria becomes EOL.
        # These policies were removed in Wallaby.
        iniset $TEMPEST_CONFIG policy-feature-enabled removed_nova_policies_wallaby False
+       # TODO(gmann): Remove these once stable/xena becomes EOL.
+       iniset $TEMPEST_CONFIG policy-feature-enabled changed_cinder_policies_xena False
     fi
 
     if [[ ${DEVSTACK_SERIES} == 'train' ]]; then
@@ -132,6 +140,8 @@ function install_patrole_tempest_plugin {
        # TODO(gmann): Remove these once stable/victoria becomes EOL.
        # These policies were removed in Wallaby.
        iniset $TEMPEST_CONFIG policy-feature-enabled removed_nova_policies_wallaby False
+       # TODO(gmann): Remove these once stable/xena becomes EOL.
+       iniset $TEMPEST_CONFIG policy-feature-enabled changed_cinder_policies_xena False
     fi
 
     if [[ ${DEVSTACK_SERIES} == 'ussuri' ]]; then
@@ -140,14 +150,21 @@ function install_patrole_tempest_plugin {
        # TODO(gmann): Remove these once stable/victoria becomes EOL.
        # These policies were removed in Wallaby.
        iniset $TEMPEST_CONFIG policy-feature-enabled removed_nova_policies_wallaby False
+       # TODO(gmann): Remove these once stable/xena becomes EOL.
+       iniset $TEMPEST_CONFIG policy-feature-enabled changed_cinder_policies_xena False
     fi
 
     if [[ ${DEVSTACK_SERIES} == 'victoria' ]]; then
        # TODO(gmann): Remove these once stable/victoria becomes EOL.
        # These policies were removed in Wallaby.
        iniset $TEMPEST_CONFIG policy-feature-enabled removed_nova_policies_wallaby False
+       # TODO(gmann): Remove these once stable/xena becomes EOL.
+       iniset $TEMPEST_CONFIG policy-feature-enabled changed_cinder_policies_xena False
     fi
-
+    if [[ ${DEVSTACK_SERIES} == 'wallaby' ]]; then
+       # TODO(gmann): Remove these once stable/xena becomes EOL.
+       iniset $TEMPEST_CONFIG policy-feature-enabled changed_cinder_policies_xena False
+    fi
     iniset $TEMPEST_CONFIG patrole rbac_test_roles $RBAC_TEST_ROLES
 }
 

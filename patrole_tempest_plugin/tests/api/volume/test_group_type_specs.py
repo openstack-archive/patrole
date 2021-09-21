@@ -13,10 +13,27 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from patrole_tempest_plugin.tests.api.volume import rbac_base
+from tempest import config
 from tempest.lib import decorators
 
+from patrole_tempest_plugin.tests.api.volume import rbac_base
+
 from patrole_tempest_plugin import rbac_rule_validation
+
+CONF = config.CONF
+
+if CONF.policy_feature_enabled.changed_cinder_policies_xena:
+    _GROUP_SPEC_SHOW = "group:group_types_specs:get"
+    _GROUP_SPEC_LIST = "group:group_types_specs:get_all"
+    _GROUP_SPEC_CREATE = "group:group_types_specs:create"
+    _GROUP_SPEC_UPDATE = "group:group_types_specs:update"
+    _GROUP_SPEC_DELETE = "group:group_types_specs:delete"
+else:
+    _GROUP_SPEC_SHOW = "group:group_types_specs"
+    _GROUP_SPEC_LIST = "group:group_types_specs"
+    _GROUP_SPEC_CREATE = "group:group_types_specs"
+    _GROUP_SPEC_UPDATE = "group:group_types_specs"
+    _GROUP_SPEC_DELETE = "group:group_types_specs"
 
 
 class GroupTypeSpecsRbacTest(rbac_base.BaseVolumeRbacTest):
@@ -27,7 +44,7 @@ class GroupTypeSpecsRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('b2859734-00ad-4a22-88ee-541698e90d12')
     @rbac_rule_validation.action(
         service="cinder",
-        rules=["group:group_types_specs"]
+        rules=[_GROUP_SPEC_CREATE]
     )
     def test_group_type_specs_create(self):
         # Create new group type
@@ -47,7 +64,7 @@ class GroupTypeSpecsRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('469d0253-aa13-423f-8264-231ac17effbf')
     @rbac_rule_validation.action(
         service="cinder",
-        rules=["group:group_types_specs"]
+        rules=[_GROUP_SPEC_SHOW]
     )
     def test_group_type_specs_show(self):
         group_type = self.create_group_type()
@@ -65,7 +82,7 @@ class GroupTypeSpecsRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('2e706a4e-dec9-46bf-9426-1c5b6f3ce102')
     @rbac_rule_validation.action(
         service="cinder",
-        rules=["group:group_types_specs"]
+        rules=[_GROUP_SPEC_UPDATE]
     )
     def test_group_type_specs_update(self):
         group_type = self.create_group_type()
@@ -81,7 +98,7 @@ class GroupTypeSpecsRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('fd5e332b-fb2c-4957-ace9-11d60ddd5472')
     @rbac_rule_validation.action(
         service="cinder",
-        rules=["group:group_types_specs"]
+        rules=[_GROUP_SPEC_LIST]
     )
     def test_group_type_specs_list(self):
         group_type = self.create_group_type()
@@ -92,7 +109,7 @@ class GroupTypeSpecsRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('d9639a07-e441-4576-baf6-7ec732b16572')
     @rbac_rule_validation.action(
         service="cinder",
-        rules=["group:group_types_specs"]
+        rules=[_GROUP_SPEC_DELETE]
     )
     def test_group_type_specs_delete(self):
         group_type = self.create_group_type()

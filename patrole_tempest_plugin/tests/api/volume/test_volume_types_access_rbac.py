@@ -14,11 +14,19 @@
 #    under the License.
 
 from tempest.common import utils
+from tempest import config
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
 
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
+
+CONF = config.CONF
+
+if CONF.policy_feature_enabled.changed_cinder_policies_xena:
+    _TYPE_ACCESS_LIST = "volume_extension:volume_type_access:get_all_for_type"
+else:
+    _TYPE_ACCESS_LIST = "volume_extension:volume_type_access"
 
 
 class VolumeTypesAccessRbacTest(rbac_base.BaseVolumeRbacTest):
@@ -52,7 +60,7 @@ class VolumeTypesAccessRbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('af70e6ad-e931-419f-9200-8bcc284e4e47')
     @rbac_rule_validation.action(
         service="cinder",
-        rules=["volume_extension:volume_type_access"])
+        rules=[_TYPE_ACCESS_LIST])
     def test_list_type_access(self):
         self._add_type_access()
 

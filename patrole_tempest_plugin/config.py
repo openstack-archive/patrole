@@ -204,7 +204,12 @@ changed in Ussuri."""),
                 default=True,
                 help="""Are the Nova deprecated API policies available in the
 cloud (e.g. os_compute_api:os-networks)? These policies were
-changed in Victoria.""")
+changed in Victoria."""),
+    cfg.BoolOpt('changed_cinder_policies_xena',
+                default=True,
+                help="""Are the Cinder API policies changed in the
+cloud (e.g. 'group:group_types_specs')? These policies were
+changed in Xena.""")
 ]
 
 

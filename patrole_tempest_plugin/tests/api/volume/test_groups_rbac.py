@@ -14,6 +14,7 @@
 #    under the License.
 
 from tempest.common import waiters
+from tempest import config
 from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils import test_utils
 from tempest.lib import decorators
@@ -21,6 +22,17 @@ from tempest.lib import decorators
 from patrole_tempest_plugin import rbac_exceptions
 from patrole_tempest_plugin import rbac_rule_validation
 from patrole_tempest_plugin.tests.api.volume import rbac_base
+
+CONF = config.CONF
+
+if CONF.policy_feature_enabled.changed_cinder_policies_xena:
+    _GROUP_CREATE = "group:group_types:create"
+    _GROUP_UPDATE = "group:group_types:update"
+    _GROUP_DELETE = "group:group_types:delete"
+else:
+    _GROUP_CREATE = "group:group_types_manage"
+    _GROUP_UPDATE = "group:group_types_manage"
+    _GROUP_DELETE = "group:group_types_manage"
 
 
 class BaseGroupRbacTest(rbac_base.BaseVolumeRbacTest):
@@ -166,7 +178,7 @@ class GroupTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('2820f12c-4681-4c7f-b28d-e6925637dff6')
     @rbac_rule_validation.action(
         service="cinder",
-        rules=["group:group_types_manage"])
+        rules=[_GROUP_CREATE])
     def test_create_group_type(self):
         with self.override_role():
             self.create_group_type(ignore_notfound=True)
@@ -174,7 +186,7 @@ class GroupTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('f77f8156-4fc9-4f02-be15-8930f748e10c')
     @rbac_rule_validation.action(
         service="cinder",
-        rules=["group:group_types_manage"])
+        rules=[_GROUP_DELETE])
     def test_delete_group_type(self):
         group_type = self.create_group_type(ignore_notfound=True)
 
@@ -184,7 +196,7 @@ class GroupTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('67929954-4551-4d22-b15a-27fb6e56b711')
     @rbac_rule_validation.action(
         service="cinder",
-        rules=["group:group_types_manage"])
+        rules=[_GROUP_DELETE])
     def test_update_group_type(self):
         group_type = self.create_group_type()
         update_params = {

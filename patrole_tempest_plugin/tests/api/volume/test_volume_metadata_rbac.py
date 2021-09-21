@@ -23,6 +23,15 @@ from patrole_tempest_plugin.tests.api.volume import rbac_base
 
 CONF = config.CONF
 
+if CONF.policy_feature_enabled.changed_cinder_policies_xena:
+    _METADATA_SHOW = "volume_extension:volume_image_metadata:show"
+    _METADATA_SET = "volume_extension:volume_image_metadata:set"
+    _METADATA_REMOVE = "volume_extension:volume_image_metadata:remove"
+else:
+    _METADATA_SHOW = "volume_extension:volume_image_metadata"
+    _METADATA_SET = "volume_extension:volume_image_metadata"
+    _METADATA_REMOVE = "volume_extension:volume_image_metadata"
+
 
 class VolumeMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
@@ -99,7 +108,7 @@ class VolumeMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('39e8f82c-f1fc-4905-bf47-177ce2f71bb9')
     @rbac_rule_validation.action(
         service="cinder",
-        rules=["volume_extension:volume_image_metadata"])
+        rules=[_METADATA_SET])
     def test_list_volumes_details_image_metadata(self):
         self.volumes_client.update_volume_image_metadata(
             self.volume['id'], image_id=self.image_id)
@@ -117,7 +126,7 @@ class VolumeMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('53f94d52-0dd5-42cf-a3a4-59b35150b3d5')
     @rbac_rule_validation.action(
         service="cinder",
-        rules=["volume_extension:volume_image_metadata"])
+        rules=[_METADATA_SHOW])
     def test_show_volume_details_image_metadata(self):
         self.volumes_client.update_volume_image_metadata(
             self.volume['id'], image_id=self.image_id)
@@ -135,7 +144,7 @@ class VolumeMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('a9d9e825-5ea3-42e6-96f3-7ac4e97b2ed0')
     @rbac_rule_validation.action(
         service="cinder",
-        rules=["volume_extension:volume_image_metadata"])
+        rules=[_METADATA_SET])
     def test_update_volume_image_metadata(self):
         with self.override_role():
             self.volumes_client.update_volume_image_metadata(
@@ -146,7 +155,7 @@ class VolumeMetadataV3RbacTest(rbac_base.BaseVolumeRbacTest):
     @decorators.idempotent_id('a41c8eed-2051-4a25-b401-df036faacbdc')
     @rbac_rule_validation.action(
         service="cinder",
-        rules=["volume_extension:volume_image_metadata"])
+        rules=[_METADATA_REMOVE])
     def test_delete_volume_image_metadata(self):
         self.volumes_client.update_volume_image_metadata(
             self.volume['id'], image_id=self.image_id)
