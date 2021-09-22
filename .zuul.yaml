@@ -115,15 +115,6 @@
       tempest_exclude_regex: patrole_tempest_plugin.tests.api.volume.test_volume_actions_rbac.VolumesActionsV3RbacTest.test_force_detach_volume_from_instance
 
 - job:
-    name: patrole-member-train
-    parent: patrole-member
-    nodeset: openstack-single-node-bionic
-    override-checkout: stable/train
-    vars:
-      devstack_localrc:
-        USE_PYTHON3: True
-
-- job:
     name: patrole-multinode-admin
     parent: patrole-base-multinode
     voting: false
@@ -231,7 +222,6 @@
         - patrole-reader
         - patrole-member-victoria
         - patrole-member-ussuri
-        - patrole-member-train
         - patrole-multinode-admin
         - patrole-multinode-member
         - patrole-multinode-reader
@@ -247,4 +237,3 @@
       jobs:
         - patrole-member-victoria
         - patrole-member-ussuri
-        - patrole-member-train
