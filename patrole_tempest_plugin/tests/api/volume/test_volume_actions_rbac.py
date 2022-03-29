@@ -220,8 +220,8 @@ class VolumesActionsV3RbacTest(rbac_base.BaseVolumeRbacTest):
 
 class VolumesActionsV310RbacTest(rbac_base.BaseVolumeRbacTest):
     _api_version = 3
-    min_microversion = '3.10'
-    max_microversion = 'latest'
+    volume_min_microversion = '3.10'
+    volume_max_microversion = 'latest'
 
     @classmethod
     def setup_clients(cls):
@@ -283,8 +283,8 @@ class VolumesActionsV310RbacTest(rbac_base.BaseVolumeRbacTest):
 
 class VolumesActionsV312RbacTest(rbac_base.BaseVolumeRbacTest):
     _api_version = 3
-    min_microversion = '3.12'
-    max_microversion = 'latest'
+    volume_min_microversion = '3.12'
+    volume_max_microversion = 'latest'
 
     @decorators.idempotent_id('a654833d-4811-4acd-93ef-5ac4a34c75bc')
     @rbac_rule_validation.action(service="cinder", rules=["volume:get_all"])

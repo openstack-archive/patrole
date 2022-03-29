@@ -617,6 +617,11 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
                 '%s skipped as Neutron is required' % cls.__name__)
 
     @classmethod
+    def setup_clients(cls):
+        super(MiscPolicyActionsNetworkRbacTest, cls).setup_clients()
+        cls.servers_admin_client = cls.os_admin.servers_client
+
+    @classmethod
     def setup_credentials(cls):
         cls.prepare_instance_network()
         super(MiscPolicyActionsNetworkRbacTest, cls).setup_credentials()
@@ -659,16 +664,29 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
         # be deleted
         cls.addClassResourceCleanup(_cleanup_ports, cls.network['id'])
 
+    def _delete_and_wait_for_interface_detach(
+            self, server_id, port_id):
+        req_id = self.interfaces_client.delete_interface(
+            server_id, port_id
+        ).response['x-openstack-request-id']
+        waiters.wait_for_interface_detach(
+            self.servers_admin_client, server_id, port_id, req_id)
+
+    def _delete_and_wait_for_interface_detach_ignore_timeout(
+            self, server_id, port_id):
+        try:
+            self._delete_and_wait_for_interface_detach(
+                server_id, port_id)
+        except lib_exc.TimeoutException:
+            pass
+
     def _attach_interface_to_server(self):
         network_id = self.network['id']
         interface = self.interfaces_client.create_interface(
             self.server['id'], net_id=network_id)['interfaceAttachment']
         self.addCleanup(
-            waiters.wait_for_interface_detach, self.interfaces_client,
-            self.server['id'], interface['port_id'])
-        self.addCleanup(
             test_utils.call_and_ignore_notfound_exc,
-            self.interfaces_client.delete_interface,
+            self._delete_and_wait_for_interface_detach_ignore_timeout,
             self.server['id'], interface['port_id'])
         waiters.wait_for_interface_status(
             self.interfaces_client, self.server['id'],
@@ -715,11 +733,8 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
             interface = self.interfaces_client.create_interface(
                 self.server['id'], net_id=network_id)['interfaceAttachment']
         self.addCleanup(
-            waiters.wait_for_interface_detach, self.interfaces_client,
-            self.server['id'], interface['port_id'])
-        self.addCleanup(
             test_utils.call_and_ignore_notfound_exc,
-            self.interfaces_client.delete_interface,
+            self._delete_and_wait_for_interface_detach_ignore_timeout,
             self.server['id'], interface['port_id'])
         waiters.wait_for_interface_status(
             self.interfaces_client, self.server['id'],
@@ -737,10 +752,15 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
         interface = self._attach_interface_to_server()
 
         with self.override_role():
-            self.interfaces_client.delete_interface(self.server['id'],
-                                                    interface['port_id'])
-        waiters.wait_for_interface_detach(
-            self.interfaces_client, self.server['id'], interface['port_id'])
+            req_id = self.interfaces_client.delete_interface(
+                self.server['id'], interface['port_id'])
+        try:
+            # interface may be not found - we need to ignore that
+            waiters.wait_for_interface_detach(
+                self.servers_admin_client, self.server['id'],
+                interface['port_id'], req_id)
+        except lib_exc.NotFound:
+            pass
 
     @decorators.idempotent_id('6886d360-0d86-4760-b1a3-882d81fbebcc')
     @utils.requires_ext(extension='os-ips', service='compute')
@@ -784,10 +804,7 @@ class MiscPolicyActionsNetworkRbacTest(rbac_base.BaseV2ComputeRbacTest):
                 self.server['id'])['interfaceAttachment']
             network_id = interface['net_id']
             self.addCleanup(
-                waiters.wait_for_interface_detach, self.interfaces_client,
-                self.server['id'], interface['port_id'])
-            self.addCleanup(
-                self.interfaces_client.delete_interface,
+                self._delete_and_wait_for_interface_detach,
                 self.server['id'], interface['port_id'])
 
         with self.override_role():

@@ -183,8 +183,8 @@ class VolumesBackupsV318RbacTest(rbac_base.BaseVolumeRbacTest):
     _api_version = 3
     # The minimum microversion for showing 'os-backup-project-attr:project_id'
     # is 3.18.
-    min_microversion = '3.18'
-    max_microversion = 'latest'
+    volume_min_microversion = '3.18'
+    volume_max_microversion = 'latest'
 
     @classmethod
     def skip_checks(cls):
@@ -226,8 +226,8 @@ class VolumesBackupsV318RbacTest(rbac_base.BaseVolumeRbacTest):
 
 class VolumesBackupsV39RbacTest(rbac_base.BaseVolumeRbacTest):
     _api_version = 3
-    min_microversion = '3.9'
-    max_microversion = 'latest'
+    volume_min_microversion = '3.9'
+    volume_max_microversion = 'latest'
 
     @classmethod
     def skip_checks(cls):

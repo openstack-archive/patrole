@@ -38,8 +38,8 @@ else:
 
 class GroupTypeSpecsRbacTest(rbac_base.BaseVolumeRbacTest):
     _api_version = 3
-    min_microversion = '3.11'
-    max_microversion = 'latest'
+    volume_min_microversion = '3.11'
+    volume_max_microversion = 'latest'
 
     @decorators.idempotent_id('b2859734-00ad-4a22-88ee-541698e90d12')
     @rbac_rule_validation.action(

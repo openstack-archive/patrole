@@ -69,8 +69,8 @@ class BaseGroupRbacTest(rbac_base.BaseVolumeRbacTest):
 
 
 class GroupsV3RbacTest(BaseGroupRbacTest):
-    min_microversion = '3.13'
-    max_microversion = 'latest'
+    volume_min_microversion = '3.13'
+    volume_max_microversion = 'latest'
 
     @decorators.idempotent_id('43235328-66ae-424f-bc7f-f709c0ca268c')
     @rbac_rule_validation.action(
@@ -152,8 +152,8 @@ class GroupsV3RbacTest(BaseGroupRbacTest):
 
 class GroupV320RbacTest(BaseGroupRbacTest):
     _api_version = 3
-    min_microversion = '3.20'
-    max_microversion = 'latest'
+    volume_min_microversion = '3.20'
+    volume_max_microversion = 'latest'
 
     @decorators.idempotent_id('b849c1d4-3215-4f9d-b1e6-0aeb4b2b65ac')
     @rbac_rule_validation.action(
@@ -172,8 +172,8 @@ class GroupV320RbacTest(BaseGroupRbacTest):
 
 
 class GroupTypesV3RbacTest(rbac_base.BaseVolumeRbacTest):
-    min_microversion = '3.11'
-    max_microversion = 'latest'
+    volume_min_microversion = '3.11'
+    volume_max_microversion = 'latest'
 
     @decorators.idempotent_id('2820f12c-4681-4c7f-b28d-e6925637dff6')
     @rbac_rule_validation.action(

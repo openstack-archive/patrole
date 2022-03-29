@@ -61,8 +61,8 @@ class BaseGroupSnapshotsRbacTest(rbac_base.BaseVolumeRbacTest):
 
 class GroupSnaphotsV314RbacTest(BaseGroupSnapshotsRbacTest):
     _api_version = 3
-    min_microversion = '3.14'
-    max_microversion = 'latest'
+    volume_min_microversion = '3.14'
+    volume_max_microversion = 'latest'
 
     @classmethod
     def skip_checks(cls):
@@ -158,8 +158,8 @@ class GroupSnaphotsV314RbacTest(BaseGroupSnapshotsRbacTest):
 
 class GroupSnaphotsV319RbacTest(BaseGroupSnapshotsRbacTest):
     _api_version = 3
-    min_microversion = '3.19'
-    max_microversion = 'latest'
+    volume_min_microversion = '3.19'
+    volume_max_microversion = 'latest'
 
     @classmethod
     def skip_checks(cls):
