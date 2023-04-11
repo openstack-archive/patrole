@@ -1,6 +1,0 @@
----
-features:
-  - |
-    Added new feature flag called ``changed_cinder_policies_xena`` under
-    the configuration group ``[policy-feature-enabled]`` for testing Cinder
-    tests withe old and new policies.

@@ -1,6 +1,0 @@
----
-features:
-  - |
-    Add RBAC test for "backup:backup_project_attribute" which verifies
-    that the "os-backup-project-attr:project_id" attribute appears in
-    the response body once policy enforcement succeeds.

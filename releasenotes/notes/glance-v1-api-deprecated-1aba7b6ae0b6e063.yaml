@@ -1,4 +1,0 @@
----
-deprecations:
-  - Glance v1 APIs are deprecated and v2 APIs are current. Glance v1 APIs are
-    removed from volume tests and Glance v1 RBAC tests are removed.

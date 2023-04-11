@@ -1,6 +1,0 @@
----
-fixes:
-  - |
-    fixes an issue in VolumesBackupsV3RbacTest.test_reset_backup_status test
-    where the volume is not registered to be cleaned up after the test.
-    This fix cleans up the volume.

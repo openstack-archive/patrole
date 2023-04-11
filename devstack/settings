@@ -1,8 +1,0 @@
-# Settings needed for the Patrole Tempest plugin
-# ----------------------------------------------
-
-PATROLE_DIR=$DEST/patrole
-TEMPEST_DIR=$DEST/tempest
-TEMPEST_CONFIG_DIR=${TEMPEST_CONFIG_DIR:-$TEMPEST_DIR/etc}
-TEMPEST_CONFIG=$TEMPEST_CONFIG_DIR/tempest.conf
-RBAC_TEST_ROLE=${RBAC_TEST_ROLE:-admin}

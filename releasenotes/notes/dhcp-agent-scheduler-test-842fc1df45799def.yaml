@@ -1,5 +1,0 @@
----
-features:
-  - |
-    Added RBAC network test for listing dhcp agents on a hosting
-    network, providing coverage for the "get_dhcp-agents" policy.

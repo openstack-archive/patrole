@@ -1,6 +1,0 @@
----
-deprecations:
-  - |
-    Patrole will only support the v3 Tempest roles client for role
-    overriding operations. Support for the v2 version has been dropped
-    because the Keystone v2 API is slated for removal.

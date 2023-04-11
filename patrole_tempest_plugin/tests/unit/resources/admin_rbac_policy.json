@@ -1,7 +1,0 @@
-{
-	"admin_rule": "role:admin",
-	"is_admin_rule": "is_admin:True",
-	"alt_admin_rule": "is_admin:True or (role:admin and is_project_admin:True)",
-	"member_rule": "role:member",
-	"reader_rule": "role:reader"
-}

@@ -1,5 +1,0 @@
----
-features:
-  - |
-    Adds tests for os-console-output and os-remote-console
-    to compute module.

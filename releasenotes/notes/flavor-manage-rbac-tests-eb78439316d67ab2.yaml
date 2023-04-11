@@ -1,8 +1,0 @@
----
-features:
-  - |
-    Add test coverage for the os-flavor-manage compute API, which includes
-    tests for the following policy actions:
-
-      * "os_compute_api:os-flavor-manage:create"
-      * "os_compute_api:os-flavor-manage:delete"

@@ -1,5 +1,0 @@
----
-deprecations:
-  - |
-    Remove assisted volume snapshot RBAC tests, because the Tempest client
-    does not yet exist.

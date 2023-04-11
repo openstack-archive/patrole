@@ -1,5 +1,0 @@
----
-upgrade:
-  - |
-    All of the identity v2.0 API tests have been removed from Patrole because
-    the majority of the v2.0 API has been removed from the identity project.

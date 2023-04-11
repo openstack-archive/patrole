@@ -1,5 +1,0 @@
----
-features:
-  - |
-    Add RBAC test for communitizing image, providing coverage for the policy
-    action "communitize_image".

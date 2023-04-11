@@ -1,5 +1,0 @@
----
-upgrade:
-  - |
-    Remove deprecated ``[patrole].enable_rbac`` configuration option. To skip
-    Patrole tests going forward, use an appropriate regex.

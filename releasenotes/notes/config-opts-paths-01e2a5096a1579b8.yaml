@@ -1,8 +1,0 @@
----
-features:
-  - |
-    Refactored framework to remove unused "path"
-    argument. Added config options to allow the path
-    to the policy.json files for Nova, Keystone, Cinder,
-    Neutron, and Glance to be configured without needing
-    to manually change code.

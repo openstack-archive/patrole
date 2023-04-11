@@ -1,8 +1,0 @@
----
-upgrade:
-  - |
-    The ``admin_only`` kwarg has been removed from ``rbac_rule_validation``
-    decorator because it is no longer used by any tests. Besides that,
-    it should not be used because Patrole is dedicated to RBAC testing and
-    an admin-only check is not RBAC because it does not use ``oslo.policy``
-    library.

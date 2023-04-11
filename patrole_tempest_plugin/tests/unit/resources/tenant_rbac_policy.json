@@ -1,8 +1,0 @@
-{
-	"rule1": "tenant_id:%(network:tenant_id)s",
-	"rule2": "tenant_id:%(tenant_id)s",
-	"rule3": "project_id:%(project_id)s",
-	"rule4": "user_id:%(user_id)s",
-	"admin_tenant_rule": "role:admin and tenant_id:%(tenant_id)s",
-	"admin_user_rule": "role:admin and user_id:%(user_id)s"
-}

@@ -1,6 +1,0 @@
----
-upgrade:
-  - |
-    Python 2.7 support has been dropped. Last release of patrole
-    to support python 2.7 is patrole 0.8.0. The minimum version of Python now
-    supported by Patrole is Python 3.6.

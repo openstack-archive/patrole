@@ -1,7 +1,0 @@
----
-features:
-- |
-  Patrole now supports parsing custom YAML policy files, the new policy file
-  extension since Ocata. The function ``_get_policy_data`` has been renamed to
-  ``get_rules`` and been changed to re-use ``oslo_policy.policy.Rules.load``
-  function.

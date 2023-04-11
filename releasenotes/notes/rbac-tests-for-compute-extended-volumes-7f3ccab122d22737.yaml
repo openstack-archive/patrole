@@ -1,6 +1,0 @@
----
-features:
-  - |
-    Add RBAC tests for os-extended-volumes:volumes_attached policies, which
-    validate that "os-extended-volumes:volumes_attached" is returned in the
-    response body.

@@ -1,5 +1,0 @@
----
-features:
-  - |
-    test_flavor_rxtx_rbac now offers complete
-    coverage for the os-flavor-rxtx policy.

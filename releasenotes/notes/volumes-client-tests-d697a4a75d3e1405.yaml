@@ -1,8 +1,0 @@
----
-features:
-  - Added tests for volumes client functions set
-    bootable, reserve, unreserve, and update metadata.
-other:
-  - Renamed update metadata item and delete metadata
-    item tests to accurately reflect what actions are
-    being performed.

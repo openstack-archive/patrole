@@ -1,5 +1,0 @@
----
-features:
-  - |
-    Add complete RBAC test coverage for the compute APIs that enforce:
-    "os_compute_api:os-extended-server-attributes".

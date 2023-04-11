@@ -1,5 +1,0 @@
----
-features:
-  - |
-    Add RBAC test for creating a server backup, providing coverage for the
-    policy action: "os_compute_api:os-create-backup".

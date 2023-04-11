@@ -1,5 +1,0 @@
----
-features:
-  - |
-    Add RBAC tests related to the ``image_size`` compute policy action:
-    "os_compute_api:image-size".

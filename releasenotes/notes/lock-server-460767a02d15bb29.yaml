@@ -1,5 +1,0 @@
----
-features:
-  - |
-    Adds tests for Nova's lock_server policies: lock,
-    unlock, and unlock_override.

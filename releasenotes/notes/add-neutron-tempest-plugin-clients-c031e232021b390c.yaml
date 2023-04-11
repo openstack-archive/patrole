@@ -1,7 +1,0 @@
----
-features:
-  - |
-    In order to strive toward complete test coverage for the services it
-    tests, Patrole now offers RBAC coverage for the APIs included in
-    neutron-tempest-plugin. If this plugin is not installed or enabled, then
-    Patrole will skip those tests.

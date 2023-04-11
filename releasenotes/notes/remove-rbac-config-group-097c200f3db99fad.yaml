@@ -1,5 +1,0 @@
----
-upgrade:
-  - |
-    The ``[rbac]`` config group has been removed. Use the ``[patrole]`` group
-    instead which contains the exact same options.

@@ -1,4 +1,0 @@
----
-features:
-  - Add test_oauth_tokens_rbac.py with RBAC test cases related to
-    the OS-OAUTH1 Keystone v3 extension API.

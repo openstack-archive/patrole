@@ -1,6 +1,0 @@
-=====================
-v0.7.0 Release Notes
-=====================
-
-.. release-notes:: 0.7.0 Release Notes
-   :version: 0.7.0

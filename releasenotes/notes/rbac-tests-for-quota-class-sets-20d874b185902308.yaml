@@ -1,8 +1,0 @@
----
-features:
-  - |
-    Add RBAC tests for compute quota class sets API, providing coverage for
-    the following policy actions:
-
-      * os_compute_api:os-quota-class-sets:show
-      * os_compute_api:os-quota-class-sets:update
